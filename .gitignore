@@ -1,0 +1,15 @@
+CVS
+.*
+!.gitignore
+*.log
+output
+tmp
+*.pyc
+*.*~
+*.dll
+*.Manifest
+build
+dist
+MANIFEST
+*synctex*
+*.bib

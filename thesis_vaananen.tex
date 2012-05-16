@@ -1,0 +1,99 @@
+\documentclass[english,12pt]{article}
+
+% LAYOUT
+\usepackage{mylayout}
+
+% LANGUAGE AND FONT
+%\setmainlanguage{english}
+%\setmainfont[Mapping={tex-text},Numbers={OldStyle}]{Linux Libertine O}
+%\setmonofont[Scale=0.8]{DejaVu Sans Mono}
+
+\newfontfamily\texgyreheros[
+	Path=/usr/share/texmf/fonts/opentype/public/tex-gyre/,
+    Extension=.otf,
+    UprightFont= *-regular,
+    BoldFont=*-bold,
+    ItalicFont=*-italic,
+    BoldItalicFont=*-bolditalic,
+    Mapping={tex-text}
+]{texgyreheros}
+
+\usepackage{aaltothesis}
+
+
+
+% PDF SETUP
+% \usepackage[unicode,bookmarks, colorlinks, breaklinks,
+% pdftitle={Dippa},
+% pdfauthor={Ville Väänänen},
+% pdfproducer={xetex}
+% ]{hyperref}
+%\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=MidnightBlue} 
+%\usepackage{mcode}
+
+%\usepackage[shadow]{todonotes}
+% MATH
+\usepackage{mymath}
+%\everymath{\displaystyle}
+
+
+%\setlength{\parindent}{0in}
+
+\newcommand{\Th}{\gv{\theta}}
+\newcommand{\LH}{\Pdf{\v{Y}}{\Th}}
+\newcommand{\LHf}[1]{\Pdf{\v{Y}}{#1}}
+\newcommand{\LHh}{\Pdf{\v{Y}}{\hat{\Th}}}
+\newcommand{\lLH}{L\!\left(\Th\right)}
+\newcommand{\cLH}{\Pdf{\v{X},\v{Y}}{\Th}}
+\newcommand{\lcLH}{\log\cLH}
+\newcommand{\LB}{\mathcal{L}}
+\newcommand{\Lb}{\mathfrak{L}}
+\newcommand{\KL}[2]{\mathrm{KL}\left(#1\|#2\right)}
+
+
+
+% SECTION NUMBERING
+%\setsecnumdepth{subsubsection}
+%\counterwithout{section}{chapter}
+%\renewcommand{\thesubsubsection}{\thesubsection{\large\scshape\alph{subsubsection}}}
+%\titleformat{\subsubsection}{\large\scshape}{\alph{subsubsection} )}{10pt}{}
+%\titleformat{\section}{\Huge}{\thesection}{10pt}{}
+%\titleformat{\subsection}{\Large}{\thesubsection}{10pt}{}
+
+
+
+% BIBLIOGRAPHY
+%\usepackage[hyperref=true,backend=biber]{biblatex} % TEXLIPSE BUG: backend
+% cannot be first
+%\addbibresource{SSM_PE.bib}
+
+
+%\checkandfixthelayout
+%% Vaakasuunnan mitat, �L� KOSKE!
+\setlength{\hoffset}{-1in}
+\setlength{\oddsidemargin}{35mm}
+\setlength{\evensidemargin}{25mm}
+\setlength{\textwidth}{15cm}
+%% Pystysuunnan mitat,ÄLÄ KOSKE!
+\setlength{\voffset}{-1in}
+\setlength{\headsep}{7mm}
+\setlength{\headheight}{1em}
+\setlength{\topmargin}{25mm-\headheight-\headsep}
+\setlength{\textheight}{23cm}
+
+\begin{document}
+
+\input{coverpage}
+\makecoverpage
+
+
+\input{abstract}
+\newpage
+
+
+\addcontentsline{toc}{section}{Contents}
+\tableofcontents
+
+
+\end{document}
+
