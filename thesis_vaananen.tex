@@ -2,12 +2,9 @@
 
 % LAYOUT
 \usepackage{mylayout}
+\setmainlanguage{english}
 
-% LANGUAGE AND FONT
-%\setmainlanguage{english}
-%\setmainfont[Mapping={tex-text},Numbers={OldStyle}]{Linux Libertine O}
-%\setmonofont[Scale=0.8]{DejaVu Sans Mono}
-
+% replaces Helvetica in the cover page
 \newfontfamily\texgyreheros[
 	Path=/usr/share/texmf/fonts/opentype/public/tex-gyre/,
     Extension=.otf,
@@ -23,12 +20,12 @@
 
 
 % PDF SETUP
-% \usepackage[unicode,bookmarks, colorlinks, breaklinks,
-% pdftitle={Dippa},
-% pdfauthor={Ville Väänänen},
-% pdfproducer={xetex}
-% ]{hyperref}
-%\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=MidnightBlue} 
+\usepackage[unicode,bookmarks, colorlinks, breaklinks,
+pdftitle={Dippa},
+pdfauthor={Ville Väänänen},
+pdfproducer={xetex}
+]{hyperref}
+\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=MidnightBlue}
 %\usepackage{mcode}
 
 %\usepackage[shadow]{todonotes}
@@ -36,8 +33,6 @@
 \usepackage{mymath}
 %\everymath{\displaystyle}
 
-
-%\setlength{\parindent}{0in}
 
 \newcommand{\Th}{\gv{\theta}}
 \newcommand{\LH}{\Pdf{\v{Y}}{\Th}}
@@ -51,30 +46,15 @@
 \newcommand{\KL}[2]{\mathrm{KL}\left(#1\|#2\right)}
 
 
-
-% SECTION NUMBERING
-%\setsecnumdepth{subsubsection}
-%\counterwithout{section}{chapter}
-%\renewcommand{\thesubsubsection}{\thesubsection{\large\scshape\alph{subsubsection}}}
-%\titleformat{\subsubsection}{\large\scshape}{\alph{subsubsection} )}{10pt}{}
-%\titleformat{\section}{\Huge}{\thesection}{10pt}{}
-%\titleformat{\subsection}{\Large}{\thesubsection}{10pt}{}
-
-
-
 % BIBLIOGRAPHY
-%\usepackage[hyperref=true,backend=biber]{biblatex} % TEXLIPSE BUG: backend
-% cannot be first
-%\addbibresource{SSM_PE.bib}
+\usepackage[hyperref=true,backend=biber]{biblatex} % TEXLIPSE BUG: backend cannot be first
+\addbibresource{Dippa.bib}
 
 
-%\checkandfixthelayout
-%% Vaakasuunnan mitat, �L� KOSKE!
 \setlength{\hoffset}{-1in}
 \setlength{\oddsidemargin}{35mm}
 \setlength{\evensidemargin}{25mm}
 \setlength{\textwidth}{15cm}
-%% Pystysuunnan mitat,ÄLÄ KOSKE!
 \setlength{\voffset}{-1in}
 \setlength{\headsep}{7mm}
 \setlength{\headheight}{1em}
@@ -87,12 +67,177 @@
 \makecoverpage
 
 
-\input{abstract}
-\newpage
+%\input{abstract}
+%\newpage
 
 
 \addcontentsline{toc}{section}{Contents}
 \tableofcontents
+
+%\input{abbr}
+
+
+%% Sivulaskurin viilausta opinnäytteen vaatimusten mukaan:
+%% Aloitetaan sivunumerointi arabialaisilla numeroilla (ja jätetään
+%% leipätekstin ensimmäinen sivu tyhjäksi, 
+%% ks. alla \thispagestyle{empty}).
+%% Pakotetaan lisäksi ensimmäinen varsinainen tekstisivu alkamaan 
+%% uudelta sivulta clearpage-komennolla. 
+%% clearpage on melkein samanlainen kuin newpage, mutta 
+%% flushaa myös LaTeX:n floatit 
+%% 
+%% Corrects the page numbering, there is no need to change these
+\cleardoublepage
+\storeinipagenumber
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+%% Leipäteksti alkaa
+%%
+%% Text body begins. Note that since the text body
+%% is mostly in Finnish the majority of comments are
+%% also in Finnish after this point. There is no point in explaining
+%% Finnish-language specific thesis conventions in English.
+\section{Introduction}
+
+%% Ensimmäinen sivu tyhjäksi
+%% 
+%% Leave first page empty
+\thispagestyle{empty}
+
+This thesis is about parameter estimation
+in dynamical systems\ldots
+
+
+%% Opinnäytteessä jokainen osa alkaa uudelta sivulta, joten \clearpage
+%%
+%% In a thesis, every section starts a new page, hence \clearpage
+\clearpage
+
+\section{State-space models}
+
+In this report we will be focusing on models that
+are defined in so called \emph{state space} form.
+The state is denoted with $\v{x}$, and it belongs to the
+space $\R^d$.
+More specifically the models we are considering can be written as
+
+These equations can be understood as specifying a model,
+where at every step $k$ the state $\v{x}_k$ is observed
+by a noisy observation (or measurement) $\v{y}_k$. Furthermore the states
+evolve as specified by the equation \eqref{eq:dynamics}.
+Thus the states form a \emph{Markov chain}. 
+
+\subsection{Linear}
+
+More specifically the models we are considering can be written as
+\begin{subequations}
+	\label{eq:the_model}
+	\begin{align}
+		\v{x}_k&=\v{A}\v{x}_{k-1}+\v{q}_{k-1} \label{eq:dynamics}\\
+		\v{y}_k&=\v{H}\v{x_k}+\v{r}_k \label{eq:measurements}\\
+		\v{q}_{k-1} &\sim \N{0,\v{Q}} \label{eq:pdf_dynamic_noise}\\
+		\v{r}_{k} &\sim \N{0,\v{R}} \label{eq:pdf_measurement_noise}\\
+		\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}
+	\end{align}
+\end{subequations}
+Equations \eqref{eq:dynamics}, \eqref{eq:measurements}, \eqref{eq:pdf_dynamic_noise} and \eqref{eq:pdf_measurement_noise}
+together specify the following conditional distributions
+\begin{align}
+		\v{x}_{k}|\v{x}_{k-1} &\sim \N{\v{A}\v{x}_{k-1},\v{Q}} \label{eq:pdf_xk_xk-1}\\
+		\v{y}_{k}|\v{x}_{k} &\sim \N{\v{H}\v{x_k},\v{R}}  \label{eq:pdf_yk_xk}
+\end{align}
+
+Linearity in this case means that $\v{x}_k$ is a linear combination
+of the elements of $\v{x}_{k-1}$ and $\v{y}_k$ is a linear combination
+of the elements of $\v{x}_{k}$ (with additive noise in both cases). Since
+the noise terms $\v{q}_{k-1}$ and $\v{r}_{k}$ are assumed to be white and
+Gaussian, these models are called linear-Gaussian.
+
+\subsection{Nonlinear}
+
+
+The SSM model is now
+\begin{subequations}
+	\label{eq:the_model}
+	\begin{align}
+		\v{x}_k&=\v{f}(\v{x}_{k-1})+\v{q}_{k-1} \label{eq:dynamics_nonlinear}\\
+		\v{y}_k&=\v{h}(\v{x_k})+\v{r}_k \label{eq:measurements_nonlinear}\\
+		\v{q}_{k-1} &\sim \N{0,\v{Q}} \label{eq:pdf_dynamic_noise_nonlinear}\\
+		\v{r}_{k} &\sim \N{0,\v{R}} \label{eq:pdf_measurement_noise_nonlinear}\\
+		\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}
+	\end{align}
+\end{subequations}
+We assume an implicit dependence of $f$ and $h$ on the parameter $\Th$.
+
+\subsection{Linear in the parameters}
+
+Suppose the function $\v{f}$ is linear in the parameters and the dimension of the state $\v{x}$ is $d$.
+Then in the most general case $\v{f}(\v{x}):\R^d\to\R^d$ is a linear
+combination of vector valued functions $\gv{\rho}_k(\v{x}):\R^d\to\R^{d_k}$  
+and the parameters are matrices $\gv{\Phi}_k\in\R^{d\times d_k}$. More specifically,
+we have
+
+\begin{align}
+\begin{split}
+	\v{f}(\v{x})&=\gv{\Phi}\gv{\rho}_1(\v{x})+\dots+\gv{\Phi}_m\gv{\rho}_m(\v{x})\\
+	&=
+	\begin{bmatrix}
+		\gv{\Phi}_1 & \dots & \gv{\Phi}_m
+	\end{bmatrix}
+	\begin{bmatrix}
+		\gv{\rho}_1(\v{x})\\
+		\vdots\\ 
+		\gv{\rho}_m(\v{x})
+	\end{bmatrix}\\
+	&=\v{A}\v{g}(\v{x}),
+\end{split}
+\end{align}
+where $\v{A}\in\R^{d\times\sum_{k=1}^m d_k}$ and $\v{g}(\v{x}):\R^d\to \R^{\sum_{k=1}^m d_k}$ . 
+For example, in case of the function
+\begin{align}
+	f(x,t)&=ax+b\frac{x}{1+x^2}+c\cos(1.2t)
+\end{align}
+we would have
+\begin{align}
+	f(x,t)&=
+	\begin{bmatrix}
+		a & b & c
+	\end{bmatrix}
+	\begin{bmatrix}
+		x\\
+		\frac{x}{1+x^2}\\ 
+		\cos(1.2t)
+	\end{bmatrix}
+\end{align}
+Suppose now, that the matrix $A$ depends on parameters $\v{s}$.
+
+
+
+\section{Optimal filtering and smoothing}
+
+\subsection{Kalman filtering}
+\subsection{RTS smoothing}
+\subsection{Example}
+\subsection{Sigma point methods}
+\subsubsection{Unscented Kalman filter}
+\subsubsection{Gauss-Hermite Kalman filter}
+\subsubsection{Cubature Kalman filter}
+\subsection{Example}
+\subsection{Particle filtering}
+
+\section{Parameter estimation}
+
+\section{Nonlinear optimization}
+\subsection{Marginal likelihood}
+\subsection{Gradient}
+
+\section{Expectation Maximization}
+
+
+
+
 
 
 \end{document}
