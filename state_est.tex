@@ -1,0 +1,311 @@
+\subsection{Linear-Gaussian State Space Models}
+
+Linear-Gaussian SSMs can be defined with the following equations
+\begin{subequations}
+	\label{eq:the_model}
+	\begin{align}
+		\v{x}_k&=\v{A}\v{x}_{k-1}+\v{q}_{k-1} \label{eq:dynamics}\\
+		\v{y}_k&=\v{H}\v{x_k}+\v{r}_k \label{eq:measurements}\\
+		\v{q}_{k-1} &\sim \N{0,\v{Q}} \label{eq:pdf_dynamic_noise}\\
+		\v{r}_{k} &\sim \N{0,\v{R}} \label{eq:pdf_measurement_noise}\\
+		\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}
+	\end{align}
+\end{subequations}
+Equations \eqref{eq:dynamics}, \eqref{eq:measurements}, \eqref{eq:pdf_dynamic_noise} and \eqref{eq:pdf_measurement_noise}
+together specify the following conditional distributions
+\begin{align}
+		\v{x}_{k}|\v{x}_{k-1} &\sim \N{\v{A}\v{x}_{k-1},\v{Q}} \label{eq:pdf_xk_xk-1}\\
+		\v{y}_{k}|\v{x}_{k} &\sim \N{\v{H}\v{x_k},\v{R}}  \label{eq:pdf_yk_xk}
+\end{align}
+
+Linearity in this case means that $\v{x}_k$ is a linear combination\todo{Better wording}
+of the elements of $\v{x}_{k-1}$ and $\v{y}_k$ is a linear combination
+of the elements of $\v{x}_{k}$ (with additive noise in both cases). Since
+the noise terms $\v{q}_{k-1}$ and $\v{r}_{k}$ are assumed to be white and
+Gaussian, these models are called linear-Gaussian.
+
+\subsubsection{Kalman filter}
+
+To derive the expression for the log-likelihood function in our case,
+let us first see what the Kalman filter calculates. Firstly,
+the recursions are as follows \parencite{Mbalawataa}:
+\begin{subequations}
+\begin{align}
+	\shortintertext{prediction:}
+	\v{m}_{k|k-1}&=\v{A}\v{m}_{k-1|k-1}\\
+	\v{P}_{k|k-1}&=\v{A}\v{P}_{k-1|k-1}\v{A}^T+\v{Q}
+	\shortintertext{update:}
+	\v{v}_k&=\v{y}_k-\v{H}\v{m}_{k|k-1}\\
+	\v{S}_k&=\v{H}\v{P}_{k|k-1}\v{H}^T+\v{R}\\
+	\v{K}_k&=\v{P}_{k|k-1}\v{H}^T\v{S}_{k}^{-1}\\
+	\v{m}_{k|k}&=\v{m}_{k|k-1}+\v{K}_k\v{v}_k\\
+	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^T
+\end{align}
+\end{subequations}
+This includes the sufficient statistics for the $T$
+joint distributions 
+\begin{align}
+\begin{split}
+	\Pdf{\v{x}_k,\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
+	&=N\left(
+	\begin{bmatrix}
+		\v{x}_k\\\v{y}_{k}
+	\end{bmatrix}\left\vert
+	\begin{bmatrix}
+		\v{m}_{k|k-1}\\
+		\v{H}\v{m}_{k|k-1}
+	\end{bmatrix}
+	\right.,
+	\begin{bmatrix}
+		\v{P}_{k|k-1} & \v{P}_{k|k-1}\v{H}^T\\
+		\v{H}\v{P}_{k|k-1}^T & \v{S}_k  
+	\end{bmatrix}
+	\right)\\
+	\Rightarrow \Pdf{\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
+	&=N\left(\cond{\v{y}_k}{\v{H}\v{m}_{k|k-1},\v{S}_k }\right)
+\end{split}
+	\label{eq:joint_per_kalmanstep}
+\end{align}
+
+\subsubsection{RTS Smoother}
+
+Finally, the expectations in \eqref{eq:sum_expectations} can be
+calculated with with the combined use of the Kalman filter and the 
+\emph{Rauch-Tung-Striebel} (RTS) smoother:
+
+\begin{align}
+	\E{\v{x}_k}&=\v{m}_{k|N}\\
+	\E{\v{x}_k\v{x}_{k|k-1}T}&=\v{P}_{k|N}+\v{m}_{k|N}(\v{m}_{k|N})^T\\
+	\E{\v{x}_k\v{x}_{k-1}^T}&=\v{C}_{k|N}+\v{m}_{k|N}(\v{m}_{k-1|N})^T,
+\end{align}
+where $\v{m}_{k|N}$ is the mean and $\v{P}_{k|N}$ is the variance of the state 
+$\v{x}_k$ given the observations $\v{y}_1,\dots,\v{y}_N$. The standard
+RTS smoother gives the statistics $\v{m}_{k|N}$ and $\v{P}_{k|N}$.
+The cross-timestep variance $\v{C}_{k|N}$ can be computed with an additional
+recursive formula alongside the usual RTS smoother recursions
+\begin{subequations}
+\begin{align}
+	\v{J}_k&=\v{P}_{k|k}\v{A}^T\v{P}_{k|k+1}^{-1}\\
+	\v{m}_{k|N}&=\v{m}_{k|k}+\v{J}_k\left(\v{m}_{k+1|N}-\v{m}_{k+1|k}\right)\\
+	\v{P}_{k|N}&=\v{P}_{k|k}+\v{J}_k\left(\v{P}_{k+1|N}-\v{P}_{k+1|k}\right)\v{J}_k^T\\
+	\v{C}_{k|N}&=\v{P}_{k|k}\v{J}_{k-1}^T+\v{J}_k\left(\v{C}_{k+1|N}-\v{A}\v{P}_{k|k}\right)\v{J}_{k-1}^T\\
+\end{align}
+\end{subequations}
+For more specific details see \cite{Gibson2005}. All in all, the E-step of the 
+EM algorithm in linear-Gaussian SSM:s corresponds to computing
+the matrices in \eqref{eq:sum_expectations} with the help of the Kalman filter and
+the RTS smoother. In \cite{Elliott1999} a new kind of filter is presented that
+can compute \eqref{eq:sum_expectations} with only forward recursions. 
+
+\subsection{Nonlinear-Gaussian SSMs}
+
+The SSM model is now
+\begin{subequations}
+	\label{eq:the_model}
+	\begin{align}
+		\v{x}_k&=\v{f}(\v{x}_{k-1})+\v{q}_{k-1} \label{eq:dynamics_nonlinear}\\
+		\v{y}_k&=\v{h}(\v{x_k})+\v{r}_k \label{eq:measurements_nonlinear}\\
+		\v{q}_{k-1} &\sim \N{0,\v{Q}} \label{eq:pdf_dynamic_noise_nonlinear}\\
+		\v{r}_{k} &\sim \N{0,\v{R}} \label{eq:pdf_measurement_noise_nonlinear}\\
+		\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}
+	\end{align}
+\end{subequations}
+We assume an implicit dependence of $f$ and $h$ on the parameter $\Th$.
+
+\subsubsection{Assumed density filtering}
+
+
+One approach to forming Gaussian approximations is to assume a
+Gaussian probability density function with mean and variance that match the
+actual ones. Let 
+
+\begin{align}
+	\v{a}&\sim \N{\v{m},\gv{\Sigma}_a} \label{eq:pa}\\
+	\v{b}|\v{a}&\sim \N{\v{f}(\v{a}),\gv{\Sigma}_{b|a}} \label{eq:pb_given_a}
+\end{align}
+then 
+\begin{align}
+	\label{eq:joint_nongaussian}
+	\Pdf{\v{a},\v{b}}&=\N{\v{m},\gv{\Sigma}_a}\N{\v{f}(\v{a}),\gv{\Sigma}_{b|a}}
+\end{align}
+is only Gaussian if $\v{f}(\v{a})$ is linear. Let the Gaussian approximation
+to \eqref{eq:joint_nongaussian} be
+
+\begin{align}
+	\label{eq:joint_gaussian_approx}
+	\Pdf{\begin{bmatrix}
+		\v{a}\\
+		\v{b}
+	\end{bmatrix}}&\approx
+	\N{
+	\begin{bmatrix}
+		\gv{\mu}_a\\
+		\gv{\mu}_b
+	\end{bmatrix},
+	\begin{bmatrix}
+		\gv{\Sigma}_{aa}&\gv{\Sigma}_{ab}\\
+		\gv{\Sigma}_{ba}&\gv{\Sigma}_{bb}
+	\end{bmatrix}
+	}
+\end{align}
+Then since the marginal distributions of a Gaussian distribution are also
+Gaussian, we have to have
+\begin{align}
+	\gv{\mu}_a&=\v{m}\\
+	\gv{\Sigma}_{aa}&=\gv{\Sigma}_{a}\\
+	\gv{\mu}_b&=\defint{}{}{\v{b}\Pdf{\v{b}}}{\v{b}} \label{eq:mub}\\
+	\gv{\Sigma}_{bb}&=\defint{}{}{(\v{b}-\gv{\mu}_b)(\v{b}-\gv{\mu}_b)^T\Pdf{\v{b}}}{\v{b}} \label{eq:varb}
+\end{align}
+Both \eqref{eq:mub} and \eqref{eq:varb} can be written in terms of \eqref{eq:pa} and \eqref{eq:pb_given_a}.
+To see this, let us rewrite \eqref{eq:mub} as
+\begin{align}
+	\gv{\mu}_b&=\defint{}{}{\v{b}\Pdf{\v{b}}}{\v{b}} \nonumber\\
+	&=\defint{}{}{\v{b}\defint{}{}{\Pdf{\v{b}}{\v{a}}\Pdf{\v{a}}}{\v{a}}}{\v{b}}\nonumber\\
+	&=\defint{}{}{\defint{}{}{\v{b}\Pdf{\v{b}}{\v{a}}}{\v{b}}\Pdf{\v{a}}}{\v{a}}\nonumber\\
+	&=\defint{}{}{\v{f}(\v{a})\N{\v{m},\gv{\Sigma}_a}}{\v{a}}\label{eq:mean_int}
+\end{align}
+and \eqref{eq:varb} as
+\begin{align}
+	\gv{\Sigma}_{bb}&=\defint{}{}{\v{b}\v{b}^T\Pdf{\v{b}}}{\v{b}}-\gv{\mu}_b\gv{\mu}_b^T \nonumber\\
+	%&=\defint{}{}{\defint{}{}{\lbrack(\v{b}-\v{f}(\v{a}))(\v{b}-\v{f}(\v{a}))^T+\v{f}(\v{a})\v{f}(\v{a})^T\rbrack\Pdf{\v{b}}{\v{a}}}{\v{b}}\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^T\\
+	\begin{split}
+	&=\defint{}{}{\v{f}(\v{a})\v{f}(\v{a})^T\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^T\\
+	&\qquad+\defint{}{}{\defint{}{}{\lbrack(\v{b}-\v{f}(\v{a}))(\v{b}-\v{f}(\v{a}))^T\rbrack\Pdf{\v{b}}{\v{a}}}{\v{b}}\Pdf{\v{a}}}{\v{a}}
+	\end{split}\nonumber\\
+	&=\defint{}{}{(\v{f}(\v{a})-\gv{\mu}_b)(\v{f}(\v{a})-\gv{\mu}_b)^T\N{\v{m},\gv{\Sigma}_a}}{\v{a}}+\gv{\Sigma}_{b|a}\label{eq:var_int}.
+\end{align}
+Finally, the cross-covariance $\gv{\Sigma}_{ab}=\gv{\Sigma}_{ba}^T$ similarly reads
+\begin{align}
+	\gv{\Sigma}_{ab}&=\defint{}{}{\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^T\Pdf{\v{a},\v{b}}}{\v{a}}}{\v{b}} \nonumber\\
+	&=\defint{}{}{\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^T\Pdf{\v{a}}\Pdf{\v{b}}{\v{a}}}{\v{a}}}{\v{b}} \nonumber\\
+	&=\defint{}{}{(\v{a}-\gv{\mu}_a)(\defint{}{}{\v{b}\Pdf{\v{b}}{\v{a}}}{\v{b}}-\gv{\mu}_b)^T\Pdf{\v{a}}}{\v{a}} \nonumber\\
+	&=\defint{}{}{(\v{a}-\v{m})(\v{f}(\v{a})-\gv{\mu}_b)^T\N{\v{m},\gv{\Sigma}_a}}{\v{a}}\label{eq:cross_cov_int}
+\end{align}
+
+
+ 
+To see how this idea can be used to form a Gaussian
+approximation to \eqref{eq:joint_posterior_of_consecutive_states}, let us
+rewrite \eqref{eq:joint_posterior_of_consecutive_states} as
+\begin{align}
+\begin{split}
+	\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}}&=\Pdf{\v{x}_{k-1}}{\v{x}_{k},\v{Y}_{1:k-1}}\Pdf{\v{x}_{k}}{\v{Y}}\\
+	&=\frac{\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}_{1:k-1}}\Pdf{\v{x}_{k}}{\v{Y}}}{\Pdf{\v{x}_{k}}{\v{Y}_{1:k-1}}},
+	\label{eq:joint_smooth}
+\end{split}
+\end{align}
+where the dependance on the current estimate of the parameter $\hat{\Th}_j$
+is suppressed for clarity. Since the Gaussian approximation to
+\eqref{eq:joint_posterior_of_consecutive_states} will be calculated by forward
+(filtering) and backward (smoothing) recursions, let us assume that we already
+have available the Gaussian approximation
+
+\begin{align}
+	%\Pdf{\v{x}_{k}}{\v{Y},\hat{\Th}_j} &\approx \N{\v{m}_{k|N},\v{P}_{k|N}}\\
+	\Pdf{\v{x}_{k-1}}{\v{Y}_{1:k-1},\hat{\Th}_j} &\approx \N{\v{m}_{k-1|k-1},\v{P}_{k-1|k-1}}.
+	%\Pdf{\v{x}_{k}}{\v{Y}_{1:k-1},\hat{\Th}_j} &\approx \N{\v{m}_{k|k-1},\v{P}_{k|k-1}}.
+\end{align}
+The Gaussian approximation to 
+\begin{align}
+\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}_{1:k-1}}=\N{\v{x}_{k}}{\v{f}(\v{x}_{k-1}),\v{Q}}\Pdf{\v{x}_{k-1}}{\v{Y}_{1:k-1}}
+\end{align}
+is then given by application of equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} 
+\begin{align}
+	\begin{split}
+	\v{m}_{k|k-1}&=\defint{}{}{\v{f}(\v{x}_{k-1})\N{\v{x}_{k-1}}{\v{m}_{k-1|k-1},\v{P}_{k-1|k-1}}}{\v{x}_{k-1}}\label{eq:prediction_mean_intergral}
+	\end{split}\\
+	\begin{split}
+	\v{P}_{k|k-1}&=\defint{}{}{(\v{f}(\v{x}_{k-1})-\v{m}_{k|k-1})(\v{f}(\v{x}_{k-1})-\v{m}_{k|k-1})^T\\
+	&\qquad\N{\v{x}_{k-1}}{\v{m}_{k-1|k-1},\v{P}_{k-1|k-1}}}{\v{x}_{k-1}}+\v{Q}\label{eq:prediction_variance_intergral}
+	\end{split}\\
+	\begin{split}
+		\v{C}_{k^-}&=\defint{}{}{(\v{x}_{k-1}-\v{m}_{k-1|k-1})(\v{f}(\v{x}_{k-1})-\v{m}_{k|k-1})^T\\
+		&\qquad\N{\v{x}_{k-1}}{\v{m}_{k-1|N},\v{P}_{k-1|N}}}{\v{x}_{k-1}}\label{eq:prediction_cov_intergral}
+	\end{split}
+\end{align}
+so that the approximation is
+\begin{align}
+	\Pdf{\v{x}_{k-1},\v{x}_k}{\v{Y}_{1:k-1},\hat{\Th}_j}&\approx 
+	\N{
+	\begin{bmatrix}
+		\v{m}_{k-1|k-1}\\
+		\v{m}_{k|k-1}
+	\end{bmatrix},
+	\begin{bmatrix}
+		\v{P}_{k-1|k-1}&\v{C}_{k^-}\\
+		\v{C}_{k^-}^T&\v{P}_{k|k-1}
+	\end{bmatrix}
+	}
+	\label{eq:joint_predictive_approximation}
+\end{align}
+In order to calculate \eqref{eq:prediction_mean_intergral} and \eqref{eq:prediction_variance_intergral}
+we also need a Gaussian approximation for the joint distribution of
+the current state and measurement given the previous measurements
+\begin{align}
+\begin{split}
+	\Pdf{\v{x}_{k},\v{y}_k}{\v{Y}_{1:k-1}}&=\N{\v{y}_{k}}{\v{h}(\v{x}_{k}),\v{R}}\Pdf{\v{x}_{k}}{\v{Y}_{1:k-1}}\\
+	&\approx 
+	\N{
+	\begin{bmatrix}
+		\v{m}_{k|k-1}\\
+		\gv{\mu}_{k}
+	\end{bmatrix},
+	\begin{bmatrix}
+		\v{P}_{k|k-1}&\v{C}_{k}\\
+		\v{C}_{k}^T&\v{S}_{k}
+	\end{bmatrix}
+	}.
+	\label{eq:joint_update_approximation}
+\end{split}
+\end{align}
+Applying equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} again,
+we get
+\begin{align}
+	\gv{\mu}_{k}
+	&=\defint{}{}{\v{h}(\v{x}_{k})\N{\v{x}_{k}}{\v{m}_{k|k-1},\v{P}_{k|k-1}}}{\v{x}_{k}}\label{eq:update_mean_intergral}\\
+	\v{S}_{k}
+	&=\defint{}{}{(\v{h}(\v{x}_{k})-\gv{\mu}_k)(\v{h}(\v{x}_{k})-\gv{\mu}_k)^T\N{\v{x}_{k}}{\v{m}_{k|k-1},\v{P}_{k|k-1}}}{\v{x}_{k}}+\v{R} \label{eq:update_variance_intergral}\\
+	\v{C}_{k}
+	&=\defint{}{}{(\v{x}_{k}-\v{m}_{k|k-1})(\v{h}(\v{x}_{k})-\gv{\mu}_k)^T\N{\v{x}_{k}}{\v{m}_{k|k-1},\v{P}_{k|k-1}}}{\v{x}_{k}} \label{eq:update_covariance_intergral}
+\end{align}
+and by using the well known formula for calculating the conditional distribution of jointly Gaussian variables
+we have
+\begin{align}
+	\v{m}_{k|k}
+	&=\v{m}_{k|k-1}+\v{C}_{k}\v{S}_{k}^{-1}\left(\v{y}_k-\gv{\mu}_k\right)\label{eq:update_mean}\\
+	\v{P}_{k|k}
+	&=\v{P}_{k|k-1}-\v{C}_{k}\v{S}_{k}^{-1}\v{C}_{k}^T. \label{eq:update_variance}
+\end{align}
+Again using the formula for the conditional of jointly Gaussian variables we get
+from \eqref{eq:joint_predictive_approximation}
+\begin{align}
+	\Pdf{\v{x}_{k-1}}{\v{x}_k,\v{Y}_{1:k-1}}&\approx\N{\v{m}_2,\v{P}_2}\\
+	\v{G}_{k-1}&=\v{C}_{k^-}\v{P}_{k|k-1}^{-1}\\
+	\v{m}_2&=\v{m}_{k-1|k-1}+\v{G}_{k-1}(\v{x}_k-\v{m}_{k|k-1})\\
+	\v{P}_2&=\v{P}_{k-1|k-1}-\v{G}_{k-1}\v{P}_{k|k-1}\v{G}_{k-1}^T
+\end{align}
+and then finally we can write the Gaussian approximation to the joint distribution of consecutive states given all the measurements
+as
+\begin{align}
+\begin{split}
+	\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}}&=\Pdf{\v{x}_{k-1}}{\v{x}_{k},\v{Y}_{1:k-1}}\Pdf{\v{x}_{k}}{\v{Y}}\\
+	&\approx
+	\N{
+	\begin{bmatrix}
+		\v{m}_{k-1|N}\\
+		\v{m}_{k|N}
+	\end{bmatrix},
+	\begin{bmatrix}
+		\v{P}_{k-1|N}&\v{D}_{k}\\
+		\v{D}_{k}^T&\v{P}_{k|N}
+	\end{bmatrix}
+	}
+\end{split}
+\end{align}
+where
+\begin{align}
+	\v{D}_{k}&=\v{G}_{k-1}\v{P}_{k|N}\\
+	\v{m}_{k-1|N}&=\v{m}_{k-1|k-1}+\v{G}_{k-1}\left(\v{m}_{k|N}-\v{m}_{k|k-1}\right)\\
+	\v{P}_{k-1|N}&=\v{P}_{k-1|k-1}+\v{G}_{k-1}\left(\v{P}_{k|N}-\v{P}_{k|k-1}\right)\v{G}_{k-1}^T
+\end{align}
+

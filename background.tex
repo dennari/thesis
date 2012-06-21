@@ -1,0 +1,195 @@
+\subsection{State space models}
+
+State space models (SSMs) provide a unified probabilistic methodology for modeling
+sequential data \parencite{Cappe2005,durbin2012time,barber2011bayesian}. Sequential data arise in numerous applications, typically in the form
+of time-series measurements \todo{examples}. However it is not necessary for the sequence index to have
+a temporal meaning. In this thesis we will denote the indexing variable as $t$ and it
+is assumed to be discrete and nonnegative. We will use the shorthand notation $\v{x}_k$ for the 
+the value of the stochastic process at time $t_k$, i.e. of $X(t_k)$. Also the shorthand $\v{x}_{1:k}$
+will be used to mean $\{\v{x}_1,\dots,\v{x}_k\}$.
+
+A fundamental question in probabilistic models for sequential data is how 
+to model the dependence between variables. It is infeasible to assume
+that every random variable in the process depends on all the others.
+Thus it is common to assume a \emph{Markov chain}, where the value of
+the process at the current timestep depends only on the previous one.
+A further assumption in SSMs is that the process is not directly observed
+but only through another stochastic process, the \emph{measurement process}.
+The random variables of the measurement process are conditionally independent
+given the latent Markov process.
+An intuitive way to present conditional independence properties between random
+variables is a \emph{Bayes network} presented by directed acyclic graph (DAG) \parencite{pearl1988probabilistic,Bishop2006a}.
+A Bayes network presentation of a SSM is given in figure~\ref{fig:ssm_graphical}.
+
+\begin{figure}[!htp]
+	\centering
+	\begin{tikzpicture}
+	\tikzstyle{main}=[circle, minimum size = 5mm, inner sep=0mm, thick, draw =black!80, node distance = 12mm,font=\small]
+	\tikzstyle{param}=[circle, minimum size = 2mm, inner sep=0mm, thick, draw =white!80, fill=black!80, node distance = 18mm]
+	\tikzstyle{ellipsis}=[circle, minimum size = 10mm, thick, draw =black!80, node distance = 18mm]
+	\tikzstyle{connect}=[-latex, semithick]
+	  %\node[main,node distance=50mm] (theta) [label=above:$\theta$] {};
+	  \node[main] (x_1) [label=above:$\v{x}_{k-1}$] {};
+	  \node[main,draw=white!0] (prev) [left of=x_1] {$\dots$};
+	  \node[main] (x) [right of=x_1,label=above:$\v{x}_{k}$] {};
+	  \node[main] (x__1) [right of=x,label=above:$\v{x}_{k+1}$] {};
+	  \node[main,fill = black!10] (y_1) [below of=x_1,label=below:$\v{y}_{k-1}$] {};
+	  \node[main,fill = black!10] (y) [below of=x,label=below:$\v{y}_{k}$] {};
+	  \node[main,fill = black!10] (y__1) [below of=x__1,label=below:$\v{y}_{k+1}$] {};
+	  \node[main,draw=white!0] (next) [right of=x__1] {$\dots$};
+	
+	  \path
+	    (prev) edge [connect] (x_1)
+	    (x_1) edge [connect] (x) 
+	    	  edge [connect] (y_1)
+	    (x) edge [connect] (y)
+	    	edge [connect] (x__1)
+	    (x__1) edge [connect] (y__1)
+	    	edge [connect] (next);
+	\end{tikzpicture}
+	\caption{SSM as a graphical model presented with a directed acyclic graph}
+	\label{fig:ssm_graphical}
+\end{figure}
+Taking into account the Markov property of the state process and the conditional
+indepence property measurement process, the joint distribution of states
+and measurements factorises as
+\begin{align}
+	\Pdf{\v{x}_{0:T},\v{y}_{1:T}}&=\Pdf{\v{x}_0}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1}}\Pdf{\v{y}_k}{\v{x}_{k}}
+	\label{eq:joint_factorization}.
+\end{align}
+Thus in order to describe a SSM one needs to specify three probability distributions:
+\begin{description}
+\addtolength{\leftskip}{1cm}
+	\item[Prior distribution]
+	$\Pdf{\v{x}_0}$ is the distribution assumed for the state prior to observing any measurements. The
+	sensitivity of the posterior distributions to the prior depends on the amount of data (the more data the less sensitivity).
+	\item[Dynamics model]
+	$\Pdf{\v{x}_k}{\v{x}_{k-1}}$ dictates the time evolution of the states
+	\item[Measurement model]
+	$\Pdf{\v{y}_k}{\v{x}_{k}}$ models how the observations depend on the state and the statistics of the noise
+\end{description}
+
+\subsubsection*{Example: 1D random walk}
+The simplest example is a one dimensional random-walk observed in Gaussian noise.
+We will assume $\Pdf{\v{x}_0}=\N{0,P_0}$. In an alternative (but equivalent) notation
+the dynamics model is now
+\begin{align}
+	\Pdf{x_k}{x_{k-1}}&=x_{k-1}+q_{k-1},
+\end{align}
+where $q_{k-1}\sim \N{0,Q}$ and the measurement model is
+\begin{align}
+	\Pdf{y_k}{x_{k}}&=x_{k}+r_{k},
+\end{align}
+where $r_{k}\sim \N{0,R}$. A simulation from the model is presented in figure~\ref{fig:rw1d}.
+
+\begin{figure}[htp]
+\begin{center}
+	\missingfigure{A missing 1D RW simulation}
+  \caption{Simulation from the 1D RW model}
+  \label{fig:rw1d}
+\end{center}
+\end{figure}
+
+
+In a SSM it is assumed that at time $k$ the system is in \emph{state} $\v{x}_k\in\R^{d_x}$.\todo{This whole chapter needs to be refactored}\todo{stationarity} 
+The state vectors are random variables which contain the quantities of
+interest in the system, such as position and velocity in case of a kinetics model. The state is not observed
+directly, instead at time $k$ we acquire a \emph{noisy} measurement $\v{y}_k\in\R^{d_y}$. Since the states
+are not observed, they are called hidden or latent variables.\todo{explain hidden variables}.
+The system state evolves according to the \emph{dynamics} equation
+\begin{align}
+	\v{x}_k&=\v{f}(\v{x}_{k-1})+\v{q}_{k-1} \label{eq:dynamics_nonlinear}\\
+	\v{q}_{k-1} &\sim \N{0,\v{Q}} \label{eq:pdf_dynamic_noise_nonlinear},
+\end{align}
+where $f:\R^{d_x}\to\R^{d_x}$ and in this thesis we restrict ourselves to additive Gaussian noise. 
+It is assumed that the states form a first order \emph{Markov chain},
+so that the current state is conditionally independent of the earlier states given the previous state:
+\begin{align}
+	\Pdf{\v{x}_k}{\v{x}_{1:k-1}}=\Pdf{\v{x}_k}{\v{x}_{k-1}}
+\end{align}
+The observations depend on the state through the measurement equation
+\begin{align}
+	\v{y}_k&=\v{h}(\v{x_k})+\v{r}_k \label{eq:measurements_nonlinear}\\
+	\v{r}_{k} &\sim \N{0,\v{R}} \label{eq:pdf_measurement_noise_nonlinear},
+\end{align}
+where $h:\R^{d_x}\to\R^{d_y}$.
+An equivalent way of presenting equations \eqref{eq:dynamics_nonlinear}, \eqref{eq:pdf_dynamic_noise_nonlinear}, 
+\eqref{eq:measurements_nonlinear} and \eqref{eq:pdf_measurement_noise_nonlinear}
+is
+\begin{align}
+	\Pdf{\v{x}_k}{\v{x}_{k-1}}=\N{\v{f}(\v{x}_{k-1}),\v{Q}}\\
+	\Pdf{\v{y}_k}{\v{x}_{k}}=\N{\v{h}(\v{x}_{k}),\v{R}}.
+\end{align}
+
+\subsection{Bayesian optimal filtering and smoothing}
+
+Inference can be defined as answering questions of interest with a probability distribution \parencite{barber2011bayesian}.
+In case of SSMs there are many questions of interest, but most commonly one would
+like to know the \emph{marginal posterior distribution} of the states. State inference
+can be divided into subcategories based on the temporal relationship between the state
+and the observations \parencite{Sarkka2006}:
+\begin{description}
+\addtolength{\leftskip}{1cm}
+	\item[Predictive distribution]
+	$\Pdf{\v{x}_{k}}{\v{y}_{1:k-1}}$ is the predicted distribution of the state in the next timestep (or more generally at timestep $k+h$, where $h>0$) 
+	given the previous measurements
+	\item[Filtering distribution] $\Pdf{\v{x}_k}{\v{y}_{1:k}}$ is the marginal posterior distribution
+	of any state $\xk$ given the measurements up to and including $\yk$
+	\item[Smoothing distribution]
+	$\Pdf{\v{x}_k}{\v{y}_{1:T}}$ is the marginal posterior distribution
+	of any state $\xk$ given the measurements up to and including $\y_T$ where $k<T$
+\end{description} 
+
+\subsubsection*{Predictive distribution}
+Let us now derive a recursive formulation for computing the filtering distribution at time $k$. Let $\Pdf{\xkk}{\y_{1:k-1}}$
+be the filtering distribution of the previous step. Then 
+\begin{align}
+	\Pdf{\xk}{\y_{1:k-1}}&=\defint{}{}{\Pdf{\xk,\xkk}{\y_{1:k-1}}}{\xkk} \nonumber\\
+	&=\defint{}{}{\Pdf{\xk}{\xkk}\Pdf{\xkk}{\y_{1:k-1}}}{\xkk},
+	\label{eq:pred_bayes}
+\end{align}
+which is known as the \emph{Chapman-Kolmogorov equation} \parencite{Sarkka2006}.
+\subsubsection*{Filtering distribution}
+Incorporating the newest measurement can be achieved with the Bayes'
+rule (see for example \cite{gelman2004})
+\begin{align}
+	\underbrace{\Pdf{\xk}{\y_{1:k}}}_\text{posterior}&=\frac{\overbrace{\Pdf{\yk}{\xk}}^\text{likelihood}\overbrace{\Pdf{\xk}{\y_{1:k-1}}}^\text{prior}}{\underbrace{\Pdf{\y_{k}}{\y_{1:k-1}}}_\text{marginal likelihood}}\nonumber\\
+	&=\frac{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\defint{}{}{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\xk}}
+\end{align}
+which is called the measurement update equation.
+
+\subsubsection*{Smoothing distribution}
+The smoothing distributions can also be computed recursively by assuming that the filtering distributions
+and the smoothing distribution $\Pdf{\x_{k+1}}{\y_{1:T}}$ of the ``previous'' step are available.
+Since
+\begin{align*}
+	\Pdf{\xk}{\x_{k+1},\y_{1:T}}&=\Pdf{\xk}{\x_{k+1},\y_{1:k}}\\
+	&=\frac{\Pdf{\xk,\x_{k+1}}{\y_{1:k}}}{\Pdf{\x_{k+1}}{\y_{1:k}}}\\
+	&=\frac{\Pdf{\x_{k+1}}{\xk}\Pdf{\xk}{\y_{1:k}}}{\Pdf{\x_{k+1}}{\y_{1:k}}}
+\end{align*}
+we get
+\begin{align}
+	\Pdf{\xk}{\y_{1:T}}&=\Pdf{\xk}{\y_{1:k}}\defint{}{}{\left[\frac{\Pdf{\x_{k+1}}{\xk}\Pdf{\x_{k+1}}{\y_{1:T}}}{\Pdf{\x_{k+1}}{\y_{1:k}}}\right]}{\x_{k+1}},
+\end{align}
+where $\Pdf{\x_{k+1}}{\y_{1:k}}$ can be computed by equation \eqref{eq:pred_bayes}.
+
+\subsubsection*{Marginal likelihood}
+
+An important quantity concerning parameter estimation is the marginal likelihood $\Pdf{\y_{1:T}}$. Since
+\begin{align}
+	\Pdf{\y_k}{\y_{1:k-1}}&=\defint{}{}{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\xk}
+\end{align}
+the marginal likelihood can be computed from
+\begin{align}
+	\Pdf{\y_{1:T}}&=\Pdf{\y_1}\prod_{k=2}^T \Pdf{\y_k}{\y_{1:k-1}}
+\end{align}
+
+\subsection{Parameters in SSM}
+
+We will assume that the prior distribution, the dynamics model and the measurement model are known
+except for a set of parameters $\Th$. Now the joint
+distribution of all the variables in the SSM can be written as
+\begin{align}
+	\Pdf{\v{x}_{0:T},\v{y}_{1:T},\Th}&=\Pdf{\Th}\Pdf{\v{x}_0}{\Th}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}\Pdf{\v{y}_k}{\v{x}_{k},\Th}.
+\end{align}
+

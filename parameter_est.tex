@@ -1,0 +1,434 @@
+\subsection{Point estimates}
+
+In the Bayesian sense the complete answer to the parameter estimation
+problem is the marginal posterior probability of the parameters
+given the measurements
+
+
+\begin{align}
+\begin{split}
+	\Pdf{\gv{\theta}}{\v{Y}}&=\frac{\Pdf{\v{Y}}{\gv{\theta}}\Pdf{\gv{\theta}}}{\Pdf{\v{Y}}}\\
+	\Rightarrow \log\Pdf{\gv{\theta}}{\v{Y}}&\propto \log \Pdf{\v{Y}}{\gv{\theta}} + \log\Pdf{\gv{\theta}}
+	\label{eq:param_post}
+\end{split}
+\end{align}
+Here the matrices of all the states and all the observations are denoted with
+\begin{align}
+	\v{X}&=\v{X}_{1:N}=
+	\begin{bmatrix}
+		\v{x}_1 & \dots & \v{x}_N
+	\end{bmatrix}\\
+	\v{Y}&=\v{Y}_{1:N}=
+	\begin{bmatrix}
+		\v{y}_1 & \dots & \v{y}_N
+	\end{bmatrix}
+\end{align}
+respectively.
+Computing the posterior distribution of the parameters is usually intractable. A much
+easier problem is finding a suitable \emph{point estimate} $\hat{\gv{\theta}}$.
+This effectively means that we don't need to worry about the normalizing
+term $\Pdf{\v{Y}}$. A point estimate that maximizes the posterior distribution
+is called a \emph{maximum a posteriori} (MAP) estimate. In the case of a flat
+prior distribution $\Pdf{\gv{\theta}}$ the MAP estimate converges to the
+\emph{maximum likelihood} (ML) estimate, that maximizes the likelihood
+$\Pdf{\v{Y}}{\gv{\theta}}$ (or equivalently its logarithm). Going further
+we we will only be concerned with finding the ML estimate, but it should
+be remembered that both of the methods we consider can be extended
+to the estimation of the MAP estimate in a straightforward fashion.
+
+Since our model contains the latent (unobserved) states, evaluating the likelihood 
+$\Pdf{\v{Y}}{\gv{\theta}}$ is a problem in itself. Mathematically speaking,
+we need to integrate out the states (marginalization) from 
+the complete-data likelihood. Because of the
+Markov conditional independence properties that are implicit in the model,
+the complete-data likelihood factorizes as
+\begin{align}
+	\Pdf{\v{X},\v{Y}}{\gv{\theta}}&=\Pdf{\v{x}_0}\prod_{k=1}^N\Pdf{\v{y}_k}{\v{x}_{k}}\Pdf{\v{x}_k}{\v{x}_{k-1}}
+	\label{eq:complete_data_lh}
+\end{align}
+so that the marginal likelihood is obtained by integration:
+\begin{align}
+	\Pdf{\v{Y}}{\gv{\theta}}&=\defint{\v{X}}{}{\Pdf{\v{X},\v{Y}}{\gv{\theta}}}{\v{X}}
+	\label{eq:marginal_lh}
+\end{align}
+Since $\v{Y}$ is observed, equation \eqref{eq:marginal_lh} is a function of the
+parameters only. In this linear-Gaussian case, the Kalman filter forward recursions give us the 
+means to perform the integration over the states analytically, so that \eqref{eq:marginal_lh}
+can be evaluated for any given $\gv{\theta}$.
+
+
+
+\subsection{Gradient based numerical optimization}\label{sec:grad}
+
+This is the classical way of solving the parameter estimation problem. It consists
+of computing the gradient of the log-likelihood function and then using some
+non-linear optimization method to find a \emph{local} maximum to it.\parencite{Mbalawataa}. 
+An efficient non-linear optimization algorithm is the scaled 
+conjugate gradient method \parencite{Mbalawataa}.
+
+To derive the expression for the log-likelihood function in our case,
+let us first see what the Kalman filter calculates. Firstly,
+the recursions are as follows \parencite{Mbalawataa}:
+\begin{subequations}
+\begin{align}
+	\shortintertext{prediction:}
+	\v{m}_{k|k-1}&=\v{A}\v{m}_{k-1|k-1}\\
+	\v{P}_{k|k-1}&=\v{A}\v{P}_{k-1|k-1}\v{A}^T+\v{Q}
+	\shortintertext{update:}
+	\v{v}_k&=\v{y}_k-\v{H}\v{m}_{k|k-1}\\
+	\v{S}_k&=\v{H}\v{P}_{k|k-1}\v{H}^T+\v{R}\\
+	\v{K}_k&=\v{P}_{k|k-1}\v{H}^T\v{S}_{k}^{-1}\\
+	\v{m}_{k|k}&=\v{m}_{k|k-1}+\v{K}_k\v{v}_k\\
+	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^T
+\end{align}
+\end{subequations}
+This includes the sufficient statistics for the $T$
+joint distributions 
+\begin{align}
+\begin{split}
+	\Pdf{\v{x}_k,\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
+	&=N\left(
+	\begin{bmatrix}
+		\v{x}_k\\\v{y}_{k}
+	\end{bmatrix}\left\vert
+	\begin{bmatrix}
+		\v{m}_{k|k-1}\\
+		\v{H}\v{m}_{k|k-1}
+	\end{bmatrix}
+	\right.,
+	\begin{bmatrix}
+		\v{P}_{k|k-1} & \v{P}_{k|k-1}\v{H}^T\\
+		\v{H}\v{P}_{k|k-1}^T & \v{S}_k  
+	\end{bmatrix}
+	\right)\\
+	\Rightarrow \Pdf{\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
+	&=N\left(\cond{\v{y}_k}{\v{H}\v{m}_{k|k-1},\v{S}_k }\right)
+\end{split}
+	\label{eq:joint_per_kalmanstep}
+\end{align}
+To see how this enables us to calculate the likelihood, one 
+only needs to note that (it has been assumed that the observations are
+independent given the states)
+\begin{align}
+	\Pdf{\v{Y}}{\gv{\theta}}&=\Pdf{\v{y}_1}{\gv{\theta}}\prod_{k=2}^N \Pdf{\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
+	\label{eq:marginal_lh_factorization}
+\end{align}
+Armed with this knowledge, we can write the following expression for the log-likelihood function in this linear-Gaussian
+case:
+\begin{align}
+	-2L(\gv{\theta})&=\sum_{k=1}^N\log\abbs{\v{S}_k}
+	+\sum_{k=1}^N\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^T\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)+C,
+	\label{eq:logLH}
+\end{align}
+where $C$ is a constant that doesn't depend on $\gv{\theta}$.
+Employing an efficient numerical optimization method generally
+requires that the gradient of the objective function, that is $L(\gv{\theta})$ in this case,
+is available. In order to calculate the gradient of $L(\gv{\theta})$, we need to formally derivate
+it w.r.t every parameter $\theta_i$ in $\gv{\theta}$:
+
+\begin{align}
+\begin{split}
+	\dpd{L(\gv{\theta})}{\theta_i}
+	&=-\frac{1}{2}\sum_{k=1}^N\mathrm{Tr}\left(\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\right)\\
+	&+\sum_{k=1}^N\left(\v{H}_k\dpd{\v{m}_{k|k-1}}{\theta_i}\right)^T\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
+	&+\frac{1}{2}\sum_{k=1}^N\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^T\v{S}_{k}^{-1}\left(\dpd{\v{S}_k}{\theta_i}\right)\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
+	\label{eq:dlogLH}
+\end{split}
+\end{align}
+From the Kalman filter recursions we find out that 
+\begin{align}
+	\dpd{\v{S}_k}{\theta_i}&=\v{H}\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}+\dpd{\v{R}}{\theta_i}
+\end{align}
+so that we're left with the task of determining the partial derivatives for
+$\v{m}_{k|k-1}$ and $\v{P}_{k|k-1}$:
+
+\begin{align}
+	\dpd{\v{m}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{m}_{k-1|k-1}+\v{A}\dpd{\v{m}_{k-1|k-1}}{\theta_i} \label{eq:m_pred_pd}\\
+	\begin{split}
+	\dpd{\v{P}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{P}_{k-1|k-1}\v{A}^T+\v{A}\dpd{\v{P}_{k-1|k-1}}{\theta_i}\v{A}^T\\
+	&+\v{A}\v{P}_{k-1|k-1}\left(\dpd{\v{A}}{\theta_i}\right)^T+\dpd{\v{Q}}{\theta_i} \label{eq:P_pred_pd}
+	\end{split}
+\end{align}
+as well as for $\v{m}_{k|k}$ and $\v{P}_{k|k}$:
+\begin{align}
+	\dpd{\v{K}_k}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}^T\v{S}_{k}^{-1}-\v{P}_{k|k-1}\v{H}^T\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\v{S}_{k}^{-1}
+	\label{eq:K_pd}\\
+	\dpd{\v{m}_{k|k}}{\theta_i}&=\dpd{\v{m}_{k|k-1}}{\theta_i}+\dpd{\v{K}_k}{\theta_i}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)-\v{K}_k\v{H}\dpd{\v{m}_{k|k-1}}{\theta_i}
+	\label{eq:m_pd}\\
+	\dpd{\v{P}_{k|k}}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}-\dpd{\v{K}_k}{\theta_i}\v{S}_{k}\v{K}_{k}^T-\v{K}_{k}\dpd{\v{S}_k}{\theta_i}\v{K}_{k}^T-\v{K}_{k}^T\v{S}_{k}\left(\dpd{\v{K}_k}{\theta_i}\right)^T
+	\label{eq:P_pd}
+	\end{align}
+Equations \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} together specify
+a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside the Kalman filter recursions.  
+
+\subsection{Expectation maximization (EM)}
+
+The expectation maximization algorithm \parencite{Dempster1977} is a general
+method for finding ML and MAP estimates in probabilistic models with
+latent variables \parencite{Bishop2006}. As will be seen, instead of maximizing
+\eqref{eq:dlogLH} directly, EM maximizes a series of approximations to it.
+The derivation of the EM algorithm presented here follows along the lines
+of \parencite{Bishop2006}.
+ 
+In order to formulate the EM algorithm, let us first introduce an arbitrary probability distribution $\Qdf{\v{X}}$
+over the states. We can then decompose the log-likelihood function as follows:
+
+\begin{align}
+	\lLH&= \LB(q,\Th)+\KL{q}{p} \label{eq:em_decomposition}
+\shortintertext{where}
+	\LB(q,\Th)&=\defint{\v{X}}{}{\Qdf{\v{X}}\log\left(\frac{\cLH}{\Qdf{\v{X}}}\right)}{\v{X}} \label{eq:em_lb_q}\\
+	\KL{q}{p}&=-\defint{\v{X}}{}{\Qdf{\v{X}}\log\left(\frac{\Pdf{\v{X}}{\v{Y},\Th}}{\Qdf{\v{X}}}\right)}{\v{X}} \label{eq:KL}	
+\end{align}
+It is easy to verify the decomposition \eqref{eq:em_decomposition} by substituting
+\begin{align}
+	\lcLH&=\log\Pdf{\v{X}}{\v{Y},\Th}+\lLH
+	\label{eq:clLH_decomposition}
+\end{align}
+Since $\KL{q}{p}$, the \emph{Kullback-Leibler divergence} between $q$ and $p$, is always nonnegative,
+we see that 
+\begin{align}
+	\lLH&\geq \LB(q,\Th) \label{eq:em_lh_lb}
+\end{align}
+with equality when 
+\begin{align}
+\begin{split}
+	\KL{q}{p}&=0\\
+	\Rightarrow \Qdf{\v{X}} &= \Pdf{\v{X}}{\v{Y},\Th} \label{eq:em_maxq}
+\end{split}
+\end{align}
+The nonnegativeness of the Kullback-Leibler divergence can be proved by
+noting that $-\log$ is a convex function and so \emph{Jensen's inequality}
+can be applied \parencite{Bishop2006}. An alternative proof is presented in \parencite{Minka1998}.
+
+
+We are now ready the define the EM algorithm, which produces
+a series of estimates $\{\hat{\Th}_j\}$ to the parameter $\Th$
+starting from an intitial guess $\hat{\Th}_0$. The two alternating
+steps of the algorithm are:
+
+\begin{enumerate}
+  \item Given a current estimate $\hat{\Th}_j$ of the parameters, maximize
+  $\LB(q,\hat{\Th}_j)$ with respect to the distribution $q$. As shown by equations 
+  \eqref{eq:em_lh_lb} and \eqref{eq:em_maxq}, the maximum is obtained with 
+  $q^*(\v{X}) = \Pdf{\v{X}}{\v{Y},\hat{\Th}_j}$, the posterior
+  distribution of the states given the current parameter estimate. After the maximization
+  we have
+  	\begin{align}
+  		L\!\left(\hat{\Th}_j\right)=\LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\hat{\Th}_j\right).  
+		\label{eq:LH_eq_LB}
+	\end{align}
+	This is the \emph{E-step} 
+  \item Maximize $\LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\Th\right)$ with respect
+  to $\Th$ to obtain a new estimate $\hat{\Th}_{j+1}$. This is the M-step.
+\end{enumerate}
+We can then formulate a so called \emph{fundamental inequality of EM} \parencite{Cappe2005}:
+\begin{align}
+	L\left(\hat{\Th}_{j+1}\right) - L\left(\hat{\Th}_j\right)\geq & \LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\hat{\Th}_{j+1}\right) - \LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\hat{\Th}_{j}\right) 
+	\label{eq:fundamental_inequality}
+\end{align}
+which is just the combination of \eqref{eq:em_lh_lb} and \eqref{eq:LH_eq_LB}. But it highlights
+the fact that the likelihood is increased with every new estimate $\hat{\Th}_{j+1}$.
+Also following from \eqref{eq:fundamental_inequality} is the fact that if the iterations
+stop at a certain point, i.e. $\hat{\Th}_{l+1}=\hat{\Th}_l$ at iteration $l$, then
+$\LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_l},\Th\right)$ must be maximal at $\hat{\Th}_l$
+and so the gradients of the lower bound and of the likelihood must be zero. Thus
+$\hat{\Th}_l$ is a \emph{stationary point} of $L(\Th)$, i.e a local maximum or a saddle point.
+
+
+
+Another property of the lower bound worth stating formally is the following: assume that
+the likelihood and \eqref{eq:KL} are continuously differentiable, then
+
+\begin{align}
+		\left.\dpd{\lLH}{\theta_i}\right|_{\Th=\hat{\Th}_j}&=\left.\dpd{\LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\Th\right)}{\theta_i}\right|_{\Th=\hat{\Th}_j} \label{eq:EM_gradients}
+\end{align}
+This was implicitly clear already from \eqref{eq:LH_eq_LB} by remembering that $\LB$ is a lower
+bound.
+
+If we substitute $\Pdf{\v{X}}{\v{Y},\hat{\Th}}$ for $q$ in \eqref{eq:em_lb_q},
+we get
+\begin{align}
+\begin{split}
+	\LB(q,\Th)&=\defint{\v{X}}{}{\Pdf{\v{X}}{\v{Y},\hat{\Th}}\lcLH}{\v{X}} 
+	-\defint{\v{X}}{}{\Pdf{\v{X}}{\v{Y},\hat{\Th}}\log\Pdf{\v{X}}{\v{Y},\hat{\Th}}}{\v{X}}\\
+	&=\Lb(\Th,\hat{\Th})+C,
+	\label{eq:completedata_loglikelihood}
+\end{split}
+\end{align}
+where $C$ is a constant (the differential entropy of $\Pdf{\v{X}}{\v{Y},\hat{\Th}}$) and $\Lb(\Th,\hat{\Th})$ can be interpreted as the
+expectation of the complete-data log-likelihood with respect to the posterior
+distribution of the states given the current value of the parameter. 
+
+\subsection{EM in linear-Gaussian SSM:s}
+Continuing with the application of EM to the linear-Gaussian state space models, 
+the complete-data log-likelihood function is now
+\begin{align}
+\label{eq:clLH}
+\begin{split}
+	L(\v{X},\Th)&=
+	\frac{1}{2}\left(\v{x}_0-\gv{\mu}\right)^T\gv{\Sigma}^{-1}\left(\v{x}_0-\gv{\mu}\right)+\frac{1}{2}\log\abbs{\gv{\Sigma}}\\
+	&+\frac{1}{2}\sum_{k=1}^N\left(\v{y}_k-\v{Hx}_k\right)^T\v{R}_{k|k-1}{-1}\left(\v{y}_k-\v{Hx}_k\right)+\frac{N}{2}\log\abbs{\v{R}}\\
+	&+\frac{1}{2}\sum_{k=1}^N\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^T\v{Q}^{-1}\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)+\frac{N}{2}\log\abbs{\v{Q}}\\
+	&+C
+\end{split}
+\end{align}
+
+We can then take the expectation of \eqref{eq:clLH}:
+\begin{align}
+&\Lb(\Th,\hat{\Th}_j)=\E{L(\v{X},\Th)}{\hat{\Th}_j}=\\
+\begin{split}
+	&\Tr{\gv{\Sigma}^{-1}\left(\v{P}_{0|N}+(\v{m}_{0|N}-\gv{\mu})(\v{m}_{0|N}-\gv{\mu})^T\right)}+\log\abbs{\gv{\Sigma}}\\
+	+&\Tr{\v{Q}^{-1}\left(\sum_{k=1}^N\E{\v{x}_k\v{x}_{k}^T}-\v{A}\sum_{k=1}^N\E{\v{x}_k\v{x}_{k-1}^T}^T-\sum_{k=1}^N\E{\v{x}_k\v{x}_{k-1}^T}\v{A}^T+\v{A}\sum_{k=1}^N\E{\v{x}_{k-1}\v{x}_{k-1}^T}\v{A}^T\right)}+N\log\abbs{\v{Q}}\\
+	+&\Tr{\v{R}^{-1}\left(\sum_{k=1}^N\v{y}_{k}\v{y}_{k}^T-\v{H}\sum_{k=1}^N\v{y}_{k}\E{\v{x}_{k}^T}^T-\sum_{k=1}^N\v{y}_{k}\E{\v{x}_{k}^T}\v{H}^T+\v{H}\sum_{k=1}^N\E{\v{x}_k\v{x}_{k}^T}\v{A}^T\right)}+N\log\abbs{\v{R}}\\
+	\label{eq:lb}
+\end{split}
+\end{align}
+
+
+
+Finally, the expectations in \eqref{eq:sum_expectations} can be
+calculated with the combined use of the Kalman filter and the 
+RTS smoother:
+
+\begin{align}
+	\E{\v{x}_k}&=\v{m}_{k|N}\\
+	\E{\v{x}_k\v{x}_{k|k-1}T}&=\v{P}_{k|N}+\v{m}_{k|N}(\v{m}_{k|N})^T\\
+	\E{\v{x}_k\v{x}_{k-1}^T}&=\v{C}_{k|N}+\v{m}_{k|N}(\v{m}_{k-1|N})^T,
+\end{align}
+where $\v{m}_{k|N}$ is the mean and $\v{P}_{k|N}$ is the variance of the state 
+$\v{x}_k$ given the observations $\v{y}_1,\dots,\v{y}_N$.
+For more specific details see \parencite{Gibson2005}. All in all, the E-step of the 
+EM algorithm in linear-Gaussian SSM:s corresponds to computing
+the matrices in \eqref{eq:sum_expectations} with the help of the Kalman filter and
+the RTS smoother. In \parencite{Elliott1999} a new kind of filter is presented that
+can compute \eqref{eq:sum_expectations} with only forward recursions. 
+
+\subsection{Alternative derivation}
+
+It's not necessary to to multiply the terms inside
+the second order terms in Equation~\eqref{eq:clLH}. 
+First of all, for the joint distribution of $\v{x}_k, \v{x}_{k-1}$
+we get 
+
+\begin{align}
+\begin{split} 
+	\Pdf{\v{x}_k, \v{x}_{k-1}}{\v{Y},\Th}&=
+	N\left(
+	\begin{bmatrix}
+		\v{x}_k\\\v{x}_{k-1}
+	\end{bmatrix}\left\vert
+	\begin{bmatrix}
+		\v{m}_{k|N}\\
+		\v{m}_{k-1|N}
+	\end{bmatrix}
+	\right.,
+	\begin{bmatrix}
+		\v{P}_{k|N} & \v{P}_{k|N}\v{J}_k^T\\
+		\v{J}_k\v{P}_{k|N} & \v{P}_{k-1|N}  
+	\end{bmatrix}
+	\right)\\
+	&=N\left(
+	\left.
+	\begin{bmatrix}
+		\v{x}_k\\\v{x}_{k-1}
+	\end{bmatrix}\right\vert
+		\v{m}_{k}^{(3)}
+	,
+		\v{P}_{k}^{(3)}
+	\right),
+\end{split}
+\end{align}
+where we have the identities
+\begin{align}
+	\E{\v{x}_k\v{x}_k^T}&=\v{P}_{k|N}+\v{m}_{k|N}\v{m}_{k|N}^T\\
+	\E{\v{x}_{k-1}\v{x}_{k-1}^T}&=\v{P}_{k-1|N}+\v{m}_{k-1|N}\v{m}_{k-1|N}^T\\
+	\E{\v{x}_{k}\v{x}_{k-1}^T}&=\v{P}_{k|N}\v{J}_k^T+\v{m}_{k|N}\v{m}_{k-1|N}^T
+\end{align}
+
+Instead we get
+\begin{align}
+\begin{split}
+&\E{\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^T\v{Q}^{-1}\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)}\\
+&=\Tr{\v{Q}^{-1}\E{\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^T}}\\
+&=\Tr{\v{Q}^{-1}\left(\mathrm{Cov}\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)+\E{\v{x}_k-\v{A}\v{x}_{k-1}}\E{\v{x}_k-\v{A}\v{x}_{k-1}}^T\right)}\\
+&=\Tr{\v{Q}^{-1}\left[\v{I},-\v{A}\right]\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left[\v{I},-\v{A}\right]^T} 
+\end{split}
+\end{align}
+and
+\begin{align}
+\begin{split}
+&\E{\left(\v{y}_k-\v{H}\v{x}_{k}\right)^T\v{R}^{-1}\left(\v{y}_k-\v{H}\v{x}_{k}\right)}\\
+&=\Tr{\v{R}^{-1}\E{\left(\v{y}_k-\v{H}\v{x}_{k}\right)\left(\v{y}_k-\v{H}\v{x}_{k}\right)^T}}\\
+&=\Tr{\v{R}^{-1}\left(\v{H}\mathrm{Var}\left(\v{x}_{k}\right)\v{H}^T+\left(\v{y}_k-\v{H}\E{\v{x}_{k}}\right)\left(\v{y}_k-\v{H}\E{\v{x}_{k}}\right)^T\right)}
+%&=\Tr{\v{R}^{-1}\left(\mathrm{Var}\left(\v{y}_k-\v{H}\v{x}_{k}\right)+\left(\v{y}_k-\v{H}\v{m}_{k|N}\right)\left(\v{y}_k-\v{H}\v{m}_{k|N}\right)^T\right)}\\
+%&=\Tr{\v{R}^{-1}\left(\v{y}_k\v{y}_k^T-\v{y}_k\v{m}_{k|N}^T\v{H}^T-\v{H}\v{m}_{k|N}\v{y}_k^T+\v{H}\left(\v{P}_{k|N}+\v{m}_{k|N}\v{m}_{k|N}^T\right)\v{H}^T\right)}\\
+\end{split}
+\end{align}
+With these, we have
+\begin{multline}
+	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{A}}=
+	\sum_{k=1}^N\dpd{}{\v{A}}\Tr{\v{Q}^{-1}\left(\v{I}-\v{A}\right)\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left(\v{I}-\v{A}\right)^T}
+	\label{eq:clLH_pdA}
+\end{multline}
+
+With these, we have
+\begin{multline}
+	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{Q^{-1}}}=
+	\sum_{k=1}^N\dpd{}{\v{Q^{-1}}}\Tr{\v{Q}^{-1}\left(\v{I}-\v{A}\right)\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left(\v{I}-\v{A}\right)^T}\\+N\dpd{}{\v{Q^{-1}}}\log\abbs{\v{Q}}
+	\label{eq:clLH_pdQ}
+\end{multline}
+Using formula 92 in \parencite{Petersen2008} for the first derivative and formula 51 for the second, we get
+\begin{align}
+	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{Q^{-1}}}&=
+	\left(\v{I}-\v{A}\right)\sum_{k=1}^N\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left(\v{I}-\v{A}\right)^T-N\v{Q}
+	\label{eq:clLH_pdQ2}
+\end{align}
+and setting this to zero we get the update equation for the next estimate of $\v{Q}$
+\begin{align}
+	\v{Q}_{j+1}&=\frac{1}{N}\left(\v{I}-\v{A}\right)\sum_{k=1}^N\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left(\v{I}-\v{A}\right)^T
+\end{align}
+
+After having calculated the statistics \eqref{eq:sum_expectations} 
+$\hat{\Th}$, we proceed to estimate the new
+value $\Th^*$ by finding the maximum of
+$\Lb(\Th,\hat{\Th})$ in the M-step. The complexity of this step
+depends of the structure in $\Th_M$. In the case of no structure,
+the M-step reduces to simple linear regression. Let us now derive the M-step
+maximization formulas for $\v{A}$, $\v{Q}$, $\v{H}$ and $\v{R}$. 
+To do that, we take the partial derivatives of $\Lb(\Th,\hat{\Th})$
+and set them to zero. We get \parencite{Ghahramani1996}:
+
+\begin{subequations}
+\begin{align}
+	\v{A}_{j+1}&=\left(\sum_{k=1}^N\E{\v{x}_k\v{x}_{k-1}^T}\right)\left(\sum_{k=1}^N\E{\v{x}_{k-1}\v{x}_{k-1}^T}\right)^{-1} \label{eq:A_new}\\
+	\v{Q}_{j+1}&=\sum_{k=1}^N\E{\v{x}_k\v{x}_{k}^T}-\v{A}_{j+1}\left(\sum_{k=1}^N\E{\v{x}_k\v{x}_{k-1}^T}\right)^T \label{eq:Q_new}\\
+	\v{H}_{j+1}&=\sum_{k=1}^N\v{y}_{k}\E{\v{x}_{k}^T}\left(\sum_{k=1}^N\E{\v{x}_k\v{x}_{k}^T}\right){-1} \label{eq:H_new}\\
+	\v{R}_{j+1}&=\sum_{k=1}^N\v{y}_{k}\v{y}_{k}^T-\v{H}_{j+1}\left(\sum_{k=1}^N\v{y}_{k}\E{\v{x}_{k}^T}\right)^T \label{eq:R_new}
+\end{align}
+\end{subequations}
+
+\subsection{M-step with structured matrices}
+
+When we want to maximize $\Lb(\Th,\hat{\Th})$ w.r.t some other
+parameters than the ones in $\Th_M$, the situation becomes more complicated.
+In the general case, no analytical formulas can be found. We therefore seek
+to maximize $\Lb(\Th,\hat{\Th})$ numerically, analogously to how $L(\gv{\theta})$
+was maximized in section~\ref{sec:grad}.
+
+Fortunately calculating the gradient of $\Lb(\Th,\hat{\Th})$ is straightforward:
+
+\begin{align}
+\begin{split}
+	-2\dpd{\Lb(\Th,\hat{\Th}))}{\theta_i}
+	&=\Tr{-\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
+	\left(\v{B}_1-\v{A}\v{B}_2^T-\v{B}_2\v{A}^T+\v{A}\v{B}_3\v{A}^T\right)}\\
+	&+\Tr{\v{Q}^{-1}\left(-\dpd{\v{A}}{\theta_i}\v{B}_2^T-\v{B}_2\dpd{\v{A}}{\theta_i}^T+\dpd{\v{A}}{\theta_i}\v{B}_3\v{A}^T+\v{A}\v{B}_3\dpd{\v{A}}{\theta_i}^T\right)}\\
+	&+\Tr{-\v{R}^{-1}\dpd{\v{R}}{\theta_i}\v{R}^{-1}
+	\left(\v{B}_4-\v{H}\v{B}_5^T-\v{B}_5\v{H}^T+\v{H}\v{B}_1\v{H}^T\right)}\\
+	&+N\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}
+	+N\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
+	\label{eq:dLB}
+\end{split}
+\end{align}
+\subsection{Variational Bayes}
+\subsection{State augmentation}
