@@ -259,6 +259,10 @@ where $C$ is a constant (the differential entropy of $\Pdf{\v{X}}{\v{Y},\hat{\Th
 expectation of the complete-data log-likelihood with respect to the posterior
 distribution of the states given the current value of the parameter. 
 
+
+\subsubsection{EM as a special case of variational Bayes}
+\parencite{barber2012bayesian,jordan1998learning}
+
 \subsection{EM in linear-Gaussian SSM:s}
 Continuing with the application of EM to the linear-Gaussian state space models, 
 the complete-data log-likelihood function is now
@@ -303,90 +307,6 @@ the matrices in \eqref{eq:sum_expectations} with the help of the Kalman filter a
 the RTS smoother. In \parencite{Elliott1999} a new kind of filter is presented that
 can compute \eqref{eq:sum_expectations} with only forward recursions. 
 
-\subsection{Alternative derivation}
-
-It's not necessary to to multiply the terms inside
-the second order terms in Equation~\eqref{eq:clLH}. 
-First of all, for the joint distribution of $\v{x}_k, \v{x}_{k-1}$
-we get 
-
-\begin{align}
-\begin{split} 
-	\Pdf{\v{x}_k, \v{x}_{k-1}}{\v{Y},\Th}&=
-	N\left(
-	\begin{bmatrix}
-		\v{x}_k\\\v{x}_{k-1}
-	\end{bmatrix}\left\vert
-	\begin{bmatrix}
-		\v{m}_{k|N}\\
-		\v{m}_{k-1|N}
-	\end{bmatrix}
-	\right.,
-	\begin{bmatrix}
-		\v{P}_{k|N} & \v{P}_{k|N}\v{J}_k^T\\
-		\v{J}_k\v{P}_{k|N} & \v{P}_{k-1|N}  
-	\end{bmatrix}
-	\right)\\
-	&=N\left(
-	\left.
-	\begin{bmatrix}
-		\v{x}_k\\\v{x}_{k-1}
-	\end{bmatrix}\right\vert
-		\v{m}_{k}^{(3)}
-	,
-		\v{P}_{k}^{(3)}
-	\right),
-\end{split}
-\end{align}
-where we have the identities
-\begin{align}
-	\E{\v{x}_k\v{x}_k^T}&=\v{P}_{k|N}+\v{m}_{k|N}\v{m}_{k|N}^T\\
-	\E{\v{x}_{k-1}\v{x}_{k-1}^T}&=\v{P}_{k-1|N}+\v{m}_{k-1|N}\v{m}_{k-1|N}^T\\
-	\E{\v{x}_{k}\v{x}_{k-1}^T}&=\v{P}_{k|N}\v{J}_k^T+\v{m}_{k|N}\v{m}_{k-1|N}^T
-\end{align}
-
-Instead we get
-\begin{align}
-\begin{split}
-&\E{\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^T\v{Q}^{-1}\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)}\\
-&=\Tr{\v{Q}^{-1}\E{\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^T}}\\
-&=\Tr{\v{Q}^{-1}\left(\mathrm{Cov}\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)+\E{\v{x}_k-\v{A}\v{x}_{k-1}}\E{\v{x}_k-\v{A}\v{x}_{k-1}}^T\right)}\\
-&=\Tr{\v{Q}^{-1}\left[\v{I},-\v{A}\right]\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left[\v{I},-\v{A}\right]^T} 
-\end{split}
-\end{align}
-and
-\begin{align}
-\begin{split}
-&\E{\left(\v{y}_k-\v{H}\v{x}_{k}\right)^T\v{R}^{-1}\left(\v{y}_k-\v{H}\v{x}_{k}\right)}\\
-&=\Tr{\v{R}^{-1}\E{\left(\v{y}_k-\v{H}\v{x}_{k}\right)\left(\v{y}_k-\v{H}\v{x}_{k}\right)^T}}\\
-&=\Tr{\v{R}^{-1}\left(\v{H}\mathrm{Var}\left(\v{x}_{k}\right)\v{H}^T+\left(\v{y}_k-\v{H}\E{\v{x}_{k}}\right)\left(\v{y}_k-\v{H}\E{\v{x}_{k}}\right)^T\right)}
-%&=\Tr{\v{R}^{-1}\left(\mathrm{Var}\left(\v{y}_k-\v{H}\v{x}_{k}\right)+\left(\v{y}_k-\v{H}\v{m}_{k|N}\right)\left(\v{y}_k-\v{H}\v{m}_{k|N}\right)^T\right)}\\
-%&=\Tr{\v{R}^{-1}\left(\v{y}_k\v{y}_k^T-\v{y}_k\v{m}_{k|N}^T\v{H}^T-\v{H}\v{m}_{k|N}\v{y}_k^T+\v{H}\left(\v{P}_{k|N}+\v{m}_{k|N}\v{m}_{k|N}^T\right)\v{H}^T\right)}\\
-\end{split}
-\end{align}
-With these, we have
-\begin{multline}
-	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{A}}=
-	\sum_{k=1}^N\dpd{}{\v{A}}\Tr{\v{Q}^{-1}\left(\v{I}-\v{A}\right)\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left(\v{I}-\v{A}\right)^T}
-	\label{eq:clLH_pdA}
-\end{multline}
-
-With these, we have
-\begin{multline}
-	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{Q^{-1}}}=
-	\sum_{k=1}^N\dpd{}{\v{Q^{-1}}}\Tr{\v{Q}^{-1}\left(\v{I}-\v{A}\right)\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left(\v{I}-\v{A}\right)^T}\\+N\dpd{}{\v{Q^{-1}}}\log\abbs{\v{Q}}
-	\label{eq:clLH_pdQ}
-\end{multline}
-Using formula 92 in \parencite{Petersen2008} for the first derivative and formula 51 for the second, we get
-\begin{align}
-	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{Q^{-1}}}&=
-	\left(\v{I}-\v{A}\right)\sum_{k=1}^N\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left(\v{I}-\v{A}\right)^T-N\v{Q}
-	\label{eq:clLH_pdQ2}
-\end{align}
-and setting this to zero we get the update equation for the next estimate of $\v{Q}$
-\begin{align}
-	\v{Q}_{j+1}&=\frac{1}{N}\left(\v{I}-\v{A}\right)\sum_{k=1}^N\left(\v{P}_{k}^{(3)}+\v{m}_{k}^{(3)}(\v{m}_{k}^{(3)})^T\right)\left(\v{I}-\v{A}\right)^T
-\end{align}
 
 After having calculated the statistics \eqref{eq:sum_expectations} 
 $\hat{\Th}$, we proceed to estimate the new
@@ -430,5 +350,3 @@ Fortunately calculating the gradient of $\Lb(\Th,\hat{\Th})$ is straightforward:
 	\label{eq:dLB}
 \end{split}
 \end{align}
-\subsection{Variational Bayes}
-\subsection{State augmentation}

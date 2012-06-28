@@ -69,18 +69,7 @@ joint distributions
 
 \subsubsection{RTS Smoother}
 
-Finally, the expectations in \eqref{eq:sum_expectations} can be
-calculated with with the combined use of the Kalman filter and the 
-\emph{Rauch-Tung-Striebel} (RTS) smoother:
-
-\begin{align}
-	\E{\v{x}_k}&=\v{m}_{k|N}\\
-	\E{\v{x}_k\v{x}_{k|k-1}T}&=\v{P}_{k|N}+\v{m}_{k|N}(\v{m}_{k|N})^T\\
-	\E{\v{x}_k\v{x}_{k-1}^T}&=\v{C}_{k|N}+\v{m}_{k|N}(\v{m}_{k-1|N})^T,
-\end{align}
-where $\v{m}_{k|N}$ is the mean and $\v{P}_{k|N}$ is the variance of the state 
-$\v{x}_k$ given the observations $\v{y}_1,\dots,\v{y}_N$. The standard
-RTS smoother gives the statistics $\v{m}_{k|N}$ and $\v{P}_{k|N}$.
+The standard RTS smoother gives the statistics $\v{m}_{k|N}$ and $\v{P}_{k|N}$.
 The cross-timestep variance $\v{C}_{k|N}$ can be computed with an additional
 recursive formula alongside the usual RTS smoother recursions
 \begin{subequations}
@@ -91,10 +80,10 @@ recursive formula alongside the usual RTS smoother recursions
 	\v{C}_{k|N}&=\v{P}_{k|k}\v{J}_{k-1}^T+\v{J}_k\left(\v{C}_{k+1|N}-\v{A}\v{P}_{k|k}\right)\v{J}_{k-1}^T\\
 \end{align}
 \end{subequations}
-For more specific details see \cite{Gibson2005}. All in all, the E-step of the 
+For more specific details see \parencite{Gibson2005}. All in all, the E-step of the 
 EM algorithm in linear-Gaussian SSM:s corresponds to computing
 the matrices in \eqref{eq:sum_expectations} with the help of the Kalman filter and
-the RTS smoother. In \cite{Elliott1999} a new kind of filter is presented that
+the RTS smoother. In \parencite{Elliott1999} a new kind of filter is presented that
 can compute \eqref{eq:sum_expectations} with only forward recursions. 
 
 \subsection{Nonlinear-Gaussian SSMs}
@@ -112,7 +101,7 @@ The SSM model is now
 \end{subequations}
 We assume an implicit dependence of $f$ and $h$ on the parameter $\Th$.
 
-\subsubsection{Assumed density filtering}
+\subsubsection{Assumed density filtering and smoothing}
 
 
 One approach to forming Gaussian approximations is to assume a
@@ -308,4 +297,11 @@ where
 	\v{m}_{k-1|N}&=\v{m}_{k-1|k-1}+\v{G}_{k-1}\left(\v{m}_{k|N}-\v{m}_{k|k-1}\right)\\
 	\v{P}_{k-1|N}&=\v{P}_{k-1|k-1}+\v{G}_{k-1}\left(\v{P}_{k|N}-\v{P}_{k|k-1}\right)\v{G}_{k-1}^T
 \end{align}
+
+\subsubsection{Quadrature and Cubature}
+\subsubsection{Gauss-Hermite Kalman Filter and Smoother}
+\subsubsection{Unscented Kalman Filter and Smoother}
+\subsubsection{Cubature Kalman Filter and Smoother}
+
+
 
