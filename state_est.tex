@@ -28,7 +28,7 @@ Gaussian, these models are called linear-Gaussian.
 
 To derive the expression for the log-likelihood function in our case,
 let us first see what the Kalman filter calculates. Firstly,
-the recursions are as follows \parencite{Mbalawataa}:
+the recursions are as follows \parencite{Kalman1960,jazwinski2007stochastic}:
 \begin{subequations}
 \begin{align}
 	\shortintertext{prediction:}
@@ -69,7 +69,7 @@ joint distributions
 
 \subsubsection{RTS Smoother}
 
-The standard RTS smoother gives the statistics $\v{m}_{k|N}$ and $\v{P}_{k|N}$.
+The standard RTS smoother gives the statistics $\v{m}_{k|N}$ and $\v{P}_{k|N}$ \parencite{jazwinski2007stochastic,Rauch1965}.
 The cross-timestep variance $\v{C}_{k|N}$ can be computed with an additional
 recursive formula alongside the usual RTS smoother recursions
 \begin{subequations}
@@ -101,12 +101,12 @@ The SSM model is now
 \end{subequations}
 We assume an implicit dependence of $f$ and $h$ on the parameter $\Th$.
 
-\subsubsection{Assumed density filtering and smoothing}
+\subsubsection{Gaussian filtering and smoothing}
 
 
 One approach to forming Gaussian approximations is to assume a
 Gaussian probability density function with mean and variance that match the
-actual ones. Let 
+actual ones \parencite{Ito2000,Sarkka2006}. Let 
 
 \begin{align}
 	\v{a}&\sim \N{\v{m},\gv{\Sigma}_a} \label{eq:pa}\\
@@ -298,10 +298,14 @@ where
 	\v{P}_{k-1|N}&=\v{P}_{k-1|k-1}+\v{G}_{k-1}\left(\v{P}_{k|N}-\v{P}_{k|k-1}\right)\v{G}_{k-1}^T
 \end{align}
 
-\subsubsection{Quadrature and Cubature}
+\subsubsection{Numerical integration}
+\parencite{Arasaratnam2009}
 \subsubsection{Gauss-Hermite Kalman Filter and Smoother}
+\parencite{Ito2000}
 \subsubsection{Unscented Kalman Filter and Smoother}
+\parencite{julier1997new}
 \subsubsection{Cubature Kalman Filter and Smoother}
+\parencite{Arasaratnam2009,Arasatnam2011}
 
 
 

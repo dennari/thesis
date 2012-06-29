@@ -1,4 +1,4 @@
-\subsection{Point estimates}
+\subsection{Maximum likelihood and maximum a posteriori estimation}
 
 In the Bayesian sense the complete answer to the parameter estimation
 problem is the marginal posterior probability of the parameters
@@ -263,7 +263,7 @@ distribution of the states given the current value of the parameter.
 \subsubsection{EM as a special case of variational Bayes}
 \parencite{barber2012bayesian,jordan1998learning}
 
-\subsection{EM in linear-Gaussian SSM:s}
+\subsubsection{EM in linear-Gaussian SSM:s}
 Continuing with the application of EM to the linear-Gaussian state space models, 
 the complete-data log-likelihood function is now
 \begin{align}
@@ -327,7 +327,7 @@ and set them to zero. We get \parencite{Ghahramani1996}:
 \end{align}
 \end{subequations}
 
-\subsection{M-step with structured matrices}
+\subsubsection{EM in nonlinear-Gaussian SSM:s}
 
 When we want to maximize $\Lb(\Th,\hat{\Th})$ w.r.t some other
 parameters than the ones in $\Th_M$, the situation becomes more complicated.
@@ -350,3 +350,10 @@ Fortunately calculating the gradient of $\Lb(\Th,\hat{\Th})$ is straightforward:
 	\label{eq:dLB}
 \end{split}
 \end{align}
+
+\subsubsection{EM in linear-in-the-parameters SSM:s}
+
+\subsection{Comparison}
+
+
+
