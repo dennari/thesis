@@ -50,24 +50,29 @@ A Bayes network presentation of a SSM is given in figure~\ref{fig:ssm_graphical}
 	\caption{SSM as a graphical model presented with a directed acyclic graph}
 	\label{fig:ssm_graphical}
 \end{figure}
+
 Taking into account the Markov property of the state process and the conditional
-indepence property measurement process, the joint distribution of states
+independence property the measurement process, the joint distribution of states
 and measurements factorises as
 \begin{align}
-	\Pdf{\v{x}_{0:T},\v{y}_{1:T}}&=\Pdf{\v{x}_0}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1}}\Pdf{\v{y}_k}{\v{x}_{k}}
+	\Pdf{\v{x}_{0:T},\v{y}_{1:T}}{\Th}&=\Pdf{\v{x}_0}{\Th}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}\Pdf{\v{y}_k}{\v{x}_{k},\Th}
 	\label{eq:joint_factorization}.
 \end{align}
 Thus in order to describe a SSM one needs to specify three probability distributions:
 \begin{description}
 \addtolength{\leftskip}{1cm}
 	\item[Prior distribution]
-	$\Pdf{\v{x}_0}$ is the distribution assumed for the state prior to observing any measurements. The
+	$\Pdf{\v{x}_0}{\Th}$ is the distribution assumed for the state prior to observing any measurements. The
 	sensitivity of the posterior distributions to the prior depends on the amount of data (the more data the less sensitivity).
 	\item[Dynamics model]
-	$\Pdf{\v{x}_k}{\v{x}_{k-1}}$ dictates the time evolution of the states
+	$\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}$ dictates the time evolution of the states
 	\item[Measurement model]
-	$\Pdf{\v{y}_k}{\v{x}_{k}}$ models how the observations depend on the state and the statistics of the noise
+	$\Pdf{\v{y}_k}{\v{x}_{k},\Th}$ models how the observations depend on the state and the statistics of the noise
 \end{description}
+In this thesis it is assumed that the parametric form of these distributions is known
+for example by physical modeling \parencite{ljung1994modeling}. However the distributions are dependent on
+the vector parameter $\Th$ whose value is uncertain.
+
 
 \subsubsection*{Example: 1D random walk}
 The simplest example is a one dimensional random-walk observed in Gaussian noise.
@@ -151,7 +156,7 @@ be the filtering distribution of the previous step. Then
 which is known as the \emph{Chapman-Kolmogorov equation} \parencite{Sarkka2006}.
 \subsubsection*{Filtering distribution}
 Incorporating the newest measurement can be achieved with the Bayes'
-rule (see for example \cite{gelman2004})
+rule (see for example \cite{gelman2004})\todo{check marginal likelihood wording}
 \begin{align}
 	\underbrace{\Pdf{\xk}{\y_{1:k}}}_\text{posterior}&=\frac{\overbrace{\Pdf{\yk}{\xk}}^\text{likelihood}\overbrace{\Pdf{\xk}{\y_{1:k-1}}}^\text{prior}}{\underbrace{\Pdf{\y_{k}}{\y_{1:k-1}}}_\text{marginal likelihood}}\nonumber\\
 	&=\frac{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\defint{}{}{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\xk}}
