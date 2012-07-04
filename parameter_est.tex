@@ -12,7 +12,7 @@ given the measurements
 	\label{eq:param_post}
 \end{split}
 \end{align}
-Here the matrices of all the states and all the observations are denoted with
+Here the matrices of all the states and all the observations are denoted with\todo{notation changes}
 \begin{align}
 	\v{X}&=\v{X}_{1:N}=
 	\begin{bmatrix}
@@ -24,14 +24,14 @@ Here the matrices of all the states and all the observations are denoted with
 	\end{bmatrix}
 \end{align}
 respectively.
-Computing the posterior distribution of the parameters is usually intractable. A much
+Computing the posterior distribution of the parameters is usually intractable \todo{why? examples?}. A much
 easier problem is finding a suitable \emph{point estimate} $\hat{\gv{\theta}}$.
 This effectively means that we don't need to worry about the normalizing
 term $\Pdf{\v{Y}}$. A point estimate that maximizes the posterior distribution
 is called a \emph{maximum a posteriori} (MAP) estimate. In the case of a flat
 prior distribution $\Pdf{\gv{\theta}}$ the MAP estimate converges to the
 \emph{maximum likelihood} (ML) estimate, that maximizes the likelihood
-$\Pdf{\v{Y}}{\gv{\theta}}$ (or equivalently its logarithm). Going further
+$\Pdf{\v{Y}}{\gv{\theta}}$ (or equivalently its logarithm) \todo{elaborate}. Going further
 we we will only be concerned with finding the ML estimate, but it should
 be remembered that both of the methods we consider can be extended
 to the estimation of the MAP estimate in a straightforward fashion.
@@ -48,7 +48,7 @@ the complete-data likelihood factorizes as
 \end{align}
 so that the marginal likelihood is obtained by integration:
 \begin{align}
-	\Pdf{\v{Y}}{\gv{\theta}}&=\defint{\v{X}}{}{\Pdf{\v{X},\v{Y}}{\gv{\theta}}}{\v{X}}
+	\Pdf{\v{Y}}{\gv{\theta}}&=\defint{\R^{d_x}}{}{\Pdf{\v{X},\v{Y}}{\gv{\theta}}}{\v{X}}
 	\label{eq:marginal_lh}
 \end{align}
 Since $\v{Y}$ is observed, equation \eqref{eq:marginal_lh} is a function of the
