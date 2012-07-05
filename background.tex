@@ -3,23 +3,28 @@
 State space models (SSMs) provide a unified probabilistic methodology for modeling
 sequential data \parencite{ljung1994modeling,durbin2012time,Cappe2005,barber2011bayesian}. Sequential data arise in numerous applications, typically in the form
 of time-series measurements \todo{examples}. However it is not necessary for the sequence index to have
-a temporal meaning. In this thesis we will denote the indexing variable as $t$ and it
-is assumed to be discrete and nonnegative. We will use the shorthand notation $\v{x}_k$ for the 
-the value of the stochastic process at time $t_k$, i.e. of $X(t_k)$. Also the shorthand $\v{x}_{1:k}$
-will be used to mean $\{\v{x}_1,\dots,\v{x}_k\}$.
+a temporal meaning. In probabilistic terms a time-series
+can be described by a \emph{stochastic process} $\z = \left\{\z_k:k\in K\right\}$, where $\z_k$ is a random
+variable and $K\subset\R$ for continuous time or $K\subset\field{N}$ for discrete time sequences. 
+In this thesis we will only be concerned with discerete time processes and the sample space of $\z_k$ will be $\R^d$. 
+The shorthand $\z_{1:k}$ will be used to mean the subset $\{\z_1,\dots,\z_k\}$. We will also
+denote by $\v{Z}$ the $d\times T$ matrix, that has all $T$ values of the process $\z$ as columns.
 
 A fundamental question in probabilistic models for sequential data is how 
 to model the dependence between variables. It is infeasible to assume
 that every random variable in the process depends on all the others.
-Thus it is common to assume a \emph{Markov chain}, where the value of
-the process at the current timestep depends only on the previous one.
-A further assumption in SSMs is that the process is not directly observed
-but only through another stochastic process, the \emph{measurement process}.
-The random variables of the measurement process are conditionally independent
+Thus it is common to assume a \emph{Markov chain}, where the distribution of
+the process at the current timestep depends only on the distribution in the previous timestep.
+A further assumption in SSMs is that the process of interest, the dynamic process $\x$, is not directly observed
+but only through another stochastic process, the \emph{measurement process} $\y$. Since
+$\x$ is not observed, SSMs belong to the class of \emph{latent variable models}. Sometimes, as in
+\cite{Cappe2005}, SSMs are called \emph{hidden Markov models} (HMM) but usually this implies that
+the sample space of $\x$ is discrete. Another assumption is that the values of the measurement process are conditionally independent
 given the latent Markov process.
 An intuitive way to present conditional independence properties between random
-variables is a \emph{Bayes network} presented by directed acyclic graph (DAG) \parencite{pearl1988probabilistic,Bishop2006}.
-%A Bayes network presentation of a SSM is given in figure~\ref{fig:ssm_graphical}.
+variables is a \emph{Bayes network} presented by a directed acyclic graph (DAG) \parencite{pearl1988probabilistic,Bishop2006}.
+%The conditional independence properties of a discrete-time SSM are presented in figure~\ref{fig:ssm_graphical}.
+A Bayes network presentation of a discrete-time SSM is given in figure~\ref{fig:ssm_graphical}.
 
 \begin{figure}[!htp]
 	\centering
@@ -50,12 +55,20 @@ variables is a \emph{Bayes network} presented by directed acyclic graph (DAG) \p
 	\caption{SSM as a graphical model presented with a directed acyclic graph}
 	\label{fig:ssm_graphical}
 \end{figure}
-
-Taking into account the Markov property of the state process and the conditional
-independence property the measurement process, the joint distribution of states
+The value $\xk$ of the dynamic process at time $k$ is called the \emph{state}\todo{Explain state} at time $k$.
+Taking into account the Markov property 
+\begin{align}
+	\Pdf{\xk}{\x_{1:k-1}}&=\Pdf{\xk}{\x_{k-1}}
+\end{align}
+of the dynamic process and the conditional
+independence property 
+\begin{align}
+	\Pdf{\yk}{\x_{1:k},\y_{1:k-1}}&=\Pdf{\yk}{\xk}
+\end{align}
+of the measurement process, the joint distribution of states
 and measurements factorises as
 \begin{align}
-	\Pdf{\v{x}_{0:T},\v{y}_{1:T}}{\Th}&=\Pdf{\v{x}_0}{\Th}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}\Pdf{\v{y}_k}{\v{x}_{k},\Th}
+	\Pdf{\X,\Y}{\Th}&=\Pdf{\v{x}_0}{\Th}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}\Pdf{\v{y}_k}{\v{x}_{k},\Th}
 	\label{eq:joint_factorization}.
 \end{align}
 Thus in order to describe a SSM one needs to specify three probability distributions:
@@ -64,7 +77,7 @@ Thus in order to describe a SSM one needs to specify three probability distribut
 	\item[Prior distribution]
 	$\Pdf{\v{x}_0}{\Th}$ is the distribution assumed for the state prior to observing any measurements. The
 	sensitivity of the posterior distributions to the prior depends on the amount of data (the more data the less sensitivity).
-	\item[Dynamics model]
+	\item[Dynamic model]
 	$\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}$ dictates the time evolution of the states
 	\item[Measurement model]
 	$\Pdf{\v{y}_k}{\v{x}_{k},\Th}$ models how the observations depend on the state and the statistics of the noise
