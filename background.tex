@@ -55,7 +55,8 @@ A Bayes network presentation of a discrete-time SSM is given in figure~\ref{fig:
 	\caption{SSM as a graphical model presented with a directed acyclic graph}
 	\label{fig:ssm_graphical}
 \end{figure}
-The value $\xk$ of the dynamic process at time $k$ is called the \emph{state}\todo{Explain state} at time $k$.
+The value $\xk \in \mathcal{X} \subset \R^{d_x}$ of the dynamic process at time $k$ is called the
+\emph{state}\todo{Explain state} at time $k$. For the measurements we define $\yk \in \mathcal{Y} \subset \R^{d_y}$.  
 Taking into account the Markov property 
 \begin{align}
 	\Pdf{\xk}{\x_{1:k-1}}&=\Pdf{\xk}{\x_{k-1}}
@@ -69,7 +70,7 @@ of the measurement process, the joint distribution of states
 and measurements factorises as
 \begin{align}
 	\Pdf{\X,\Y}{\Th}&=\Pdf{\v{x}_0}{\Th}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}\Pdf{\v{y}_k}{\v{x}_{k},\Th}
-	\label{eq:joint_factorization}.
+	\label{eq:complete_data_likelihood}.
 \end{align}
 Thus in order to describe a SSM one needs to specify three probability distributions:
 \begin{description}
@@ -84,8 +85,44 @@ Thus in order to describe a SSM one needs to specify three probability distribut
 \end{description}
 In this thesis it is assumed that the parametric form of these distributions is known
 for example by physical modeling \parencite{ljung1994modeling}. However the distributions are dependent on
-the vector parameter $\Th$ whose value is uncertain.
+the vector parameter $\Th \in \Theta \subset \R^{d_\theta}$ whose value (or distribution) we would like to learn from
+the measurements.
 
+Traditionally SSMs are specified as a pair of equations specifying the dynamic and measurement models. The most general
+presentation of discrete-time SSMs is 
+\begin{subequations}
+\label{eq:ssm_too_general}
+\begin{align}
+	\xk &= \v{f}_{\Th,k}\left(\x_{k-1},\v{q}_{k-1}\right)\\
+	\yk &= \v{h}_{\Th,k}\left(\xk,\v{r}_{k}\right).
+\end{align}
+\end{subequations}
+Here the stochasticity is separated into the noise processes $\v{q}$ and $\v{r}$ which are usually
+assumed to be zero mean, white and independent of each other. We will restrict ourselves
+to the case of zero mean, white and additive Gaussian noise and in our case the mappings
+$\v{f}_{\Th,k}$ and $\v{h}_{\Th,k}$ and the noise processes $\v{q}$ and $\v{r}$ will be stationary (i.e. independent of
+k). Thus the SSMs considered in this thesis are of the form
+\begin{subequations}
+\label{eq:ssm_general}
+\begin{align}
+	\xk &= \v{f}_{\Th}\left(\x_{k-1}\right)+\v{q}_{k-1}\\
+	\yk &= \v{h}_{\Th}\left(\xk\right)+\v{r}_{k}\\
+	\v{q}_k&\sim \N{\v{0},\v{Q}}\\
+	\v{r}_k&\sim \N{\v{0},\v{R}}\\
+	\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}
+	\label{eq:ssm_nonlinear}
+\end{align}
+\end{subequations}
+Then clearly $\v{f}_{\Th}:\mathcal{X}\to\mathcal{X}$ and
+$\v{h}_{\Th}:\mathcal{X}\to\mathcal{Y}$ specify the means of the dynamic
+and the measurement models:
+\begin{subequations}
+\label{eq:ssm_distr_general}
+\begin{align}
+	\Pdf{\xk}{\x_{k-1},\Th}&=\N{\v{f}_{\Th}\left(\x_{k-1}\right),\v{Q}}\label{eq:dynamics_distr_general}\\
+	\Pdf{\yk}{\xk,\Th}&=\N{\v{h}_{\Th}\left(\xk\right),\v{R}}\label{eq:measurement_distr_general}
+\end{align}
+\end{subequations}
 
 \subsubsection*{Example: 1D random walk}
 The simplest example is a one dimensional random-walk observed in Gaussian noise.
@@ -108,36 +145,6 @@ where $r_{k}\sim \N{0,R}$. A simulation from the model is presented in figure~\r
 \end{center}
 \end{figure}
 
-
-In a SSM it is assumed that at time $k$ the system is in \emph{state} $\v{x}_k\in\R^{d_x}$.\todo{This whole chapter needs to be refactored}\todo{stationarity} 
-The state vectors are random variables which contain the quantities of
-interest in the system, such as position and velocity in case of a kinetics model. The state is not observed
-directly, instead at time $k$ we acquire a \emph{noisy} measurement $\v{y}_k\in\R^{d_y}$. Since the states
-are not observed, they are called hidden or latent variables.\todo{explain hidden variables}.
-The system state evolves according to the \emph{dynamics} equation
-\begin{align}
-	\v{x}_k&=\v{f}(\v{x}_{k-1})+\v{q}_{k-1} \label{eq:dynamics_nonlinear}\\
-	\v{q}_{k-1} &\sim \N{0,\v{Q}} \label{eq:pdf_dynamic_noise_nonlinear},
-\end{align}
-where $f:\R^{d_x}\to\R^{d_x}$ and in this thesis we restrict ourselves to additive Gaussian noise. 
-It is assumed that the states form a first order \emph{Markov chain},
-so that the current state is conditionally independent of the earlier states given the previous state:
-\begin{align}
-	\Pdf{\v{x}_k}{\v{x}_{1:k-1}}=\Pdf{\v{x}_k}{\v{x}_{k-1}}
-\end{align}
-The observations depend on the state through the measurement equation
-\begin{align}
-	\v{y}_k&=\v{h}(\v{x_k})+\v{r}_k \label{eq:measurements_nonlinear}\\
-	\v{r}_{k} &\sim \N{0,\v{R}} \label{eq:pdf_measurement_noise_nonlinear},
-\end{align}
-where $h:\R^{d_x}\to\R^{d_y}$.
-An equivalent way of presenting equations \eqref{eq:dynamics_nonlinear}, \eqref{eq:pdf_dynamic_noise_nonlinear}, 
-\eqref{eq:measurements_nonlinear} and \eqref{eq:pdf_measurement_noise_nonlinear}
-is
-\begin{align}
-	\Pdf{\v{x}_k}{\v{x}_{k-1}}=\N{\v{f}(\v{x}_{k-1}),\v{Q}}\\
-	\Pdf{\v{y}_k}{\v{x}_{k}}=\N{\v{h}(\v{x}_{k}),\v{R}}.
-\end{align}
 
 \subsection{Bayesian optimal filtering and smoothing}
 
@@ -202,12 +209,4 @@ the marginal likelihood can be computed from
 	\Pdf{\y_{1:T}}&=\Pdf{\y_1}\prod_{k=2}^T \Pdf{\y_k}{\y_{1:k-1}}
 \end{align}
 
-\subsection{Parameters in SSM}
-
-We will assume that the prior distribution, the dynamics model and the measurement model are known
-except for a set of parameters $\Th$. Now the joint
-distribution of all the variables in the SSM can be written as
-\begin{align}
-	\Pdf{\v{x}_{0:T},\v{y}_{1:T},\Th}&=\Pdf{\Th}\Pdf{\v{x}_0}{\Th}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}\Pdf{\v{y}_k}{\v{x}_{k},\Th}.
-\end{align}
 

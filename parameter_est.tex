@@ -3,8 +3,6 @@
 In the Bayesian sense the complete answer to the parameter estimation
 problem is the marginal posterior probability of the parameters
 given the measurements
-
-
 \begin{align}
 \begin{split}
 	\Pdf{\gv{\theta}}{\v{Y}}&=\frac{\Pdf{\v{Y}}{\gv{\theta}}\Pdf{\gv{\theta}}}{\Pdf{\v{Y}}}\\
@@ -12,18 +10,6 @@ given the measurements
 	\label{eq:param_post}
 \end{split}
 \end{align}
-Here the matrices of all the states and all the observations are denoted with\todo{notation changes}
-\begin{align}
-	\v{X}&=\v{X}_{1:N}=
-	\begin{bmatrix}
-		\v{x}_1 & \dots & \v{x}_N
-	\end{bmatrix}\\
-	\v{Y}&=\v{Y}_{1:N}=
-	\begin{bmatrix}
-		\v{y}_1 & \dots & \v{y}_N
-	\end{bmatrix}
-\end{align}
-respectively.
 Computing the posterior distribution of the parameters is usually intractable \todo{why? examples?}. A much
 easier problem is finding a suitable \emph{point estimate} $\hat{\gv{\theta}}$.
 This effectively means that we don't need to worry about the normalizing
@@ -39,16 +25,9 @@ to the estimation of the MAP estimate in a straightforward fashion.
 Since our model contains the latent (unobserved) states, evaluating the likelihood 
 $\Pdf{\v{Y}}{\gv{\theta}}$ is a problem in itself. Mathematically speaking,
 we need to integrate out the states (marginalization) from 
-the complete-data likelihood. Because of the
-Markov conditional independence properties that are implicit in the model,
-the complete-data likelihood factorizes as
+the complete-data likelihood \eqref{eq:complete_data_likelihood}:
 \begin{align}
-	\Pdf{\v{X},\v{Y}}{\gv{\theta}}&=\Pdf{\v{x}_0}\prod_{k=1}^N\Pdf{\v{y}_k}{\v{x}_{k}}\Pdf{\v{x}_k}{\v{x}_{k-1}}
-	\label{eq:complete_data_lh}
-\end{align}
-so that the marginal likelihood is obtained by integration:
-\begin{align}
-	\Pdf{\v{Y}}{\gv{\theta}}&=\defint{\R^{d_x}}{}{\Pdf{\v{X},\v{Y}}{\gv{\theta}}}{\v{X}}
+	\Pdf{\v{Y}}{\gv{\theta}}&=\defint{\mathcal{X}}{}{\Pdf{\v{X},\v{Y}}{\gv{\theta}}}{\v{X}}
 	\label{eq:marginal_lh}
 \end{align}
 Since $\v{Y}$ is observed, equation \eqref{eq:marginal_lh} is a function of the
@@ -56,7 +35,8 @@ parameters only. In this linear-Gaussian case, the Kalman filter forward recursi
 means to perform the integration over the states analytically, so that \eqref{eq:marginal_lh}
 can be evaluated for any given $\gv{\theta}$.
 
-
+\subsubsection{Identifiability}
+\parencite{Haykin2001,Cappe2005}
 
 \subsection{Gradient based numerical optimization}\label{sec:grad}
 

@@ -1,29 +1,12 @@
 \subsection{Linear-Gaussian State Space Models}
 
-Linear-Gaussian SSMs can be defined with the following equations
-\begin{subequations}
-	\label{eq:the_model}
-	\begin{align}
-		\v{x}_k&=\v{A}\v{x}_{k-1}+\v{q}_{k-1} \label{eq:dynamics}\\
-		\v{y}_k&=\v{H}\v{x_k}+\v{r}_k \label{eq:measurements}\\
-		\v{q}_{k-1} &\sim \N{0,\v{Q}} \label{eq:pdf_dynamic_noise}\\
-		\v{r}_{k} &\sim \N{0,\v{R}} \label{eq:pdf_measurement_noise}\\
-		\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}
-	\end{align}
-\end{subequations}
-Equations \eqref{eq:dynamics}, \eqref{eq:measurements}, \eqref{eq:pdf_dynamic_noise} and \eqref{eq:pdf_measurement_noise}
-together specify the following conditional distributions
+Since linear mappings can be described by matrices, stationary linear-Gaussian SSMs 
+are described by the subset of SSMs of the form \eqref{eq:ssm_general} where  
 \begin{align}
-		\v{x}_{k}|\v{x}_{k-1} &\sim \N{\v{A}\v{x}_{k-1},\v{Q}} \label{eq:pdf_xk_xk-1}\\
-		\v{y}_{k}|\v{x}_{k} &\sim \N{\v{H}\v{x_k},\v{R}}  \label{eq:pdf_yk_xk}
+	\v{f}_{\Th}\left(\x_{k-1}\right)&=\v{A}\x_{k-1}\\
+	\v{h}_{\Th}\left(\xk\right)&=\v{H}\xk
 \end{align}
-
-Linearity in this case means that $\v{x}_k$ is a linear combination\todo{Better wording}
-of the elements of $\v{x}_{k-1}$ and $\v{y}_k$ is a linear combination
-of the elements of $\v{x}_{k}$ (with additive noise in both cases). Since
-the noise terms $\v{q}_{k-1}$ and $\v{r}_{k}$ are assumed to be white and
-Gaussian, these models are called linear-Gaussian.
-
+\todo{Explain something about linear-Gaussian SSMs}
 \subsubsection{Kalman filter}
 
 To derive the expression for the log-likelihood function in our case,
@@ -88,18 +71,8 @@ can compute \eqref{eq:sum_expectations} with only forward recursions.
 
 \subsection{Nonlinear-Gaussian SSMs}
 
-The SSM model is now
-\begin{subequations}
-	\label{eq:the_model}
-	\begin{align}
-		\v{x}_k&=\v{f}(\v{x}_{k-1})+\v{q}_{k-1} \label{eq:dynamics_nonlinear}\\
-		\v{y}_k&=\v{h}(\v{x_k})+\v{r}_k \label{eq:measurements_nonlinear}\\
-		\v{q}_{k-1} &\sim \N{0,\v{Q}} \label{eq:pdf_dynamic_noise_nonlinear}\\
-		\v{r}_{k} &\sim \N{0,\v{R}} \label{eq:pdf_measurement_noise_nonlinear}\\
-		\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}
-	\end{align}
-\end{subequations}
-We assume an implicit dependence of $f$ and $h$ on the parameter $\Th$.
+In the nonlinear case at least one of the mappings $\v{f}_{\Th}$ and $\v{h}_{\Th}$ in
+\eqref{eq:ssm_general} is nonlinear. \todo{Explain something about nonlinear SSMs}
 
 \subsubsection{Gaussian filtering and smoothing}
 
@@ -107,7 +80,6 @@ We assume an implicit dependence of $f$ and $h$ on the parameter $\Th$.
 One approach to forming Gaussian approximations is to assume a
 Gaussian probability density function with mean and variance that match the
 actual ones \parencite{Ito2000,Sarkka2006}. Let 
-
 \begin{align}
 	\v{a}&\sim \N{\v{m},\gv{\Sigma}_a} \label{eq:pa}\\
 	\v{b}|\v{a}&\sim \N{\v{f}(\v{a}),\gv{\Sigma}_{b|a}} \label{eq:pb_given_a}
