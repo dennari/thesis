@@ -42,7 +42,6 @@ A Bayes network presentation of a discrete-time SSM is given in figure~\ref{fig:
 	  \node[main,fill = black!10] (y) [below of=x,label=below:$\v{y}_{k}$] {};
 	  \node[main,fill = black!10] (y__1) [below of=x__1,label=below:$\v{y}_{k+1}$] {};
 	  \node[main,draw=white!0] (next) [right of=x__1] {$\dots$};
-	
 	  \path
 	    (prev) edge [connect] (x_1)
 	    (x_1) edge [connect] (x) 
@@ -104,16 +103,15 @@ $\v{f}_{\Th,k}$ and $\v{h}_{\Th,k}$ and the noise processes $\v{q}$ and $\v{r}$ 
 k). Thus the SSMs considered in this thesis are of the form
 \begin{subequations}
 \label{eq:ssm_general}
-\begin{align}
-	\xk &= \v{f}_{\Th}\left(\x_{k-1}\right)+\v{q}_{k-1}\\
-	\yk &= \v{h}_{\Th}\left(\xk\right)+\v{r}_{k}\\
-	\v{q}_k&\sim \N{\v{0},\v{Q}}\\
-	\v{r}_k&\sim \N{\v{0},\v{R}}\\
-	\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}
-	\label{eq:ssm_nonlinear}
-\end{align}
+\begin{alignat}{2}
+	\xk &= \v{f}_{\Th}\left(\x_{k-1}\right)+\v{q}_{k-1}&\v{q}_k&\sim \N{\v{0},\v{Q}} \label{eq:Q}\\
+	\yk &= \v{h}_{\Th}\left(\xk\right)+\v{r}_{k}&\v{r}_k&\sim \N{\v{0},\v{R}} \label{eq:R}\\
+	\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}& \label{eq:prior}
+\end{alignat}
 \end{subequations}
-Then clearly $\v{f}_{\Th}:\mathcal{X}\to\mathcal{X}$ and
+We will assume an implicit dependence of the distributional parameters $\v{Q}$,
+$\v{R}$,$\gv{\mu}$ and $\gv{\Sigma}$ on $\Th$. 
+Now clearly the mappings $\v{f}_{\Th}:\mathcal{X}\to\mathcal{X}$ and
 $\v{h}_{\Th}:\mathcal{X}\to\mathcal{Y}$ specify the means of the dynamic
 and the measurement models:
 \begin{subequations}

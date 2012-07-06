@@ -143,27 +143,31 @@ a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside 
 
 \subsection{Expectation maximization (EM)}
 
-The expectation maximization algorithm \parencite{Dempster1977} is a general
-method for finding ML and MAP estimates in probabilistic models with
-latent variables \parencite{Bishop2006}. As will be seen, instead of maximizing
-\eqref{eq:dlogLH} directly, EM maximizes a series of approximations to it.
-The derivation of the EM algorithm presented here follows along the lines
-of \parencite{Bishop2006}.
- 
-In order to formulate the EM algorithm, let us first introduce an arbitrary probability distribution $\Qdf{\v{X}}$
-over the states. We can then decompose the log-likelihood function as follows:
-
-\begin{align}
-	\lLH&= \LB(q,\Th)+\KL{q}{p} \label{eq:em_decomposition}
-\shortintertext{where}
-	\LB(q,\Th)&=\defint{\v{X}}{}{\Qdf{\v{X}}\log\left(\frac{\cLH}{\Qdf{\v{X}}}\right)}{\v{X}} \label{eq:em_lb_q}\\
-	\KL{q}{p}&=-\defint{\v{X}}{}{\Qdf{\v{X}}\log\left(\frac{\Pdf{\v{X}}{\v{Y},\Th}}{\Qdf{\v{X}}}\right)}{\v{X}} \label{eq:KL}	
-\end{align}
-It is easy to verify the decomposition \eqref{eq:em_decomposition} by substituting
-\begin{align}
-	\lcLH&=\log\Pdf{\v{X}}{\v{Y},\Th}+\lLH
-	\label{eq:clLH_decomposition}
-\end{align}
+The expectation maximization (EM) algorithm \parencite{Dempster1977} is a general
+method for finding ML and MAP estimates in probabilistic models with missing data or
+latent variables \parencite{Bishop2006,barber2012bayesian}. As will be seen, instead of maximizing
+\eqref{eq:logLH} directly, EM alternates between forming a variational lower bound and maximizing it.
+Let us introduce a ``variational'' (it will be a parameter in an optimization problem \parencite{barber2012bayesian}) 
+distribution $\Pdf[\tilde{p}]{\X}$ over the states. Let $\Pdf[q]{z}$ be some arbitrary propbability distribution. We will then use the notation
+$\E{\cdot}{\Pdf[q]{z}}=\defint{}{}{\cdot \Pdf[q]{z}}{z}$ to mean the expectation
+over $\Pdf[q]{z}$.
+We can then perform the following
+decomposition on the log likelihood:
+\begin{align*}
+	\Pdf{\X}{\Y,\Th}&=\frac{\Pdf{\X,\Y}{\Th}}{\Pdf{\Y}{\Th}}\\
+	\shortintertext{take logarithms and rearrange}
+	\log\Pdf{\Y}{\Th} &= \log\Pdf{\X,\Y}{\Th} - \log\Pdf{\X}{\Y,\Th} \\
+	\shortintertext{multiply with $\tilde{p}$}
+	\Pdf[\tilde{p}]{\X}\log\Pdf{\Y}{\Th} &= \Pdf[\tilde{p}]{\X}\log\Pdf{\X,\Y}{\Th} - \Pdf[\tilde{p}]{\X}\log\Pdf{\X}{\Y,\Th} \\
+	\shortintertext{take integrals on both sides}
+	\Pdf{\Y}{\Th} &= \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf{\X,\Y}{\Th}}{\X} - \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf{\X}{\Y,\Th}}{\X} \\
+	&= \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf{\X,\Y}{\Th}}{\X} -  \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf[\tilde{p}]{\X}}{\X}\\
+	&\quad{}- \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf{\X}{\Y,\Th}}{\X}+\defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf[\tilde{p}]{\X}}{\X}\\
+	\shortintertext{combine}
+	&= \defint{\v{X}}{}{\Pdf[\tilde{p}]{\v{X}}\log\left(\frac{\cLH}{\Pdf[\tilde{p}]{\v{X}}}\right)}{\v{X}}-\defint{\v{X}}{}{\Pdf[\tilde{p}]{\v{X}}\log\left(\frac{\Pdf{\v{X}}{\v{Y},\Th}}{\Pdf[\tilde{p}]{\v{X}}}\right)}{\v{X}}
+\shortintertext{so that}
+	\lLH&= \LB(q,\Th)+\KL{q}{p}
+\end{align*}
 Since $\KL{q}{p}$, the \emph{Kullback-Leibler divergence} between $q$ and $p$, is always nonnegative,
 we see that 
 \begin{align}
@@ -173,7 +177,7 @@ with equality when
 \begin{align}
 \begin{split}
 	\KL{q}{p}&=0\\
-	\Rightarrow \Qdf{\v{X}} &= \Pdf{\v{X}}{\v{Y},\Th} \label{eq:em_maxq}
+	\Rightarrow \Pdf[\tilde{p}]{\v{X}} &= \Pdf{\v{X}}{\v{Y},\Th} \label{eq:em_maxq}
 \end{split}
 \end{align}
 The nonnegativeness of the Kullback-Leibler divergence can be proved by
@@ -183,7 +187,7 @@ can be applied \parencite{Bishop2006}. An alternative proof is presented in \par
 
 We are now ready the define the EM algorithm, which produces
 a series of estimates $\{\hat{\Th}_j\}$ to the parameter $\Th$
-starting from an intitial guess $\hat{\Th}_0$. The two alternating
+starting from an initial guess $\hat{\Th}_0$. The two alternating
 steps of the algorithm are:
 
 \begin{enumerate}
