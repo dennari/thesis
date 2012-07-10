@@ -2,40 +2,59 @@
 
 In the Bayesian sense the complete answer to the parameter estimation
 problem is the marginal posterior probability of the parameters
-given the measurements
+given the measurements, which is given by Bayes' rule as
 \begin{align}
-\begin{split}
-	\Pdf{\gv{\theta}}{\v{Y}}&=\frac{\Pdf{\v{Y}}{\gv{\theta}}\Pdf{\gv{\theta}}}{\Pdf{\v{Y}}}\\
-	\Rightarrow \log\Pdf{\gv{\theta}}{\v{Y}}&\propto \log \Pdf{\v{Y}}{\gv{\theta}} + \log\Pdf{\gv{\theta}}
+	\Pdf{\gv{\theta}}{\v{Y}}&=\frac{\Pdf{\v{Y}}{\gv{\theta}}\Pdf{\gv{\theta}}}{\Pdf{\v{Y}}}.
 	\label{eq:param_post}
-\end{split}
 \end{align}
+
 Computing the posterior distribution of the parameters is usually intractable \todo{why? examples?}. A much
 easier problem is finding a suitable \emph{point estimate} $\hat{\gv{\theta}}$.
 This effectively means that we don't need to worry about the normalizing
-term $\Pdf{\v{Y}}$. A point estimate that maximizes the posterior distribution
-is called a \emph{maximum a posteriori} (MAP) estimate. In the case of a flat
-prior distribution $\Pdf{\gv{\theta}}$ the MAP estimate converges to the
-\emph{maximum likelihood} (ML) estimate, that maximizes the likelihood
-$\Pdf{\v{Y}}{\gv{\theta}}$ (or equivalently its logarithm) \todo{elaborate}. Going further
-we we will only be concerned with finding the ML estimate, but it should
+term $\Pdf{\v{Y}}$, since it's constant with respect to the parameters. 
+A point estimate that maximizes the posterior distribution
+is called a \emph{maximum a posteriori} (MAP) estimate. 
+Since the logarithm is a strictly monotonic function, maximizing a function
+is the same as maximizing its logarithm. Thus the MAP estimate $\Th^*$ is given by 
+\begin{align}
+	\Th_{\text{MAP}} &= \text{argmax}_{\Th}\left[\underbrace{\log \Pdf{\v{Y}}{\gv{\theta}}}_{\Pdf[\ell][2pt]{\Th}} + \log\Pdf{\gv{\theta}}\right]
+	\label{eq:MAP}
+\end{align}
+
+In the case of a flat (constant and thus improper)
+prior distribution, $\Pdf{\Th}$, the MAP estimate converges to the
+\emph{maximum likelihood} (ML) estimate
+\begin{align}
+	\Th_{\text{ML}} &= \text{argmax}_{\Th}\left[\lLH\right]
+	\label{eq:ML}
+\end{align}
+Going further we we will only be concerned with finding the ML estimate, but it should
 be remembered that both of the methods we consider can be extended
 to the estimation of the MAP estimate in a straightforward fashion.
+\todo{Explain MAP in both cases}
 
-Since our model contains the latent (unobserved) states, evaluating the likelihood 
-$\Pdf{\v{Y}}{\gv{\theta}}$ is a problem in itself. Mathematically speaking,
-we need to integrate out the states (marginalization) from 
-the complete-data likelihood \eqref{eq:complete_data_likelihood}:
+Among different point estimates, the maximum likelihood estimator has good statistical properties.
+Let us denote the true parameter value, the value that the data was generated with, with $\Th_\star$ and 
+let $T$ denote the amount of observations.
+Then we can state the following asymptotic properties for the ML estimate $\Th_{\text{ML}}$:
+
+\begin{description}
+\addtolength{\leftskip}{1cm}
+\item[Strong consistency]
 \begin{align}
-	\Pdf{\v{Y}}{\gv{\theta}}&=\defint{\mathcal{X}}{}{\Pdf{\v{X},\v{Y}}{\gv{\theta}}}{\v{X}}
-	\label{eq:marginal_lh}
+	%\forall \Th \in \Theta\quad \frac{1}{n}\Pdf[\ell_n]{\Th} \xrightarrow{\mathrm{a.s.}} \lLH, \mathrm{when} n\to\infty
+	\Th_{\text{ML}} \xrightarrow{\mathrm{a.s.}} \Th_\star,\quad \mathrm{when}\;T\to\infty
 \end{align}
-Since $\v{Y}$ is observed, equation \eqref{eq:marginal_lh} is a function of the
-parameters only. In this linear-Gaussian case, the Kalman filter forward recursions give us the 
-means to perform the integration over the states analytically, so that \eqref{eq:marginal_lh}
-can be evaluated for any given $\gv{\theta}$.
+%where $\Pdf[\ell_n]{\Th}$ is the log-likelihood given $n$ observations and $\lLH$ is a continuous deterministic
+%function with a unique global maximum at $\Th_\star$.
+\item[]
+
+\end{description}
 
 \subsubsection{Identifiability}
+
+Since the parameters are determined by maximizing 
+
 \parencite{Haykin2001,Cappe2005}
 
 \subsection{Gradient based numerical optimization}\label{sec:grad}
