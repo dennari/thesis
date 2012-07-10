@@ -1,4 +1,6 @@
-\subsection{Maximum likelihood and maximum a posteriori estimation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Maximum likelihood and maximum a posteriori estimation}%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In the Bayesian sense the complete answer to the parameter estimation
 problem is the marginal posterior probability of the parameters
@@ -47,9 +49,10 @@ Then we can state the following asymptotic properties for the ML estimate $\Th_{
 \end{align}
 %where $\Pdf[\ell_n]{\Th}$ is the log-likelihood given $n$ observations and $\lLH$ is a continuous deterministic
 %function with a unique global maximum at $\Th_\star$.
-\item[]
+\item[Asymptotic normality]
 
 \end{description}
+
 
 \subsubsection{Identifiability}
 
@@ -57,7 +60,9 @@ Since the parameters are determined by maximizing
 
 \parencite{Haykin2001,Cappe2005}
 
-\subsection{Gradient based numerical optimization}\label{sec:grad}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Gradient based nonlinear optimization}\label{sec:grad}%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This is the classical way of solving the parameter estimation problem. It consists
 of computing the gradient of the log-likelihood function and then using some
@@ -160,49 +165,39 @@ as well as for $\v{m}_{k|k}$ and $\v{P}_{k|k}$:
 Equations \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} together specify
 a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside the Kalman filter recursions.  
 
-\subsection{Expectation maximization (EM)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Expectation maximization (EM)}%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The expectation maximization (EM) algorithm \parencite{Dempster1977} is a general
 method for finding ML and MAP estimates in probabilistic models with missing data or
 latent variables \parencite{Bishop2006,barber2012bayesian}. As will be seen, instead of maximizing
 \eqref{eq:logLH} directly, EM alternates between forming a variational lower bound and maximizing it.
+We shall use $\E{\cdot}{q}\equiv\defint{}{}{\cdot \Pdf[q]{z}}{z}$ to denote the expectation
+over some arbitrary distribution $\Pdf[q]{z}$.
 Let us introduce a ``variational'' (it will be a parameter in an optimization problem \parencite{barber2012bayesian}) 
-distribution $\Pdf[\tilde{p}]{\X}$ over the states. Let $\Pdf[q]{z}$ be some arbitrary propbability distribution. We will then use the notation
-$\E{\cdot}{\Pdf[q]{z}}=\defint{}{}{\cdot \Pdf[q]{z}}{z}$ to mean the expectation
-over $\Pdf[q]{z}$.
-We can then perform the following
-decomposition on the log likelihood:
-\begin{align*}
-	\Pdf{\X}{\Y,\Th}&=\frac{\Pdf{\X,\Y}{\Th}}{\Pdf{\Y}{\Th}}\\
-	\shortintertext{take logarithms and rearrange}
-	\log\Pdf{\Y}{\Th} &= \log\Pdf{\X,\Y}{\Th} - \log\Pdf{\X}{\Y,\Th} \\
-	\shortintertext{multiply with $\tilde{p}$}
-	\Pdf[\tilde{p}]{\X}\log\Pdf{\Y}{\Th} &= \Pdf[\tilde{p}]{\X}\log\Pdf{\X,\Y}{\Th} - \Pdf[\tilde{p}]{\X}\log\Pdf{\X}{\Y,\Th} \\
-	\shortintertext{take integrals on both sides}
-	\Pdf{\Y}{\Th} &= \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf{\X,\Y}{\Th}}{\X} - \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf{\X}{\Y,\Th}}{\X} \\
-	&= \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf{\X,\Y}{\Th}}{\X} -  \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf[\tilde{p}]{\X}}{\X}\\
-	&\quad{}- \defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf{\X}{\Y,\Th}}{\X}+\defint{\mathcal{X}}{}{\Pdf[\tilde{p}]{\X}\log\Pdf[\tilde{p}]{\X}}{\X}\\
-	\shortintertext{combine}
-	&= \defint{\v{X}}{}{\Pdf[\tilde{p}]{\v{X}}\log\left(\frac{\cLH}{\Pdf[\tilde{p}]{\v{X}}}\right)}{\v{X}}-\defint{\v{X}}{}{\Pdf[\tilde{p}]{\v{X}}\log\left(\frac{\Pdf{\v{X}}{\v{Y},\Th}}{\Pdf[\tilde{p}]{\v{X}}}\right)}{\v{X}}
-\shortintertext{so that}
-	\lLH&= \LB(q,\Th)+\KL{q}{p}
-\end{align*}
-Since $\KL{q}{p}$, the \emph{Kullback-Leibler divergence} between $q$ and $p$, is always nonnegative,
+distribution $\tPX$ over the states. 
+Noting now that $\Pdf{\X}{\Y,\Th}=\cLH/\LH$ and that $\lLH\equiv\log\LH$ is independent of $\X$ we can then perform the
+following decomposition on the log likelihood:
+\begin{align}
+	\lLH &= \lcLH - \log\post \nonumber\\
+	&= \E{\lcLH}{\tP} - \E{\log\post}{\tP} \nonumber\\
+	&= \underbrace{\E{\lcLH-\log\tPX}{\tP}}_{\LB\left(\tP,\Th\right)}
+	\underbrace{-\E{\log\post-\log\tPX}{\tP}}_{\KL{\tP}{\post}}
+	\label{eq:lLH_decomp}
+\end{align}
+Since $\KL{\tP}{\post}$, the \emph{Kullback-Leibler divergence} between $\tPX$ and $\post$, is always nonnegative,
 we see that 
 \begin{align}
-	\lLH&\geq \LB(q,\Th) \label{eq:em_lh_lb}
+	\lLH&\geq \LB(\tP,\Th) \label{eq:em_lh_lb}
 \end{align}
 with equality when 
 \begin{align}
-\begin{split}
-	\KL{q}{p}&=0\\
-	\Rightarrow \Pdf[\tilde{p}]{\v{X}} &= \Pdf{\v{X}}{\v{Y},\Th} \label{eq:em_maxq}
-\end{split}
+	\tPX &= \post \label{eq:em_maxq}
 \end{align}
 The nonnegativeness of the Kullback-Leibler divergence can be proved by
 noting that $-\log$ is a convex function and so \emph{Jensen's inequality}
-can be applied \parencite{Bishop2006}. An alternative proof is presented in \parencite{Minka1998}.
-
+can be applied \parencite{Bishop2006}.
 
 We are now ready the define the EM algorithm, which produces
 a series of estimates $\{\hat{\Th}_j\}$ to the parameter $\Th$
@@ -265,6 +260,162 @@ distribution of the states given the current value of the parameter.
 
 \subsubsection{EM as a special case of variational Bayes}
 \parencite{barber2012bayesian,jordan1998learning}
+Variational Bayes (VB) is a fully Bayesian methodology where one seeks
+for an approximation to the parameter posterior
+\begin{align}
+	\Pdf{\Th}{\Y}\propto \defint{\mathcal{X}}{}{\Pdf{\X,\Y}{\Th}}{\X}\Pdf{\Th}
+	\label{tablelabel}
+\end{align}
+As mentioned earlier, finding this distribution is commonly intractable, so in VB
+we assume a factorized form for the joint posterior of states and parameters
+\begin{align}
+	\Pdf{\X,\Th}{\Y}\approx \Pdf[q]{\X}\Pdf[q]{\Th}
+	\label{eq:VB_factorization}
+\end{align}
+and the task is then to find the best approximation with respect
+to the KL divergence between the true posterior and the approximation
+\begin{align}
+	\KL{\Pdf[q]{\X}\Pdf[q]{\Th}}{\Pdf{\X,\Th}{\Y}} &= \E{\Pdf[q]{\X}}{\Pdf[q]{\X}} + \E{\Pdf[q]{\X}}{\Pdf[q]{\X}} -
+	\E{\Pdf{\X,\Th}{\Y}}{\Pdf[q]{\X}\Pdf[q]{\Th}}.
+	\label{eq:KL_VB}
+\end{align}
+Using ${\Pdf{\X,\Th}{\Y}}=\Pdf{\X,\Th,\Y}/\Pdf{\Y}$ equation \eqref{eq:KL_VB} gives
+\begin{align}
+	\lLH &\geq \E{\Pdf{\X,\Th,\Y}}{\Pdf[q]{\X}\Pdf[q]{\Th}} - \E{\Pdf[q]{\X}}{\Pdf[q]{\X}} -
+	\E{\Pdf[q]{\X}}{\Pdf[q]{\X}}
+	\label{eq:VB_bound}
+\end{align}
+and thus minimizing the KL divergence is equivalent to finding the tightest lower bound to
+the log likelihood. Analogously to EM, minimizing the KL divergence is done iteratively
+keeping $\Pdf[q]{\Th}$ fixed and minimizing w.r.t $\Pdf[q]{\X}$ in the ``E''-step
+and vice versa in the ``M''-step:
+
+\begin{description}
+\addtolength{\leftskip}{1cm}
+\item[E-step]
+\begin{align}
+	\Pdf[q^{\text{new}}]{\X}=\text{argmax}_{\Pdf[q]{\X}}\left(\KL{\Pdf[q]{\X}\Pdf[q^{\text{old}}]{\Th}}{\Pdf{\X,\Th}{\Y}}\right)
+	\label{eq:VB_E}
+\end{align}
+\item[M-step]
+\begin{align}
+	\Pdf[q^{\text{new}}]{\Th}=\text{argmax}_{\Pdf[q]{\Th}}\left(\KL{\Pdf[q^{\text{new}}]{\X}\Pdf[q]{\Th}}{\Pdf{\X,\Th}{\Y}}\right)
+	\label{eq:VB_M}
+\end{align}
+\end{description}
+
+
+Let us then suppose that we only wish to find the MAP point estimate $\Th^*$. This can be accomplished
+by assuming a delta function form $\Pdf[q]{\Th}=\delta\left(\Th,\Th^*\right)$ for the parameter factor in the
+joint distribution of states and parameters \eqref{eq:VB_factorization}.
+With this assumption equation \eqref{eq:VB_bound} becomes
+\begin{align}
+	\Pdf{\Y}{\Th^*} &\geq \E{\Pdf{\X,\Th^*,\Y}}{\Pdf[q]{\X}\Pdf[q]{\Th}} - \E{\Pdf[q]{\X}}{\Pdf[q]{\X}} + \mathtt{const}
+	\label{eq:VB_MAP_boundl}
+\end{align}
+and the ``M''-step \eqref{eq:VB_M} can then be written as
+\begin{align}
+	\Th^* &= \text{argmax}_{\Th}\left(\E{\lcLH}{\Pdf[q]{\X}}+\log\Pdf{\Th}\right).
+	\label{tablelabel}
+\end{align}
+If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we have
+\begin{align}
+	\Pdf[q^{\text{new}}]{\X}\propto \Pdf{\X,\Y}{\Th^*} \propto \Pdf{\X}{\Y,\Th^*} 
+	\label{tablelabel}
+\end{align}
+
+\subsubsection{Partial E and M steps}
+
+
+
+
+\subsubsection{M-step with structured matrices}
+\cite{Wills2011}
+When we want to maximize $\Lb(\Th,\hat{\Th})$ w.r.t some other
+parameters than the ones in $\Th_M$, the situation becomes more complicated.
+In the general case, no analytical formulas can be found. We therefore seek
+to maximize $\Lb(\Th,\hat{\Th})$ numerically, analogously to how $L(\gv{\theta})$
+was maximized in section~\ref{sec:grad}.
+
+Fortunately calculating the gradient of $\Lb(\Th,\hat{\Th})$ is straightforward:
+
+\begin{align}
+\begin{split}
+	-2\dpd{\Lb(\Th,\hat{\Th}))}{\theta_i}
+	&=\Tr{-\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
+	\left(\v{B}_1-\v{A}\v{B}_2^T-\v{B}_2\v{A}^T+\v{A}\v{B}_3\v{A}^T\right)}\\
+	&+\Tr{\v{Q}^{-1}\left(-\dpd{\v{A}}{\theta_i}\v{B}_2^T-\v{B}_2\dpd{\v{A}}{\theta_i}^T+\dpd{\v{A}}{\theta_i}\v{B}_3\v{A}^T+\v{A}\v{B}_3\dpd{\v{A}}{\theta_i}^T\right)}\\
+	&+\Tr{-\v{R}^{-1}\dpd{\v{R}}{\theta_i}\v{R}^{-1}
+	\left(\v{B}_4-\v{H}\v{B}_5^T-\v{B}_5\v{H}^T+\v{H}\v{B}_1\v{H}^T\right)}\\
+	&+N\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}
+	+N\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
+	\label{eq:dLB}
+\end{split}
+\end{align}
+
+
+
+\subsubsection{M-step maximization equations}
+
+Let us separate the set of all parameters $\Th$ into
+subsets
+
+\begin{align}
+	\Th&=\left\{\gv{\psi},\gv{\omega},\v{Q},\v{R}\right\},
+\end{align}
+where $\gv{\psi}$ are the parameters of $f$ and $\gv{\omega}$ are
+the parameters of $h$ (these sets can intersect). Let us first consider
+the maximization with respect to $\v{Q}$. We have
+
+\begin{multline}
+	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{Q^{-1}}}=
+	\sum_{k=1}^N\dpd{}{\v{Q^{-1}}}\Tr{\v{Q}^{-1}\E{\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)^T}{\hat{\Th}_j}}\\+N\dpd{}{\v{Q^{-1}}}\log\abbs{\v{Q}}
+	\label{eq:clLH_pdQ}
+\end{multline}
+Using formula 92 in \cite{Petersen2008} for the first derivative and formula 51 for the second, we get
+\begin{align}
+	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{Q^{-1}}}&=
+	\sum_{k=1}^N\E{\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)^T}{\hat{\Th}_j}-N\v{Q}
+	\label{eq:clLH_pdQ2}
+\end{align}
+and setting this to zero we get the update equation for the next estimate of $\v{Q}$
+\begin{align}
+	\v{Q}_{j+1}&=\frac{1}{N}\sum_{k=1}^N\E{\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)^T}{\hat{\Th}_j}
+\end{align}
+The derivation of the update equation for the next estimate of $\v{R}$ is exactly analogous, giving
+\begin{align}
+	%-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{R^{-1}}}&=\sum_{k=1}^N\E{\left(\v{y}_k-\v{g}(\v{x}_{k})\right)^T\left(\v{y}_k-\v{g}(\v{x}_{k})\right)}{\hat{\Th}_j}-N\v{R}\\
+	\v{R}_{j+1}&=\frac{1}{N}\sum_{k=1}^N\E{\left(\v{y}_k-\v{h}(\v{x}_{k})\right)\left(\v{y}_k-\v{h}(\v{x}_{k})\right)^T}{\hat{\Th}_j}
+\end{align} 
+
+
+
+\subsubsection{Gradient computation}
+In this case we have
+\begin{align}
+	\dpd{\Lb(\Th,\hat{\Th}))}{\theta_i}&=\dpd{I_1}{\theta_i}+\dpd{I_3}{\theta_i}+\dpd{I_3}{\theta_i}
+	\label{eq:dLB_nonlinear_1}
+\end{align}
+and
+\begin{align}
+\begin{split}
+	-2\dpd{I_2}{\theta_i}
+	=&-\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
+	\sum_{k=1}^N\E{\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)^T}{\hat{\Th}_j}}\\
+	&-\Tr{\v{Q}^{-1}\sum_{k=1}^N\E{\dpd{\v{f}(\v{x}_{k-1})}{\theta_i}\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)^T+\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)\dpd{\v{f}^T(\v{x}_{k-1})}{\theta_i}}{\hat{\Th}_j}}\\
+	&+N\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}\\
+	\dpd{I_3}{\theta_i}=&
+	-\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}\v{R}^{-1}
+	\sum_{k=1}^N\E{\left(\v{y}_k-\v{h}(\v{x}_{k})\right)\left(\v{y}_k-\v{h}(\v{x}_{k})\right)^T}{\hat{\Th}_j}}\\
+	&-\Tr{\v{R}^{-1}\sum_{k=1}^N\E{\dpd{\v{h}(\v{x}_{k})}{\theta_i}\left(\v{y}_k-\v{h}(\v{x}_{k})\right)^T+\left(\v{y}_k-\v{h}(\v{x}_{k})\right)\dpd{\v{h}^T(\v{x}_{k})}{\theta_i}}{\hat{\Th}_j}}\\
+	&+N\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
+	\label{eq:dLB_nonlinear}
+\end{split}
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Applying EM}%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection{EM in linear-Gaussian SSM:s}
 \parencite{shumway1982approach,Ghahramani1996}
@@ -291,8 +442,6 @@ We can then take the expectation of \eqref{eq:clLH}:
 	\label{eq:lb}
 \end{split}
 \end{align}
-
-
 
 Finally, the expectations in \eqref{eq:sum_expectations} can be
 calculated with the combined use of the Kalman filter and the 
@@ -331,31 +480,156 @@ and set them to zero. We get \parencite{Ghahramani1996}:
 \end{align}
 \end{subequations}
 
-\subsubsection{EM in nonlinear-Gaussian SSM:s}
-\cite{Wills2011}
-When we want to maximize $\Lb(\Th,\hat{\Th})$ w.r.t some other
-parameters than the ones in $\Th_M$, the situation becomes more complicated.
-In the general case, no analytical formulas can be found. We therefore seek
-to maximize $\Lb(\Th,\hat{\Th})$ numerically, analogously to how $L(\gv{\theta})$
-was maximized in section~\ref{sec:grad}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{EM in nonlinear-Gaussian SSM:s}%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Fortunately calculating the gradient of $\Lb(\Th,\hat{\Th})$ is straightforward:
+As explained in section \ref{sec:nonlinear_state}, in then nonlinear case
+the filtering and smoothing distributions cannot be computed exactly.
+Thus the E-step solution is also only approximate and the convergence
+guarantees of EM won't apply anymore. The proposed methods can nevertheless
+provide good results most of the time. In the fortunate case that the
+model is linear-in-the-parameters the M-step can be solved in closed form.
+This situation will be covered later in section~\ref{sec:litp}.
+
+Now the expectation of the complete-data log-likelihood becomes
+\begin{align}
+\begin{split}
+	\Lb(\Th,\hat{\Th}_j)&=\v{I}_1+\v{I}_2+\v{I}_3
+\end{split}
+\label{eq:ecLH_nonlinear}
+\end{align}
+where
+\begin{align}
+\begin{split}
+\v{I}_1&=\frac{1}{2}\E{\left(\v{x}_0-\gv{\mu}\right)^T\gv{\Sigma}^{-1}\left(\v{x}_0-\gv{\mu}\right)}{\hat{\Th}_j}+\log\abbs{\gv{\Sigma}}\\
+&=\frac{1}{2}\E{\Tr{\gv{\Sigma}^{-1}\left(\v{x}_0-\gv{\mu}\right)\left(\v{x}_0-\gv{\mu}\right)^T}}{\hat{\Th}_j}+\log\abbs{\gv{\Sigma}}\\
+&=\frac{1}{2}\Tr{\gv{\Sigma}^{-1}\E{\left(\v{x}_0-\gv{\mu}\right)\left(\v{x}_0-\gv{\mu}\right)^T}{\hat{\Th}_j}}+\log\abbs{\gv{\Sigma}}\label{eq:ecLH_nonlinear_1}
+\end{split}\\
+\v{I}_2&=\frac{1}{2}\Tr{\v{Q}^{-1}\sum_{k=1}^N\E{\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)\left(\v{x}_k-\v{f}(\v{x}_{k-1})\right)^T}{\hat{\Th}_j}}+N\log\abbs{\v{Q}}\label{eq:ecLH_nonlinear_2}\\
+\v{I}_3&=\frac{1}{2}\Tr{\v{R}^{-1}\sum_{k=1}^N\E{\left(\v{y}_k-\v{h}(\v{x}_{k})\right)\left(\v{y}_k-\v{h}(\v{x}_{k})\right)^T}{\hat{\Th}_j}}+N\log\abbs{\v{R}}\label{eq:ecLH_nonlinear_3}
+\end{align}
+The expectations in \eqref{eq:ecLH_nonlinear} should in principle be taken
+with respect to the joint posterior distribution
+\begin{align}
+	\Pdf{\v{x}_0,\dots,\v{x}_{N}}{\v{Y},\hat{\Th}_j}.
+	\label{eq:joint_posterior_of_state}
+\end{align}
+To calculate equation~\eqref{eq:ecLH_nonlinear} we don't need the full
+joint posterior of the states \eqref{eq:joint_posterior_of_state}, but
+only the marginals with two consecutive states
+\begin{align}
+	\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y},\hat{\Th}_j},\;k=1,\dots,N,
+	\label{eq:joint_posterior_of_consecutive_states}
+\end{align}
+which in general are not Gaussian anymore.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{EM in linear-in-the-parameters SSM:s}%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:litp}
+
+Suppose the function $\v{f}$ is linear in the parameters and the dimension of the state $\v{x}$ is $d$.
+Then in the most general case $\v{f}(\v{x}):\R^d\to\R^d$ is a linear
+combination of vector valued functions $\gv{\rho}_k(\v{x}):\R^d\to\R^{d_k}$  
+and the parameters are matrices $\gv{\Phi}_k\in\R^{d\times d_k}$. More specifically,
+we have
 
 \begin{align}
 \begin{split}
-	-2\dpd{\Lb(\Th,\hat{\Th}))}{\theta_i}
-	&=\Tr{-\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
-	\left(\v{B}_1-\v{A}\v{B}_2^T-\v{B}_2\v{A}^T+\v{A}\v{B}_3\v{A}^T\right)}\\
-	&+\Tr{\v{Q}^{-1}\left(-\dpd{\v{A}}{\theta_i}\v{B}_2^T-\v{B}_2\dpd{\v{A}}{\theta_i}^T+\dpd{\v{A}}{\theta_i}\v{B}_3\v{A}^T+\v{A}\v{B}_3\dpd{\v{A}}{\theta_i}^T\right)}\\
-	&+\Tr{-\v{R}^{-1}\dpd{\v{R}}{\theta_i}\v{R}^{-1}
-	\left(\v{B}_4-\v{H}\v{B}_5^T-\v{B}_5\v{H}^T+\v{H}\v{B}_1\v{H}^T\right)}\\
-	&+N\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}
-	+N\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
-	\label{eq:dLB}
+	\v{f}(\v{x})&=\gv{\Phi}\gv{\rho}_1(\v{x})+\dots+\gv{\Phi}_m\gv{\rho}_m(\v{x})\\
+	&=
+	\begin{bmatrix}
+		\gv{\Phi}_1 & \dots & \gv{\Phi}_m
+	\end{bmatrix}
+	\begin{bmatrix}
+		\gv{\rho}_1(\v{x})\\
+		\vdots\\ 
+		\gv{\rho}_m(\v{x})
+	\end{bmatrix}\\
+	&=\v{A}\v{g}(\v{x}),
 \end{split}
 \end{align}
+where $\v{A}\in\R^{d\times\sum_{k=1}^m d_k}$ and $\v{g}(\v{x}):\R^d\to \R^{\sum_{k=1}^m d_k}$ . 
+For example, in case of the function
+\begin{align}
+	f(x,t)&=ax+b\frac{x}{1+x^2}+c\cos(1.2t)
+\end{align}
+we would have
+\begin{align}
+	f(x,t)&=
+	\begin{bmatrix}
+		a & b & c
+	\end{bmatrix}
+	\begin{bmatrix}
+		x\\
+		\frac{x}{1+x^2}\\ 
+		\cos(1.2t)
+	\end{bmatrix}
+\end{align}
+Suppose now, that the matrix $A$ depends on parameters $\v{s}$.
+Let us then deduce the maximization equation for the parameter $s_i$:
+\begin{align}
+	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}&=
+	\sum_{k=1}^N\E{\dpd{}{s_i}\left(\v{x}_k-\v{A}\v{g}(\v{x}_{k-1})\right)^T\v{Q}^{-1}\left(\v{x}_k-\v{A}\v{g}(\v{x}_{k-1})\right)}{\hat{\Th}_j}\label{eq:s_grad}
+\end{align}
+and
+\begin{align}
+	&\dpd{}{s_i}\left(\v{x}_k-\v{A}\v{g}(\v{x}_{k-1})\right)^T\v{Q}^{-1}\left(\v{x}_k-\v{A}\v{g}(\v{x}_{k-1})\right)\\
+	=&-2\v{g}(\v{x}_{k-1})^T\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\left(\v{x}_k-\v{A}\v{g}(\v{x}_{k-1})\right)\\
+	=&-2\Tr{\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\v{x}_k\v{g}(\v{x}_{k-1})^T}-2\Tr{\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\v{A}\v{g}(\v{x}_{k-1})\v{g}(\v{x}_{k-1})^T}\\
+	=&-2\Tr{\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\left(\v{x}_k\v{g}(\v{x}_{k-1})^T-\v{A}\v{g}(\v{x}_{k-1})\v{g}(\v{x}_{k-1})^T\right)}\label{eq:a_grad}.
+\end{align}
+Combining equations \eqref{eq:a_grad} and \eqref{eq:s_grad} then gives
+\begin{multline}
+	\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}=\\
+	-2\Tr{\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\left(\sum_{k=1}^N\E{\v{x}_k\v{g}(\v{x}_{k-1})^T}-\v{A}\sum_{k=1}^N\E{\v{g}(\v{x}_{k-1})\v{g}(\v{x}_{k-1})^T}\right)}
+	\label{eq:pdcLH_nonlinear}
+\end{multline}
+If we then set \eqref{eq:pdcLH_nonlinear} to zero, we have
+\begin{align}
+	\v{A}_{j+1}=\left(\sum_{k=1}^N\E{\v{x}_k\v{g}(\v{x}_{k-1})^T}\right)\left(\sum_{k=1}^N\E{\v{g}(\v{x}_{k-1})\v{g}(\v{x}_{k-1})^T}\right)^{-1}
+\end{align}
+which is similar to \eqref{eq:A_new}
 
-\subsubsection{EM in linear-in-the-parameters SSM:s}
+Suppose the function $\v{h}$ is linear in the parameters and the dimension of
+the state $\v{x}$ is $d^x$ and of the measurements $d^y$.
+Then in the most general case $\v{h}(\v{x}):\R^{d^x}\to\R^{d^y}$ is a linear
+combination of vector valued functions $\gv{\pi}_k(\v{x}):\R^{d^x}\to\R^{d_k}$  
+and the parameters are matrices $\gv{\Upsilon}_k\in\R^{d^x\times d_k}$. More
+specifically, we have
+
+\begin{align}
+\begin{split}
+	\v{h}(\v{x})&=\gv{\Upsilon}\gv{\pi}_1(\v{x})+\dots+\gv{\Upsilon}_m\gv{\pi}_m(\v{x})\\
+	&=
+	\begin{bmatrix}
+		\gv{\Upsilon}_1 & \dots & \gv{\Upsilon}_m
+	\end{bmatrix}
+	\begin{bmatrix}
+		\gv{\pi}_1(\v{x})\\
+		\vdots\\ 
+		\gv{\pi}_m(\v{x})
+	\end{bmatrix}\\
+	&=\v{H}\v{l}(\v{x}),
+\end{split}
+\end{align}
+  
+Suppose now, that the matrix $\v{H}$ depends on parameters $\v{t}$.
+Let us then deduce the maximization equation for the parameter $t_i$:
+\begin{align}
+	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{t_i}&=
+	\frac{1}{2}\Tr{\v{R}^{-1}\sum_{k=1}^N\E{\dpd{}{t_i}\left(\v{y}_k-\v{H}\v{l}(\v{x}_k)\right)\left(\v{y}_k-\v{H}\v{l}(\v{x}_k)\right)^T}{\hat{\Th}_j}}
+\label{eq:s_grad}
+\end{align}
+and
+
+If we then set \eqref{eq:pdcLH_nonlinear} to zero, we have
+\begin{align}
+	\v{H}_{j+1}=\left(\sum_{k=1}^N\v{y}_k\E{\v{l}(\v{x}_{k})^T}\right)\left(\sum_{k=1}^N\E{\v{l}(\v{x}_{k})\v{l}(\v{x}_{k})^T}\right)^{-1}
+\end{align}
+which is similar to \eqref{eq:H_new}
+
 
 \subsection{Comparisons}
 \subsubsection{Convergence}

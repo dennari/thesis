@@ -17,8 +17,12 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {todo}{\color@box {}{orange!40}{\leavevmode {\color {orange!40}o}}\ Explain something about linear-Gaussian SSMs}{6}{section*.10}
 \defcounter {refsection}{0}\relax 
-\contentsline {todo}{\color@box {}{orange!40}{\leavevmode {\color {orange!40}o}}\ Explain something about nonlinear SSMs}{7}{section*.11}
+\contentsline {todo}{\color@box {}{orange!40}{\leavevmode {\color {orange!40}o}}\ Elaborate on the Kalman filter}{6}{section*.11}
 \defcounter {refsection}{0}\relax 
-\contentsline {todo}{\color@box {}{orange!40}{\leavevmode {\color {orange!40}o}}\ why? examples?}{11}{section*.12}
+\contentsline {todo}{\color@box {}{orange!40}{\leavevmode {\color {orange!40}o}}\ Elaborate on the RTS smoother}{7}{section*.12}
 \defcounter {refsection}{0}\relax 
-\contentsline {todo}{\color@box {}{orange!40}{\leavevmode {\color {orange!40}o}}\ Explain MAP in both cases}{11}{section*.13}
+\contentsline {todo}{\color@box {}{orange!40}{\leavevmode {\color {orange!40}o}}\ Mention EKF}{7}{section*.13}
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{\color@box {}{orange!40}{\leavevmode {\color {orange!40}o}}\ why? examples?}{11}{section*.14}
+\defcounter {refsection}{0}\relax 
+\contentsline {todo}{\color@box {}{orange!40}{\leavevmode {\color {orange!40}o}}\ Explain MAP in both cases}{11}{section*.15}

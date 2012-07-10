@@ -37,6 +37,7 @@ pdfproducer={xetex}
 %\usepackage[shadow]{todonotes}
 % MATH
 \usepackage{mymath}
+\usepackage{xfrac}
 %\everymath{\displaystyle}
 
 \usepackage{tikz}
@@ -49,6 +50,9 @@ pdfproducer={xetex}
 \newcommand{\lLH}{\ell\!\left(\Th\right)}
 \newcommand{\cLH}{\Pdf{\v{X},\v{Y}}{\Th}}
 \newcommand{\lcLH}{\log\cLH}
+\newcommand{\tP}{\tilde{p}}
+\newcommand{\tPX}{\Pdf[\tP]{\X}}
+\newcommand{\post}{\Pdf{\X}{\Y,\Th}}
 \newcommand{\LB}{\mathcal{L}}
 \newcommand{\Lb}{\mathfrak{L}}
 \newcommand{\KL}[2]{\mathrm{KL}\left(#1\|#2\right)}

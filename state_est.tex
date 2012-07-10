@@ -7,23 +7,30 @@ are described by the subset of SSMs of the form \eqref{eq:ssm_general} where
 	\v{h}_{\Th}\left(\xk\right)&=\v{H}\xk
 \end{align}
 \todo{Explain something about linear-Gaussian SSMs}
+
+
 \subsubsection{Kalman filter}
 
-To derive the expression for the log-likelihood function in our case,
-let us first see what the Kalman filter calculates. Firstly,
-the recursions are as follows \parencite{Kalman1960,jazwinski2007stochastic}:
+The recursions are as follows \parencite{Kalman1960,jazwinski2007stochastic}:
+\todo{Elaborate on the Kalman filter}
 \begin{subequations}
+\label{eq:Kalman_filter}
+\begin{description}
+\addtolength{\leftskip}{1cm}
+\item[Predict:]
 \begin{align}
-	\shortintertext{prediction:}
 	\v{m}_{k|k-1}&=\v{A}\v{m}_{k-1|k-1}\\
 	\v{P}_{k|k-1}&=\v{A}\v{P}_{k-1|k-1}\v{A}^T+\v{Q}
-	\shortintertext{update:}
+\end{align}
+\item[Update:]
+\begin{align}
 	\v{v}_k&=\v{y}_k-\v{H}\v{m}_{k|k-1}\\
 	\v{S}_k&=\v{H}\v{P}_{k|k-1}\v{H}^T+\v{R}\\
 	\v{K}_k&=\v{P}_{k|k-1}\v{H}^T\v{S}_{k}^{-1}\\
 	\v{m}_{k|k}&=\v{m}_{k|k-1}+\v{K}_k\v{v}_k\\
 	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^T
 \end{align}
+\end{description}
 \end{subequations}
 This includes the sufficient statistics for the $T$
 joint distributions 
@@ -50,9 +57,9 @@ joint distributions
 	\label{eq:joint_per_kalmanstep}
 \end{align}
 
-\subsubsection{RTS Smoother}
+\subsubsection{Rauch-Tung-Striebel Smoother}
 
-The standard RTS smoother gives the statistics $\v{m}_{k|N}$ and $\v{P}_{k|N}$ \parencite{jazwinski2007stochastic,Rauch1965}.
+The standard Rauch-Tung-Striebel (RTS) smoother gives the statistics $\v{m}_{k|N}$ and $\v{P}_{k|N}$ \parencite{jazwinski2007stochastic,Rauch1965}.
 The cross-timestep variance $\v{C}_{k|N}$ can be computed with an additional
 recursive formula alongside the usual RTS smoother recursions
 \begin{subequations}
@@ -63,19 +70,26 @@ recursive formula alongside the usual RTS smoother recursions
 	\v{C}_{k|N}&=\v{P}_{k|k}\v{J}_{k-1}^T+\v{J}_k\left(\v{C}_{k+1|N}-\v{A}\v{P}_{k|k}\right)\v{J}_{k-1}^T\\
 \end{align}
 \end{subequations}
-For more specific details see \parencite{Gibson2005}. All in all, the E-step of the 
-EM algorithm in linear-Gaussian SSM:s corresponds to computing
-the matrices in \eqref{eq:sum_expectations} with the help of the Kalman filter and
-the RTS smoother. In \parencite{Elliott1999} a new kind of filter is presented that
+In \parencite{Elliott1999} a new kind of filter is presented that
 can compute \eqref{eq:sum_expectations} with only forward recursions. 
-
-\subsection{Nonlinear-Gaussian SSMs}
-
+\todo{Elaborate on the RTS smoother}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Nonlinear-Gaussian SSMs}%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:nonlinear_state}
 In the nonlinear case at least one of the mappings $\v{f}_{\Th}$ and $\v{h}_{\Th}$ in
-\eqref{eq:ssm_general} is nonlinear. \todo{Explain something about nonlinear SSMs}
+\eqref{eq:ssm_general} is nonlinear. Unfortunately in this case computing the filtering
+distributions in closed form becomes intractable and one has to resort to approximations.
+Finding good approximations is however extremely valuable since a great many
+physically modeled dynamical phenoma could be forumulated as nonlinear-Gaussian SSM.
+
+The types of approximate filtering (and smoothing) solutions can be put into two 
+categories: particle filtering (or sequential Monte Carlo), which is asymptotically exact but
+computationally demanding and different kinds of deterministic approximation methods that
+are analytically inexact but less computationally demanding. We will only focus
+on the latter category. \todo{Mention EKF}
 
 \subsubsection{Gaussian filtering and smoothing}
-
 
 One approach to forming Gaussian approximations is to assume a
 Gaussian probability density function with mean and variance that match the
@@ -270,7 +284,7 @@ where
 	\v{P}_{k-1|N}&=\v{P}_{k-1|k-1}+\v{G}_{k-1}\left(\v{P}_{k|N}-\v{P}_{k|k-1}\right)\v{G}_{k-1}^T
 \end{align}
 
-\subsubsection{Numerical integration}
+\subsubsection{Quadrature and cubature}
 \parencite{Arasaratnam2009}
 \subsubsection{Gauss-Hermite Kalman Filter and Smoother}
 \parencite{Ito2000}

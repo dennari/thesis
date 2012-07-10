@@ -104,9 +104,9 @@ k). Thus the SSMs considered in this thesis are of the form
 \begin{subequations}
 \label{eq:ssm_general}
 \begin{alignat}{2}
-	\xk &= \v{f}_{\Th}\left(\x_{k-1}\right)+\v{q}_{k-1}&\v{q}_k&\sim \N{\v{0},\v{Q}} \label{eq:Q}\\
-	\yk &= \v{h}_{\Th}\left(\xk\right)+\v{r}_{k}&\v{r}_k&\sim \N{\v{0},\v{R}} \label{eq:R}\\
-	\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}}& \label{eq:prior}
+	\xk &= \v{f}_{\Th}\left(\x_{k-1}\right)+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0},\v{Q}} \label{eq:Q}\\
+	\yk &= \v{h}_{\Th}\left(\xk\right)+\v{r}_{k} & \v{r}_k&\sim \N{\v{0},\v{R}} \label{eq:R}\\
+	\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}} && \label{eq:prior}
 \end{alignat}
 \end{subequations}
 We will assume an implicit dependence of the distributional parameters $\v{Q}$,
