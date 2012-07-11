@@ -18,7 +18,7 @@ the process at the current timestep depends only on the distribution in the prev
 A further assumption in SSMs is that the process of interest, the dynamic process $\x$, is not directly observed
 but only through another stochastic process, the \emph{measurement process} $\y$. Since
 $\x$ is not observed, SSMs belong to the class of \emph{latent variable models}. Sometimes, as in
-\cite{Cappe2005}, SSMs are called \emph{hidden Markov models} (HMM) but usually this implies that
+\textcite{Cappe2005}, SSMs are called \emph{hidden Markov models} (HMM) but usually this implies that
 the sample space of $\x$ is discrete. Another assumption is that the values of the measurement process are conditionally independent
 given the latent Markov process.
 An intuitive way to present conditional independence properties between random
@@ -154,12 +154,12 @@ and the observations \parencite{Sarkka2006}:
 \begin{description}
 \addtolength{\leftskip}{1cm}
 	\item[Predictive distribution]
-	$\Pdf{\v{x}_{k}}{\v{y}_{1:k-1}}$ is the predicted distribution of the state in the next timestep (or more generally at timestep $k+h$, where $h>0$) 
+	$\Pdf{\v{x}_{k}}{\v{y}_{1:k-1},\Th}$ is the predicted distribution of the state in the next timestep (or more generally at timestep $k+h$, where $h>0$) 
 	given the previous measurements
-	\item[Filtering distribution] $\Pdf{\v{x}_k}{\v{y}_{1:k}}$ is the marginal posterior distribution
+	\item[Filtering distribution] $\Pdf{\v{x}_k}{\v{y}_{1:k},\Th}$ is the marginal posterior distribution
 	of any state $\xk$ given the measurements up to and including $\yk$
 	\item[Smoothing distribution]
-	$\Pdf{\v{x}_k}{\v{y}_{1:T}}$ is the marginal posterior distribution
+	$\Pdf{\v{x}_k}{\v{y}_{1:T},\Th}$ is the marginal posterior distribution
 	of any state $\xk$ given the measurements up to and including $\y_T$ where $k<T$
 \end{description} 
 
@@ -168,44 +168,61 @@ and the observations \parencite{Sarkka2006}:
 Let us now derive a recursive formulation for computing the filtering distribution at time $k$. Let $\Pdf{\xkk}{\y_{1:k-1}}$
 be the filtering distribution of the previous step. Then 
 \begin{align}
-	\Pdf{\xk}{\y_{1:k-1}}&=\defint{}{}{\Pdf{\xk,\xkk}{\y_{1:k-1}}}{\xkk} \nonumber\\
-	&=\defint{}{}{\Pdf{\xk}{\xkk}\Pdf{\xkk}{\y_{1:k-1}}}{\xkk},
+	\Pdf{\xk}{\y_{1:k-1},\Th}&=\defint{}{}{\Pdf{\xk,\xkk}{\y_{1:k-1},\Th}}{\xkk} \nonumber\\
+	&=\defint{}{}{\Pdf{\xk}{\xkk}\Pdf{\xkk}{\y_{1:k-1},\Th}}{\xkk},
 	\label{eq:pred_bayes}
 \end{align}
 which is known as the \emph{Chapman-Kolmogorov equation} \parencite{Sarkka2006}.
+In this thesis the predictive distributions will be Gaussian or approximated with a Gaussian
+\begin{align}
+	\Pdf{\xk}{\y_{1:k-1},\Th}&=\N{\xk;\m_{k|k-1},\P_{k|k-1}}
+\end{align}
+
 \subsubsection*{Filtering distribution}
 Incorporating the newest measurement can be achieved with the Bayes'
 rule (see for example \cite{gelman2004})\todo{check marginal likelihood wording}
 \begin{align}
-	\underbrace{\Pdf{\xk}{\y_{1:k}}}_\text{posterior}&=\frac{\overbrace{\Pdf{\yk}{\xk}}^\text{likelihood}\overbrace{\Pdf{\xk}{\y_{1:k-1}}}^\text{prior}}{\underbrace{\Pdf{\y_{k}}{\y_{1:k-1}}}_\text{marginal likelihood}}\nonumber\\
+	\underbrace{\Pdf{\xk}{\y_{1:k},\Th}}_\text{posterior}&=\frac{\overbrace{\Pdf{\yk}{\xk,\Th}}^\text{likelihood}\overbrace{\Pdf{\xk}{\y_{1:k-1},\Th}}^\text{prior}}{\underbrace{\Pdf{\y_{k}}{\y_{1:k-1},\Th}}_\text{marginal likelihood}}\nonumber\\
 	&=\frac{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\defint{}{}{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\xk}}
 \end{align}
 which is called the measurement update equation.
+In this thesis the filtering distributions will be Gaussian or approximated with a Gaussian
+\begin{align}
+	\Pdf{\xk}{\y_{1:k},\Th}&=\N{\xk;\m_{k|k},\P_{k|k}}
+\end{align}
+
 
 \subsubsection*{Smoothing distribution}
 The smoothing distributions can also be computed recursively by assuming that the filtering distributions
 and the smoothing distribution $\Pdf{\x_{k+1}}{\y_{1:T}}$ of the ``previous'' step are available.
 Since
 \begin{align*}
-	\Pdf{\xk}{\x_{k+1},\y_{1:T}}&=\Pdf{\xk}{\x_{k+1},\y_{1:k}}\\
-	&=\frac{\Pdf{\xk,\x_{k+1}}{\y_{1:k}}}{\Pdf{\x_{k+1}}{\y_{1:k}}}\\
-	&=\frac{\Pdf{\x_{k+1}}{\xk}\Pdf{\xk}{\y_{1:k}}}{\Pdf{\x_{k+1}}{\y_{1:k}}}
+	\Pdf{\xk}{\x_{k+1},\y_{1:T},\Th}&=\Pdf{\xk}{\x_{k+1},\y_{1:k},\Th}\\
+	&=\frac{\Pdf{\xk,\x_{k+1}}{\y_{1:k},\Th}}{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}\\
+	&=\frac{\Pdf{\x_{k+1}}{\xk,\Th}\Pdf{\xk}{\y_{1:k},\Th}}{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}
 \end{align*}
 we get
 \begin{align}
-	\Pdf{\xk}{\y_{1:T}}&=\Pdf{\xk}{\y_{1:k}}\defint{}{}{\left[\frac{\Pdf{\x_{k+1}}{\xk}\Pdf{\x_{k+1}}{\y_{1:T}}}{\Pdf{\x_{k+1}}{\y_{1:k}}}\right]}{\x_{k+1}},
+	\Pdf{\xk}{\y_{1:T},\Th}&=\Pdf{\xk}{\y_{1:k},\Th}\defint{}{}{\left[\frac{\Pdf{\x_{k+1}}{\xk,\Th}\Pdf{\x_{k+1}}{\y_{1:T},\Th}}{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}\right]}{\x_{k+1}},
 \end{align}
 where $\Pdf{\x_{k+1}}{\y_{1:k}}$ can be computed by equation \eqref{eq:pred_bayes}.
+In this thesis the smoothing distributions will be Gaussian or approximated with a Gaussian
+\begin{align}
+	\Pdf{\xk}{\y_{1:T}}&=\N{\xk;\m_{k|T},\P_{k|T}}
+\end{align}
 
 \subsubsection*{Marginal likelihood}
 
-An important quantity concerning parameter estimation is the marginal likelihood $\Pdf{\y_{1:T}}$. Since
+An important quantity concerning parameter estimation is the marginal likelihood $\Pdf{\Y}{\Th}$. 
+If we're able to compute the distributions
 \begin{align}
-	\Pdf{\y_k}{\y_{1:k-1}}&=\defint{}{}{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\xk}
+	\Pdf{\y_k}{\y_{1:k-1},\Th}&=\defint{}{}{\Pdf{\yk}{\xk,\Th}\Pdf{\xk}{\y_{1:k-1},\Th}}{\xk}
 \end{align}
-the marginal likelihood can be computed from
+then by repeatedly applying the definition of conditional probability 
+we find that the marginal likelihood can be computed from
 \begin{align}
-	\Pdf{\y_{1:T}}&=\Pdf{\y_1}\prod_{k=2}^T \Pdf{\y_k}{\y_{1:k-1}}
+	\Pdf{\Y}{\Th}&=\Pdf{\y_1}{\Th}\prod_{k=2}^T \Pdf{\y_k}{\y_{1:k-1},\Th}
+	\label{eq:lh_factorization}
 \end{align}
 
 

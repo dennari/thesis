@@ -6,20 +6,20 @@ In the Bayesian sense the complete answer to the parameter estimation
 problem is the marginal posterior probability of the parameters
 given the measurements, which is given by Bayes' rule as
 \begin{align}
-	\Pdf{\gv{\theta}}{\v{Y}}&=\frac{\Pdf{\v{Y}}{\gv{\theta}}\Pdf{\gv{\theta}}}{\Pdf{\v{Y}}}.
+	\Pdf{\gv{\theta}}{\Y}&=\frac{\Pdf{\Y}{\gv{\theta}}\Pdf{\gv{\theta}}}{\Pdf{\Y}}.
 	\label{eq:param_post}
 \end{align}
 
 Computing the posterior distribution of the parameters is usually intractable \todo{why? examples?}. A much
 easier problem is finding a suitable \emph{point estimate} $\hat{\gv{\theta}}$.
 This effectively means that we don't need to worry about the normalizing
-term $\Pdf{\v{Y}}$, since it's constant with respect to the parameters. 
+term $\Pdf{\Y}$, since it's constant with respect to the parameters. 
 A point estimate that maximizes the posterior distribution
 is called a \emph{maximum a posteriori} (MAP) estimate. 
 Since the logarithm is a strictly monotonic function, maximizing a function
 is the same as maximizing its logarithm. Thus the MAP estimate $\Th^*$ is given by 
 \begin{align}
-	\Th_{\text{MAP}} &= \text{argmax}_{\Th}\left[\underbrace{\log \Pdf{\v{Y}}{\gv{\theta}}}_{\Pdf[\ell][2pt]{\Th}} + \log\Pdf{\gv{\theta}}\right]
+	\Th_{\text{MAP}} &= \text{argmax}_{\Th}\left[\underbrace{\log \Pdf{\Y}{\gv{\theta}}}_{\Pdf[\ell][2pt]{\Th}} + \log\Pdf{\gv{\theta}}\right]
 	\label{eq:MAP}
 \end{align}
 
@@ -38,26 +38,45 @@ to the estimation of the MAP estimate in a straightforward fashion.
 Among different point estimates, the maximum likelihood estimator has good statistical properties.
 Let us denote the true parameter value, the value that the data was generated with, with $\Th_\star$ and 
 let $T$ denote the amount of observations.
-Then we can state the following asymptotic properties for the ML estimate $\Th_{\text{ML}}$:
-
+Then provided that some conditions of not very restricting nature hold, we can state the following asymptotic properties 
+for the ML estimate $\Th_{\text{ML}}$:\todo{Modify to reflect p.465 in Cappé}
 \begin{description}
 \addtolength{\leftskip}{1cm}
-\item[Strong consistency]
+\item[Strong consistency]\hfill\\
+An important property for an estimator, which says that
+the estimator tends to the true value as the amount of data tends to infinity:
 \begin{align}
 	%\forall \Th \in \Theta\quad \frac{1}{n}\Pdf[\ell_n]{\Th} \xrightarrow{\mathrm{a.s.}} \lLH, \mathrm{when} n\to\infty
-	\Th_{\text{ML}} \xrightarrow{\mathrm{a.s.}} \Th_\star,\quad \mathrm{when}\;T\to\infty
+	\ell_T\left(\Th_{\text{ML}}\right) \xrightarrow{\mathrm{a.s.}} \ell\left(\Th_\star\right),\quad \mathrm{when}\;T\to\infty,
 \end{align}
+where $\ell_T$ is the likelihood function after $T$ measurements and $\ell$ is a continuous
+deterministic function with a unique global maximum at $\Th_\star$.
 %where $\Pdf[\ell_n]{\Th}$ is the log-likelihood given $n$ observations and $\lLH$ is a continuous deterministic
 %function with a unique global maximum at $\Th_\star$.
-\item[Asymptotic normality]
-
+\item[Asymptotic normality]\hfill\\
+This property gives us the means to compute asymptotic error bounds for
+the estimate:
+\begin{align}
+	\sqrt{T}\left(\Th_{\text{ML}}-\Th_\star\right) \xrightarrow{D} \N{\v{0},\mathcal{I}^{-1}\left(\Th_\star\right)},\quad \mathrm{when}\;T\to\infty,
+	\label{tablelabel}
+\end{align}
+where $\mathcal{I}\left(\Th_\star\right)$ is the \emph{Fischer information matrix} evaluated at $\Th_\star$ 
+\item[Efficiency]\hfill\\
+When the amount of information tends to infinity, the ML-estimate achieves
+the Cramér-Rao lower bound, i.e. no other consistent estimator has lower asymptotic mean-squared-error.
 \end{description}
 
 
 \subsubsection{Identifiability}
 
-Since the parameters are determined by maximizing 
-
+Intuitively, any parameters $\Th,\:\Th' \in \Theta$ cannot be distinguished
+from each other with maximum likelihood estimation if
+\begin{align}
+	\Pdf{\Y}{\Th}&=\Pdf{\Y}{\Th'},
+\end{align}
+i.e., if the same data can arise with two (or more) separate
+parameter values.
+\todo{Elaborate on identifiability}
 \parencite{Haykin2001,Cappe2005}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -65,81 +84,50 @@ Since the parameters are determined by maximizing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This is the classical way of solving the parameter estimation problem. It consists
-of computing the gradient of the log-likelihood function and then using some
-non-linear optimization method to find a \emph{local} maximum to it.\parencite{Mbalawataa}. 
+of computing the gradient of the log-likelihood function $\lLH$ and then using some
+non-linear optimization method to find a \emph{local} maximum to it 
+\parencite{Mbalawataa,Cappe2005}. 
 An efficient non-linear optimization algorithm is the scaled 
 conjugate gradient method \parencite{Mbalawataa}.
 
-To derive the expression for the log-likelihood function in our case,
-let us first see what the Kalman filter calculates. Firstly,
-the recursions are as follows \parencite{Mbalawataa}:
-\begin{subequations}
+By marginalizing the joint distribution of equation~\eqref{eq:joint_per_kalmanstep}
+we get 
 \begin{align}
-	\shortintertext{prediction:}
-	\v{m}_{k|k-1}&=\v{A}\v{m}_{k-1|k-1}\\
-	\v{P}_{k|k-1}&=\v{A}\v{P}_{k-1|k-1}\v{A}^T+\v{Q}
-	\shortintertext{update:}
-	\v{v}_k&=\v{y}_k-\v{H}\v{m}_{k|k-1}\\
-	\v{S}_k&=\v{H}\v{P}_{k|k-1}\v{H}^T+\v{R}\\
-	\v{K}_k&=\v{P}_{k|k-1}\v{H}^T\v{S}_{k}^{-1}\\
-	\v{m}_{k|k}&=\v{m}_{k|k-1}+\v{K}_k\v{v}_k\\
-	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^T
+	\Pdf{\y_k}{\y_{1:k-1},\Th}&=\N[\yk]{\v{H}\m_{k|k-1},\v{S}_k }.
 \end{align}
-\end{subequations}
-This includes the sufficient statistics for the $T$
-joint distributions 
+Applying equation~\eqref{eq:lh_factorization} and taking the logarithm then gives
 \begin{align}
-\begin{split}
-	\Pdf{\v{x}_k,\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
-	&=N\left(
-	\begin{bmatrix}
-		\v{x}_k\\\v{y}_{k}
-	\end{bmatrix}\left\vert
-	\begin{bmatrix}
-		\v{m}_{k|k-1}\\
-		\v{H}\v{m}_{k|k-1}
-	\end{bmatrix}
-	\right.,
-	\begin{bmatrix}
-		\v{P}_{k|k-1} & \v{P}_{k|k-1}\v{H}^T\\
-		\v{H}\v{P}_{k|k-1}^T & \v{S}_k  
-	\end{bmatrix}
-	\right)\\
-	\Rightarrow \Pdf{\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
-	&=N\left(\cond{\v{y}_k}{\v{H}\v{m}_{k|k-1},\v{S}_k }\right)
-\end{split}
-	\label{eq:joint_per_kalmanstep}
-\end{align}
-To see how this enables us to calculate the likelihood, one 
-only needs to note that (it has been assumed that the observations are
-independent given the states)
-\begin{align}
-	\Pdf{\v{Y}}{\gv{\theta}}&=\Pdf{\v{y}_1}{\gv{\theta}}\prod_{k=2}^N \Pdf{\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
-	\label{eq:marginal_lh_factorization}
-\end{align}
-Armed with this knowledge, we can write the following expression for the log-likelihood function in this linear-Gaussian
-case:
-\begin{align}
-	-2L(\gv{\theta})&=\sum_{k=1}^N\log\abbs{\v{S}_k}
-	+\sum_{k=1}^N\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^T\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)+C,
+	\lLH&=-\frac{1}{2}\sum_{k=1}^N\log\abbs{\v{S}_k}
+	-\frac{1}{2}\sum_{k=1}^N\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^T\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)+C,
 	\label{eq:logLH}
 \end{align}
-where $C$ is a constant that doesn't depend on $\gv{\theta}$.
+where $C$ is a constant that doesn't depend on $\gv{\theta}$ and thus can
+be ignored in the maximization.
 Employing an efficient numerical optimization method generally
-requires that the gradient of the objective function, that is $L(\gv{\theta})$ in this case,
-is available. In order to calculate the gradient of $L(\gv{\theta})$, we need to formally derivate
-it w.r.t every parameter $\theta_i$ in $\gv{\theta}$:
+requires that the gradient of the objective function is available. 
+There are at least two seemingly quite different methods for computing
+the gradient of $\lLH$. The first one proceeds straightforwardly by taking the
+partial derivatives of $\lLH$. As will soon be demonstrated, this leads
+to some additional recursive formulas which allow computing
+the gradient in parallel with the Kalman filter. The second method needs
+the smoothing distributions with the cross-timestep covariances of equation~\eqref{eq:rts_cross_timestep_covariance}
+and it can be easily computed with the expectation maximization machinery
+that will be introduced later. These two methods can be proved to compute
+the exact same quantity. At this point we will focus on the first one. 
+
+In order to calculate the gradient of $\lLH$, we can take the partial
+derivatives of it w.r.t every parameter $\theta_i$ in $\gv{\theta}$:
 
 \begin{align}
 \begin{split}
-	\dpd{L(\gv{\theta})}{\theta_i}
-	&=-\frac{1}{2}\sum_{k=1}^N\mathrm{Tr}\left(\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\right)\\
+	\dpd{\lLH}{\theta_i}
+	=&-\frac{1}{2}\sum_{k=1}^N\mathrm{Tr}\left(\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\right)\\
 	&+\sum_{k=1}^N\left(\v{H}_k\dpd{\v{m}_{k|k-1}}{\theta_i}\right)^T\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
 	&+\frac{1}{2}\sum_{k=1}^N\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^T\v{S}_{k}^{-1}\left(\dpd{\v{S}_k}{\theta_i}\right)\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
 	\label{eq:dlogLH}
 \end{split}
 \end{align}
-From the Kalman filter recursions we find out that 
+From the Kalman filter recursions \eqref{eq:Kalman_filter} we find out that 
 \begin{align}
 	\dpd{\v{S}_k}{\theta_i}&=\v{H}\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}+\dpd{\v{R}}{\theta_i}
 \end{align}
@@ -163,7 +151,10 @@ as well as for $\v{m}_{k|k}$ and $\v{P}_{k|k}$:
 	\label{eq:P_pd}
 	\end{align}
 Equations \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} together specify
-a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside the Kalman filter recursions.  
+a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside the Kalman filter recursions.
+As noted in \textcite{Cappe2005}, these equations are sometimes known as the \emph{sensitivity equations}
+and they are derived at least in \textcite{Gupta1974} and \textcite{Mbalawataa}.
+\todo{Elaborate on nonlinear programming}  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Expectation maximization (EM)}%%%%
@@ -180,85 +171,88 @@ distribution $\tPX$ over the states.
 Noting now that $\Pdf{\X}{\Y,\Th}=\cLH/\LH$ and that $\lLH\equiv\log\LH$ is independent of $\X$ we can then perform the
 following decomposition on the log likelihood:
 \begin{align}
-	\lLH &= \lcLH - \log\post \nonumber\\
-	&= \E{\lcLH}{\tP} - \E{\log\post}{\tP} \nonumber\\
-	&= \underbrace{\E{\lcLH-\log\tPX}{\tP}}_{\LB\left(\tP,\Th\right)}
-	\underbrace{-\E{\log\post-\log\tPX}{\tP}}_{\KL{\tP}{\post}}
+	\lLH &= \log\cLH - \log\post \nonumber\\
+	&= \E{\log\cLH}_{\tP} - \E{\log\post}_{\tP} \nonumber\\
+	&= \underbrace{\E{\log\cLH-\log\tPX}_{\tP}}_{\LB[1pt]{\tP,\Th}}
+	\underbrace{-\E{\log\post-\log\tPX}_{\tP}}_{\KL{\tP}{\post[1pt]}}
 	\label{eq:lLH_decomp}
 \end{align}
 Since $\KL{\tP}{\post}$, the \emph{Kullback-Leibler divergence} between $\tPX$ and $\post$, is always nonnegative,
 we see that 
 \begin{align}
-	\lLH&\geq \LB(\tP,\Th) \label{eq:em_lh_lb}
+	\lLH&\geq \LB{\tP,\Th} \label{eq:em_lh_lb}
 \end{align}
 with equality when 
 \begin{align}
-	\tPX &= \post \label{eq:em_maxq}
+	\tPX &= \post, \label{eq:em_maxq}
 \end{align}
+i.e. the posterior distribution of the states. Considered as a functional
+of only $\tP$, clearly $\LB{\tP,\Th}$ is maximized
+and $\KL{\tP}{\post}$ vanishes by \eqref{eq:em_maxq}. 
 The nonnegativeness of the Kullback-Leibler divergence can be proved by
 noting that $-\log$ is a convex function and so \emph{Jensen's inequality}
 can be applied \parencite{Bishop2006}.
 
 We are now ready the define the EM algorithm, which produces
-a series of estimates $\{\hat{\Th}_j\}$ to the parameter $\Th$
-starting from an initial guess $\hat{\Th}_0$. The two alternating
+a series of estimates $\{\Th_j\}$ to the parameter $\Th$
+starting from an initial guess $\Th_0$. The two alternating
 steps of the algorithm are:
 
-\begin{enumerate}
-  \item Given a current estimate $\hat{\Th}_j$ of the parameters, maximize
-  $\LB(q,\hat{\Th}_j)$ with respect to the distribution $q$. As shown by equations 
-  \eqref{eq:em_lh_lb} and \eqref{eq:em_maxq}, the maximum is obtained with 
-  $q^*(\v{X}) = \Pdf{\v{X}}{\v{Y},\hat{\Th}_j}$, the posterior
+\begin{description}
+\addtolength{\leftskip}{1cm}
+  \item[E-step]\hfill\\
+  Given the current estimate $\Th_j$ of the parameters, compute	
+  	\begin{align}
+		\Pdf[\tP_{j+1}]{\X}=\argmax_{\tP}\LB{\tP,\Th_j}.
+		\label{eq:EM_E}
+	\end{align}
+  As stated, the maximum is obtained with 
+  $\Pdf[\tP_{j+1}]{\X} = \Pdf{\X}{\Y,\Th_j}$, the posterior
   distribution of the states given the current parameter estimate. After the maximization
   we have
   	\begin{align}
-  		L\!\left(\hat{\Th}_j\right)=\LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\hat{\Th}_j\right).  
+  		\lLH[\Th_j]=\LB{\Pdf{\X}{\Y,\Th_j},\Th_j}.  
 		\label{eq:LH_eq_LB}
 	\end{align}
-	This is the \emph{E-step} 
-  \item Maximize $\LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\Th\right)$ with respect
-  to $\Th$ to obtain a new estimate $\hat{\Th}_{j+1}$. This is the M-step.
-\end{enumerate}
-We can then formulate a so called \emph{fundamental inequality of EM} \parencite{Cappe2005}:
+  \item[M-step]\hfill\\ 
+  Set
+    \begin{align}
+		\Th_{j+1}=\argmax_{\Th}\LB{\tP_{j+1},\Th}.
+		\label{eq:EM_M}
+	\end{align}
+\end{description}
+
+
+
+We can then formulate the so called \emph{fundamental inequality of EM} \parencite{Cappe2005}:
 \begin{align}
-	L\left(\hat{\Th}_{j+1}\right) - L\left(\hat{\Th}_j\right)\geq & \LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\hat{\Th}_{j+1}\right) - \LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\hat{\Th}_{j}\right) 
+	\lLH[\Th_{j+1}] - \lLH[\Th_j]\geq & \LB{\Pdf{\X}{\Y,\Th_j},\Th_{j+1}} - \LB{\Pdf{\X}{\Y,\Th_j},\Th_{j}} 
 	\label{eq:fundamental_inequality}
 \end{align}
 which is just the combination of \eqref{eq:em_lh_lb} and \eqref{eq:LH_eq_LB}. But it highlights
-the fact that the likelihood is increased with every new estimate $\hat{\Th}_{j+1}$.
+the fact that the likelihood is increased with every new estimate $\Th_{j+1}$.
 Also following from \eqref{eq:fundamental_inequality} is the fact that if the iterations
-stop at a certain point, i.e. $\hat{\Th}_{l+1}=\hat{\Th}_l$ at iteration $l$, then
-$\LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_l},\Th\right)$ must be maximal at $\hat{\Th}_l$
+stop at a certain point, i.e. $\Th_{l+1}=\Th_l$ at iteration $l$, then
+$\LB{\Pdf{\X}{\Y,\Th_l},\Th}$ must be maximal at $\Th_l$
 and so the gradients of the lower bound and of the likelihood must be zero. Thus
-$\hat{\Th}_l$ is a \emph{stationary point} of $L(\Th)$, i.e a local maximum or a saddle point.
+$\Th_l$ is a \emph{stationary point} of $\lLH$, i.e a local maximum or a saddle point.
 
-
-
-Another property of the lower bound worth stating formally is the following: assume that
-the likelihood and \eqref{eq:KL} are continuously differentiable, then
-
+If we substitute $\post$ for $\tP$ we get
 \begin{align}
-		\left.\dpd{\lLH}{\theta_i}\right|_{\Th=\hat{\Th}_j}&=\left.\dpd{\LB\!\left(\Pdf{\v{X}}{\v{Y},\hat{\Th}_j},\Th\right)}{\theta_i}\right|_{\Th=\hat{\Th}_j} \label{eq:EM_gradients}
-\end{align}
-This was implicitly clear already from \eqref{eq:LH_eq_LB} by remembering that $\LB$ is a lower
-bound.
-
-If we substitute $\Pdf{\v{X}}{\v{Y},\hat{\Th}}$ for $q$ in \eqref{eq:em_lb_q},
-we get
-\begin{align}
-\begin{split}
-	\LB(q,\Th)&=\defint{\v{X}}{}{\Pdf{\v{X}}{\v{Y},\hat{\Th}}\lcLH}{\v{X}} 
-	-\defint{\v{X}}{}{\Pdf{\v{X}}{\v{Y},\hat{\Th}}\log\Pdf{\v{X}}{\v{Y},\hat{\Th}}}{\v{X}}\\
-	&=\Lb(\Th,\hat{\Th})+C,
+	\LB{\post,\Th'}&=
+	\underbrace{\E{\log\Pdf{\X,\Y}{\Th'}}_{\post[1pt]}}_{\F[1pt]{\Lb}{\Th,\Th'}} 
+	-\E{\log\post}_{\post[1pt]}
 	\label{eq:completedata_loglikelihood}
-\end{split}
 \end{align}
-where $C$ is a constant (the differential entropy of $\Pdf{\v{X}}{\v{Y},\hat{\Th}}$) and $\Lb(\Th,\hat{\Th})$ can be interpreted as the
+where the latter term (the differential entropy of $\post$) is constant 
+with respect to $\Th'$ and $\F{\Lb}{\Th,\Th'}$ can be interpreted as the
 expectation of the complete-data log-likelihood with respect to the posterior
-distribution of the states given the current value of the parameter. 
+distribution of the states.
 
 
 \subsubsection{EM as a special case of variational Bayes}
+
+
 \parencite{barber2012bayesian,jordan1998learning}
 Variational Bayes (VB) is a fully Bayesian methodology where one seeks
 for an approximation to the parameter posterior
@@ -294,12 +288,12 @@ and vice versa in the ``M''-step:
 \addtolength{\leftskip}{1cm}
 \item[E-step]
 \begin{align}
-	\Pdf[q^{\text{new}}]{\X}=\text{argmax}_{\Pdf[q]{\X}}\left(\KL{\Pdf[q]{\X}\Pdf[q^{\text{old}}]{\Th}}{\Pdf{\X,\Th}{\Y}}\right)
+	\Pdf[q^{\text{new}}]{\X}=\argmax_{\Pdf[q]{\X}}\left(\KL{\Pdf[q]{\X}\Pdf[q^{\text{old}}]{\Th}}{\Pdf{\X,\Th}{\Y}}\right)
 	\label{eq:VB_E}
 \end{align}
 \item[M-step]
 \begin{align}
-	\Pdf[q^{\text{new}}]{\Th}=\text{argmax}_{\Pdf[q]{\Th}}\left(\KL{\Pdf[q^{\text{new}}]{\X}\Pdf[q]{\Th}}{\Pdf{\X,\Th}{\Y}}\right)
+	\Pdf[q^{\text{new}}]{\Th}=\argmax_{\Pdf[q]{\Th}}\left(\KL{\Pdf[q^{\text{new}}]{\X}\Pdf[q]{\Th}}{\Pdf{\X,\Th}{\Y}}\right)
 	\label{eq:VB_M}
 \end{align}
 \end{description}
@@ -315,7 +309,7 @@ With this assumption equation \eqref{eq:VB_bound} becomes
 \end{align}
 and the ``M''-step \eqref{eq:VB_M} can then be written as
 \begin{align}
-	\Th^* &= \text{argmax}_{\Th}\left(\E{\lcLH}{\Pdf[q]{\X}}+\log\Pdf{\Th}\right).
+	\Th^* &= \text{argmax}_{\Th}\left(\E{\log\cLH}{\Pdf[q]{\X}}+\log\Pdf{\Th}\right).
 	\label{tablelabel}
 \end{align}
 If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we have
@@ -342,7 +336,7 @@ Fortunately calculating the gradient of $\Lb(\Th,\hat{\Th})$ is straightforward:
 \begin{align}
 \begin{split}
 	-2\dpd{\Lb(\Th,\hat{\Th}))}{\theta_i}
-	&=\Tr{-\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
+	=&\Tr{-\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
 	\left(\v{B}_1-\v{A}\v{B}_2^T-\v{B}_2\v{A}^T+\v{A}\v{B}_3\v{A}^T\right)}\\
 	&+\Tr{\v{Q}^{-1}\left(-\dpd{\v{A}}{\theta_i}\v{B}_2^T-\v{B}_2\dpd{\v{A}}{\theta_i}^T+\dpd{\v{A}}{\theta_i}\v{B}_3\v{A}^T+\v{A}\v{B}_3\dpd{\v{A}}{\theta_i}^T\right)}\\
 	&+\Tr{-\v{R}^{-1}\dpd{\v{R}}{\theta_i}\v{R}^{-1}
@@ -391,7 +385,12 @@ The derivation of the update equation for the next estimate of $\v{R}$ is exactl
 
 
 \subsubsection{Gradient computation}
-In this case we have
+Another property of the lower bound worth stating formally is the following: assume that
+the likelihood and \eqref{eq:KL} are continuously differentiable, then
+\begin{align}
+		\left.\dpd{\lLH}{\theta_i}\right|_{\Th=\widehat\Th_j}&=\left.\dpd{\LB{\Pdf{\X}{\Y,\widehat\Th}_j,\Th}}{\theta_i}\right|_{\Th=\widehat\Th_j} \label{eq:EM_gradients}
+\end{align}
+
 \begin{align}
 	\dpd{\Lb(\Th,\hat{\Th}))}{\theta_i}&=\dpd{I_1}{\theta_i}+\dpd{I_3}{\theta_i}+\dpd{I_3}{\theta_i}
 	\label{eq:dLB_nonlinear_1}
@@ -424,7 +423,7 @@ the complete-data log-likelihood function is now
 \begin{align}
 \label{eq:clLH}
 \begin{split}
-	L(\v{X},\Th)&=
+	L(\X,\Th)&=
 	\frac{1}{2}\left(\v{x}_0-\gv{\mu}\right)^T\gv{\Sigma}^{-1}\left(\v{x}_0-\gv{\mu}\right)+\frac{1}{2}\log\abbs{\gv{\Sigma}}\\
 	&+\frac{1}{2}\sum_{k=1}^N\left(\v{y}_k-\v{Hx}_k\right)^T\v{R}_{k|k-1}{-1}\left(\v{y}_k-\v{Hx}_k\right)+\frac{N}{2}\log\abbs{\v{R}}\\
 	&+\frac{1}{2}\sum_{k=1}^N\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^T\v{Q}^{-1}\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)+\frac{N}{2}\log\abbs{\v{Q}}\\
@@ -434,7 +433,7 @@ the complete-data log-likelihood function is now
 
 We can then take the expectation of \eqref{eq:clLH}:
 \begin{align}
-&\Lb(\Th,\hat{\Th}_j)=\E{L(\v{X},\Th)}{\hat{\Th}_j}=\\
+&\Lb(\Th,\hat{\Th}_j)=\E{L(\X,\Th)}{\hat{\Th}_j}=\\
 \begin{split}
 	&\Tr{\gv{\Sigma}^{-1}\left(\v{P}_{0|N}+(\v{m}_{0|N}-\gv{\mu})(\v{m}_{0|N}-\gv{\mu})^T\right)}+\log\abbs{\gv{\Sigma}}\\
 	+&\Tr{\v{Q}^{-1}\left(\sum_{k=1}^N\E{\v{x}_k\v{x}_{k}^T}-\v{A}\sum_{k=1}^N\E{\v{x}_k\v{x}_{k-1}^T}^T-\sum_{k=1}^N\E{\v{x}_k\v{x}_{k-1}^T}\v{A}^T+\v{A}\sum_{k=1}^N\E{\v{x}_{k-1}\v{x}_{k-1}^T}\v{A}^T\right)}+N\log\abbs{\v{Q}}\\
@@ -512,14 +511,14 @@ where
 The expectations in \eqref{eq:ecLH_nonlinear} should in principle be taken
 with respect to the joint posterior distribution
 \begin{align}
-	\Pdf{\v{x}_0,\dots,\v{x}_{N}}{\v{Y},\hat{\Th}_j}.
+	\Pdf{\v{x}_0,\dots,\v{x}_{N}}{\Y,\hat{\Th}_j}.
 	\label{eq:joint_posterior_of_state}
 \end{align}
 To calculate equation~\eqref{eq:ecLH_nonlinear} we don't need the full
 joint posterior of the states \eqref{eq:joint_posterior_of_state}, but
 only the marginals with two consecutive states
 \begin{align}
-	\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y},\hat{\Th}_j},\;k=1,\dots,N,
+	\Pdf{\v{x}_{k-1},\v{x}_{k}}{\Y,\hat{\Th}_j},\;k=1,\dots,N,
 	\label{eq:joint_posterior_of_consecutive_states}
 \end{align}
 which in general are not Gaussian anymore.

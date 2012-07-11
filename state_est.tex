@@ -35,25 +35,22 @@ The recursions are as follows \parencite{Kalman1960,jazwinski2007stochastic}:
 This includes the sufficient statistics for the $T$
 joint distributions 
 \begin{align}
-\begin{split}
-	\Pdf{\v{x}_k,\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
-	&=N\left(
+	\Pdf{\v{x}_k,\v{y}_k}{\v{y}_{1:k-1},\gv{\theta}}
+	&=\N[
 	\begin{bmatrix}
 		\v{x}_k\\\v{y}_{k}
-	\end{bmatrix}\left\vert
+	\end{bmatrix}
+	]{
 	\begin{bmatrix}
 		\v{m}_{k|k-1}\\
 		\v{H}\v{m}_{k|k-1}
 	\end{bmatrix}
-	\right.,
+	,
 	\begin{bmatrix}
 		\v{P}_{k|k-1} & \v{P}_{k|k-1}\v{H}^T\\
 		\v{H}\v{P}_{k|k-1}^T & \v{S}_k  
 	\end{bmatrix}
-	\right)\\
-	\Rightarrow \Pdf{\v{y}_k}{\v{y}_1,\dots,\v{y}_{k-1},\gv{\theta}}
-	&=N\left(\cond{\v{y}_k}{\v{H}\v{m}_{k|k-1},\v{S}_k }\right)
-\end{split}
+	}
 	\label{eq:joint_per_kalmanstep}
 \end{align}
 
@@ -67,7 +64,7 @@ recursive formula alongside the usual RTS smoother recursions
 	\v{J}_k&=\v{P}_{k|k}\v{A}^T\v{P}_{k|k+1}^{-1}\\
 	\v{m}_{k|N}&=\v{m}_{k|k}+\v{J}_k\left(\v{m}_{k+1|N}-\v{m}_{k+1|k}\right)\\
 	\v{P}_{k|N}&=\v{P}_{k|k}+\v{J}_k\left(\v{P}_{k+1|N}-\v{P}_{k+1|k}\right)\v{J}_k^T\\
-	\v{C}_{k|N}&=\v{P}_{k|k}\v{J}_{k-1}^T+\v{J}_k\left(\v{C}_{k+1|N}-\v{A}\v{P}_{k|k}\right)\v{J}_{k-1}^T\\
+	\v{C}_{k|N}&=\v{P}_{k|k}\v{J}_{k-1}^T+\v{J}_k\left(\v{C}_{k+1|N}-\v{A}\v{P}_{k|k}\right)\v{J}_{k-1}^T \label{eq:rts_cross_timestep_covariance}
 \end{align}
 \end{subequations}
 In \parencite{Elliott1999} a new kind of filter is presented that

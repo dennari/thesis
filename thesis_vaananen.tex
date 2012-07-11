@@ -43,19 +43,8 @@ pdfproducer={xetex}
 \usepackage{tikz}
 \usetikzlibrary{arrows}
 
-\newcommand{\Th}{\gv{\theta}}
-\newcommand{\LH}{\Pdf{\v{Y}}{\Th}}
-\newcommand{\LHf}[1]{\Pdf{\v{Y}}{#1}}
-\newcommand{\LHh}{\Pdf{\v{Y}}{\hat{\Th}}}
-\newcommand{\lLH}{\ell\!\left(\Th\right)}
-\newcommand{\cLH}{\Pdf{\v{X},\v{Y}}{\Th}}
-\newcommand{\lcLH}{\log\cLH}
-\newcommand{\tP}{\tilde{p}}
-\newcommand{\tPX}{\Pdf[\tP]{\X}}
-\newcommand{\post}{\Pdf{\X}{\Y,\Th}}
-\newcommand{\LB}{\mathcal{L}}
-\newcommand{\Lb}{\mathfrak{L}}
-\newcommand{\KL}[2]{\mathrm{KL}\left(#1\|#2\right)}
+
+
 
 \newcommand{\yk}{\v{y}_{k}}
 \newcommand{\y}{\v{y}}
@@ -65,7 +54,26 @@ pdfproducer={xetex}
 \newcommand{\X}{\v{X}}
 \newcommand{\Y}{\v{Y}}
 \newcommand{\z}{\v{z}}
+\renewcommand{\P}{\v{P}}
+\renewcommand{\m}{\v{m}}
 \newcommand{\xkk}{\v{x}_{k-1}}
+
+\newcommand{\Th}{\gv{\theta}}
+\newcommand{\LH}{\Pdf{\Y}{\Th}}
+\NewDocumentCommand\lLH{O{\Th}}{\F{\ell}{#1}}
+%\newcommand{\LHf}[1]{\Pdf{\X}{#1}}
+%\newcommand{\LHh}{\Pdf{\X}{\hat{\Th}}}
+%\newcommand{\lLH}{\ell\!\left(\Th\right)}
+%\newcommand{\cLH}{\Pdf{\X,\Y}{\Th}}
+%\newcommand{\lcLH}{\log\cLH}
+\newcommand{\tP}{\tilde{p}}
+\newcommand{\tPX}{\Pdf[\tP]{\X}}
+\NewDocumentCommand\post{O{0pt}}{\Pdf[p][#1]{\X}{\Y,\Th}}
+\NewDocumentCommand\cLH{O{0pt}}{\Pdf[p][#1]{\X,\Y}{\Th}}
+%\NewDocumentCommand\lcLH{O{0pt}}{\log\cLH[#1]}
+\NewDocumentCommand\LB{O{0pt} m}{\F[#1]{\mathcal L}{#2}}
+\newcommand{\Lb}{\mathfrak{L}}
+\newcommand{\KL}[2]{\mathrm{KL}\left(#1\|#2\right)}
 
 
 % BIBLIOGRAPHY
