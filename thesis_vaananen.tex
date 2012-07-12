@@ -54,6 +54,8 @@ pdfproducer={xetex}
 \newcommand{\X}{\v{X}}
 \newcommand{\Y}{\v{Y}}
 \newcommand{\z}{\v{z}}
+\newcommand{\h}{\v{h}}
+\newcommand{\f}{\v{f}}
 \renewcommand{\P}{\v{P}}
 \renewcommand{\m}{\v{m}}
 \newcommand{\xkk}{\v{x}_{k-1}}
@@ -67,7 +69,7 @@ pdfproducer={xetex}
 %\newcommand{\cLH}{\Pdf{\X,\Y}{\Th}}
 %\newcommand{\lcLH}{\log\cLH}
 \newcommand{\tP}{\tilde{p}}
-\newcommand{\tPX}{\Pdf[\tP]{\X}}
+\newcommand{\tPX}{\Pdf[\tP]{\X}{\Th'}}
 \NewDocumentCommand\post{O{0pt}}{\Pdf[p][#1]{\X}{\Y,\Th}}
 \NewDocumentCommand\cLH{O{0pt}}{\Pdf[p][#1]{\X,\Y}{\Th}}
 %\NewDocumentCommand\lcLH{O{0pt}}{\log\cLH[#1]}

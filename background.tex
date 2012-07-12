@@ -106,11 +106,18 @@ k). Thus the SSMs considered in this thesis are of the form
 \begin{alignat}{2}
 	\xk &= \v{f}_{\Th}\left(\x_{k-1}\right)+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0},\v{Q}} \label{eq:Q}\\
 	\yk &= \v{h}_{\Th}\left(\xk\right)+\v{r}_{k} & \v{r}_k&\sim \N{\v{0},\v{R}} \label{eq:R}\\
-	\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}} && \label{eq:prior}
+	\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}} && \label{eq:prior},
 \end{alignat}
 \end{subequations}
 We will assume an implicit dependence of the distributional parameters $\v{Q}$,
-$\v{R}$,$\gv{\mu}$ and $\gv{\Sigma}$ on $\Th$. 
+$\v{R}$,$\gv{\mu}_0$ and $\gv{\Sigma}_0$ on $\Th$. Regarding the Gaussian distribution,
+suppose $\x\in\R^m$ is normally distributed with mean $\m$ and covariance matrix $\P$.
+We will then use the notation
+\begin{align}
+	\x &\sim \N{\m,\P}\\
+\Leftrightarrow \Pdf{\x}{\m,\P}&=\N[\x]{\m,\P}\\
+	&= \left(2\pi\right)^{-\sfrac{m}{2}}\abbs{\P}^{-\sfrac{1}{2}}e^{-\sfrac{1}{2}\left(\x-\m\right)^T\P^{-1}\left(\x-\m\right)}		
+\end{align}
 Now clearly the mappings $\v{f}_{\Th}:\mathcal{X}\to\mathcal{X}$ and
 $\v{h}_{\Th}:\mathcal{X}\to\mathcal{Y}$ specify the means of the dynamic
 and the measurement models:
