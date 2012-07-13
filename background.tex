@@ -106,7 +106,7 @@ k). Thus the SSMs considered in this thesis are of the form
 \begin{alignat}{2}
 	\xk &= \v{f}_{\Th}\left(\x_{k-1}\right)+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0},\v{Q}} \label{eq:Q}\\
 	\yk &= \v{h}_{\Th}\left(\xk\right)+\v{r}_{k} & \v{r}_k&\sim \N{\v{0},\v{R}} \label{eq:R}\\
-	\v{x}_{0} &\sim \N{\gv{\mu},\gv{\Sigma}} && \label{eq:prior},
+	\v{x}_{0} &\sim \N{\gv{\mu}_0,\gv{\Sigma}_0} && \label{eq:prior},
 \end{alignat}
 \end{subequations}
 We will assume an implicit dependence of the distributional parameters $\v{Q}$,
@@ -116,7 +116,7 @@ We will then use the notation
 \begin{align}
 	\x &\sim \N{\m,\P}\\
 \Leftrightarrow \Pdf{\x}{\m,\P}&=\N[\x]{\m,\P}\\
-	&= \left(2\pi\right)^{-\sfrac{m}{2}}\abbs{\P}^{-\sfrac{1}{2}}e^{-\sfrac{1}{2}\left(\x-\m\right)^T\P^{-1}\left(\x-\m\right)}		
+	&= \left(2\pi\right)^{-\sfrac{m}{2}}\abbs{\P}^{-\sfrac{1}{2}}e^{-\sfrac{1}{2}\left(\x-\m\right)^\tr\P^{-1}\left(\x-\m\right)}		
 \end{align}
 Now clearly the mappings $\v{f}_{\Th}:\mathcal{X}\to\mathcal{X}$ and
 $\v{h}_{\Th}:\mathcal{X}\to\mathcal{Y}$ specify the means of the dynamic
@@ -228,7 +228,7 @@ If we're able to compute the distributions
 then by repeatedly applying the definition of conditional probability 
 we find that the marginal likelihood can be computed from
 \begin{align}
-	\Pdf{\Y}{\Th}&=\Pdf{\y_1}{\Th}\prod_{k=2}^T \Pdf{\y_k}{\y_{1:k-1},\Th}
+	\Pdf{\Y}{\Th}&=\Pdf{\y_1}{\Th}\prod_{k=2}^\tr \Pdf{\y_k}{\y_{1:k-1},\Th}
 	\label{eq:lh_factorization}
 \end{align}
 

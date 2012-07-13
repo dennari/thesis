@@ -97,8 +97,8 @@ we get
 \end{align}
 Applying equation~\eqref{eq:lh_factorization} and taking the logarithm then gives
 \begin{align}
-	\lLH&=-\frac{1}{2}\sum_{k=1}^N\log\abbs{\v{S}_k}
-	-\frac{1}{2}\sum_{k=1}^N\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^T\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)+C,
+	\lLH&=-\frac{1}{2}\sum_{k=1}^T\log\abbs{\v{S}_k}
+	-\frac{1}{2}\sum_{k=1}^T\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^\tr\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)+C,
 	\label{eq:logLH}
 \end{align}
 where $C$ is a constant that doesn't depend on $\gv{\theta}$ and thus can
@@ -121,9 +121,9 @@ derivatives of it w.r.t every parameter $\theta_i$ in $\gv{\theta}$:
 \begin{align}
 \begin{split}
 	\dpd{\lLH}{\theta_i}
-	=&-\frac{1}{2}\sum_{k=1}^N\mathrm{Tr}\left(\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\right)\\
-	&+\sum_{k=1}^N\left(\v{H}_k\dpd{\v{m}_{k|k-1}}{\theta_i}\right)^T\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
-	&+\frac{1}{2}\sum_{k=1}^N\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^T\v{S}_{k}^{-1}\left(\dpd{\v{S}_k}{\theta_i}\right)\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
+	=&-\frac{1}{2}\sum_{k=1}^T\mathrm{Tr}\left(\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\right)\\
+	&+\sum_{k=1}^T\left(\v{H}_k\dpd{\v{m}_{k|k-1}}{\theta_i}\right)^\tr\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
+	&+\frac{1}{2}\sum_{k=1}^T\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^\tr\v{S}_{k}^{-1}\left(\dpd{\v{S}_k}{\theta_i}\right)\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
 	\label{eq:dlogLH}
 \end{split}
 \end{align}
@@ -137,17 +137,17 @@ $\v{m}_{k|k-1}$ and $\v{P}_{k|k-1}$:
 \begin{align}
 	\dpd{\v{m}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{m}_{k-1|k-1}+\v{A}\dpd{\v{m}_{k-1|k-1}}{\theta_i} \label{eq:m_pred_pd}\\
 	\begin{split}
-	\dpd{\v{P}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{P}_{k-1|k-1}\v{A}^T+\v{A}\dpd{\v{P}_{k-1|k-1}}{\theta_i}\v{A}^T\\
-	&+\v{A}\v{P}_{k-1|k-1}\left(\dpd{\v{A}}{\theta_i}\right)^T+\dpd{\v{Q}}{\theta_i} \label{eq:P_pred_pd}
+	\dpd{\v{P}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{P}_{k-1|k-1}\v{A}^\tr+\v{A}\dpd{\v{P}_{k-1|k-1}}{\theta_i}\v{A}^\tr\\
+	&+\v{A}\v{P}_{k-1|k-1}\left(\dpd{\v{A}}{\theta_i}\right)^\tr+\dpd{\v{Q}}{\theta_i} \label{eq:P_pred_pd}
 	\end{split}
 \end{align}
 as well as for $\v{m}_{k|k}$ and $\v{P}_{k|k}$:
 \begin{align}
-	\dpd{\v{K}_k}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}^T\v{S}_{k}^{-1}-\v{P}_{k|k-1}\v{H}^T\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\v{S}_{k}^{-1}
+	\dpd{\v{K}_k}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}^\tr\v{S}_{k}^{-1}-\v{P}_{k|k-1}\v{H}^\tr\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\v{S}_{k}^{-1}
 	\label{eq:K_pd}\\
 	\dpd{\v{m}_{k|k}}{\theta_i}&=\dpd{\v{m}_{k|k-1}}{\theta_i}+\dpd{\v{K}_k}{\theta_i}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)-\v{K}_k\v{H}\dpd{\v{m}_{k|k-1}}{\theta_i}
 	\label{eq:m_pd}\\
-	\dpd{\v{P}_{k|k}}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}-\dpd{\v{K}_k}{\theta_i}\v{S}_{k}\v{K}_{k}^T-\v{K}_{k}\dpd{\v{S}_k}{\theta_i}\v{K}_{k}^T-\v{K}_{k}^T\v{S}_{k}\left(\dpd{\v{K}_k}{\theta_i}\right)^T
+	\dpd{\v{P}_{k|k}}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}-\dpd{\v{K}_k}{\theta_i}\v{S}_{k}\v{K}_{k}^\tr-\v{K}_{k}\dpd{\v{S}_k}{\theta_i}\v{K}_{k}^\tr-\v{K}_{k}^\tr\v{S}_{k}\left(\dpd{\v{K}_k}{\theta_i}\right)^\tr
 	\label{eq:P_pd}
 	\end{align}
 Equations \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} together specify
@@ -168,7 +168,7 @@ We shall use $\E{\cdot}{q}\equiv\defint{}{}{\cdot \Pdf[q]{z}}{z}$ to denote the 
 over some arbitrary distribution $\Pdf[q]{z}$.
 Let us introduce a ``variational'' 
 distribution $\tPX$ over the states, parameterized with $\Th'$ (not necessarily related to $\Th$).
-Noting now that $\Pdf{\X}{\Y,\Th}=\cLH/\LH$ and that $\lLH\equiv\log\LH$ is independent of $\X$ we can then perform the
+Toting now that $\Pdf{\X}{\Y,\Th}=\cLH/\LH$ and that $\lLH\equiv\log\LH$ is independent of $\X$ we can then perform the
 following decomposition on the log likelihood:
 \begin{align}
 	\lLH &= \log\cLH - \log\post \nonumber\\
@@ -329,7 +329,7 @@ the likelihood and \eqref{eq:KL} are continuously differentiable, then
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Applying EM}%%%%%%%%%%
+\subsection{EM in SSMs}%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -337,48 +337,76 @@ Let us then look at how to apply EM to a SSM of the form \eqref{eq:ssm_general}.
 all, from the factorization in \eqref{eq:complete_data_likelihood}, the complete-data log-likelihood becomes
 \begin{align*}
 \begin{split}
-	\cLH =&-\frac{1}{2}\left(\x_0-\gv{\mu}_0\right)^T\gv{\Sigma}_0^{-1}\left(\x-\gv{\mu}_0\right)-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
-	&-\frac{1}{2}\sum_{k=1}^T\left(\x_k-\v{f}(\x_{k-1})\right)^T\v{Q}^{-1}\left(\x_k-\v{f}(\x_{k-1})\right)-\frac{T}{2}\log\abbs{\v{Q}}\\
-	&-\frac{1}{2}\sum_{k=1}^T\left(\y_k-\v{h}(\x_{k})\right)^T\v{R}^{-1}\left(\y_k-\v{h}(\x_{k})\right)-\frac{T}{2}\log\abbs{\v{R}}\\
+	\cLH =&-\frac{1}{2}\left(\x_0-\gv{\mu}_0\right)^\tr\gv{\Sigma}_0^{-1}\left(\x-\gv{\mu}_0\right)-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
+	&-\frac{1}{2}\sum_{k=1}^T\left(\x_k-\v{f}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{f}(\x_{k-1})\right)-\frac{T}{2}\log\abbs{\v{Q}}\\
+	&-\frac{1}{2}\sum_{k=1}^T\left(\y_k-\v{h}(\x_{k})\right)^\tr\v{R}^{-1}\left(\y_k-\v{h}(\x_{k})\right)-\frac{T}{2}\log\abbs{\v{R}}\\
 	&+\mathtt{const}
 \end{split}
 \end{align*}
-Taking the expectation w.r.t. $\Pdf{\X}{\Y,\Th'}$ (assumed implicitly in the notation), applying the identity $\x^T\X\x=\Tr{\x^T\X\x}=\Tr{\X\x\x^T}$
+Taking the expectation w.r.t. $\Pdf{\X}{\Y,\Th'}$ (assumed implicitly in the notation), applying the identity $\x^\tr\X\x=\Tr{\x^\tr\X\x}=\Tr{\X\x\x^\tr}$
 and using $\f_{k-1}\equiv \f(\x_{k-1})$ and $\h_k\equiv \h(\x_k)$
 \begin{align}
 \begin{split}
-	\F{\Lb}{\Th',\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^T}}-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
-	&-\frac{1}{2}\sum_{k=1}^T\Tr{\v{Q}^{-1}\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^T}}-\frac{T}{2}\log\abbs{\v{Q}}\\
-	&-\frac{1}{2}\sum_{k=1}^T\Tr{\v{R}^{-1}\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^T}}-\frac{T}{2}\log\abbs{\v{R}}\\
+	\F{\Lb}{\Th',\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
+	&-\frac{1}{2}\Tr{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{Q}}\\
+	&-\frac{1}{2}\Tr{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{R}}\\
 	&+\mathtt{const}.
 \end{split}
 \label{eq:eclLH}
 \end{align} 
 Let us denote the three expectations in equation~\eqref{eq:eclLH} with
 \begin{align}
-	\v{I}_1 &= \E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^T}\\ 
-	&=\defint{\mathcal{X}\times T}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^T\Pdf{\X}{\Y,\Th'}}{\X}\nonumber\\
-	&= 	\defint{\mathcal{X}}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^T\Pdf{\x_0}{\Y,\Th'}}{\x_0}\\
-	\v{I}_{2,k} &= \defint{\mathcal{X}\times 2}{}{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^T\Pdf{\bm{\xk&\xkk}^T}{\Y,\Th'}}{\bm{\xk&\xkk}^T}\\
-	\v{I}_{3,k} &= \defint{\mathcal{X}}{}{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^T\Pdf{\xk}{\Y,\Th'}}{\xk}
+	\v{I}_1 &= \E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}\\ 
+	&=\defint{\mathcal{X}\times T}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\X}{\Y,\Th'}}{\X}\nonumber\\
+	&= 	\defint{\mathcal{X}}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\x_0}{\Y,\Th'}}{\x_0}\\
+	\v{I}_2 &= \sum_{k=1}^T\defint{\mathcal{X}\times 2}{}{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr\Pdf{\bm{\xk^\tr&\xkk^\tr}^\tr}{\Y,\Th'}}{\bm{\xk&\xkk}^\tr}\\
+	\v{I}_3 &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr\Pdf{\xk}{\Y,\Th'}}{\xk}
 \end{align}
 It is clear then that in the E-step one needs to compute the $T+1$ smoothing
 distributions, including the $T$ cross-timestep distributions, since these
 will be needed in the expectations.
 By applying the identity
 \begin{align}
-	\var{\x}&=\E{\x\x^T}-\E{\x}\E{\x}^T,
+	\var{\x}&=\E{\x\x^\tr}-\E{\x}\E{\x}^\tr,
 \end{align} 
 we can already write the first expectation as
 \begin{align}
-	\v{I}_1&= \v{P}_{0|T}+(\v{m}_{0|T}-\gv{\mu}_0)(\v{m}_{0|T}-\gv{\mu}_0)^T.
+	\v{I}_1&= \v{P}_{0|T}+(\v{m}_{0|T}-\gv{\mu}_0)(\v{m}_{0|T}-\gv{\mu}_0)^\tr.
 	\label{tablelabel}
 \end{align}
-Thus in the following more specific cases, we will only
-consider the two remaining expectations and the M-step.
+This was a result of assuming the Gaussian prior distribution of equation~\eqref{eq:prior} and
+it is common for the more specific models we're assessing in the next chapters.
+
+Since in this thesis we're assuming Gaussian noise, the M-step maximization equations for
+the complete noise covariance matrices $\v{Q}$ and $\v{R}$ will also be common.
+To derive these equations, we will derivate \eqref{eq:eclLH} with respect to these
+matrices. As can be seen from \eqref{eq:eclLH}, the terms involving $\v{Q}$ or $\v{R}$
+are analogous and so we will only the derivation for $\v{Q}$ and only the result
+for $\v{R}$. It's easier to take the derivative with respect to $\v{Q}^{-1}$:
+\begin{align}
+	\dpd{\Lb(\Th',\Th)}{\v{Q^{-1}}}=
+	&-\frac{1}{2}\dpd{}{\v{Q^{-1}}}\Tr{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\xk-\f_{k-1})\right)\left(\xk-\f_{k-1})\right)^\tr}}\nonumber\\
+	&-\frac{T}{2}\dpd{}{\v{Q^{-1}}}\log\abbs{\v{Q}}\nonumber\\
+	=&-\frac{1}{2}\sum_{k=1}^T\E{\left(\xk-\f_{k-1})\right)\left(\xk-\f_{k-1})\right)^\tr}+\frac{T}{2}\v{Q},
+	\label{eq:clLH_pdQ}
+\end{align}
+where we have used formula 92 in \cite{Petersen2008} for the first derivative and 
+formula 51 for the second. Setting \eqref{eq:clLH_pdQ}  
+to zero \todo{Why is it same for the inverse?} we get the update equation for the next estimate of $\v{Q}$
+\begin{align}
+	\v{Q}_{j+1}&=\frac{1}{T}\sum_{k=1}^T\E{\left(\xk-\f_{k-1}\right)\left(\xk-\f_{k-1}\right)^\tr}
+\end{align}
+The derivation of the update equation for the next estimate of $\v{R}$ is exactly analogous, giving
+\begin{align}
+	\v{R}_{j+1}&=\frac{1}{T}\sum_{k=1}^T\E{\left(\yk-\h_{k}\right)\left(\yk-\h_{k}\right)^\tr}
+\end{align} 
+
+In the following more specific cases, we will only
+consider the two remaining expectations and the rest of the M-step maximization
+equations.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{EM in linear-Gaussian SSM:s}%%%%%%%
+\subsubsection{EM in linear-Gaussian SSMs}%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \parencite{shumway1982approach,Ghahramani1996}
 Let us substitute $\v{A}\xkk$ for $\f_{k-1}$ and $\v{H}\xk$ for $\h_{k}$.
@@ -395,27 +423,34 @@ the joint smoothing distribution of $\xk$ and $\xkk$.
 Then by applying the manipulation
 \begin{align}
 \begin{split}
-&\E{\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^T}\\
+&\E{\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^\tr}\\
 =&\bm{\v{I} & -\v{A}}	
 \E{
 \begin{bmatrix}
 	\xk\\\xkk
 \end{bmatrix}
 \begin{bmatrix}
-	\xk^T & \xkk^T	
+	\xk^\tr & \xkk^\tr	
 \end{bmatrix}
 }
-\bm{\v{I}\\-\v{A}^T}	
+\bm{\v{I}\\-\v{A}^\tr}	
 \end{split}
 \end{align}
 we get
 \begin{align}
-	\v{I}_{2,k}&=
+	\v{I}_{2}&=
 \bm{\v{I} & -\v{A}}	
-\left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^T\right)
-\bm{\v{I}\\-\v{A}^T}\\
-	\v{I}_{3,k}&=\v{H}\P_{k|T}\v{H}^T+\left(\yk-\v{H}\m_{k|T}\right)
-	\left(\yk-\v{H}\m_{k|T}\right)^T
+\sum_{k=1}^T\left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)
+\bm{\v{I}\\-\v{A}^\tr}\\
+&=\bm{\v{I} & -\v{A}}	
+%\bm{\P_{k|T}+\m_{k|T}\m_{k|T}^\tr & \left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)^\tr \\ \P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr & \P_{k-1|T}+\m_{k-1|T}\m_{k-1|T}^\tr }
+\sum_{k=1}^T\bm{\E{\xk\xk^\tr} & \E{\xk\xkk^\tr} \\ \E{\xkk\xk^\tr} & \E{\xkk\xkk^\tr} }
+\bm{\v{I}\\-\v{A}^\tr}\\
+\v{I}_{3}&=
+\bm{\v{I} & -\v{H}}	
+\sum_{k=1}^T
+\bm{\yk\yk^\tr & \yk\E{\xk}^\tr \\ \E{\xk}\yk^\tr & \E{\xk\xk^\tr} }
+\bm{\v{I}\\-\v{H}^\tr}
 \end{align}
 
 All in all, the E-step of the 
@@ -423,6 +458,31 @@ EM algorithm in linear-Gaussian SSM:s corresponds to computing
 the matrices in \eqref{eq:sum_expectations} with the help of the Kalman filter and
 the RTS smoother. In \parencite{Elliott1999} a new kind of filter is presented that
 can compute \eqref{eq:sum_expectations} with only forward recursions. 
+
+Suppose now, that the matrix $A$ depends on parameters $\v{s}$.
+Let us then deduce the maximization equation for the parameter $s_i$:
+\begin{align}
+	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}&=
+	\sum_{k=1}^T\E{\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)}{\hat{\Th}_j}\label{eq:s_grad}
+\end{align}
+and
+\begin{align}
+	&\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
+	=&-2\v{g}(\x_{k-1})^\tr\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
+	=&-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\x_k\v{g}(\x_{k-1})^\tr}-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\\
+	=&-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\x_k\v{g}(\x_{k-1})^\tr-\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr\right)}\label{eq:a_grad}.
+\end{align}
+Combining equations \eqref{eq:a_grad} and \eqref{eq:s_grad} then gives
+\begin{multline}
+	\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}=\\
+	-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\sum_{k=1}^T\E{\x_k\v{g}(\x_{k-1})^\tr}-\v{A}\sum_{k=1}^T\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\right)}
+	\label{eq:pdcLH_nonlinear}
+\end{multline}
+If we then set \eqref{eq:pdcLH_nonlinear} to zero, we have
+\begin{align}
+	\v{A}_{j+1}=\left(\sum_{k=1}^T\E{\x_k\v{g}(\x_{k-1})^\tr}\right)\left(\sum_{k=1}^T\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\right)^{-1}
+\end{align}
+which is similar to \eqref{eq:A_new}
 
 
 %\subsubsubsection{M-step with structured matrices}
@@ -439,12 +499,12 @@ Fortunately calculating the gradient of $\Lb(\Th,\hat{\Th})$ is straightforward:
 \begin{split}
 	-2\dpd{\Lb(\Th,\hat{\Th}))}{\theta_i}
 	=&\Tr{-\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
-	\left(\v{B}_1-\v{A}\v{B}_2^T-\v{B}_2\v{A}^T+\v{A}\v{B}_3\v{A}^T\right)}\\
-	&+\Tr{\v{Q}^{-1}\left(-\dpd{\v{A}}{\theta_i}\v{B}_2^T-\v{B}_2\dpd{\v{A}}{\theta_i}^T+\dpd{\v{A}}{\theta_i}\v{B}_3\v{A}^T+\v{A}\v{B}_3\dpd{\v{A}}{\theta_i}^T\right)}\\
+	\left(\v{B}_1-\v{A}\v{B}_2^\tr-\v{B}_2\v{A}^\tr+\v{A}\v{B}_3\v{A}^\tr\right)}\\
+	&+\Tr{\v{Q}^{-1}\left(-\dpd{\v{A}}{\theta_i}\v{B}_2^\tr-\v{B}_2\dpd{\v{A}}{\theta_i}^\tr+\dpd{\v{A}}{\theta_i}\v{B}_3\v{A}^\tr+\v{A}\v{B}_3\dpd{\v{A}}{\theta_i}^\tr\right)}\\
 	&+\Tr{-\v{R}^{-1}\dpd{\v{R}}{\theta_i}\v{R}^{-1}
-	\left(\v{B}_4-\v{H}\v{B}_5^T-\v{B}_5\v{H}^T+\v{H}\v{B}_1\v{H}^T\right)}\\
-	&+N\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}
-	+N\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
+	\left(\v{B}_4-\v{H}\v{B}_5^\tr-\v{B}_5\v{H}^\tr+\v{H}\v{B}_1\v{H}^\tr\right)}\\
+	&+T\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}
+	+T\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
 	\label{eq:dLB}
 \end{split}
 \end{align}
@@ -497,24 +557,24 @@ Suppose now, that the matrix $A$ depends on parameters $\v{s}$.
 Let us then deduce the maximization equation for the parameter $s_i$:
 \begin{align}
 	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}&=
-	\sum_{k=1}^N\E{\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^T\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)}{\hat{\Th}_j}\label{eq:s_grad}
+	\sum_{k=1}^T\E{\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)}{\hat{\Th}_j}\label{eq:s_grad}
 \end{align}
 and
 \begin{align}
-	&\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^T\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
-	=&-2\v{g}(\x_{k-1})^T\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
-	=&-2\Tr{\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\x_k\v{g}(\x_{k-1})^T}-2\Tr{\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^T}\\
-	=&-2\Tr{\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\left(\x_k\v{g}(\x_{k-1})^T-\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^T\right)}\label{eq:a_grad}.
+	&\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
+	=&-2\v{g}(\x_{k-1})^\tr\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
+	=&-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\x_k\v{g}(\x_{k-1})^\tr}-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\\
+	=&-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\x_k\v{g}(\x_{k-1})^\tr-\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr\right)}\label{eq:a_grad}.
 \end{align}
 Combining equations \eqref{eq:a_grad} and \eqref{eq:s_grad} then gives
 \begin{multline}
 	\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}=\\
-	-2\Tr{\dpd{\v{A}}{s_i}^T\v{Q}^{-1}\left(\sum_{k=1}^N\E{\x_k\v{g}(\x_{k-1})^T}-\v{A}\sum_{k=1}^N\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^T}\right)}
+	-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\sum_{k=1}^T\E{\x_k\v{g}(\x_{k-1})^\tr}-\v{A}\sum_{k=1}^T\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\right)}
 	\label{eq:pdcLH_nonlinear}
 \end{multline}
 If we then set \eqref{eq:pdcLH_nonlinear} to zero, we have
 \begin{align}
-	\v{A}_{j+1}=\left(\sum_{k=1}^N\E{\x_k\v{g}(\x_{k-1})^T}\right)\left(\sum_{k=1}^N\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^T}\right)^{-1}
+	\v{A}_{j+1}=\left(\sum_{k=1}^T\E{\x_k\v{g}(\x_{k-1})^\tr}\right)\left(\sum_{k=1}^T\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\right)^{-1}
 \end{align}
 which is similar to \eqref{eq:A_new}
 
@@ -545,14 +605,14 @@ Suppose now, that the matrix $\v{H}$ depends on parameters $\v{t}$.
 Let us then deduce the maximization equation for the parameter $t_i$:
 \begin{align}
 	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{t_i}&=
-	\frac{1}{2}\Tr{\v{R}^{-1}\sum_{k=1}^N\E{\dpd{}{t_i}\left(\y_k-\v{H}\v{l}(\x_k)\right)\left(\y_k-\v{H}\v{l}(\x_k)\right)^T}{\hat{\Th}_j}}
+	\frac{1}{2}\Tr{\v{R}^{-1}\sum_{k=1}^T\E{\dpd{}{t_i}\left(\y_k-\v{H}\v{l}(\x_k)\right)\left(\y_k-\v{H}\v{l}(\x_k)\right)^\tr}{\hat{\Th}_j}}
 \label{eq:s_grad}
 \end{align}
 and
 
 If we then set \eqref{eq:pdcLH_nonlinear} to zero, we have
 \begin{align}
-	\v{H}_{j+1}=\left(\sum_{k=1}^N\y_k\E{\v{l}(\x_{k})^T}\right)\left(\sum_{k=1}^N\E{\v{l}(\x_{k})\v{l}(\x_{k})^T}\right)^{-1}
+	\v{H}_{j+1}=\left(\sum_{k=1}^T\y_k\E{\v{l}(\x_{k})^\tr}\right)\left(\sum_{k=1}^T\E{\v{l}(\x_{k})\v{l}(\x_{k})^\tr}\right)^{-1}
 \end{align}
 which is similar to \eqref{eq:H_new}
 
@@ -578,53 +638,20 @@ and
 \begin{split}
 	-2\dpd{I_2}{\theta_i}
 	=&-\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
-	\sum_{k=1}^N\E{\left(\x_k-\v{f}(\x_{k-1})\right)\left(\x_k-\v{f}(\x_{k-1})\right)^T}{\hat{\Th}_j}}\\
-	&-\Tr{\v{Q}^{-1}\sum_{k=1}^N\E{\dpd{\v{f}(\x_{k-1})}{\theta_i}\left(\x_k-\v{f}(\x_{k-1})\right)^T+\left(\x_k-\v{f}(\x_{k-1})\right)\dpd{\v{f}^T(\x_{k-1})}{\theta_i}}{\hat{\Th}_j}}\\
-	&+N\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}\\
+	\sum_{k=1}^T\E{\left(\x_k-\v{f}(\x_{k-1})\right)\left(\x_k-\v{f}(\x_{k-1})\right)^\tr}{\hat{\Th}_j}}\\
+	&-\Tr{\v{Q}^{-1}\sum_{k=1}^T\E{\dpd{\v{f}(\x_{k-1})}{\theta_i}\left(\x_k-\v{f}(\x_{k-1})\right)^\tr+\left(\x_k-\v{f}(\x_{k-1})\right)\dpd{\v{f}^\tr(\x_{k-1})}{\theta_i}}{\hat{\Th}_j}}\\
+	&+T\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}\\
 	\dpd{I_3}{\theta_i}=&
 	-\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}\v{R}^{-1}
-	\sum_{k=1}^N\E{\left(\y_k-\v{h}(\x_{k})\right)\left(\y_k-\v{h}(\x_{k})\right)^T}{\hat{\Th}_j}}\\
-	&-\Tr{\v{R}^{-1}\sum_{k=1}^N\E{\dpd{\v{h}(\x_{k})}{\theta_i}\left(\y_k-\v{h}(\x_{k})\right)^T+\left(\y_k-\v{h}(\x_{k})\right)\dpd{\v{h}^T(\x_{k})}{\theta_i}}{\hat{\Th}_j}}\\
-	&+N\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
+	\sum_{k=1}^T\E{\left(\y_k-\v{h}(\x_{k})\right)\left(\y_k-\v{h}(\x_{k})\right)^\tr}{\hat{\Th}_j}}\\
+	&-\Tr{\v{R}^{-1}\sum_{k=1}^T\E{\dpd{\v{h}(\x_{k})}{\theta_i}\left(\y_k-\v{h}(\x_{k})\right)^\tr+\left(\y_k-\v{h}(\x_{k})\right)\dpd{\v{h}^\tr(\x_{k})}{\theta_i}}{\hat{\Th}_j}}\\
+	&+T\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
 	\label{eq:dLB_nonlinear}
 \end{split}
 \end{align}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%\subsubsection{M-step maximization equations}%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Let us separate the set of all parameters $\Th$ into
-subsets
-
-\begin{align}
-	\Th&=\left\{\gv{\psi},\gv{\omega},\v{Q},\v{R}\right\},
-\end{align}
-where $\gv{\psi}$ are the parameters of $f$ and $\gv{\omega}$ are
-the parameters of $h$ (these sets can intersect). Let us first consider
-the maximization with respect to $\v{Q}$. We have
-
-\begin{multline}
-	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{Q^{-1}}}=
-	\sum_{k=1}^N\dpd{}{\v{Q^{-1}}}\Tr{\v{Q}^{-1}\E{\left(\x_k-\v{f}(\x_{k-1})\right)\left(\x_k-\v{f}(\x_{k-1})\right)^T}{\hat{\Th}_j}}\\+N\dpd{}{\v{Q^{-1}}}\log\abbs{\v{Q}}
-	\label{eq:clLH_pdQ}
-\end{multline}
-Using formula 92 in \cite{Petersen2008} for the first derivative and formula 51 for the second, we get
-\begin{align}
-	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{Q^{-1}}}&=
-	\sum_{k=1}^N\E{\left(\x_k-\v{f}(\x_{k-1})\right)\left(\x_k-\v{f}(\x_{k-1})\right)^T}{\hat{\Th}_j}-N\v{Q}
-	\label{eq:clLH_pdQ2}
-\end{align}
-and setting this to zero we get the update equation for the next estimate of $\v{Q}$
-\begin{align}
-	\v{Q}_{j+1}&=\frac{1}{N}\sum_{k=1}^N\E{\left(\x_k-\v{f}(\x_{k-1})\right)\left(\x_k-\v{f}(\x_{k-1})\right)^T}{\hat{\Th}_j}
-\end{align}
-The derivation of the update equation for the next estimate of $\v{R}$ is exactly analogous, giving
-\begin{align}
-	%-2\dpd{\Lb(\Th,\hat{\Th}_j)}{\v{R^{-1}}}&=\sum_{k=1}^N\E{\left(\y_k-\v{g}(\x_{k})\right)^T\left(\y_k-\v{g}(\x_{k})\right)}{\hat{\Th}_j}-N\v{R}\\
-	\v{R}_{j+1}&=\frac{1}{N}\sum_{k=1}^N\E{\left(\y_k-\v{h}(\x_{k})\right)\left(\y_k-\v{h}(\x_{k})\right)^T}{\hat{\Th}_j}
-\end{align} 
 
 
 \subsection{Comparisons}
