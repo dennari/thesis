@@ -195,11 +195,11 @@ The nonnegativeness of the Kullback-Leibler divergence can be proved by
 noting that $-\log$ is a convex function and so \emph{Jensen's inequality}
 can be applied \parencite{Bishop2006}.
 
-Let us take a closer at the the first term in \eqref{eq:lLH_decomp} with $\tPX=\Pdf{\X,\Y}{\Th'}$:
+Let us take a closer at the the first term in \eqref{eq:lLH_decomp} with $\tPX=\Pdf{\X}{\Y,\Th'}$:
 \begin{align}
 	\LB{\Pdf{\X,\Y}{\Th'},\Th}&=
-	\underbrace{\E{\log\cLH}_{\Pdf[p][1pt]{\X,\Y}{\Th'}}}_{\F[1pt]{\Lb}{\Th',\Th}} 
-	-\E{\log\Pdf{\X,\Y}{\Th'}}_{\Pdf[p][1pt]{\X,\Y}{\Th'}}.
+	\underbrace{\E{\log\cLH}_{\Pdf[p][1pt]{\X}{\Y,\Th'}}}_{\F[1pt]{\Lb}{\Th',\Th}} 
+	-\E{\log\Pdf{\X,\Y}{\Th'}}_{\Pdf[p][1pt]{\X}{\Y,\Th'}}.
 	\label{eq:completedata_loglikelihood}
 \end{align}
 Clearly the latter term (the differential entropy of $\Pdf{\X,\Y}{\Th'}$) is constant 
@@ -321,36 +321,28 @@ If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we h
 \subsubsection{Partial E and M steps}
 
 
-\subsubsection{Gradient computation}
-Another property of the lower bound worth stating formally is the following: assume that
-the likelihood and \eqref{eq:KL} are continuously differentiable, then
-\begin{align}
-		\left.\dpd{\lLH}{\theta_i}\right|_{\Th=\widehat\Th_j}&=\left.\dpd{\LB{\Pdf{\X}{\Y,\widehat\Th}_j,\Th}}{\theta_i}\right|_{\Th=\widehat\Th_j} \label{eq:EM_gradients}
-\end{align}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{EM in SSMs}%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\label{sec:EM_SSM}
 
 Let us then look at how to apply EM to a SSM of the form \eqref{eq:ssm_general}. First of
 all, from the factorization in \eqref{eq:complete_data_likelihood}, the complete-data log-likelihood becomes
 \begin{align*}
 \begin{split}
-	\cLH =&-\frac{1}{2}\left(\x_0-\gv{\mu}_0\right)^\tr\gv{\Sigma}_0^{-1}\left(\x-\gv{\mu}_0\right)-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
+	\cLH =&-\frac{1}{2}\left(\x_0-\gv{\mu}_0\right)^\tr\gv{\Sigma}_0^{-1}\left(\x_0-\gv{\mu}_0\right)-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
 	&-\frac{1}{2}\sum_{k=1}^T\left(\x_k-\v{f}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{f}(\x_{k-1})\right)-\frac{T}{2}\log\abbs{\v{Q}}\\
 	&-\frac{1}{2}\sum_{k=1}^T\left(\y_k-\v{h}(\x_{k})\right)^\tr\v{R}^{-1}\left(\y_k-\v{h}(\x_{k})\right)-\frac{T}{2}\log\abbs{\v{R}}\\
 	&+\mathtt{const}
 \end{split}
 \end{align*}
-Taking the expectation w.r.t. $\Pdf{\X}{\Y,\Th'}$ (assumed implicitly in the notation), applying the identity $\x^\tr\X\x=\Tr{\x^\tr\X\x}=\Tr{\X\x\x^\tr}$
-and using $\f_{k-1}\equiv \f(\x_{k-1})$ and $\h_k\equiv \h(\x_k)$
+Taking the expectation w.r.t. $\Pdf{\X}{\Y,\Th'}$ (assumed implicitly in the notation), applying the identity $\v{a}^\tr\v{C}\v{b}=\Tr{\v{a}^\tr\v{C}\v{b}}=\Tr{\v{C}\v{b}\v{a}^\tr}$, 
+denoting $\f_{k-1}\equiv \f(\x_{k-1})$ and $\h_k\equiv \h(\x_k)$ and dropping the constant terms we get
 \begin{align}
 \begin{split}
 	\F{\Lb}{\Th',\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
 	&-\frac{1}{2}\Tr{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{Q}}\\
-	&-\frac{1}{2}\Tr{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{R}}\\
-	&+\mathtt{const}.
+	&-\frac{1}{2}\Tr{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{R}}
 \end{split}
 \label{eq:eclLH}
 \end{align} 
@@ -358,9 +350,9 @@ Let us denote the three expectations in equation~\eqref{eq:eclLH} with
 \begin{align}
 	\v{I}_1 &= \E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}\\ 
 	&=\defint{\mathcal{X}\times T}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\X}{\Y,\Th'}}{\X}\nonumber\\
-	&= 	\defint{\mathcal{X}}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\x_0}{\Y,\Th'}}{\x_0}\\
-	\v{I}_2 &= \sum_{k=1}^T\defint{\mathcal{X}\times 2}{}{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr\Pdf{\bm{\xk^\tr&\xkk^\tr}^\tr}{\Y,\Th'}}{\bm{\xk&\xkk}^\tr}\\
-	\v{I}_3 &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr\Pdf{\xk}{\Y,\Th'}}{\xk}
+	&= 	\defint{\mathcal{X}}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\x_0}{\Y,\Th'}}{\x_0} \label{eq:I1_general}\\
+	\v{I}_2 &= \sum_{k=1}^T\defint{\mathcal{X}\times 2}{}{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr\Pdf{\bm{\xk^\tr&\xkk^\tr}^\tr}{\Y,\Th'}}{\bm{\xk&\xkk}^\tr} \label{eq:I2_general}\\
+	\v{I}_3 &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr\Pdf{\xk}{\Y,\Th'}}{\xk} \label{eq:I3_general}
 \end{align}
 It is clear then that in the E-step one needs to compute the $T+1$ smoothing
 distributions, including the $T$ cross-timestep distributions, since these
@@ -372,7 +364,7 @@ By applying the identity
 we can already write the first expectation as
 \begin{align}
 	\v{I}_1&= \v{P}_{0|T}+(\v{m}_{0|T}-\gv{\mu}_0)(\v{m}_{0|T}-\gv{\mu}_0)^\tr.
-	\label{tablelabel}
+	\label{eq:I1}
 \end{align}
 This was a result of assuming the Gaussian prior distribution of equation~\eqref{eq:prior} and
 it is common for the more specific models we're assessing in the next chapters.
@@ -394,16 +386,58 @@ where we have used formula 92 in \cite{Petersen2008} for the first derivative an
 formula 51 for the second. Setting \eqref{eq:clLH_pdQ}  
 to zero \todo{Why is it same for the inverse?} we get the update equation for the next estimate of $\v{Q}$
 \begin{align}
-	\v{Q}_{j+1}&=\frac{1}{T}\sum_{k=1}^T\E{\left(\xk-\f_{k-1}\right)\left(\xk-\f_{k-1}\right)^\tr}
+	\v{Q}_{j+1}&=\frac{1}{T}\sum_{k=1}^T\E{\left(\xk-\f_{k-1}\right)\left(\xk-\f_{k-1}\right)^\tr} \label{eq:EM_M_Q}\\
+	&=\frac{1}{T}\v{I}_2\nonumber
 \end{align}
 The derivation of the update equation for the next estimate of $\v{R}$ is exactly analogous, giving
 \begin{align}
-	\v{R}_{j+1}&=\frac{1}{T}\sum_{k=1}^T\E{\left(\yk-\h_{k}\right)\left(\yk-\h_{k}\right)^\tr}
+	\v{R}_{j+1}&=\frac{1}{T}\sum_{k=1}^T\E{\left(\yk-\h_{k}\right)\left(\yk-\h_{k}\right)^\tr} \label{eq:EM_M_R}\\
+	&=\frac{1}{T}\v{I}_3\nonumber
 \end{align} 
-
 In the following more specific cases, we will only
 consider the two remaining expectations and the rest of the M-step maximization
 equations.
+
+Let us then discuss a certain important aspect of the M-step maximization equations, with a consequence
+that is useful also for gradient based methods for ML. Often times
+one is not interested in estimating any \emph{full} matrix, with which we mean that the model
+might have been parameterized so that there are only scalar parameters embedded inside matrices or 
+as part of $\f$ or $\h$. In that case
+it is quite likely that the M-step maximization equations will not admit themselves to closed form
+analytical expressions. Rather the use of nonlinear optimization methods is needed and for that
+we would like have the gradient of $\Lb$. This is fortunately rather straightforward. Let
+$\theta_i$ be an element of $\Th$. Then
+\begin{align}
+\label{eq:dLB_nonlinear}
+\begin{split}
+	\dpd{\Lb(\Th,\Th')}{\theta_i}
+	=\quad{}&\frac{1}{2}\mathrm{Tr}\left[\gv{\Sigma}^{-1}\left(
+	\dpd{\gv{\Sigma}}{\theta_i}\gv{\Sigma}^{-1}
+	\sum_{k=1}^T\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}{\hat{\Th}_j}\right.\right.\\
+	&\quad+2\sum_{k=1}^T\E{\dpd{\gv{\mu}_0}{\theta_i}\left(\x_0-\gv{\mu}_0\right)^\tr}
+	-\left.\left.\dpd{\gv{\Sigma}}{\theta_i}\vphantom{\sum_{k=1}^T}\right)\right]\\
+	+&\frac{1}{2}\mathrm{Tr}\left[\v{Q}^{-1}\left(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
+	\sum_{k=1}^T\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr}\right.\right.\\
+	&\quad +2\sum_{k=1}^T\E{\dpd{\f_{k-1}}{\theta_i}\left(\x_k-\f_{k-1}\right)^\tr}
+	-\left.\left. T\dpd{\v{Q}}{\theta_i}\vphantom{\sum_{k=1}^T}\right)\right]\\
+	+&\frac{1}{2}\mathrm{Tr}\left[\v{R}^{-1}\left(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
+	\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}\right.\right.\\
+	&\quad +2\sum_{k=1}^T\E{\dpd{\h_{k}}{\theta_i}\left(\y_k-\h_{k}\right)^\tr}
+	-\left.\left.T\dpd{\v{R}}{\theta_i}\vphantom{\sum_{k=1}^T}\right)\right].
+\end{split}	
+\end{align}
+
+What is interesting about this quantity is that it can also be used to compute the gradient of the log-likelihood, i.e
+the score, itself. From equation~\eqref{eq:lLH_decomp} it can be seen rather easily, that  
+the partial derivative of the log-likelihood evaluated at $\widehat{\Th}$ is given by
+\begin{align}
+		\left.\dpd{\lLH}{\theta_i}\right|_{\Th=\widehat\Th}&=
+		\left.\dpd{\LB{\Pdf{\X}{\Y,\widehat\Th},\Th}}{\theta_i}\right|_{\Th=\widehat\Th}=
+		\left.\dpd{ \F{\Lb}{\widehat\Th,\Th}}{\theta_i}\right|_{\Th=\widehat\Th} \label{eq:EM_gradients}
+\end{align} 
+Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005}. It gives
+an alternative route for the score function computation.
+\todo{elaborate on score computation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{EM in linear-Gaussian SSMs}%%%%%%%
@@ -417,7 +451,7 @@ Let us also denote by
 	\begin{bmatrix}
 		\xk\\\xkk
 	\end{bmatrix}
-	]{\m_{k,k-1|T},\P_{k,k-1|T}},
+	]{\m_{k,k-1|T},\P_{k,k-1|T}} \label{eq:pdf_smooth_joint},
 \end{align}
 the joint smoothing distribution of $\xk$ and $\xkk$.
 Then by applying the manipulation
@@ -441,73 +475,93 @@ we get
 	\v{I}_{2}&=
 \bm{\v{I} & -\v{A}}	
 \sum_{k=1}^T\left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)
-\bm{\v{I}\\-\v{A}^\tr}\\
+\bm{\v{I}\\-\v{A}^\tr} \label{eq:LGSSM_I2}\\
 &=\bm{\v{I} & -\v{A}}	
 %\bm{\P_{k|T}+\m_{k|T}\m_{k|T}^\tr & \left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)^\tr \\ \P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr & \P_{k-1|T}+\m_{k-1|T}\m_{k-1|T}^\tr }
-\sum_{k=1}^T\bm{\E{\xk\xk^\tr} & \E{\xk\xkk^\tr} \\ \E{\xkk\xk^\tr} & \E{\xkk\xkk^\tr} }
-\bm{\v{I}\\-\v{A}^\tr}\\
+\bm{\sum_{k=1}^T\E{\xk\xk^\tr} & \sum_{k=1}^T\E{\xk\xkk^\tr} \\ \sum_{k=1}^T\E{\xkk\xk^\tr} & \sum_{k=1}^T\E{\xkk\xkk^\tr} }
+\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
+&=\bm{\v{I} & -\v{A}}	
+\bm{\bar{\X}_{00} & \bar{\X}_{01} \\ \bar{\X}_{01}^\tr & \bar{\X}_{11} }
+\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
+&=\bar{\X}_{00}-\v{A}\bar{\X}_{01}^\tr-\bar{\X}_{01}\v{A}^\tr+\v{A}\bar{\X}_{11}\v{A}^\tr\nonumber\\
+&=\left(\v{A}-\bar{\X}_{01}\bar{\X}_{11}^{-1}\right)\bar{\X}_{11}\left(\v{A}-\bar{\X}_{01}\bar{\X}_{11}^{-1}\right)^\tr+\bar{\X}_{00}+\bar{\X}_{01}\bar{\X}_{11}^{-1}\bar{\X}_{01}^\tr.
+\label{eq:Amax}
+\end{align}
+It's easy to see that the extremum value of the last line with respect to $\v{A}$
+is obtained by setting
+\begin{align}
+	\v{A}_{j+1}&=\bar{\X}_{01}\bar{\X}_{11}^{-1} \label{eq:EM_M_A}.	
+\end{align}
+For $\v{I}_3$ we get
+\begin{align}
 \v{I}_{3}&=
 \bm{\v{I} & -\v{H}}	
 \sum_{k=1}^T
 \bm{\yk\yk^\tr & \yk\E{\xk}^\tr \\ \E{\xk}\yk^\tr & \E{\xk\xk^\tr} }
-\bm{\v{I}\\-\v{H}^\tr}
+\bm{\v{I}\\-\v{H}^\tr} \label{eq:LGSSM_I3}\\
+&=\bm{\v{I} & -\v{H}}	
+\sum_{k=1}^T
+	\bm{\bar{\Y}_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \bar{\X}_{00} }
+\bm{\v{I}\\-\v{H}^\tr},
+\end{align}
+so with analogous manipulation as in \eqref{eq:Amax} we get
+\begin{align}
+	\v{H}_{j+1}&=\bar{\v{C}}_{00}\bar{\X}_{00}^{-1} \label{eq:EM_M_H}.	
 \end{align}
 
-All in all, the E-step of the 
-EM algorithm in linear-Gaussian SSM:s corresponds to computing
-the matrices in \eqref{eq:sum_expectations} with the help of the Kalman filter and
-the RTS smoother. In \parencite{Elliott1999} a new kind of filter is presented that
-can compute \eqref{eq:sum_expectations} with only forward recursions. 
+All in all, the E-step of EM algorithm in linear-Gaussian SSM:s consists of
+computing the $T$ joint distributions in equation~\eqref{eq:pdf_smooth_joint} with the RTS smoother.
+Actually this is not the only option, as for example in
+\textcite{Elliott1999} a new kind of filter is presented that
+can compute the expectations with only forward recursions.
+After this, the M-step estimates are computed for $\v{Q}$
+from equation~\eqref{eq:EM_M_Q}, for $\v{R}$ from equation~\eqref{eq:EM_M_R}, for $\v{A}$ from equation~\eqref{eq:EM_M_A}
+and for $\v{H}$ from equation~\eqref{eq:EM_M_H}. Also for evaluating the convergence,
+one needs to compare the current value of $\Lb$ with the previous one.
+For this we can compute $\v{I}_1$ from equation~\eqref{eq:I1},
+$\v{I}_2$ from equation~\eqref{eq:LGSSM_I2} and $\v{I}_3$\todo{index $\v{I}$:s} from equation~\eqref{eq:LGSSM_I3}.
 
-Suppose now, that the matrix $A$ depends on parameters $\v{s}$.
-Let us then deduce the maximization equation for the parameter $s_i$:
+For working with structured matrices let us rewrite the gradient equation~\eqref{eq:dLB_nonlinear}
+in the linear-Gaussian case:
 \begin{align}
-	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}&=
-	\sum_{k=1}^T\E{\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)}{\hat{\Th}_j}\label{eq:s_grad}
-\end{align}
-and
-\begin{align}
-	&\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
-	=&-2\v{g}(\x_{k-1})^\tr\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
-	=&-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\x_k\v{g}(\x_{k-1})^\tr}-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\\
-	=&-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\x_k\v{g}(\x_{k-1})^\tr-\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr\right)}\label{eq:a_grad}.
-\end{align}
-Combining equations \eqref{eq:a_grad} and \eqref{eq:s_grad} then gives
-\begin{multline}
-	\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}=\\
-	-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\sum_{k=1}^T\E{\x_k\v{g}(\x_{k-1})^\tr}-\v{A}\sum_{k=1}^T\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\right)}
-	\label{eq:pdcLH_nonlinear}
-\end{multline}
-If we then set \eqref{eq:pdcLH_nonlinear} to zero, we have
-\begin{align}
-	\v{A}_{j+1}=\left(\sum_{k=1}^T\E{\x_k\v{g}(\x_{k-1})^\tr}\right)\left(\sum_{k=1}^T\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\right)^{-1}
-\end{align}
-which is similar to \eqref{eq:A_new}
-
-
-%\subsubsubsection{M-step with structured matrices}
-\cite{Wills2011}
-When we want to maximize $\Lb(\Th,\hat{\Th})$ w.r.t some other
-parameters than the ones in $\Th_M$, the situation becomes more complicated.
-In the general case, no analytical formulas can be found. We therefore seek
-to maximize $\Lb(\Th,\hat{\Th})$ numerically, analogously to how $L(\gv{\theta})$
-was maximized in section~\ref{sec:grad}.
-
-Fortunately calculating the gradient of $\Lb(\Th,\hat{\Th})$ is straightforward:
-
-\begin{align}
+\label{eq:dLB_linear}
 \begin{split}
-	-2\dpd{\Lb(\Th,\hat{\Th}))}{\theta_i}
-	=&\Tr{-\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
-	\left(\v{B}_1-\v{A}\v{B}_2^\tr-\v{B}_2\v{A}^\tr+\v{A}\v{B}_3\v{A}^\tr\right)}\\
-	&+\Tr{\v{Q}^{-1}\left(-\dpd{\v{A}}{\theta_i}\v{B}_2^\tr-\v{B}_2\dpd{\v{A}}{\theta_i}^\tr+\dpd{\v{A}}{\theta_i}\v{B}_3\v{A}^\tr+\v{A}\v{B}_3\dpd{\v{A}}{\theta_i}^\tr\right)}\\
-	&+\Tr{-\v{R}^{-1}\dpd{\v{R}}{\theta_i}\v{R}^{-1}
-	\left(\v{B}_4-\v{H}\v{B}_5^\tr-\v{B}_5\v{H}^\tr+\v{H}\v{B}_1\v{H}^\tr\right)}\\
-	&+T\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}
-	+T\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
-	\label{eq:dLB}
+	\dpd{\Lb(\Th,\Th')}{\theta_i}
+	=\quad{}&\frac{1}{2}\mathrm{Tr}\left[\gv{\Sigma}^{-1}\left(
+	\dpd{\gv{\Sigma}}{\theta_i}\gv{\Sigma}^{-1}
+	\sum_{k=1}^T\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}{\hat{\Th}_j}\right.\right.\\
+	&\quad+2\sum_{k=1}^T\E{\dpd{\gv{\mu}_0}{\theta_i}\left(\x_0-\gv{\mu}_0\right)^\tr}
+	-\left.\left.\dpd{\gv{\Sigma}}{\theta_i}\vphantom{\sum_{k=1}^T}\right)\right]\\
+	+&\frac{1}{2}\mathrm{Tr}\left[\v{Q}^{-1}\left(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}\bm{\v{I} & -\v{A}}\bm{\bar{\X}_{00} & \bar{\X}_{01} \\ \bar{\X}_{01}^\tr & \bar{\X}_{11} }\bm{\v{I}\\-\v{A}^\tr}\right.\right.\\
+	&\quad +2\bm{\v{0} & -\dpd{\v{A}}{\theta_i}}\bm{\bar{\X}_{00} & \bar{\X}_{01} \\ \bar{\X}_{01}^\tr & \bar{\X}_{11} }\bm{\v{I}\\-\v{A}^\tr}
+	-\left.\left. T\dpd{\v{Q}}{\theta_i}\vphantom{\sum_{k=1}^T}\right)\right]\\
+	+&\frac{1}{2}\mathrm{Tr}\left[\v{R}^{-1}\left(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
+	\bm{\v{I} & -\v{H}}\bm{\bar{\Y}_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \bar{\X}_{00} }\bm{\v{I}\\-\v{H}^\tr}\right.\right.\\
+	&\quad +2\bm{\v{0} & -\dpd{\v{H}}{\theta_i}}\bm{\bar{\Y}_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \bar{\X}_{00} }\bm{\v{I}\\-\v{H}^\tr}
+	-\left.\left.T\dpd{\v{R}}{\theta_i}\vphantom{\sum_{k=1}^T}\right)\right].
 \end{split}
 \end{align}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{EM in nonlinear-Gaussian SSMs}%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+As explained in section \ref{sec:nonlinear_state}, in then nonlinear case
+the filtering and smoothing distributions cannot be computed exactly.
+Thus the E-step is also only approximate and the convergence
+guarantees of EM won't apply anymore. The proposed methods can nevertheless
+provide good results most of the time. In the fortunate case that the
+model is linear-in-the-parameters the M-step can be solved in closed form.
+This situation will be covered later in section~\ref{sec:litp}. Currently we will assume
+however that the model is nonlinear in the parameters as well as in the states so that
+the simplest form to write the model is exactly \eqref{eq:ssm_general}.
+
+The E-step in the EM-algorithm consists now of computing approximations to $\v{I}_1$, $\v{I}_2$ and $\v{I}_3$
+from equations~\eqref{eq:I1}, \eqref{eq:I2_general} and \eqref{eq:I3_general}. In the
+M-step one should a gradient based nonlinear optimization algorithm to compute
+the next parameter estimate \eqref{eq:EM_M}. The gradient can be computed with
+the equation~\eqref{eq:dLB_nonlinear}.  
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -515,12 +569,10 @@ Fortunately calculating the gradient of $\Lb(\Th,\hat{\Th})$ is straightforward:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:litp}
 
-Suppose the function $\v{f}$ is linear in the parameters and the dimension of the state $\x$ is $d$.
-Then in the most general case $\v{f}(\x):\R^d\to\R^d$ is a linear
-combination of vector valued functions $\gv{\rho}_k(\x):\R^d\to\R^{d_k}$  
-and the parameters are matrices $\gv{\Phi}_k\in\R^{d\times d_k}$. More specifically,
-we have
-
+Suppose now that $\v{f}(\x):\mathcal{X}\to\mathcal{X}$ is a linear
+combination of vector valued functions $\gv{\rho}_k:\mathcal{X}\to\R^{d_{\Phi,k}}$,
+so that the parameters of $\f$, $\gv{\Phi}_k$, are matrices of size $d_x\times d_{\Phi,k}$.
+Then $\f$ can be written as 
 \begin{align}
 \begin{split}
 	\v{f}(\x)&=\gv{\Phi}\gv{\rho}_1(\x)+\dots+\gv{\Phi}_m\gv{\rho}_m(\x)\\
@@ -536,55 +588,24 @@ we have
 	&=\v{A}\v{g}(\x),
 \end{split}
 \end{align}
-where $\v{A}\in\R^{d\times\sum_{k=1}^m d_k}$ and $\v{g}(\x):\R^d\to \R^{\sum_{k=1}^m d_k}$ . 
-For example, in case of the function
+so that $\v{A}$ is now a matrix of size ${d_x\times\sum_{k=1}^m d_{\Phi,k}}$ and $\v{g}:\mathcal{X}\to \R^{\sum_{k=1}^m d_{\Phi,k}}$ . 
+Denoting $\v{g}\left(\xkk\right)\equiv\v{g}_{k-1}$ and $\v{l}\left(\xk\right)\equiv\v{l}_{k}$
+and following the derivation in equation~\eqref{eq:LGSSM_I2} we have
 \begin{align}
-	f(x,t)&=ax+b\frac{x}{1+x^2}+c\cos(1.2t)
+	\v{I}_{2}
+&=\bm{\v{I} & -\v{A}}	
+\bm{\sum_{k=1}^T\E{\xk\xk^\tr} & \sum_{k=1}^T\E{\xk\v{g}_{k-1}^\tr} \\ \sum_{k=1}^T\E{\v{g}_{k-1}\xk^\tr} & \sum_{k=1}^T\E{\v{g}_{k-1}\v{g}_{k-1}^\tr} }
+\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
+&=\bm{\v{I} & -\v{A}}	
+\bm{\bar{\X}_{00} & \bar{\v{G}}_{01} \\ \bar{\v{G}}_{01}^\tr & \bar{\v{G}}_{11} }
+\bm{\v{I}\\-\v{A}^\tr}
 \end{align}
-we would have
+Then similarly to \eqref{eq:EM_M_A}
 \begin{align}
-	f(x,t)&=
-	\begin{bmatrix}
-		a & b & c
-	\end{bmatrix}
-	\begin{bmatrix}
-		x\\
-		\frac{x}{1+x^2}\\ 
-		\cos(1.2t)
-	\end{bmatrix}
+	\v{A}_{j+1}&=\bar{\v{G}}_{01}\bar{\v{G}}_{11}^{-1} \label{eq:EM_LIP_M_A}.	
 \end{align}
-Suppose now, that the matrix $A$ depends on parameters $\v{s}$.
-Let us then deduce the maximization equation for the parameter $s_i$:
-\begin{align}
-	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}&=
-	\sum_{k=1}^T\E{\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)}{\hat{\Th}_j}\label{eq:s_grad}
-\end{align}
-and
-\begin{align}
-	&\dpd{}{s_i}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
-	=&-2\v{g}(\x_{k-1})^\tr\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\x_k-\v{A}\v{g}(\x_{k-1})\right)\\
-	=&-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\x_k\v{g}(\x_{k-1})^\tr}-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\\
-	=&-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\x_k\v{g}(\x_{k-1})^\tr-\v{A}\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr\right)}\label{eq:a_grad}.
-\end{align}
-Combining equations \eqref{eq:a_grad} and \eqref{eq:s_grad} then gives
-\begin{multline}
-	\dpd{\Lb(\Th,\hat{\Th}_j)}{s_i}=\\
-	-2\Tr{\dpd{\v{A}}{s_i}^\tr\v{Q}^{-1}\left(\sum_{k=1}^T\E{\x_k\v{g}(\x_{k-1})^\tr}-\v{A}\sum_{k=1}^T\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\right)}
-	\label{eq:pdcLH_nonlinear}
-\end{multline}
-If we then set \eqref{eq:pdcLH_nonlinear} to zero, we have
-\begin{align}
-	\v{A}_{j+1}=\left(\sum_{k=1}^T\E{\x_k\v{g}(\x_{k-1})^\tr}\right)\left(\sum_{k=1}^T\E{\v{g}(\x_{k-1})\v{g}(\x_{k-1})^\tr}\right)^{-1}
-\end{align}
-which is similar to \eqref{eq:A_new}
 
-Suppose the function $\v{h}$ is linear in the parameters and the dimension of
-the state $\x$ is $d^x$ and of the measurements $d^y$.
-Then in the most general case $\v{h}(\x):\R^{d^x}\to\R^{d^y}$ is a linear
-combination of vector valued functions $\gv{\pi}_k(\x):\R^{d^x}\to\R^{d_k}$  
-and the parameters are matrices $\gv{\Upsilon}_k\in\R^{d^x\times d_k}$. More
-specifically, we have
-
+Applying similar assumptions as for $\v{f}$ to $\h$, we can write
 \begin{align}
 \begin{split}
 	\v{h}(\x)&=\gv{\Upsilon}\gv{\pi}_1(\x)+\dots+\gv{\Upsilon}_m\gv{\pi}_m(\x)\\
@@ -600,62 +621,70 @@ specifically, we have
 	&=\v{H}\v{l}(\x),
 \end{split}
 \end{align}
-  
-Suppose now, that the matrix $\v{H}$ depends on parameters $\v{t}$.
-Let us then deduce the maximization equation for the parameter $t_i$:
+where the size of $\v{H}$ is now ${d_x\times\sum_{k=1}^m d_{\Upsilon,k}}$ and 
+$\v{l}:\mathcal{X}\to \R^{\sum_{k=1}^m d_{\Upsilon,k}}$ .
+For $\v{I}_3$ we get
 \begin{align}
-	-2\dpd{\Lb(\Th,\hat{\Th}_j)}{t_i}&=
-	\frac{1}{2}\Tr{\v{R}^{-1}\sum_{k=1}^T\E{\dpd{}{t_i}\left(\y_k-\v{H}\v{l}(\x_k)\right)\left(\y_k-\v{H}\v{l}(\x_k)\right)^\tr}{\hat{\Th}_j}}
-\label{eq:s_grad}
-\end{align}
-and
-
-If we then set \eqref{eq:pdcLH_nonlinear} to zero, we have
-\begin{align}
-	\v{H}_{j+1}=\left(\sum_{k=1}^T\y_k\E{\v{l}(\x_{k})^\tr}\right)\left(\sum_{k=1}^T\E{\v{l}(\x_{k})\v{l}(\x_{k})^\tr}\right)^{-1}
-\end{align}
-which is similar to \eqref{eq:H_new}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{EM in nonlinear-Gaussian SSM:s}%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-As explained in section \ref{sec:nonlinear_state}, in then nonlinear case
-the filtering and smoothing distributions cannot be computed exactly.
-Thus the E-step solution is also only approximate and the convergence
-guarantees of EM won't apply anymore. The proposed methods can nevertheless
-provide good results most of the time. In the fortunate case that the
-model is linear-in-the-parameters the M-step can be solved in closed form.
-This situation will be covered later in section~\ref{sec:litp}.
-
-\begin{align}
-	\dpd{\Lb(\Th,\hat{\Th}))}{\theta_i}&=\dpd{I_1}{\theta_i}+\dpd{I_3}{\theta_i}+\dpd{I_3}{\theta_i}
-	\label{eq:dLB_nonlinear_1}
+\v{I}_{3}&=
+\bm{\v{I} & -\v{H}}	
+\sum_{k=1}^T
+\bm{\yk\yk^\tr & \yk\E{\v{l}_k}^\tr \\ \E{\v{l}_k}\yk^\tr & \E{\v{l}_k\v{l}_k^\tr} }
+\bm{\v{I}\\-\v{H}^\tr} \label{eq:LGSSM_I3}\\
+&=\bm{\v{I} & -\v{H}}	
+\sum_{k=1}^T
+	\bm{\bar{\Y}_{00} & \bar{\v{D}}_{00} \\ \bar{\v{D}}_{00}^\tr & \bar{\v{L}}_{00} }
+\bm{\v{I}\\-\v{H}^\tr},
 \end{align}
 and
 \begin{align}
-\begin{split}
-	-2\dpd{I_2}{\theta_i}
-	=&-\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
-	\sum_{k=1}^T\E{\left(\x_k-\v{f}(\x_{k-1})\right)\left(\x_k-\v{f}(\x_{k-1})\right)^\tr}{\hat{\Th}_j}}\\
-	&-\Tr{\v{Q}^{-1}\sum_{k=1}^T\E{\dpd{\v{f}(\x_{k-1})}{\theta_i}\left(\x_k-\v{f}(\x_{k-1})\right)^\tr+\left(\x_k-\v{f}(\x_{k-1})\right)\dpd{\v{f}^\tr(\x_{k-1})}{\theta_i}}{\hat{\Th}_j}}\\
-	&+T\Tr{\v{Q}^{-1}\dpd{\v{Q}}{\theta_i}}\\
-	\dpd{I_3}{\theta_i}=&
-	-\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}\v{R}^{-1}
-	\sum_{k=1}^T\E{\left(\y_k-\v{h}(\x_{k})\right)\left(\y_k-\v{h}(\x_{k})\right)^\tr}{\hat{\Th}_j}}\\
-	&-\Tr{\v{R}^{-1}\sum_{k=1}^T\E{\dpd{\v{h}(\x_{k})}{\theta_i}\left(\y_k-\v{h}(\x_{k})\right)^\tr+\left(\y_k-\v{h}(\x_{k})\right)\dpd{\v{h}^\tr(\x_{k})}{\theta_i}}{\hat{\Th}_j}}\\
-	&+T\Tr{\v{R}^{-1}\dpd{\v{R}}{\theta_i}}\\
-	\label{eq:dLB_nonlinear}
-\end{split}
+	\v{H}_{j+1}&=\bar{\v{D}}_{00}\bar{\v{L}}_{00}^{-1} \label{eq:EM_LIP_M_H}.	
 \end{align}
-
-
-
 
 
 \subsection{Comparisons}
+
+Both the direct method of section~\ref{sec:grad} and the EM algorithm of section~\ref{sec:EM_SSM}
+have their strengths and weaknesses. Neither of them can be said to eclipse the other in an absolute sense.
+In this section we will go through some features of the said algorithms found in the literature.
+Then a more detailed analysis will be performed on two essential aspects of any estimation algorithm:
+the convergence properties, i.e. when should one expect the algorithm to find a local maximum and
+the computational requirements of the algorithms.
+
+\textcite{Cappe2005} contains a list of arguments in favor of either of the methods. The following list includes
+those and additional points with comments:
+\begin{description}
+  \item[Direct]\hfill
+\begin{itemize}
+  \item\emph{No smoother needed} The log-likelihood, or an approximation to it, can be evaluated
+  with forward-filtering
+  \item\emph{No M-step}. There is no need to figure out model-dependent maximization
+  formulas even in nonlinear models 
+  \item\emph{Faster convergence}. Advanced gradient-based optimization
+  methods can reach convergence speeds that are close to quadratic
+\end{itemize}
+  \item[EM]\hfill
+  \begin{itemize}
+  \item \emph{Simple to implement}. This argument is often put forward in favor of the EM
+ algorithm. However in practice when using the gradient-based method one would use any one of
+the off-the-self nonlinear optimizers and not re-implement one. Thus which one is easier to implement
+boils down to gradient computation. If the model is linear or linear-in-the-parameters the EM
+algorithm doesn't need any gradient information.
+  \item\emph{Parameter constraints}. In \textcite{Cappe2005} it is argued that
+since the M-step maximization equations are so simple, including parameter constraints
+are easier in the EM algorithm. This again depends on if the model is linear or linear-in-the-parameters.
+  \item\emph{Parameterization independent}. This again depends on if one has to use gradient-based
+ optimization in the M-step. If not, then the EM algorithm is parameterization independent. In the gradient-based
+ method the gradient and the Hessian, and so the convergence, are affected by the parameterization.
+\end{itemize} 
+\end{description}
+ 
+
 \subsubsection{Convergence}
+
+The convergence behavior of the EM-algorithm has been a source of interest for researchers
+even quite recently. 	
+
+
 \subsubsection{Computational complexity}
 \parencite{Harvey1990,Watson1983,Cappe2005,Saatci2011,Olsson2007,Salakhutdinov2003a}
 
