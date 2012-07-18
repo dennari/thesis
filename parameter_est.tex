@@ -641,7 +641,7 @@ and
 \end{align}
 
 
-\subsection{Comparisons}
+\subsection{Properties of the estimation algorithms}
 
 Both the direct method of section~\ref{sec:grad} and the EM algorithm of section~\ref{sec:EM_SSM}
 have their strengths and weaknesses. Neither of them can be said to eclipse the other in an absolute sense.
@@ -679,14 +679,16 @@ are easier in the EM algorithm. This again depends on if the model is linear or 
 \end{description}
  
 
-\subsubsection{Convergence}
+\subsubsection{Limit points}
 
-The convergence behavior of the EM-algorithm has been a source of interest for researchers
-even quite recently. 	
+\subsubsection{Convergence rates}
 
+Let us denote the mapping implicitly defined by the EM
+algorithm by $\v{M}:\Theta\to\Theta$. Then if the iterates
+$\Th_j$ converge to a point $\Th_\star$, we must have $\Th_\star=\F{\v{M}}{\Th_\star}$.
 
-\subsubsection{Computational complexity}
+\subsubsection{Computational load}
+
 \parencite{Harvey1990,Watson1983,Cappe2005,Saatci2011,Olsson2007,Salakhutdinov2003a}
-
 
 
