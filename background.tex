@@ -92,8 +92,8 @@ presentation of discrete-time SSMs is
 \begin{subequations}
 \label{eq:ssm_too_general}
 \begin{align}
-	\xk &= \v{f}_{\Th,k}\left(\x_{k-1},\v{q}_{k-1}\right)\\
-	\yk &= \v{h}_{\Th,k}\left(\xk,\v{r}_{k}\right).
+	\xk &= \F{\v{f}_{\Th,k}}{\x_{k-1},\v{q}_{k-1}}\\
+	\yk &= \F{\v{h}_{\Th,k}}{\xk,\v{r}_{k}}.
 \end{align}
 \end{subequations}
 Here the stochasticity is separated into the noise processes $\v{q}$ and $\v{r}$ which are usually
@@ -104,9 +104,9 @@ k). Thus the SSMs considered in this thesis are of the form
 \begin{subequations}
 \label{eq:ssm_general}
 \begin{alignat}{2}
-	\xk &= \v{f}_{\Th}\left(\x_{k-1}\right)+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0},\v{Q}} \label{eq:Q}\\
-	\yk &= \v{h}_{\Th}\left(\xk\right)+\v{r}_{k} & \v{r}_k&\sim \N{\v{0},\v{R}} \label{eq:R}\\
-	\v{x}_{0} &\sim \N{\gv{\mu}_0,\gv{\Sigma}_0} && \label{eq:prior},
+	\xk &= \F{\v{f}_{\Th}}{\x_{k-1}}+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0}}{\v{Q}} \label{eq:Q}\\
+	\yk &= \F{\v{h}_{\Th}}{\xk}+\v{r}_{k} & \v{r}_k&\sim \N{\v{0}}{\v{R}} \label{eq:R}\\
+	\v{x}_{0} &\sim \N{\gv{\mu}_0}{\gv{\Sigma}_0} && \label{eq:prior},
 \end{alignat}
 \end{subequations}
 We will assume an implicit dependence of the distributional parameters $\v{Q}$,
@@ -114,8 +114,8 @@ $\v{R}$,$\gv{\mu}_0$ and $\gv{\Sigma}_0$ on $\Th$. Regarding the Gaussian distri
 suppose $\x\in\R^m$ is normally distributed with mean $\m$ and covariance matrix $\P$.
 We will then use the notation
 \begin{align}
-	\x &\sim \N{\m,\P}\\
-\Leftrightarrow \Pdf{\x}{\m,\P}&=\N[\x]{\m,\P}\\
+	\x &\sim \N{\m}{\P}\\
+\Leftrightarrow \Pdf{\x}{\m,\P}&=\N[\x]{\m}{\P}\\
 	&= \left(2\pi\right)^{-\sfrac{m}{2}}\abbs{\P}^{-\sfrac{1}{2}}e^{-\sfrac{1}{2}\left(\x-\m\right)^\tr\P^{-1}\left(\x-\m\right)}		
 \end{align}
 Now clearly the mappings $\v{f}_{\Th}:\mathcal{X}\to\mathcal{X}$ and
@@ -124,23 +124,23 @@ and the measurement models:
 \begin{subequations}
 \label{eq:ssm_distr_general}
 \begin{align}
-	\Pdf{\xk}{\x_{k-1},\Th}&=\N{\v{f}_{\Th}\left(\x_{k-1}\right),\v{Q}}\label{eq:dynamics_distr_general}\\
-	\Pdf{\yk}{\xk,\Th}&=\N{\v{h}_{\Th}\left(\xk\right),\v{R}}\label{eq:measurement_distr_general}
+	\Pdf{\xk}{\x_{k-1},\Th}&=\N{\F{\v{f}_{\Th}}{\x_{k-1}}}{\v{Q}}\label{eq:dynamics_distr_general}\\
+	\Pdf{\yk}{\xk,\Th}&=\N{\F{\v{h}_{\Th}}{\xk}}{\v{R}}\label{eq:measurement_distr_general}
 \end{align}
 \end{subequations}
 
 \subsubsection*{Example: 1D random walk}
 The simplest example is a one dimensional random-walk observed in Gaussian noise.
-We will assume $\Pdf{\v{x}_0}=\N{0,P_0}$. In an alternative (but equivalent) notation
+We will assume $\Pdf{\v{x}_0}=\N{0}{P_0}$. In an alternative (but equivalent) notation
 the dynamics model is now
 \begin{align}
 	\Pdf{x_k}{x_{k-1}}&=x_{k-1}+q_{k-1},
 \end{align}
-where $q_{k-1}\sim \N{0,Q}$ and the measurement model is
+where $q_{k-1}\sim \N{0}{Q}$ and the measurement model is
 \begin{align}
 	\Pdf{y_k}{x_{k}}&=x_{k}+r_{k},
 \end{align}
-where $r_{k}\sim \N{0,R}$. A simulation from the model is presented in figure~\ref{fig:rw1d}.
+where $r_{k}\sim \N{0}{R}$. A simulation from the model is presented in figure~\ref{fig:rw1d}.
 
 \begin{figure}[htp]
 \begin{center}
@@ -182,7 +182,7 @@ be the filtering distribution of the previous step. Then
 which is known as the \emph{Chapman-Kolmogorov equation} \parencite{Sarkka2006}.
 In this thesis the predictive distributions will be Gaussian or approximated with a Gaussian
 \begin{align}
-	\Pdf{\xk}{\y_{1:k-1},\Th}&=\N{\xk;\m_{k|k-1},\P_{k|k-1}}
+	\Pdf{\xk}{\y_{1:k-1},\Th}&=\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}
 \end{align}
 
 \subsubsection*{Filtering distribution}
@@ -195,7 +195,7 @@ rule (see for example \cite{gelman2004})\todo{check marginal likelihood wording}
 which is called the measurement update equation.
 In this thesis the filtering distributions will be Gaussian or approximated with a Gaussian
 \begin{align}
-	\Pdf{\xk}{\y_{1:k},\Th}&=\N{\xk;\m_{k|k},\P_{k|k}}
+	\Pdf{\xk}{\y_{1:k},\Th}&=\N[\xk]{\m_{k|k}}{\P_{k|k}}
 \end{align}
 
 
@@ -215,7 +215,7 @@ we get
 where $\Pdf{\x_{k+1}}{\y_{1:k}}$ can be computed by equation \eqref{eq:pred_bayes}.
 In this thesis the smoothing distributions will be Gaussian or approximated with a Gaussian
 \begin{align}
-	\Pdf{\xk}{\y_{1:T}}&=\N{\xk;\m_{k|T},\P_{k|T}}
+	\Pdf{\xk}{\y_{1:T}}&=\N[\xk]{\m_{k|T}}{\P_{k|T}}
 \end{align}
 
 \subsubsection*{Marginal likelihood}

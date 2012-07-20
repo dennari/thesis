@@ -44,7 +44,7 @@ joint distributions
 		\v{m}_{k|k-1}\\
 		\v{H}\v{m}_{k|k-1}
 	\end{bmatrix}
-	,
+	}{
 	\begin{bmatrix}
 		\v{P}_{k|k-1} & \v{P}_{k|k-1}\v{H}^\tr\\
 		\v{H}\v{P}_{k|k-1}^\tr & \v{S}_k  
@@ -72,7 +72,7 @@ The standard Rauch-Tung-Striebel (RTS) smoother gives the statistics $\v{m}_{k|T
 		\v{m}_{k|T}\\
 		\v{m}_{k-1|T}
 	}
-	,
+	}{
 	\bm{
 		\v{P}_{k|T} & \v{P}_{k|T}\v{J}_k^\tr\\
 		\v{J}_k\v{P}_{k|T} & \v{P}_{k-1|T}  
@@ -106,15 +106,15 @@ One approach to forming Gaussian approximations is to assume a
 Gaussian probability density function with mean and variance that match the
 actual ones \parencite{Ito2000,Sarkka2006}. Let 
 \begin{align}
-	\v{a}&\sim \N{\v{m},\gv{\Sigma}_a} \label{eq:pa}\\
-	\v{b}|\v{a}&\sim \N{\v{f}(\v{a}),\gv{\Sigma}_{b|a}} \label{eq:pb_given_a}
+	\v{a}&\sim \N{\m}{\gv{\Sigma}_a} \label{eq:pa}\\
+	\v{b}|\v{a}&\sim \N{\F*{f}{\v{a}}}{\gv{\Sigma}_{b|a}} \label{eq:pb_given_a}
 \end{align}
 then 
 \begin{align}
 	\label{eq:joint_nongaussian}
-	\Pdf{\v{a},\v{b}}&=\N{\v{m},\gv{\Sigma}_a}\N{\v{f}(\v{a}),\gv{\Sigma}_{b|a}}
+	\Pdf{\v{a},\v{b}}&=\N[\v{a}]{\v{m}}{\gv{\Sigma}_a}\N[\v{b}]{\F*{f}{\v{a}}}{\gv{\Sigma}_{b|a}}
 \end{align}
-is only Gaussian if $\v{f}(\v{a})$ is linear. Let the Gaussian approximation
+is only Gaussian if $\F*{f}{\v{a}}$ is linear. Let the Gaussian approximation
 to \eqref{eq:joint_nongaussian} be
 
 \begin{align}
@@ -127,7 +127,8 @@ to \eqref{eq:joint_nongaussian} be
 	\begin{bmatrix}
 		\gv{\mu}_a\\
 		\gv{\mu}_b
-	\end{bmatrix},
+	\end{bmatrix}
+	}{
 	\begin{bmatrix}
 		\gv{\Sigma}_{aa}&\gv{\Sigma}_{ab}\\
 		\gv{\Sigma}_{ba}&\gv{\Sigma}_{bb}
@@ -146,8 +147,8 @@ Both \eqref{eq:mub} and \eqref{eq:varb} can be written in terms of \eqref{eq:pa}
 To see this, let us rewrite \eqref{eq:mub} as
 \begin{align}
 	\gv{\mu}_b&=\defint{}{}{\v{b}\Pdf{\v{b}}}{\v{b}} \nonumber\\
-	&=\defint{}{}{\v{b}\left(\defint{}{}{\Pdf{\v{b}}{\v{a}}\Pdf{\v{a}}}{\v{a}}\right)}{\v{b}}\nonumber\\
-	&=\defint{}{}{\v{f}(\v{a})\N{\v{m},\gv{\Sigma}_a}}{\v{a}}\label{eq:mean_int}
+	&=\defint{}{}{\v{b}\Big(\!\defint{}{}{\Pdf{\v{b}}{\v{a}}\Pdf{\v{a}}}{\v{a}}\Big)}{\v{b}}\nonumber\\
+	&=\defint{}{}{\v{f}(\v{a})\N{\v{m}}{\gv{\Sigma}_a}}{\v{a}}\label{eq:mean_int}
 \end{align}
 and \eqref{eq:varb} as
 \begin{align}
@@ -157,14 +158,14 @@ and \eqref{eq:varb} as
 	&=\defint{}{}{\v{f}(\v{a})\v{f}(\v{a})^\tr\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^\tr\\
 	&\qquad+\defint{}{}{\lbrack(\v{b}-\v{f}(\v{a}))(\v{b}-\v{f}(\v{a}))^\tr\rbrack\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}}
 	\end{split}\nonumber\\
-	&=\defint{}{}{(\v{f}(\v{a})-\gv{\mu}_b)(\v{f}(\v{a})-\gv{\mu}_b)^\tr\N{\v{m},\gv{\Sigma}_a}}{\v{a}}+\gv{\Sigma}_{b|a}\label{eq:var_int}.
+	&=\defint{}{}{(\v{f}(\v{a})-\gv{\mu}_b)(\v{f}(\v{a})-\gv{\mu}_b)^\tr\N{\v{m}}{\gv{\Sigma}_a}}{\v{a}}+\gv{\Sigma}_{b|a}\label{eq:var_int}.
 \end{align}
 Finally, the cross-covariance $\gv{\Sigma}_{ab}=\gv{\Sigma}_{ba}^\tr$ similarly reads
 \begin{align}
 	\gv{\Sigma}_{ab}&=\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{a},\v{b}}}{\v{a}}{\v{b}} \nonumber\\
 	&=\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{a}}\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}} \nonumber\\
-	&=\defint{}{}{(\v{a}-\gv{\mu}_a)\left(\defint{}{}{\v{b}\Pdf{\v{b}}{\v{a}}}{\v{b}}-\gv{\mu}_b\right)^\tr\Pdf{\v{a}}}{\v{a}} \nonumber\\
-	&=\defint{}{}{(\v{a}-\v{m})(\v{f}(\v{a})-\gv{\mu}_b)^\tr\N{\v{m},\gv{\Sigma}_a}}{\v{a}}\label{eq:cross_cov_int}
+	&=\defint{}{}{(\v{a}-\gv{\mu}_a)\Big(\!\defint{}{}{\v{b}\Pdf{\v{b}}{\v{a}}}{\v{b}}-\gv{\mu}_b\Big)^\tr\Pdf{\v{a}}}{\v{a}} \nonumber\\
+	&=\defint{}{}{(\v{a}-\v{m})(\v{f}(\v{a})-\gv{\mu}_b)^\tr\N{\v{m}}{\gv{\Sigma}_a}}{\v{a}}\label{eq:cross_cov_int}
 \end{align}
 
 
@@ -187,25 +188,25 @@ have available the Gaussian approximation
 
 \begin{align}
 	%\Pdf{\v{x}_{k}}{\v{Y},\hat{\Th}_j} &\approx \N{\v{m}_{k|T},\v{P}_{k|T}}\\
-	\Pdf{\v{x}_{k-1}}{\v{Y}_{1:k-1},\hat{\Th}_j} &\approx \N{\v{m}_{k-1|k-1},\v{P}_{k-1|k-1}}.
+	\Pdf{\v{x}_{k-1}}{\v{Y}_{1:k-1},\hat{\Th}_j} &\approx \N{\v{m}_{k-1|k-1}}{\v{P}_{k-1|k-1}}.
 	%\Pdf{\v{x}_{k}}{\v{Y}_{1:k-1},\hat{\Th}_j} &\approx \N{\v{m}_{k|k-1},\v{P}_{k|k-1}}.
 \end{align}
 The Gaussian approximation to 
 \begin{align}
-\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}_{1:k-1}}=\N{\v{x}_{k}}{\v{f}(\v{x}_{k-1}),\v{Q}}\Pdf{\v{x}_{k-1}}{\v{Y}_{1:k-1}}
+\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}_{1:k-1}}=\N{\v{x}_{k}}{\F{f}{\v{x}_{k-1}}}{\v{Q}}\Pdf{\v{x}_{k-1}}{\v{Y}_{1:k-1}}
 \end{align}
 is then given by application of equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} 
 \begin{align}
 	\begin{split}
-	\v{m}_{k|k-1}&=\defint{}{}{\v{f}(\v{x}_{k-1})\N{\v{x}_{k-1}}{\v{m}_{k-1|k-1},\v{P}_{k-1|k-1}}}{\v{x}_{k-1}}\label{eq:prediction_mean_intergral}
+	\v{m}_{k|k-1}&=\defint{}{}{\v{f}(\v{x}_{k-1})\N{\v{x}_{k-1}}{\v{m}_{k-1|k-1}}{\v{P}_{k-1|k-1}}}{\v{x}_{k-1}}\label{eq:prediction_mean_intergral}
 	\end{split}\\
 	\begin{split}
 	\v{P}_{k|k-1}&=\defint{}{}{(\v{f}(\v{x}_{k-1})-\v{m}_{k|k-1})(\v{f}(\v{x}_{k-1})-\v{m}_{k|k-1})^\tr\\
-	&\qquad\N{\v{x}_{k-1}}{\v{m}_{k-1|k-1},\v{P}_{k-1|k-1}}}{\v{x}_{k-1}}+\v{Q}\label{eq:prediction_variance_intergral}
+	&\qquad\N{\v{x}_{k-1}}{\v{m}_{k-1|k-1}}{\v{P}_{k-1|k-1}}}{\v{x}_{k-1}}+\v{Q}\label{eq:prediction_variance_intergral}
 	\end{split}\\
 	\begin{split}
 		\v{C}_{k^-}&=\defint{}{}{(\v{x}_{k-1}-\v{m}_{k-1|k-1})(\v{f}(\v{x}_{k-1})-\v{m}_{k|k-1})^\tr\\
-		&\qquad\N{\v{x}_{k-1}}{\v{m}_{k-1|T},\v{P}_{k-1|T}}}{\v{x}_{k-1}}\label{eq:prediction_cov_intergral}
+		&\qquad\N{\v{x}_{k-1}}{\v{m}_{k-1|T}}{\v{P}_{k-1|T}}}{\v{x}_{k-1}}\label{eq:prediction_cov_intergral}
 	\end{split}
 \end{align}
 so that the approximation is
@@ -215,7 +216,7 @@ so that the approximation is
 	\begin{bmatrix}
 		\v{m}_{k-1|k-1}\\
 		\v{m}_{k|k-1}
-	\end{bmatrix},
+	\end{bmatrix}}{
 	\begin{bmatrix}
 		\v{P}_{k-1|k-1}&\v{C}_{k^-}\\
 		\v{C}_{k^-}^\tr&\v{P}_{k|k-1}
@@ -228,13 +229,13 @@ we also need a Gaussian approximation for the joint distribution of
 the current state and measurement given the previous measurements
 \begin{align}
 \begin{split}
-	\Pdf{\v{x}_{k},\v{y}_k}{\v{Y}_{1:k-1}}&=\N{\v{y}_{k}}{\v{h}(\v{x}_{k}),\v{R}}\Pdf{\v{x}_{k}}{\v{Y}_{1:k-1}}\\
+	\Pdf{\v{x}_{k},\v{y}_k}{\v{Y}_{1:k-1}}&=\N{\v{y}_{k}}{\v{h}(\v{x}_{k})}{\v{R}}\Pdf{\v{x}_{k}}{\v{Y}_{1:k-1}}\\
 	&\approx 
 	\N{
 	\begin{bmatrix}
 		\v{m}_{k|k-1}\\
 		\gv{\mu}_{k}
-	\end{bmatrix},
+	\end{bmatrix}}{
 	\begin{bmatrix}
 		\v{P}_{k|k-1}&\v{C}_{k}\\
 		\v{C}_{k}^\tr&\v{S}_{k}
@@ -247,11 +248,11 @@ Applying equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_c
 we get
 \begin{align}
 	\gv{\mu}_{k}
-	&=\defint{}{}{\v{h}(\v{x}_{k})\N{\v{x}_{k}}{\v{m}_{k|k-1},\v{P}_{k|k-1}}}{\v{x}_{k}}\label{eq:update_mean_intergral}\\
+	&=\defint{}{}{\F*{h}{\v{x}_{k}}\N{\v{x}_{k}}{\v{m}_{k|k-1}}{\v{P}_{k|k-1}}}{\v{x}_{k}}\label{eq:update_mean_intergral}\\
 	\v{S}_{k}
-	&=\defint{}{}{(\v{h}(\v{x}_{k})-\gv{\mu}_k)(\v{h}(\v{x}_{k})-\gv{\mu}_k)^\tr\N{\v{x}_{k}}{\v{m}_{k|k-1},\v{P}_{k|k-1}}}{\v{x}_{k}}+\v{R} \label{eq:update_variance_intergral}\\
+	&=\defint{}{}{\!\big(\F*{h}{\v{x}_{k}}-\gv{\mu}_k\big)\big(\F*{h}{\v{x}_{k}}-\gv{\mu}_k\big)^\tr\N{\v{x}_{k}}{\v{m}_{k|k-1}}{\v{P}_{k|k-1}}}{\v{x}_{k}}+\v{R} \label{eq:update_variance_intergral}\\
 	\v{C}_{k}
-	&=\defint{}{}{(\v{x}_{k}-\v{m}_{k|k-1})(\v{h}(\v{x}_{k})-\gv{\mu}_k)^\tr\N{\v{x}_{k}}{\v{m}_{k|k-1},\v{P}_{k|k-1}}}{\v{x}_{k}} \label{eq:update_covariance_intergral}
+	&=\defint{}{}{\!\big(\v{x}_{k}-\v{m}_{k|k-1}\big)\big(\F*{h}{\v{x}_{k}}-\gv{\mu}_k\big)^\tr\N{\v{x}_{k}}{\v{m}_{k|k-1}}{\v{P}_{k|k-1}}}{\v{x}_{k}} \label{eq:update_covariance_intergral}
 \end{align}
 and by using the well known formula for calculating the conditional distribution of jointly Gaussian variables
 we have
@@ -264,7 +265,7 @@ we have
 Again using the formula for the conditional of jointly Gaussian variables we get
 from \eqref{eq:joint_predictive_approximation}
 \begin{align}
-	\Pdf{\v{x}_{k-1}}{\v{x}_k,\v{Y}_{1:k-1}}&\approx\N{\v{m}_2,\v{P}_2}\\
+	\Pdf{\v{x}_{k-1}}{\v{x}_k,\v{Y}_{1:k-1}}&\approx\N{\v{m}_2}{\v{P}_2}\\
 	\v{G}_{k-1}&=\v{C}_{k^-}\v{P}_{k|k-1}^{-1}\\
 	\v{m}_2&=\v{m}_{k-1|k-1}+\v{G}_{k-1}(\v{x}_k-\v{m}_{k|k-1})\\
 	\v{P}_2&=\v{P}_{k-1|k-1}-\v{G}_{k-1}\v{P}_{k|k-1}\v{G}_{k-1}^\tr
@@ -279,7 +280,7 @@ as
 	\begin{bmatrix}
 		\v{m}_{k-1|T}\\
 		\v{m}_{k|T}
-	\end{bmatrix},
+	\end{bmatrix}}{
 	\begin{bmatrix}
 		\v{P}_{k-1|T}&\v{D}_{k}\\
 		\v{D}_{k}^\tr&\v{P}_{k|T}
