@@ -173,7 +173,7 @@ following decomposition on the log likelihood:
 \begin{align}
 	\lLH &= \log\cLH - \log\post \nonumber\\
 	&= \E{\log\cLH}_{\tP} - \E{\log\post}_{\tP} \nonumber\\
-	&= \underbrace{\E{\log\cLH-\log\tPX}_{\tP}}_{\LB[1pt]{\tP,\Th}}
+	&= \underbrace{\E{\log\cLH-\log\tPX}_{\tP}}_{\LB[1pt]{\tP}{\Th}}
 	\underbrace{-\E{\log\post-\log\tPX}_{\tP}}_{\KL{\tP}{\post[1pt]}}
 	\label{eq:lLH_decomp}
 \end{align}
@@ -182,29 +182,29 @@ $\log\cLH$ cannot be evaluated as $\X$ is unobserved.
 Since $\KL{\tP}{\post}$, the \emph{Kullback-Leibler divergence} between $\tPX$ and $\post$, is always nonnegative,
 we see that 
 \begin{align}
-	\lLH&\geq \LB{\tP,\Th} \label{eq:em_lh_lb}
+	\lLH&\geq \LB{\tP}{\Th} \label{eq:em_lh_lb}
 \end{align}
 with equality when 
 \begin{align}
 	\tPX &= \post, \label{eq:em_maxq}
 \end{align}
 i.e. the posterior distribution of the states with equal parameter value $\Th'=\Th$. Considered as a functional
-of only $\tP$, clearly $\LB{\tP,\Th}$ is maximized
+of only $\tP$, clearly $\LB{\tP}{\Th}$ is maximized
 and $\KL{\tP}{\post}$ vanishes by \eqref{eq:em_maxq}. 
 The nonnegativeness of the Kullback-Leibler divergence can be proved by
 noting that $-\log$ is a convex function and so \emph{Jensen's inequality}
 can be applied \parencite{Bishop2006}.
 
-Let us take a closer at the the first term in \eqref{eq:lLH_decomp} with $\tPX=\Pdf{\X}{\Y,\Th'}$:
+Let us take a closer at the the first term in \eqref{eq:lLH_decomp} with $\tPX=\post{\Th'}$:
 \begin{align}
-	\LB{\Pdf{\X,\Y}{\Th'},\Th}&=
-	\underbrace{\E{\log\cLH}_{\Pdf[p][1pt]{\X}{\Y,\Th'}}}_{\F[1pt]{\Lb}{\Th',\Th}} 
-	-\E{\log\Pdf{\X,\Y}{\Th'}}_{\Pdf[p][1pt]{\X}{\Y,\Th'}}.
+	\LB{\post{\Th'}}{\Th}&=
+	\underbrace{\E{\log\cLH}_{\Pdf[p][1pt]{\X}{\Y,\Th'}}}_{\Lb[1pt]{\Th'}{\Th}} 
+	-\E{\log\post{\Th'}}_{\post[1pt]{\Th'}}.
 	\label{eq:completedata_loglikelihood}
 \end{align}
-Clearly the latter term (the differential entropy of $\Pdf{\X,\Y}{\Th'}$) is constant 
+Clearly the latter term (the differential entropy of $\post{\Th'}$) is constant 
 with respect to $\Th$, so that maximizing $\mathcal{L}$ with respect to $\Th$ amounts to
-maximizing $\F{\Lb}{\Th',\Th}$, the \emph{expected complete-data log-likelihood},
+maximizing $\Lb{\Th'}{\Th}$, the \emph{expected complete-data log-likelihood},
 with respect to $\Th$.
 
 
@@ -218,7 +218,7 @@ steps of the algorithm are:
   \item[E-step]\hfill\\
   Given the current estimate $\Th_j$ of the parameters, compute	
   	\begin{align}
-		\tP_{j+1} &= \argmax_{\tP}\LB{\tP,\Th_j}.
+		\tP_{j+1} &= \argmax_{\tP}\LB{\tP}{\Th_j}.
 		\label{eq:EM_E}
 	\end{align}
   As stated, the maximum is obtained with 
@@ -226,26 +226,26 @@ steps of the algorithm are:
   distribution of the states given the current parameter estimate. After the maximization
   we have
   	\begin{align}
-  		\lLH[\Th_j]&=\LB{\Pdf{\X}{\Y,\Th_j},\Th_j} \label{eq:EM_E_lh}\\
-  		 &= \F{\Lb}{\Th_j,\Th_j}+\mathtt{const}\nonumber 
+  		\lLH[\Th_j]&=\LB{\Pdf{\X}{\Y,\Th_j}}{\Th_j} \label{eq:EM_E_lh}\\
+  		 &= \Lb{\Th_j}{\Th_j}+\mathtt{const}\nonumber 
 	\end{align}
   \item[M-step]\hfill\\ 
   Set
     \begin{align}
-		\Th_{j+1}&=\argmax_{\Th}\LB{\tP_{j+1},\Th} \label{eq:EM_M}\\
-		&=\argmax_{\Th}\F{\Lb}{\Th_j,\Th}\nonumber.
+		\Th_{j+1}&=\argmax_{\Th}\LB{\tP_{j+1}}{\Th} \label{eq:EM_M}\\
+		&=\argmax_{\Th}\Lb{\Th_j}{\Th}\nonumber.
 	\end{align}
 \end{description}
 We are now in a position to formulate the so called \emph{fundamental inequality of EM} \parencite{Cappe2005}:
 \begin{align}
-	\lLH[\Th_{j+1}] - \lLH[\Th_j]\geq & \LB{\Pdf{\X}{\Y,\Th_j},\Th_{j+1}} - \LB{\Pdf{\X}{\Y,\Th_j},\Th_{j}} 
+	\lLH[\Th_{j+1}] - \lLH[\Th_j]\geq & \LB{\Pdf{\X}{\Y,\Th_j}}{\Th_{j+1}} - \LB{\Pdf{\X}{\Y,\Th_j}}{\Th_{j}} 
 	\label{eq:fundamental_inequality}
 \end{align}
 which is just the combination of \eqref{eq:em_lh_lb} and \eqref{eq:EM_E_lh}. But it highlights
 the fact that \emph{the likelihood is increased or unchanged with every new estimate} $\Th_{j+1}$.
 Also following from \eqref{eq:fundamental_inequality} is the fact that if the iterations
 stop at a certain point, i.e. $\Th_{l+1}=\Th_l$ at iteration $l$, then
-$\LB{\Pdf{\X}{\Y,\Th_l},\Th}$ must be maximal at $\Th_l$
+$\LB{\Pdf{\X}{\Y,\Th_l}}{\Th}$ must be maximal at $\Th_l$
 and so the gradients of the lower bound and of the likelihood must be zero. Thus
 $\Th_l$ is a \emph{stationary point} of $\lLH$, i.e a local maximum or a saddle point.
 
@@ -340,7 +340,7 @@ Taking the expectation w.r.t. $\Pdf{\X}{\Y,\Th'}$ (assumed implicitly in the not
 denoting $\f_{k-1}\equiv \f(\x_{k-1})$ and $\h_k\equiv \h(\x_k)$ and dropping the constant terms we get
 \begin{align}
 \begin{split}
-	\F{\Lb}{\Th',\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
+	\Lb{\Th'}{\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
 	&-\frac{1}{2}\Tr{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{Q}}\\
 	&-\frac{1}{2}\Tr{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{R}}
 \end{split}
@@ -376,7 +376,7 @@ matrices. As can be seen from \eqref{eq:eclLH}, the terms involving $\v{Q}$ or $
 are analogous and so we will only the derivation for $\v{Q}$ and only the result
 for $\v{R}$. It's easier to take the derivative with respect to $\v{Q}^{-1}$:
 \begin{align}
-	\dpd{\Lb(\Th',\Th)}{\v{Q^{-1}}}=
+	\dpd{\Lb{\Th'}{\Th}}{\v{Q^{-1}}}=
 	&-\frac{1}{2}\dpd{}{\v{Q^{-1}}}\Tr{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\xk-\f_{k-1})\right)\left(\xk-\f_{k-1})\right)^\tr}}\nonumber\\
 	&-\frac{T}{2}\dpd{}{\v{Q^{-1}}}\log\abbs{\v{Q}}\nonumber\\
 	=&-\frac{1}{2}\sum_{k=1}^T\E{\left(\xk-\f_{k-1})\right)\left(\xk-\f_{k-1})\right)^\tr}+\frac{T}{2}\v{Q},
@@ -410,7 +410,7 @@ $\theta_i$ be an element of $\Th$. Then
 \begin{align}
 \label{eq:dLB_nonlinear}
 \begin{split}
-	\dpd{\Lb(\Th,\Th')}{\theta_i}
+	\dpd{\Lb{\Th}{\Th'}}{\theta_i}
 	=\quad{}&\frac{1}{2}\mathrm{Tr}\left[\gv{\Sigma}^{-1}\left(
 	\dpd{\gv{\Sigma}}{\theta_i}\gv{\Sigma}^{-1}
 	\sum_{k=1}^T\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}{\hat{\Th}_j}\right.\right.\\
@@ -432,8 +432,8 @@ the score, itself. From equation~\eqref{eq:lLH_decomp} it can be seen rather eas
 the partial derivative of the log-likelihood evaluated at $\widehat{\Th}$ is given by
 \begin{align}
 		\left.\dpd{\lLH}{\theta_i}\right|_{\Th=\widehat\Th}&=
-		\left.\dpd{\LB{\Pdf{\X}{\Y,\widehat\Th},\Th}}{\theta_i}\right|_{\Th=\widehat\Th}=
-		\left.\dpd{ \F{\Lb}{\widehat\Th,\Th}}{\theta_i}\right|_{\Th=\widehat\Th} \label{eq:EM_gradients}
+		\left.\dpd{\LB{\Pdf{\X}{\Y,\widehat\Th}}{\Th}}{\theta_i}\right|_{\Th=\widehat\Th}=
+		\left.\dpd{ \Lb{\widehat\Th}{\Th}}{\theta_i}\right|_{\Th=\widehat\Th} \label{eq:EM_gradients}
 \end{align} 
 Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005}. It gives
 an alternative route for the score function computation.
@@ -526,7 +526,7 @@ in the linear-Gaussian case:
 \begin{align}
 \label{eq:dLB_linear}
 \begin{split}
-	\dpd{\Lb(\Th,\Th')}{\theta_i}
+	\dpd{\Lb{\Th}{\Th'}}{\theta_i}
 	=\quad{}&\frac{1}{2}\mathrm{Tr}\left[\gv{\Sigma}^{-1}\left(
 	\dpd{\gv{\Sigma}}{\theta_i}\gv{\Sigma}^{-1}
 	\sum_{k=1}^T\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}{\hat{\Th}_j}\right.\right.\\
@@ -681,11 +681,42 @@ are easier in the EM algorithm. This again depends on if the model is linear or 
 
 \subsubsection{Limit points}
 
+Let us denote the \emph{point-to-set} map implicitly defined by the EM
+algorithm by 
+\begin{align}
+	\F{\v{M}}{\Th'}&=\left\{\Th\in\Theta : \Lb{\Th'}{\Th} \geq \Lb{\Th'}{\tilde\Th}\; \forall \,\tilde\Th\in\Theta \right\},
+\end{align}
+i.e the set of points that maximize the objective function in the M-step. 
+Commonly, but not necessarily, $\F{\v{M}}{\Th'}$ only contains a single point per $\Th'\in\Theta$.
+In order to formulate the convergence theorem for EM, we first need to introduce the definition
+of a closed mapping. A point to set mapping $T$ from points of $\Theta$ to subsets of $\Theta$
+is said to be closed in $\mathcal{S}\subseteq \Theta$ if for any converging sequences
+$\left\{\Th_i\right\}$ and $\left\{\tilde\Th_i\right\}$, the conditions 
+\begin{align}
+\Th_i&\to\Th\in\mathcal{S}\\
+\tilde\Th_i&\to\tilde\Th,\quad \tilde\Th_i\in\F{T}{\Th_i}\,\forall i \geq 0,
+\end{align}
+imply that $\tilde\Th\in\F{T}{\Th}$. In case $T$ is a point-to-point map, i.e a function,
+the requirement for a mapping to be closed reduces to a requirement for continuity.
+
 \subsubsection{Convergence rates}
 
-Let us denote the mapping implicitly defined by the EM
-algorithm by $\v{M}:\Theta\to\Theta$. Then if the iterates
-$\Th_j$ converge to a point $\Th_\star$, we must have $\Th_\star=\F{\v{M}}{\Th_\star}$.
+We will now assume that $\F{\v{M}}{\Th}$ is singular, i.e.
+$\v{M}:\Theta\to\Theta$, and continuous. Then if $\left\{\Th_0,\F{\v{M}}{\Th_0},\F{\v{M}}{\F{\v{M}}{\Th_0}},\dots\right\}$
+converges to a point $\Th_\star$, we must have $\Th_\star=\F{\v{M}}{\Th_\star}$ and
+thus around $\Th_\star$ we obtain the first order Taylor series expansion
+\begin{align}
+	\Th_{j+1}-\Th_\star&=\F{\v{M}}{\Th_j}-\F{\v{M}}{\Th_\star}\approx\F{\v{M}'}{\Th_\star}\left(\Th_j-\Th_\star\right),
+\end{align} 
+where $\F{\v{M}'}{\Th'}=\left.\dod{\F{\v{M}}{\Th}}{\Th}\right|_{\Th=\Th'}$.
+Now if for some $\mu\in\left(0,1\right)$ 
+\begin{align}
+	\frac{\abbs{\Th_{j+1}-\Th_\star}}{\abbs{\Th_{j}-\Th_\star}}=\mu,
+\end{align}
+the sequence $\left\{\Th_j\right\}$ is said to converge linearly with 
+\emph{rate of convergence} $\mu$.
+ 
+the rate on convergence for EM is then the largest eigenvalue of $\F{\v{M}}{\Th_\star}$.
 
 \parencite{Wu1983,Sandell1978,Meng1997,Elliott1999,Salakhutdinov2003a,Salakhutdinov2003,Olsson2007,Paninski2010}
 

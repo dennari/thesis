@@ -5,7 +5,7 @@ sequential data \parencite{ljung1994modeling,durbin2012time,Cappe2005,barber2011
 of time-series measurements \todo{examples}. However it is not necessary for the sequence index to have
 a temporal meaning. In probabilistic terms a time-series
 can be described by a \emph{stochastic process} $\z = \left\{\z_k:k\in K\right\}$, where $\z_k$ is a random
-variable and $K\subset\R$ for continuous time or $K\subset\field{N}$ for discrete time sequences. 
+variable and $K\subseteq\R$ for continuous time or $K\subseteq\field{N}$ for discrete time sequences. 
 In this thesis we will only be concerned with discerete time processes and the sample space of $\z_k$ will be $\R^d$. 
 The shorthand $\z_{1:k}$ will be used to mean the subset $\{\z_1,\dots,\z_k\}$. We will also
 denote by $\v{Z}$ the $d\times T$ matrix, that has all $T$ values of the process $\z$ as columns.
@@ -54,8 +54,8 @@ A Bayes network presentation of a discrete-time SSM is given in figure~\ref{fig:
 	\caption{SSM as a graphical model presented with a directed acyclic graph}
 	\label{fig:ssm_graphical}
 \end{figure}
-The value $\xk \in \mathcal{X} \subset \R^{d_x}$ of the dynamic process at time $k$ is called the
-\emph{state}\todo{Explain state} at time $k$. For the measurements we define $\yk \in \mathcal{Y} \subset \R^{d_y}$.  
+The value $\xk \in \mathcal{X} \subseteq \R^{d_x}$ of the dynamic process at time $k$ is called the
+\emph{state}\todo{Explain state} at time $k$. For the measurements we define $\yk \in \mathcal{Y} \subseteq \R^{d_y}$.  
 Taking into account the Markov property 
 \begin{align}
 	\Pdf{\xk}{\x_{1:k-1}}&=\Pdf{\xk}{\x_{k-1}}
@@ -84,7 +84,7 @@ Thus in order to describe a SSM one needs to specify three probability distribut
 \end{description}
 In this thesis it is assumed that the parametric form of these distributions is known
 for example by physical modeling \parencite{ljung1994modeling}. However the distributions are dependent on
-the vector parameter $\Th \in \Theta \subset \R^{d_\theta}$ whose value (or distribution) we would like to learn from
+the vector parameter $\Th \in \Theta \subseteq \R^{d_\theta}$ whose value (or distribution) we would like to learn from
 the measurements.
 
 Traditionally SSMs are specified as a pair of equations specifying the dynamic and measurement models. The most general

@@ -68,12 +68,12 @@ pdfproducer={xetex}
 %\newcommand{\cLH}{\Pdf{\X,\Y}{\Th}}
 %\newcommand{\lcLH}{\log\cLH}
 \newcommand{\tP}{\tilde{p}}
-\newcommand{\tPX}{\Pdf[\tP]{\X}{\Th'}}
-\NewDocumentCommand\post{O{0pt}}{\Pdf[p][#1]{\X}{\Y,\Th}}
+\NewDocumentCommand\tPX{G{\Th'}}{\Pdf[\tP]{\X}{#1}}
+\NewDocumentCommand\post{O{0pt} G{\Th}}{\Pdf[p][#1]{\X}{\Y,#2}}
 \NewDocumentCommand\cLH{O{0pt}}{\Pdf[p][#1]{\X,\Y}{\Th}}
 %\NewDocumentCommand\lcLH{O{0pt}}{\log\cLH[#1]}
-\NewDocumentCommand\LB{O{0pt} m}{\F[#1]{\mathcal L}{#2}}
-\newcommand{\Lb}{\mathfrak{L}}
+\NewDocumentCommand\LB{O{0pt} G{\tP} G{\Th}}{\F[#1]{\mathcal L}{#3,#2}}
+\NewDocumentCommand\Lb{O{0pt} G{\Th'} G{\Th}}{\F[#1]{\mathfrak L}{#3,#2}}
 \newcommand{\KL}[2]{\mathrm{KL}\left(#1\|#2\right)}
 
 

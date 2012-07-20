@@ -8,7 +8,6 @@ are described by the subset of SSMs of the form \eqref{eq:ssm_general} where
 \end{align}
 \todo{Explain something about linear-Gaussian SSMs}
 
-
 \subsubsection{Kalman filter}
 
 The recursions are as follows \parencite{Kalman1960,jazwinski2007stochastic}:
@@ -140,15 +139,14 @@ Gaussian, we have to have
 \begin{align}
 	\gv{\mu}_a&=\v{m}\\
 	\gv{\Sigma}_{aa}&=\gv{\Sigma}_{a}\\
-	\gv{\mu}_b&=\defint{}{}{\v{b}\Pdf{\v{b}}}{\v{b}} \label{eq:mub}\\
+	\gv{\mu}_b&=\defint{}{}{\v{b}\,\Pdf{\v{b}}}{\v{b}} \label{eq:mub}\\
 	\gv{\Sigma}_{bb}&=\defint{}{}{(\v{b}-\gv{\mu}_b)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{b}}}{\v{b}} \label{eq:varb}
 \end{align}
 Both \eqref{eq:mub} and \eqref{eq:varb} can be written in terms of \eqref{eq:pa} and \eqref{eq:pb_given_a}.
 To see this, let us rewrite \eqref{eq:mub} as
 \begin{align}
 	\gv{\mu}_b&=\defint{}{}{\v{b}\Pdf{\v{b}}}{\v{b}} \nonumber\\
-	&=\defint{}{}{\v{b}\defint{}{}{\Pdf{\v{b}}{\v{a}}\Pdf{\v{a}}}{\v{a}}}{\v{b}}\nonumber\\
-	&=\defint{}{}{\defint{}{}{\v{b}\Pdf{\v{b}}{\v{a}}}{\v{b}}\Pdf{\v{a}}}{\v{a}}\nonumber\\
+	&=\defint{}{}{\v{b}\left(\defint{}{}{\Pdf{\v{b}}{\v{a}}\Pdf{\v{a}}}{\v{a}}\right)}{\v{b}}\nonumber\\
 	&=\defint{}{}{\v{f}(\v{a})\N{\v{m},\gv{\Sigma}_a}}{\v{a}}\label{eq:mean_int}
 \end{align}
 and \eqref{eq:varb} as
@@ -157,15 +155,15 @@ and \eqref{eq:varb} as
 	%&=\defint{}{}{\defint{}{}{\lbrack(\v{b}-\v{f}(\v{a}))(\v{b}-\v{f}(\v{a}))^\tr+\v{f}(\v{a})\v{f}(\v{a})^\tr\rbrack\Pdf{\v{b}}{\v{a}}}{\v{b}}\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^\tr\\
 	\begin{split}
 	&=\defint{}{}{\v{f}(\v{a})\v{f}(\v{a})^\tr\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^\tr\\
-	&\qquad+\defint{}{}{\defint{}{}{\lbrack(\v{b}-\v{f}(\v{a}))(\v{b}-\v{f}(\v{a}))^\tr\rbrack\Pdf{\v{b}}{\v{a}}}{\v{b}}\Pdf{\v{a}}}{\v{a}}
+	&\qquad+\defint{}{}{\lbrack(\v{b}-\v{f}(\v{a}))(\v{b}-\v{f}(\v{a}))^\tr\rbrack\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}}
 	\end{split}\nonumber\\
 	&=\defint{}{}{(\v{f}(\v{a})-\gv{\mu}_b)(\v{f}(\v{a})-\gv{\mu}_b)^\tr\N{\v{m},\gv{\Sigma}_a}}{\v{a}}+\gv{\Sigma}_{b|a}\label{eq:var_int}.
 \end{align}
 Finally, the cross-covariance $\gv{\Sigma}_{ab}=\gv{\Sigma}_{ba}^\tr$ similarly reads
 \begin{align}
-	\gv{\Sigma}_{ab}&=\defint{}{}{\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{a},\v{b}}}{\v{a}}}{\v{b}} \nonumber\\
-	&=\defint{}{}{\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{a}}\Pdf{\v{b}}{\v{a}}}{\v{a}}}{\v{b}} \nonumber\\
-	&=\defint{}{}{(\v{a}-\gv{\mu}_a)(\defint{}{}{\v{b}\Pdf{\v{b}}{\v{a}}}{\v{b}}-\gv{\mu}_b)^\tr\Pdf{\v{a}}}{\v{a}} \nonumber\\
+	\gv{\Sigma}_{ab}&=\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{a},\v{b}}}{\v{a}}{\v{b}} \nonumber\\
+	&=\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{a}}\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}} \nonumber\\
+	&=\defint{}{}{(\v{a}-\gv{\mu}_a)\left(\defint{}{}{\v{b}\Pdf{\v{b}}{\v{a}}}{\v{b}}-\gv{\mu}_b\right)^\tr\Pdf{\v{a}}}{\v{a}} \nonumber\\
 	&=\defint{}{}{(\v{a}-\v{m})(\v{f}(\v{a})-\gv{\mu}_b)^\tr\N{\v{m},\gv{\Sigma}_a}}{\v{a}}\label{eq:cross_cov_int}
 \end{align}
 
