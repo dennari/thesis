@@ -19,7 +19,7 @@ is called a \emph{maximum a posteriori} (MAP) estimate.
 Since the logarithm is a strictly monotonic function, maximizing a function
 is the same as maximizing its logarithm. Thus the MAP estimate $\Th^*$ is given by 
 \begin{align}
-	\Th_{\text{MAP}} &= \argmax_{\Th}\brak*[\big]{\underbrace{\log \Pdf{\Y}{\gv{\theta}}}_{\Pdf[\ell]{\Th}} + \log\Pdf{\gv{\theta}}}
+	\Th_{\text{MAP}} &= \argmax_{\Th}\brak[\big]{\underbrace{\log \Pdf{\Y}{\gv{\theta}}}_{\Pdf[\ell]{\Th}} + \log\Pdf{\gv{\theta}}}
 	\label{eq:MAP}
 \end{align}
 
@@ -83,10 +83,11 @@ parameter values.
 \subsection{Gradient based nonlinear optimization}\label{sec:grad}%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-This is the classical way of solving the parameter estimation problem. It consists
-of computing the gradient of the log-likelihood function $\lLH$ and then using some
-non-linear optimization method to find a \emph{local} maximum to it 
-\parencite{Mbalawataa,Cappe2005}. 
+There exists an enormous amount of efficient nonlinear optimization methods and
+they commonly require the gradient of the objective function to be available \todo{Get some references for nonlinear programming}.
+In this section then we will not concern ourselves too much with the actual
+optimization method, rather we will focus on computing the gradient of the
+log-likelihood function $\lLH$, known as the \emph{score function}.
 An efficient non-linear optimization algorithm is the scaled 
 conjugate gradient method \parencite{Mbalawataa}.
 
@@ -103,9 +104,7 @@ Applying equation~\eqref{eq:lh_factorization} and taking the logarithm then give
 \end{align}
 where $C$ is a constant that doesn't depend on $\gv{\theta}$ and thus can
 be ignored in the maximization.
-Employing an efficient numerical optimization method generally
-requires that the gradient of the objective function is available. 
-There are at least two seemingly quite different methods for computing
+There are exists two seemingly quite different methods for computing
 the gradient of $\lLH$. The first one proceeds straightforwardly by taking the
 partial derivatives of $\lLH$. As will soon be demonstrated, this leads
 to some additional recursive formulas which allow computing
@@ -113,11 +112,17 @@ the gradient in parallel with the Kalman filter. The second method needs
 the smoothing distributions with the cross-timestep covariances of equation~\eqref{eq:rts_cross_timestep_covariance}
 and it can be easily computed with the expectation maximization machinery
 that will be introduced later. These two methods can be proved to compute
-the exact same quantity. At this point we will focus on the first one. 
+the exact same quantity. At this point we will focus on the first one. Going further
+it will be assumed that $\lLH$ is continuous and differentiable for all $\Th\in\Theta$.
 
-In order to calculate the gradient of $\lLH$, we can take the partial
-derivatives of it w.r.t every parameter $\theta_i$ in $\gv{\theta}$:
-
+In order to calculate the score function
+\begin{align}
+	\score[\Th']&=\eval{\dpd{\lLH}{\Th}}_{\Th=\Th'}
+	=\eval{\bm{\dpd{\lLH}{\theta_1} & \dots & \dpd{\lLH}{\theta_{d_\theta}}}^\tr}_{\Th=\Th'},
+	\label{eq:score}
+\end{align}
+we have to compute the partial
+derivatives:
 \begin{align}
 \begin{split}
 	\dpd{\lLH}{\theta_i}
@@ -133,7 +138,6 @@ From the Kalman filter recursions \eqref{eq:Kalman_filter} we find out that
 \end{align}
 so that we're left with the task of determining the partial derivatives for
 $\v{m}_{k|k-1}$ and $\v{P}_{k|k-1}$:
-
 \begin{align}
 	\dpd{\v{m}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{m}_{k-1|k-1}+\v{A}\dpd{\v{m}_{k-1|k-1}}{\theta_i} \label{eq:m_pred_pd}\\
 	\begin{split}
@@ -164,52 +168,65 @@ The expectation maximization (EM) algorithm \parencite{Dempster1977} is a genera
 method for finding ML and MAP estimates in probabilistic models with missing data or
 latent variables \parencite{Bishop2006,barber2012bayesian}. As will be seen, instead of maximizing
 \eqref{eq:logLH} directly, EM alternates between forming a variational lower bound and maximizing it.
+For this reason EM is well described as lower bound optimization \parencite{Minka1998}.
 We shall use $\E{\cdot}_{q}\equiv\defint{}{}{\cdot\,\Pdf[q]{z}}{z}$ to denote the expectation
 over some arbitrary distribution $\Pdf[q]{z}$.
+
 Let us introduce a ``variational'' 
-distribution $\tPX$ over the states, parameterized with $\Th'$ (not necessarily related to $\Th$).
-Toting now that $\Pdf{\X}{\Y,\Th}=\cLH/\LH$ and that $\lLH\equiv\log\LH$ is independent of $\X$ we can then perform the
+distribution $\tPX$ over the states.
+Noting now that $\Pdf{\X}{\Y,\Th}=\cLH/\LH$ and that $\lLH\equiv\log\LH$ is independent of $\X$ we can then perform the
 following decomposition on the log likelihood:
 \begin{align}
 	\lLH &= \log\cLH - \log\post \nonumber\\
-	&= \underbrace{\E{\log\cLH}_{\tP}}_{\LB{\tP}{\Th}} - \underbrace{\E{\log\post}_{\tP}}_{\En} \nonumber\\
-%	&= \underbrace{\E{\log\cLH-\log\tPX}_{\tP}}_{\LB[1pt]{\tP}{\Th}}
-	%\underbrace{-\E{\log\post-\log\tPX}_{\tP}}_{\KL{\tP}{\post[1pt]}}
+	&= \E{\log\cLH}_{\tP} - \E{\log\post}_{\tP} \nonumber\\ 
+	&= \E{\log\cLH}_{\tP}-\E{\log\tPX}_{\tP}
+	\underbrace{-\E{\log\post-\log\tPX}_{\tP}}_{{\displaystyle \KL{\tPX}{\post}}}
 	\label{eq:lLH_decomp}
 \end{align}
-The important step here is taking the expectation over $\tPX$, since the \emph{complete-data log-likelihood}
-$\log\cLH$ cannot be evaluated as $\X$ is unobserved.
-Since $\KL{\tP}{\post}$, the \emph{Kullback-Leibler divergence} between $\tPX$ and $\post$, is always nonnegative,
-we see that 
+Now since the \emph{Kullback-Leibler divergence} $\KL{\tPX}{\post}$ is always nonnegative, 
+provable by applying \emph{Jensen's inequality},
+we have already found a lower bound. The \emph{sharpest} bound can clearly be found among
+distributions of the form $\post{\Th'}$, since the Kullback-Leibler divergence vanishes with $\tPX=\post$.
+For this reason, we will set
 \begin{align}
-	\lLH&\geq \LB{\tP}{\Th} \label{eq:em_lh_lb}
-\end{align}
-with equality when 
+	\tPX &= \post{\Th'}
+\end{align} 
+and denote
 \begin{align}
-	\tPX &= \post, \label{eq:em_maxq}
+	\EMQ &\equiv \E{\log\cLH}_{\post{\Th'}} \label{eq:EM_Q}\\
+	\EMH &\equiv \E{\log\post}_{\post{\Th'}} \label{eq:EM_H}\\
+	\EMB &= \EMQ - \EMH{\Th'}{\Th'} \label{eq:EM_B}
 \end{align}
-i.e. the posterior distribution of the states with equal parameter value $\Th'=\Th$. Considered as a functional
-of only $\tP$, clearly $\LB{\tP}{\Th}$ is maximized
-and $\KL{\tP}{\post}$ vanishes by \eqref{eq:em_maxq}. 
-The nonnegativeness of the Kullback-Leibler divergence can be proved by
-noting that $-\log$ is a convex function and so \emph{Jensen's inequality}
-can be applied \parencite{Bishop2006}.
-
-Let us take a closer at the the first term in \eqref{eq:lLH_decomp} with $\tPX=\post{\Th'}$:
+According to \eqref{eq:lLH_decomp} we now have
 \begin{align}
-	\LB{\post{\Th'}}{\Th}&=
-	\underbrace{\E{\log\cLH}_{\Pdf[p]{\X}{\Y,\Th'}}}_{\Lb{\Th'}{\Th}} 
-	-\E{\log\post{\Th'}}_{\post{\Th'}}.
-	\label{eq:completedata_loglikelihood}
+	\lLH & \geq \EMB \quad \forall \Th' \in \Theta
+	\label{eq:EM_LB}
 \end{align}
-Clearly the latter term (the differential entropy of $\post{\Th'}$) is constant 
-with respect to $\Th$, so that maximizing $\mathcal{L}$ with respect to $\Th$ amounts to
-maximizing $\Lb{\Th'}{\Th}$, the \emph{expected complete-data log-likelihood},
-with respect to $\Th$.
+and especially
+\begin{align}
+	\lLH & = \EMB{\Th}{\Th}
+	\label{eq:EM_sharp_bound}
+\end{align}
+When we want to maximize $\EMB$ with respect to $\Th$
+clearly it suffices to consider
+only $\EMQ$, known as the \emph{expected complete-data log-likelihood}
+or the \emph{intermediate quantity of EM}.
 
+What is also interesting about $\EMQ$ is that it can be used to compute the gradient of the log-likelihood, i.e
+the score, itself. From equations \eqref{eq:EM_B}
+and \eqref{eq:EM_sharp_bound} it can be seen rather easily, that  
+the score evaluated at $\widehat{\Th}$ is given by
+\begin{align}
+		\eval{\dod{\lLH}{\Th}}_{\Th=\widehat\Th}&=
+		\eval{\dpd{ \EMQ{\widehat\Th}{\Th}}{\Th}}_{\Th=\widehat\Th} \label{eq:EM_gradients}
+\end{align} 
+Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005}. It gives
+an alternative route for the score function computation.
+\todo{elaborate on score computation}
+ 
 
-We are now ready the define the EM algorithm, which produces
-a series of estimates $\brac{\Th_j}$ to the parameter $\Th$
+We are now ready the define the EM algorithm, 
+which produces a series of estimates $\brac{\Th_j}$
 starting from an initial guess $\Th_0$. The two alternating
 steps of the algorithm are:
 
@@ -217,37 +234,58 @@ steps of the algorithm are:
 \addtolength{\leftskip}{1cm}
   \item[E-step]\hfill\\
   Given the current estimate $\Th_j$ of the parameters, compute	
-  	\begin{align}
-		\tP_{j+1} &= \argmax_{\tP}\LB{\tP}{\Th_j}.
-		\label{eq:EM_E}
-	\end{align}
-  As stated, the maximum is obtained with 
-  $\tP_{j+1} = \Pdf{\X}{\Y,\Th_j}$, the posterior
-  distribution of the states given the current parameter estimate. After the maximization
-  we have
-  	\begin{align}
-  		\lLH[\Th_j]&=\LB{\Pdf{\X}{\Y,\Th_j}}{\Th_j} \label{eq:EM_E_lh}\\
-  		 &= \Lb{\Th_j}{\Th_j}+\mathtt{const}\nonumber 
-	\end{align}
+  $\post{\Th_j}$, the joint posterior distribution of the states. 
+  As will be seen later, only certain marginals of this distribution
+  are actually needed.  
   \item[M-step]\hfill\\ 
   Set
     \begin{align}
-		\Th_{j+1}&=\argmax_{\Th}\LB{\tP_{j+1}}{\Th} \label{eq:EM_M}\\
-		&=\argmax_{\Th}\Lb{\Th_j}{\Th}\nonumber.
+		\Th_{j+1}&=\argmax_{\Th}\EMQ{\Th_j}{\Th} \label{eq:EM_M}
 	\end{align}
 \end{description}
-We are now in a position to formulate the so called \emph{fundamental inequality of EM} \parencite{Cappe2005}:
+We are now in a position to formulate the so called \emph{fundamental inequality of EM} \parencite{Cappe2005}.
+From \eqref{eq:EM_LB} we have
+\begin{align*}
+	\lLH[\Th_{j+1}] & \geq \EMQ{\Th_j}{\Th_{j+1}} - \EMH{\Th_j}{\Th_{j}}
+\end{align*}
+and using \eqref{eq:EM_sharp_bound} and \eqref{eq:EM_M} we can write
 \begin{align}
-	\lLH[\Th_{j+1}] - \lLH[\Th_j]\geq & \LB{\Pdf{\X}{\Y,\Th_j}}{\Th_{j+1}} - \LB{\Pdf{\X}{\Y,\Th_j}}{\Th_{j}} 
-	\label{eq:fundamental_inequality}
+\label{eq:fundamental_inequality}	
+\begin{split}	
+	\lLH[\Th_{j+1}] - \lLH[\Th_j] & \geq \EMQ{\Th_j}{\Th_{j+1}} - \EMQ{\Th_j}{\Th_{j}} \geq 0\\
+\end{split}
 \end{align}
-which is just the combination of \eqref{eq:em_lh_lb} and \eqref{eq:EM_E_lh}. But it highlights
+This highlights
 the fact that \emph{the likelihood is increased or unchanged with every new estimate} $\Th_{j+1}$.
 Also following from \eqref{eq:fundamental_inequality} is the fact that if the iterations
-stop at a certain point, i.e. $\Th_{l+1}=\Th_l$ at iteration $l$, then
-$\LB{\Pdf{\X}{\Y,\Th_l}}{\Th}$ must be maximal at $\Th_l$
-and so the gradients of the lower bound and of the likelihood must be zero. Thus
+stop at a certain point, i.e. $\Th_{l}=\Th_{l-1}$ at iteration $l$, then
+$\EMQ{\Th_l}{\Th}$ must be maximal at $\Th=\Th_l$ and thus its gradient, and 
+by \eqref{eq:EM_gradients} that of the likelihood, must be zero at $\Th=\Th_l$. Thus
 $\Th_l$ is a \emph{stationary point} of $\lLH$, i.e a local maximum or a saddle point.
+
+\subsubsection{EM in exponential families of distributions}
+
+Computing the intermediate quantity of EM is especially simple
+if the dynamic model and the measurement model belong to an exponential
+family of distributions, which have probability distribution functions of the form 
+\begin{align}
+	\Pdf[q]{\z}{\Th}&=\F{h}{\z}\exp\brac[\big]{ \F{\gv{\psi}}{\Th}^\tr \F*{s}{\z}-\F{c}{\Th}}.
+	\label{eq:exp_family}
+\end{align}
+Here $\F*{s}{\z}$ is called the vector of \emph{natural sufficient statistics} and
+$\gv{\eta}\equiv \F{\gv{\psi}}{\Th}$ is the \emph{natural parameterization}.
+Let us suppose now that the complete-data likelihood is of the form \eqref{eq:exp_family}, so
+that $\v{z}=\mathrm{vec}\brac[\big]{\brak*{\mathrm{vec}\brac*{\X},\mathrm{vec}\brac*{\Y}}}$ contains the
+hidden variables $\X$ and the measurements $\Y$. 
+
+The intermediate quantity, i.e the expectation of the logarithm of $\Pdf[q]{\z}{\Th}$ over the posterior distribution of 
+$\X$ (implied) becomes now
+\begin{align}
+	\EMQ&=	\F{\gv{\psi}}{\Th}^\tr \E{\F*{s}{\z}}-\F{c}{\Th}+\E{\F{h}{\z}}.
+\end{align}
+Since the last term is independent of $\Th$ then the maximization in the M-step
+is independent of this last term. Thus the role of the E-step degenerates into computing the
+expectation of the sufficient statistics $\E{\F*{s}{\z}}$.
 
 
 \subsubsection{EM as a special case of variational Bayes}
@@ -340,7 +378,7 @@ Taking the expectation w.r.t. $\Pdf{\X}{\Y,\Th'}$ (assumed implicitly in the not
 denoting $\f_{k-1}\equiv \f(\x_{k-1})$ and $\h_k\equiv \h(\x_k)$ and dropping the constant terms we get
 \begin{align}
 \begin{split}
-	\Lb{\Th'}{\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
+	\EMQ{\Th'}{\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
 	&-\frac{1}{2}\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{Q}}\\
 	&-\frac{1}{2}\Tr[\bigg]{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{R}}
 \end{split}
@@ -351,7 +389,7 @@ Let us denote the three expectations in equation~\eqref{eq:eclLH} with
 	\v{I}_1 &= \E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}\\ 
 	&=\defint{\mathcal{X}\times T}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\X}{\Y,\Th'}}{\X}\nonumber\\
 	&= 	\defint{\mathcal{X}}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\x_0}{\Y,\Th'}}{\x_0} \label{eq:I1_general}\\
-	\v{I}_2 &= \sum_{k=1}^T\defint{\mathcal{X}\times 2}{}{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr\Pdf{\bm{\xk^\tr&\xkk^\tr}^\tr}{\Y,\Th'}}{\bm{\xk&\xkk}^\tr} \label{eq:I2_general}\\
+	\v{I}_2 &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr\Pdf{\xk,\xkk}{\Y,\Th'}}{\xk}{\xkk} \label{eq:I2_general}\\
 	\v{I}_3 &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr\Pdf{\xk}{\Y,\Th'}}{\xk} \label{eq:I3_general}
 \end{align}
 It is clear then that in the E-step one needs to compute the $T+1$ smoothing
@@ -376,7 +414,7 @@ matrices. As can be seen from \eqref{eq:eclLH}, the terms involving $\v{Q}$ or $
 are analogous and so we will only the derivation for $\v{Q}$ and only the result
 for $\v{R}$. It's easier to take the derivative with respect to $\v{Q}^{-1}$:
 \begin{align}
-	\dpd{\Lb{\Th'}{\Th}}{\v{Q^{-1}}}=
+	\dpd{\EMQ{\Th'}{\Th}}{\v{Q^{-1}}}=
 	&-\frac{1}{2}\dpd{}{\v{Q^{-1}}}\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\xk-\f_{k-1})\right)\left(\xk-\f_{k-1})\right)^\tr}}\nonumber\\
 	&-\frac{T}{2}\dpd{}{\v{Q^{-1}}}\log\abbs{\v{Q}}\nonumber\\
 	=&-\frac{1}{2}\sum_{k=1}^T\E{\left(\xk-\f_{k-1})\right)\left(\xk-\f_{k-1})\right)^\tr}+\frac{T}{2}\v{Q},
@@ -405,12 +443,12 @@ might have been parameterized so that there are only scalar parameters embedded 
 as part of $\f$ or $\h$. In that case
 it is quite likely that the M-step maximization equations will not admit themselves to closed form
 analytical expressions. Rather the use of nonlinear optimization methods is needed and for that
-we would like have the gradient of $\Lb$. This is fortunately rather straightforward. Let
+we would like have the gradient of $\EMQ$. This is fortunately rather straightforward. Let
 $\theta_i$ be an element of $\Th$. Then
 \begin{align}
 \label{eq:dLB_nonlinear}
 \begin{split}
-	\dpd{\Lb{\Th}{\Th'}}{\theta_i}
+	\dpd{\EMQ{\Th}{\Th'}}{\theta_i}
 	=\quad{}&\frac{1}{2}\mathrm{Tr}\!\Bigg[\gv{\Sigma}^{-1}\bigg(
 	\dpd{\gv{\Sigma}}{\theta_i}\gv{\Sigma}^{-1}
 	\sum_{k=1}^T\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}{\hat{\Th}_j}\\
@@ -428,18 +466,6 @@ $\theta_i$ be an element of $\Th$. Then
 	-T\dpd{\v{R}}{\theta_i}\bigg)\Bigg].
 \end{split}	
 \end{align}
-
-What is interesting about this quantity is that it can also be used to compute the gradient of the log-likelihood, i.e
-the score, itself. From equation~\eqref{eq:lLH_decomp} it can be seen rather easily, that  
-the partial derivative of the log-likelihood evaluated at $\widehat{\Th}$ is given by
-\begin{align}
-		\eval{\dpd{\lLH}{\theta_i}}_{\Th=\widehat\Th}&=
-		\eval{\dpd{\LB{\Pdf[p][\big]{\X}{\Y,\widehat\Th}}{\Th}}{\theta_i}}_{\Th=\widehat\Th}=
-		\eval{\dpd{ \Lb{\widehat\Th}{\Th}}{\theta_i}}_{\Th=\widehat\Th} \label{eq:EM_gradients}
-\end{align} 
-Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005}. It gives
-an alternative route for the score function computation.
-\todo{elaborate on score computation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{EM in linear-Gaussian SSMs}%%%%%%%
@@ -519,7 +545,7 @@ can compute the expectations with only forward recursions.
 After this, the M-step estimates are computed for $\v{Q}$
 from equation~\eqref{eq:EM_M_Q}, for $\v{R}$ from equation~\eqref{eq:EM_M_R}, for $\v{A}$ from equation~\eqref{eq:EM_M_A}
 and for $\v{H}$ from equation~\eqref{eq:EM_M_H}. Also for evaluating the convergence,
-one needs to compare the current value of $\Lb$ with the previous one.
+one needs to compare the current value of $\EMQ$ with the previous one.
 For this we can compute $\v{I}_1$ from equation~\eqref{eq:I1},
 $\v{I}_2$ from equation~\eqref{eq:LGSSM_I2} and $\v{I}_3$\todo{index $\v{I}$:s} from equation~\eqref{eq:LGSSM_I3}.
 
@@ -529,7 +555,7 @@ in the linear-Gaussian case:
 \begin{align}
 \label{eq:dLB_linear}
 \begin{split}
-	\dpd{\Lb{\Th}{\Th'}}{\theta_i}
+	\dpd{\EMQ{\Th}{\Th'}}{\theta_i}
 	=\quad{}&\frac{1}{2}\mathrm{Tr}\!\Bigg[\gv{\Sigma}^{-1}\bigg(
 	\dpd{\gv{\Sigma}}{\theta_i}\gv{\Sigma}^{-1}
 	\sum_{k=1}^T\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}{\hat{\Th}_j}\\
@@ -690,14 +716,14 @@ are easier in the EM algorithm. This again depends on if the model is linear or 
 Let us denote the \emph{point-to-set} map implicitly defined by the EM
 algorithm by 
 \begin{align}
-	\F{\v{M}}{\Th'}&=\left\{\Th\in\Theta : \Lb{\Th'}{\Th} \geq \Lb{\Th'}{\tilde\Th}\; \forall \,\tilde\Th\in\Theta \right\},
+	\EMM{\Th'}&=\brac[\big]{\Th\in\Theta : \EMQ{\Th'}{\Th} \geq \EMQ{\Th'}{\tilde\Th}\; \forall \,\tilde\Th\in\Theta },
 \end{align}
 i.e the set of points that maximize the objective function in the M-step. 
-Commonly, but not necessarily, $\F{\v{M}}{\Th'}$ only contains a single point per $\Th'\in\Theta$.
+Commonly, but not necessarily, $\EMM{\Th'}$ only contains a single point per $\Th'\in\Theta$.
 In order to formulate the convergence theorem for EM, we first need to introduce the definition
 of a closed mapping. A point to set mapping $T$ from points of $\Theta$ to subsets of $\Theta$
 is said to be closed in $\mathcal{S}\subseteq \Theta$ if for any converging sequences
-$\left\{\Th_i\right\}$ and $\left\{\tilde\Th_i\right\}$, the conditions 
+$\brac{\Th_i}$ and $\brac{\tilde\Th_i}$, the conditions 
 \begin{align}
 \Th_i&\to\Th\in\mathcal{S}\\
 \tilde\Th_i&\to\tilde\Th,\quad \tilde\Th_i\in\F{T}{\Th_i}\,\forall i \geq 0,
@@ -707,22 +733,46 @@ the requirement for a mapping to be closed reduces to a requirement for continui
 
 \subsubsection{Convergence rates}
 
-We will now assume that $\F{\v{M}}{\Th}$ is singular, i.e.
-$\v{M}:\Theta\to\Theta$, and continuous. Then if $\left\{\Th_0,\F{\v{M}}{\Th_0},\F{\v{M}}{\F{\v{M}}{\Th_0}},\dots\right\}$
-converges to a point $\Th_\star$, we must have $\Th_\star=\F{\v{M}}{\Th_\star}$ and
+We will now assume that $\EMM$ is singular, i.e.
+$\v{M}:\Theta\to\Theta$, and continuous. Then if $\brac[\big]{\Th_0,\EMM{\Th_0},\EMM{\EMM{\Th_0}},\dots }$
+converges to a point $\Th_\star$, we must have $\Th_\star=\EMM{\Th_\star}$ and
 thus around $\Th_\star$ we obtain the first order Taylor series expansion
 \begin{align}
-	\Th_{j+1}-\Th_\star&=\F{\v{M}}{\Th_j}-\F{\v{M}}{\Th_\star}\approx\F{\v{M}'}{\Th_\star}\left(\Th_j-\Th_\star\right),
+	\Th_{j+1}-\Th_\star&=\EMM{\Th_j}-\EMM{\Th_\star}\approx\EMM[']{\Th_\star}\left(\Th_j-\Th_\star\right),
 \end{align} 
-where $\F{\v{M}'}{\Th'}=\left.\dod{\F{\v{M}}{\Th}}{\Th}\right|_{\Th=\Th'}$.
+where $\EMM[']{\Th'}=\eval{\dod{\EMM{\Th}}{\Th}}_{\Th=\Th'}$.
 Now if for some $\mu\in\left(0,1\right)$ 
 \begin{align}
 	\frac{\abbs{\Th_{j+1}-\Th_\star}}{\abbs{\Th_{j}-\Th_\star}}=\mu,
 \end{align}
 the sequence $\left\{\Th_j\right\}$ is said to converge linearly with 
 \emph{rate of convergence} $\mu$.
- 
-the rate on convergence for EM is then the largest eigenvalue of $\F{\v{M}}{\Th_\star}$.
+From equations \eqref{eq:lLH_decomp}, \eqref{eq:EM_B} and \eqref{eq:EM_gradients} we can establish that
+\begin{align}
+	\eval{\dmd{\EMB}{2}{\Th}{}{\left.\mkern-2mu\Th^\tr\right.}{}}_{\substack{\Th=\Th_\star\\ \Th'=\Th_\star}}&=\eval{\dpd[2]{ \EMQ{\Th_\star}{\Th}}{\Th}}_{\Th=\Th_\star}\\	
+	\eval{\dmd{\EMB}{2}{\Th}{}{\left.\mkern-2mu\Th'^\tr\right.}{}}_{\substack{\Th=\Th_\star\\ \Th'=\Th_\star}}&=-\eval{\dpd[2]{ \EMH{\Th_\star}{\Th}}{\Th}}_{\Th=\Th_\star}\\	
+\end{align}
+Then according to \textcite{Salakhutdinov2003} we can write
+\begin{align}
+	\EMM[']{\Th_\star}&=\left(\eval{\dpd[2]{ \EMH{\Th_\star}{\Th}}{\Th}}_{\Th=\Th_\star}\right)
+	\left(\eval{\dpd[2]{ \EMQ{\Th_\star}{\Th}}{\Th}}_{\Th=\Th_\star}\right)^{-1}.
+	\label{eq:EM_M'}
+\end{align}
+If we further define the transformation matrix $\F{\mathcal P}{\Th}$ as
+\begin{align}
+	\Th_{j+1}-\Th_j &= \F{\mathcal P}{\Th_j}\nabla\lLH[\Th_j],
+	\label{eq:EM_Pl}
+\end{align}
+where $\nabla\lLH[\Th_j]=\eval{\dod{\lLH}{\Th}}_{\Th_j}$, then near $\Th_\star$
+we get
+\begin{align}
+		\F{\mathcal P}{\Th_j}&\approx \left(\v{I}-\EMM[']{\Th_j}\right)\left(-\F*{S}{\Th_j}\right)^{-1},
+\end{align}
+where $\F*{S}{\Th_j}=\eval{\dod[2]{\lLH}{\Th}}_{\Th_j}$
+
+
+
+
 
 \parencite{Wu1983,Sandell1978,Meng1997,Elliott1999,Salakhutdinov2003a,Salakhutdinov2003,Olsson2007,Paninski2010}
 

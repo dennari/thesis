@@ -62,19 +62,22 @@ pdfproducer={xetex}
 \newcommand{\Th}{\gv{\theta}}
 \newcommand{\LH}{\Pdf{\Y}{\Th}}
 \NewDocumentCommand\lLH{O{\Th}}{\F{\ell}{#1}}
+\NewDocumentCommand\score{}{\nabla_{\Th}\lLH}
 %\newcommand{\LHf}[1]{\Pdf{\X}{#1}}
 %\newcommand{\LHh}{\Pdf{\X}{\hat{\Th}}}
 %\newcommand{\lLH}{\ell\!\left(\Th\right)}
 %\newcommand{\cLH}{\Pdf{\X,\Y}{\Th}}
 %\newcommand{\lcLH}{\log\cLH}
 \newcommand{\tP}{\tilde{p}}
-\NewDocumentCommand\tPX{G{\Th'}}{\Pdf[\tP]{\X}{#1}}
-\NewDocumentCommand\post{G{\Th}}{\Pdf{\X}{\Y,#1}}
-\NewDocumentCommand\cLH{}{\Pdf{\X,\Y}{\Th}}
+\NewDocumentCommand\tPX{G{\gv{\psi}}}{\Pdf[\tP]{\X}{#1}}
+\NewDocumentCommand\post{G{\Th}}{\Pdf[p][\normalsize]{\X}{\Y,#1}}
+\NewDocumentCommand\cLH{G{\Th}}{\Pdf{\X,\Y}{#1}}
 %\NewDocumentCommand\lcLH{O{0pt}}{\log\cLH[#1]}
-\NewDocumentCommand\LB{G{\tP} G{\Th}}{\F{\mathcal L}{#2,#1}}
-\NewDocumentCommand\Lb{G{\Th'} G{\Th}}{\F{\mathfrak L}{#2,#1}}
-\newcommand{\KL}[2]{\mathrm{KL}\fparenmid{#1}{#2}{\Vert}}
+\NewDocumentCommand\EMQ{G{\Th'} G{\Th}}{\F[\normalsize]{\mathcal Q}{#2,#1}}
+\NewDocumentCommand\EMH{G{\Th'} G{\Th}}{\F[\normalsize]{\mathcal H}{#2,#1}}
+\NewDocumentCommand\EMB{G{\Th'} G{\Th}}{\F[\normalsize]{\mathcal B}{#2,#1}}
+\NewDocumentCommand\EMM{O{} G{\Th}}{\F[\normalsize]{\v{M}#1}{#2}}
+\newcommand{\KL}[2]{\mathrm{KL}\fparenmid*{#1}{#2}{\Vert}}
 
 
 % BIBLIOGRAPHY
