@@ -60,7 +60,6 @@ pdfproducer={xetex}
 \newcommand{\xkk}{\v{x}_{k-1}}
 \newcommand{\tr}{\mathrm{T}}
 \newcommand{\Th}{\gv{\theta}}
-\newcommand{\LH}{\Pdf{\Y}{\Th}}
 \NewDocumentCommand\lLH{O{\Th}}{\F{\ell}{#1}}
 \NewDocumentCommand\score{}{\nabla_{\Th}\lLH}
 %\newcommand{\LHf}[1]{\Pdf{\X}{#1}}
@@ -72,12 +71,21 @@ pdfproducer={xetex}
 \NewDocumentCommand\tPX{G{\gv{\psi}}}{\Pdf[\tP]{\X}{#1}}
 \NewDocumentCommand\post{G{\Th}}{\Pdf[p][\normalsize]{\X}{\Y,#1}}
 \NewDocumentCommand\cLH{G{\Th}}{\Pdf{\X,\Y}{#1}}
+\NewDocumentCommand\LH{G{\Th}}{\Pdf{\Y}{#1}}
 %\NewDocumentCommand\lcLH{O{0pt}}{\log\cLH[#1]}
 \NewDocumentCommand\EMQ{G{\Th'} G{\Th}}{\F[\normalsize]{\mathcal Q}{#2,#1}}
 \NewDocumentCommand\EMH{G{\Th'} G{\Th}}{\F[\normalsize]{\mathcal H}{#2,#1}}
 \NewDocumentCommand\EMB{G{\Th'} G{\Th}}{\F[\normalsize]{\mathcal B}{#2,#1}}
 \NewDocumentCommand\EMM{O{} G{\Th}}{\F[\normalsize]{\v{M}#1}{#2}}
 \newcommand{\KL}[2]{\mathrm{KL}\fparenmid*{#1}{#2}{\Vert}}
+
+\NewDocumentCommand\dQ{O{2} O{1} G{\Th_\star} G{\Th_\star}}{
+	\dif^{\mkern2mu #1#2}\mkern-4mu\EMQ{#4}{#3}
+}
+\NewDocumentCommand\dL{O{2} O{1} G{\Th_\star}}{
+	\dif^{\mkern2mu #1#2}\mkern-4mu\lLH[#3]
+}
+
 
 
 % BIBLIOGRAPHY
@@ -99,7 +107,6 @@ pdfproducer={xetex}
 
 \input{coverpage}
 \makecoverpage
-
 
 
 %\input{abstract}

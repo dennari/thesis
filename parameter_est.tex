@@ -172,8 +172,8 @@ For this reason EM is well described as lower bound optimization \parencite{Mink
 We shall use $\E{\cdot}_{q}\equiv\defint{}{}{\cdot\,\Pdf[q]{z}}{z}$ to denote the expectation
 over some arbitrary distribution $\Pdf[q]{z}$.
 
-Let us introduce a ``variational'' 
-distribution $\tPX$ over the states.
+Let us introduce a family of ``variational'' distributions 
+indexed by the parameter $\gv{\psi}$, $\tPX$, over the states.
 Noting now that $\Pdf{\X}{\Y,\Th}=\cLH/\LH$ and that $\lLH\equiv\log\LH$ is independent of $\X$ we can then perform the
 following decomposition on the log likelihood:
 \begin{align}
@@ -187,11 +187,12 @@ the \emph{Kullback-Leibler divergence}
 \begin{align}
 		\KL{\tPX}{\post} = -\E{\log{\frac{\post}{\tPX}}}_{\tPX},  
 \end{align}
-which we can prove by applying \emph{Jensen's inequality} 
+or equivalently the relation
 \begin{align}
-	\E{\tPX}_{\tPX} &\geq \E{\log\post}_{\tPX},
+	\E{\log\tPX}_{\tPX} &\geq \E{\log\post}_{\tPX},
 	\label{tablelabel}
 \end{align}
+provable by \emph{Jensen's inequality}, 
 we see that $\EMB{\gv{\psi}}{\Th}$ is indeed a lower bound on $\lLH$. 
 
 The \emph{sharpest} bound can clearly be found among
@@ -749,15 +750,20 @@ $\v{M}:\Theta\to\Theta$, and continuous. Then if $\brac[\big]{\Th_0,\EMM{\Th_0},
 converges to a point $\Th_\star$, we must have $\Th_\star=\EMM{\Th_\star}$ and
 thus around $\Th_\star$ we obtain the first order Taylor series expansion
 \begin{align}
-	\Th_{j+1}-\Th_\star&=\EMM{\Th_j}-\EMM{\Th_\star}\approx\EMM[']{\Th_\star}\left(\Th_j-\Th_\star\right),
+	\Th_{j+1}-\Th_\star&=\EMM{\Th_j}-\EMM{\Th_\star}\approx\dif\EMM{\Th_\star}\left(\Th_j-\Th_\star\right).
 \end{align} 
-where $\EMM[']{\Th'}=\eval{\dod{\EMM{\Th}}{\Th}}_{\Th=\Th'}$.
-Now if for some $\mu\in\left(0,1\right)$ 
+We can then arrive at the following expression for $\dif\EMM{\Th_\star}$ \parencite{Elliott1999,Lange1995}:
 \begin{align}
-	\frac{\abbs{\Th_{j+1}-\Th_\star}}{\abbs{\Th_{j}-\Th_\star}}=\mu,
+	\dif\EMM{\Th_\star} &= \v{I}-\dQ^{-1}\dL.
 \end{align}
-the sequence $\left\{\Th_j\right\}$ is said to converge linearly with 
-\emph{rate of convergence} $\mu$.
+also writable as
+\begin{align}
+	\dpd{\EMM{\Th_\star}}{\Th} &=\v{I}-\E{\dpd{\log\cLH{\Th_\star}}{\Th}}^{-1}_{\post{\Th_\star}}
+	\E{\dpd{\log\LH{\Th_\star}}{\Th}}_{\post{\Th_\star}},
+\end{align}
+where the latter term is commonly interpreted as the proportion of ``measured'' information compared to
+all information.
+
 From equations \eqref{eq:lLH_decomp}, \eqref{eq:EM_B} and \eqref{eq:EM_gradients} we can establish that
 \begin{align}
 	\eval{\dmd{\EMB}{2}{\Th}{}{\left.\mkern-2mu\Th^\tr\right.}{}}_{\substack{\Th=\Th_\star\\ \Th'=\Th_\star}}&=\eval{\dpd[2]{ \EMQ{\Th_\star}{\Th}}{\Th}}_{\Th=\Th_\star}\\	
