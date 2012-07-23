@@ -178,14 +178,23 @@ Noting now that $\Pdf{\X}{\Y,\Th}=\cLH/\LH$ and that $\lLH\equiv\log\LH$ is inde
 following decomposition on the log likelihood:
 \begin{align}
 	\lLH &= \log\cLH - \log\post \nonumber\\
-	&= \E{\log\cLH}_{\tP} - \E{\log\post}_{\tP} \nonumber\\ 
-	&= \E{\log\cLH}_{\tP}-\E{\log\tPX}_{\tP}
-	\underbrace{-\E{\log\post-\log\tPX}_{\tP}}_{{\displaystyle \KL{\tPX}{\post}}}
+	&= \E{\log\cLH}_{\tPX} - \E{\log\post}_{\tPX} \nonumber\\ 
+	&= \underbrace{\E{\log\cLH}_{\tPX} - \E{\tPX}_{\tPX}}_{\displaystyle \EMB{\gv{\psi}}{\Th}}+\KL{\tPX}{\post}. 
 	\label{eq:lLH_decomp}
 \end{align}
-Now since the \emph{Kullback-Leibler divergence} $\KL{\tPX}{\post}$ is always nonnegative, 
-provable by applying \emph{Jensen's inequality},
-we have already found a lower bound. The \emph{sharpest} bound can clearly be found among
+By invoking the nonnegativeness of
+the \emph{Kullback-Leibler divergence}
+\begin{align}
+		\KL{\tPX}{\post} = -\E{\log{\frac{\post}{\tPX}}}_{\tPX},  
+\end{align}
+which we can prove by applying \emph{Jensen's inequality} 
+\begin{align}
+	\E{\tPX}_{\tPX} &\geq \E{\log\post}_{\tPX},
+	\label{tablelabel}
+\end{align}
+we see that $\EMB{\gv{\psi}}{\Th}$ is indeed a lower bound on $\lLH$. 
+
+The \emph{sharpest} bound can clearly be found among
 distributions of the form $\post{\Th'}$, since the Kullback-Leibler divergence vanishes with $\tPX=\post$.
 For this reason, we will set
 \begin{align}
@@ -199,7 +208,7 @@ and denote
 \end{align}
 According to \eqref{eq:lLH_decomp} we now have
 \begin{align}
-	\lLH & \geq \EMB \quad \forall \Th' \in \Theta
+	\lLH & \geq \EMB \quad \forall \Th,\Th' \in \Theta
 	\label{eq:EM_LB}
 \end{align}
 and especially
@@ -239,6 +248,7 @@ steps of the algorithm are:
   are actually needed.  
   \item[M-step]\hfill\\ 
   Set
+\todo{Bring in MAP estimation}
     \begin{align}
 		\Th_{j+1}&=\argmax_{\Th}\EMQ{\Th_j}{\Th} \label{eq:EM_M}
 	\end{align}
@@ -275,7 +285,8 @@ family of distributions, which have probability distribution functions of the fo
 Here $\F*{s}{\z}$ is called the vector of \emph{natural sufficient statistics} and
 $\gv{\eta}\equiv \F{\gv{\psi}}{\Th}$ is the \emph{natural parameterization}.
 Let us suppose now that the complete-data likelihood is of the form \eqref{eq:exp_family}, so
-that $\v{z}=\mathrm{vec}\brac[\big]{\brak*{\mathrm{vec}\brac*{\X},\mathrm{vec}\brac*{\Y}}}$ contains the
+that $\v{z}^\tr=\brak*{\mathrm{vec}\brac*{\X}^\tr,\mathrm{vec}\brac*{\Y}^\tr}$, where the operator $\mathrm{vec}\brac*{\cdot}$
+creates vectors out of matrices by stacking their columns, contains the
 hidden variables $\X$ and the measurements $\Y$. 
 
 The intermediate quantity, i.e the expectation of the logarithm of $\Pdf[q]{\z}{\Th}$ over the posterior distribution of 
@@ -357,7 +368,7 @@ If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we h
 \end{align}
 
 \subsubsection{Partial E and M steps}
-
+\parencite{Lange1995}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{EM in SSMs}%%%%%%%%%%

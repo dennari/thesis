@@ -232,4 +232,57 @@ we find that the marginal likelihood can be computed from
 	\label{eq:lh_factorization}
 \end{align}
 
+\subsubsection{Notation related to differentiation}
+
+In this thesis we will (unfortunately) have to use six
+different kind of differential operators: first and second
+order taken with respect to a vector or scalar. To be always
+clear whether the resulting object is a scalar, a vector or a matrix,
+the following notational rules will be applied.
+\begin{description}
+  \item[First order] 
+  The most general case here is that of a vector valued function of a vector
+  variable and the differentiation is with respect to a vector. The result
+  is a matrix called the $Jacobian$:
+\begin{align*}
+	\F{\v{J}\v{f}}{\x} \equiv \dpd{\F*{f}{\x}}{\x} \equiv 
+	\begin{bmatrix} \dfrac{\partial f_1}{\partial x_1} & \cdots & \dfrac{\partial f_1}{\partial x_n} \\ \vdots & \ddots & \vdots \\ \dfrac{\partial f_m}{\partial x_1} & \cdots & \dfrac{\partial f_m}{\partial x_n}  \end{bmatrix}
+\end{align*}   
+Here the rows are gradients of the scalar valued component functions and the columns
+are partial derivatives of a vector valued function. 
+  \item[Second order]
+Here the second most gereneral case is the the second order differential of a scalar
+valued function of a vector variable known as the \emph{Hessian matrix}:
+\begin{align*}
+	\v{H}\F{f}{\x} \equiv \dmd{\F{f}{\x}}{2}{\x}{}{\left.\mkern-2mu\x^\tr\right.}{} \equiv 
+\begin{bmatrix}
+\dfrac{\partial^2 f}{\partial x_1^2} & \dfrac{\partial^2 f}{\partial x_1\,\partial x_2} & \cdots & \dfrac{\partial^2 f}{\partial x_1\,\partial x_n} \\[2.2ex]
+\dfrac{\partial^2 f}{\partial x_2\,\partial x_1} & \dfrac{\partial^2 f}{\partial x_2^2} & \cdots & \dfrac{\partial^2 f}{\partial x_2\,\partial x_n} \\[2.2ex]
+\vdots & \vdots & \ddots & \vdots \\[2.2ex]
+\dfrac{\partial^2 f}{\partial x_n\,\partial x_1} & \dfrac{\partial^2 f}{\partial x_n\,\partial x_2} & \cdots & \dfrac{\partial^2 f}{\partial x_n^2}
+\end{bmatrix}
+\end{align*}  
+  
+\end{description}
+
+
+
+
+\begin{description}
+  \item[Result is a scalar]
+\begin{align*}
+	\F{f'}{x'} \equiv \eval{\dod{\F{f}{x}}{x}}_{x=x'}\\
+	\F{\partial_{x_i}\v{f}}{x'} \equiv \eval{\dpd{\F*{f}{\x}}{x_i}}_{x_i=x'}\\
+\end{align*}
+  \item[Result is a vector]
+\begin{align*}
+	\F{\nabla f}{\x} \equiv \eval{\dod{\F{f}{x}}{x}}_{x=x'}\\
+	\F{\partial_{x_i}\v{f}}{x'} \equiv \eval{\dpd{\F*{f}{\x}}{x_i}}_{x_i=x'}\\
+\end{align*}   
+   
+   \item[Result is a matrix]
+\end{description}
+
+
+
 
