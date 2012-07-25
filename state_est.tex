@@ -79,11 +79,14 @@ The standard Rauch-Tung-Striebel (RTS) smoother gives the statistics $\v{m}_{k|T
 	}
 	}
 \end{split}
+\label{eq:sum_expectations}
 \end{align}
 
 In \parencite{Elliott1999} a new kind of filter is presented that
 can compute \eqref{eq:sum_expectations} with only forward recursions. 
 \todo{Elaborate on the RTS smoother}
+\parencite{Paninski2010}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Nonlinear-Gaussian SSMs}%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -171,8 +174,8 @@ Finally, the cross-covariance $\gv{\Sigma}_{ab}=\gv{\Sigma}_{ba}^\tr$ similarly 
 
  
 To see how this idea can be used to form a Gaussian
-approximation to \eqref{eq:joint_posterior_of_consecutive_states}, let us
-rewrite \eqref{eq:joint_posterior_of_consecutive_states} as
+approximation to $\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}}$, let us
+rewrite it as
 \begin{align}
 \begin{split}
 	\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}}&=\Pdf{\v{x}_{k-1}}{\v{x}_{k},\v{Y}_{1:k-1}}\Pdf{\v{x}_{k}}{\v{Y}}\\
@@ -182,7 +185,7 @@ rewrite \eqref{eq:joint_posterior_of_consecutive_states} as
 \end{align}
 where the dependance on the current estimate of the parameter $\hat{\Th}_j$
 is suppressed for clarity. Since the Gaussian approximation to
-\eqref{eq:joint_posterior_of_consecutive_states} will be calculated by forward
+$\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}}$ will be calculated by forward
 (filtering) and backward (smoothing) recursions, let us assume that we already
 have available the Gaussian approximation
 

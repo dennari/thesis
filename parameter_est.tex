@@ -57,8 +57,7 @@ deterministic function with a unique global maximum at $\Th_\star$.
 This property gives us the means to compute asymptotic error bounds for
 the estimate:
 \begin{align}
-	\sqrt{T}\left(\Th_{\text{ML}}-\Th_\star\right) \xrightarrow{D} \N{\v{0}}{\F{\mathcal{I}^{-1}}{\Th_\star}},\quad \mathrm{when}\;T\to\infty,
-	\label{tablelabel}
+	\sqrt{T}\left(\Th_{\text{ML}}-\Th_\star\right) \xrightarrow{D} \N{\v{0}}{\F{\mathcal{I}^{-1}}{\Th_\star}},\quad \mathrm{when}\;T\to\infty,	
 \end{align}
 where $\F{\mathcal{I}}{\Th_\star}$ is the \emph{Fisher information matrix} evaluated at $\Th_\star$ 
 \item[Efficiency]\hfill\\
@@ -109,7 +108,7 @@ the gradient of $\lLH$. The first one proceeds straightforwardly by taking the
 partial derivatives of $\lLH$. As will soon be demonstrated, this leads
 to some additional recursive formulas which allow computing
 the gradient in parallel with the Kalman filter. The second method needs
-the smoothing distributions with the cross-timestep covariances of equation~\eqref{eq:rts_cross_timestep_covariance}
+the smoothing distributions with the cross-timestep covariances
 and it can be easily computed with the expectation maximization machinery
 that will be introduced later. These two methods can be proved to compute
 the exact same quantity. At this point we will focus on the first one. Going further
@@ -164,16 +163,18 @@ and they are derived at least in \textcite{Gupta1974} and \textcite{Mbalawataa}.
 \subsection{Expectation maximization (EM)}%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The expectation maximization (EM) algorithm \parencite{Dempster1977} is a general
+Expectation maximization (EM) algorithm is a general
 method for finding ML and MAP estimates in probabilistic models with missing data or
-latent variables \parencite{Bishop2006,barber2012bayesian}. As will be seen, instead of maximizing
-\eqref{eq:logLH} directly, EM alternates between forming a variational lower bound and maximizing it.
-For this reason EM is well described as lower bound optimization \parencite{Minka1998}.
+latent variables. It was first introduced in
+the celebrated article of \textcite{Dempster1977}. Instead of maximizing
+\eqref{eq:logLH} directly, EM alternates between computing a variational lower bound and then maximizing this bound
+\parencite{Bishop2006,barber2012bayesian}. As will be seen, since the bound is strict, increasing the bound implies
+an increase in the objective function. For these reasons EM is well described as lower bound optimization \parencite{Minka1998}.
 We shall use $\E{\cdot}_{q}\equiv\defint{}{}{\cdot\,\Pdf[q]{z}}{z}$ to denote the expectation
-over some arbitrary distribution $\Pdf[q]{z}$.
+over any distribution $\Pdf[q]{z}$.
 
 Let us introduce a family of ``variational'' distributions 
-indexed by the parameter $\gv{\psi}$, $\tPX$, over the states.
+indexed by the parameter $\gv{\psi}$, $\tPX$, over the states $\X$ (or the latent variables in general).
 Noting now that $\Pdf{\X}{\Y,\Th}=\cLH/\LH$ and that $\lLH\equiv\log\LH$ is independent of $\X$ we can then perform the
 following decomposition on the log likelihood:
 \begin{align}
@@ -189,8 +190,7 @@ the \emph{Kullback-Leibler divergence}
 \end{align}
 or equivalently the relation
 \begin{align}
-	\E{\log\tPX}_{\tPX} &\geq \E{\log\post}_{\tPX},
-	\label{tablelabel}
+	\E{\log\tPX}_{\tPX} &\geq \E{\log\post}_{\tPX},	
 \end{align}
 provable by \emph{Jensen's inequality}, 
 we see that $\EMB{\gv{\psi}}{\Th}$ is indeed a lower bound on $\lLH$. 
@@ -307,8 +307,7 @@ expectation of the sufficient statistics $\E{\F*{s}{\z}}$.
 Variational Bayes (VB) is a fully Bayesian methodology where one seeks
 for an approximation to the parameter posterior
 \begin{align}
-	\Pdf{\Th}{\Y}\propto \defint{\mathcal{X}}{}{\Pdf{\X,\Y}{\Th}}{\X}\Pdf{\Th}
-	\label{tablelabel}
+	\Pdf{\Th}{\Y}\propto \defint{\mathcal{X}}{}{\Pdf{\X,\Y}{\Th}}{\X}\Pdf{\Th}	
 \end{align}
 As mentioned earlier, finding this distribution is commonly intractable, so in VB
 we assume a factorized form for the joint posterior of states and parameters
@@ -359,17 +358,18 @@ With this assumption equation \eqref{eq:VB_bound} becomes
 \end{align}
 and the ``M''-step \eqref{eq:VB_M} can then be written as
 \begin{align}
-	\Th^* &= \argmax_{\Th}\brak*{\E{\log\cLH}{\Pdf[q]{\X}}+\log\Pdf{\Th}}.
-	\label{tablelabel}
+	\Th^* &= \argmax_{\Th}\brak*{\E{\log\cLH}{\Pdf[q]{\X}}+\log\Pdf{\Th}}.	
 \end{align}
 If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we have
 \begin{align}
-	\Pdf[q^{\text{new}}]{\X}\propto \Pdf{\X,\Y}{\Th^*} \propto \Pdf{\X}{\Y,\Th^*} 
-	\label{tablelabel}
+	\Pdf[q^{\text{new}}]{\X}\propto \Pdf{\X,\Y}{\Th^*} \propto \Pdf{\X}{\Y,\Th^*} 	
 \end{align}
 
-\subsubsection{Partial E and M steps}
-\parencite{Lange1995}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Partial E and M steps}%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\parencite{Lange1995,Goodwin2005}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{EM in SSMs}%%%%%%%%%%
@@ -637,12 +637,13 @@ Denoting $\v{g}\left(\xkk\right)\equiv\v{g}_{k-1}$ and $\v{l}\left(\xk\right)\eq
 and following the derivation in equation~\eqref{eq:LGSSM_I2} we have
 \begin{align}
 	\v{I}_{2}
-&=\bm{\v{I} & -\v{A}}	
-\bm{\sum_{k=1}^T\E{\xk\xk^\tr} & \sum_{k=1}^T\E{\xk\v{g}_{k-1}^\tr} \\ \sum_{k=1}^T\E{\v{g}_{k-1}\xk^\tr} & \sum_{k=1}^T\E{\v{g}_{k-1}\v{g}_{k-1}^\tr} }
-\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
-&=\bm{\v{I} & -\v{A}}	
-\bm{\bar{\X}_{00} & \bar{\v{G}}_{01} \\ \bar{\v{G}}_{01}^\tr & \bar{\v{G}}_{11} }
-\bm{\v{I}\\-\v{A}^\tr}
+	&=\bm{\v{I} & -\v{A}}	
+	\bm{\sum_{k=1}^T\E{\xk\xk^\tr} & \sum_{k=1}^T\E{\xk\v{g}_{k-1}^\tr} \\ \sum_{k=1}^T\E{\v{g}_{k-1}\xk^\tr} & \sum_{k=1}^T\E{\v{g}_{k-1}\v{g}_{k-1}^\tr} }
+	\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
+	&=\bm{\v{I} & -\v{A}}	
+	\bm{\bar{\X}_{00} & \bar{\v{G}}_{01} \\ \bar{\v{G}}_{01}^\tr & \bar{\v{G}}_{11} }
+	\bm{\v{I}\\-\v{A}^\tr}
+\label{eq:I2_LIP}
 \end{align}
 Then similarly to \eqref{eq:EM_M_A}
 \begin{align}
@@ -669,15 +670,15 @@ where the size of $\v{H}$ is now ${d_x\times\sum_{k=1}^m d_{\Upsilon,k}}$ and
 $\v{l}:\mathcal{X}\to \R^{\sum_{k=1}^m d_{\Upsilon,k}}$ .
 For $\v{I}_3$ we get
 \begin{align}
-\v{I}_{3}&=
-\bm{\v{I} & -\v{H}}	
-\sum_{k=1}^T
-\bm{\yk\yk^\tr & \yk\E{\v{l}_k}^\tr \\ \E{\v{l}_k}\yk^\tr & \E{\v{l}_k\v{l}_k^\tr} }
-\bm{\v{I}\\-\v{H}^\tr} \label{eq:LGSSM_I3}\\
-&=\bm{\v{I} & -\v{H}}	
-\sum_{k=1}^T
-	\bm{\bar{\Y}_{00} & \bar{\v{D}}_{00} \\ \bar{\v{D}}_{00}^\tr & \bar{\v{L}}_{00} }
-\bm{\v{I}\\-\v{H}^\tr},
+	\v{I}_{3}&=
+	\bm{\v{I} & -\v{H}}	
+	\sum_{k=1}^T
+	\bm{\yk\yk^\tr & \yk\E{\v{l}_k}^\tr \\ \E{\v{l}_k}\yk^\tr & \E{\v{l}_k\v{l}_k^\tr} }
+	\bm{\v{I}\\-\v{H}^\tr} \label{eq:I3_LIP}\\
+	&=\bm{\v{I} & -\v{H}}	
+	\sum_{k=1}^T
+		\bm{\bar{\Y}_{00} & \bar{\v{D}}_{00} \\ \bar{\v{D}}_{00}^\tr & \bar{\v{L}}_{00} }
+	\bm{\v{I}\\-\v{H}^\tr} \nonumber,
 \end{align}
 and
 \begin{align}
@@ -730,7 +731,7 @@ algorithm by
 \begin{align}
 	\EMM{\Th'}&=\brac[\big]{\Th\in\Theta : \EMQ{\Th'}{\Th} \geq \EMQ{\Th'}{\tilde\Th}\; \forall \,\tilde\Th\in\Theta },
 \end{align}
-i.e the set of points that maximize the objective function in the M-step. 
+i.e the set of points that maximize the Q function in the M-step. 
 Commonly, but not necessarily, $\EMM{\Th'}$ only contains a single point per $\Th'\in\Theta$.
 In order to formulate the convergence theorem for EM, we first need to introduce the definition
 of a closed mapping. A point to set mapping $T$ from points of $\Theta$ to subsets of $\Theta$
@@ -752,15 +753,17 @@ thus around $\Th_\star$ we obtain the first order Taylor series expansion
 \begin{align}
 	\Th_{j+1}-\Th_\star&=\EMM{\Th_j}-\EMM{\Th_\star}\approx\dif\EMM{\Th_\star}\left(\Th_j-\Th_\star\right).
 \end{align} 
-We can then arrive at the following expression for $\dif\EMM{\Th_\star}$ \parencite{Elliott1999,Lange1995}:
+We can then arrive at the following expression for $\dif\EMM{\Th_\star}$ \parencite{Dempster1977,Gibson2005,Lange1995}:
 \begin{align}
-	\dif\EMM{\Th_\star} &= \v{I}-\mathcal{I}_{\X\Y}^{-1}\mathcal{I}_{\Y}
+	\dif\EMM{\Th_\star} &= \v{I}-\mathcal{I}_{\X\Y}^{-1}\mathcal{I}_{\Y}\\
+	&=\mathcal{I}_{\X}\mathcal{I}_{\X\Y}^{-1}
 	\label{eq:dM},
 \end{align}
 where
 \begin{align}
 		\mathcal{I}_{\X\Y} = \dQ &= \eval{\E{\prtdd{\log\cLH}{\Th}{\Th}}^{-1}_{\post{\Th_\star}}}_{\Th=\Th_\star}\\
-		\mathcal{I}_{\Y} = \dL &= \eval{\E{\prtdd{\log\LH}{\Th}{\Th}}_{\post{\Th_\star}}}_{\Th=\Th_\star}
+		\mathcal{I}_{\Y} = \dL &= \eval{\E{\prtdd{\log\LH}{\Th}{\Th}}_{\post{\Th_\star}}}_{\Th=\Th_\star}\\
+		\mathcal{I}_{\X} = \dH &= \eval{-\E{\prtdd{\log\post}{\Th}{\Th}}_{\post{\Th_\star}}}_{\Th=\Th_\star}
 \end{align}
 The latter term in equation~\eqref{eq:dM} is commonly interpreted as the proportion of ``measured'' information compared to
 all information. All the eigenvalues of $\dif\EMM{\Th_\star}$ belong to $[0,1)$ and the \emph{linear} 
@@ -769,28 +772,24 @@ clearly the rate of convergence is determined by how closely $\mathcal{I}_{\Y}$ 
 $\mathcal{I}_{\X\Y}$, i.e the more information is ``hidden'' in the hidden variables $\X$ the
 slower is the convergence.\todo{Take Salakhutdinov2003 in here}   
 
-From equations \eqref{eq:lLH_decomp}, \eqref{eq:EM_B} and \eqref{eq:EM_gradients} we can establish that
-\begin{align}
-	\eval{\dmd{\EMB}{2}{\Th}{}{\left.\mkern-2mu\Th^\tr\right.}{}}_{\substack{\Th=\Th_\star\\ \Th'=\Th_\star}}&=\eval{\dpd[2]{ \EMQ{\Th_\star}{\Th}}{\Th}}_{\Th=\Th_\star}\\	
-	\eval{\dmd{\EMB}{2}{\Th}{}{\left.\mkern-2mu\Th'^\tr\right.}{}}_{\substack{\Th=\Th_\star\\ \Th'=\Th_\star}}&=-\eval{\dpd[2]{ \EMH{\Th_\star}{\Th}}{\Th}}_{\Th=\Th_\star}\\	
-\end{align}
-Then according to \textcite{Salakhutdinov2003} we can write
-\begin{align}
-	\EMM[']{\Th_\star}&=\left(\eval{\dpd[2]{ \EMH{\Th_\star}{\Th}}{\Th}}_{\Th=\Th_\star}\right)
-	\left(\eval{\dpd[2]{ \EMQ{\Th_\star}{\Th}}{\Th}}_{\Th=\Th_\star}\right)^{-1}.
-	\label{eq:EM_M'}
-\end{align}
-If we further define the transformation matrix $\F{\mathcal P}{\Th}$ as
+\todo{Explain about Newton's method and some of its versions}
+
+In \textcite{Salakhutdinov2003,Salakhutdinov2004} the transformation matrix $\F{\mathcal P}{\Th}$ is defined as
 \begin{align}
 	\Th_{j+1}-\Th_j &= \F{\mathcal P}{\Th_j}\nabla\lLH[\Th_j],
-	\label{eq:EM_Pl}
+	\label{eq:EM_P}
 \end{align}
-where $\nabla\lLH[\Th_j]=\eval{\dod{\lLH}{\Th}}_{\Th_j}$, then near $\Th_\star$
+then near $\Th_\star$ (i.e when $j$ is large)
 we get
 \begin{align}
-		\F{\mathcal P}{\Th_j}&\approx \left(\v{I}-\EMM[']{\Th_j}\right)\left(-\F*{S}{\Th_j}\right)^{-1},
+		\F{\mathcal P}{\Th_j}&\approx -\left(\v{I}-\dif\EMM{\Th_j}\right)\dL^{-1}.
+		\label{eq:EM_P_approx}
 \end{align}
-where $\F*{S}{\Th_j}=\eval{\dod[2]{\lLH}{\Th}}_{\Th_j}$
+What we can infer from \eqref{eq:EM_P} and \eqref{eq:EM_P_approx} is that, near $\Th_\star$, if the dominant eigenvalue
+of $\dif\EMM$ approaches unity, i.e. when the proportion of hidden information approaches zero, the EM algorithm behaves like 
+a true Newton's method, where the step size is the negative inverse Hessian of the objective function. Also, as the dominant 
+eigenvalue of $\dif\EMM$ approaches zero, i.e when the proportion of hidden information approaches unity, the convergence 
+of the EM-algorithm becomes slower and stops. 
 
 
 
