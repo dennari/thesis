@@ -38,6 +38,7 @@ pdfproducer={xetex}
 %\usepackage[shadow]{todonotes}
 % MATH
 \usepackage{mymath}
+\usepackage{enumerate}
 \usepackage{xfrac}
 %\everymath{\displaystyle}
 
@@ -76,7 +77,11 @@ pdfproducer={xetex}
 \NewDocumentCommand\EMQ{G{\Th'} G{\Th}}{\F{\mathcal Q}{#2,#1}}
 \NewDocumentCommand\EMH{G{\Th'} G{\Th}}{\F{\mathcal H}{#2,#1}}
 \NewDocumentCommand\EMB{G{\Th'} G{\Th}}{\F{\mathcal B}{#2,#1}}
-\NewDocumentCommand\EMM{O{} G{\Th}}{\F{\v{M}#1}{#2}}
+\NewDocumentCommand\EMM{s O{} G{\Th}}{
+	\IfBooleanTF{#1}
+		{\v{M}}
+		{\F{\v{M}#2}{#3}}
+}
 \newcommand{\KL}[2]{\mathrm{KL}\fparenmid*{#1}{#2}{\Vert}}
 
 \NewDocumentCommand\dQ{O{2} O{0} G{\Th_\star} G{\Th_\star}}{
@@ -93,6 +98,7 @@ pdfproducer={xetex}
 		{\dpd[2]{#1}{#2}}
 		{\dmd{#1}{2}{#2}{}{\left.\mkern-2mu #3^\tr \right.}{}}
 }
+\newtheorem{theorem}{Theorem}
 
 
 % BIBLIOGRAPHY
