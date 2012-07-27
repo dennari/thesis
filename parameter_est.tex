@@ -114,7 +114,7 @@ $T$ is said to be \emph{closed} at $\x \in X$ if
 This can be considered a generalization of continuity.
 \begin{theorem}
 Given an initial value $\Th_0$, let the point-to-set map $\EMM*:\Theta\to Y$ construct a sequence
-of estimates $\Th_{j+1}\in\EMM{\Th_j}$ and let $\mathcal{S}\subset\Theta$ denote the solution
+of estimates $\brac[\big]{\Th_{j+1}\in\Theta : \Th_{j+1}\in\EMM{\Th_j}}$ and let $\mathcal{S}\subset\Theta$ denote the solution
 set. 
 Then given the conditions
 \begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
@@ -146,6 +146,29 @@ classes of quasi-Newton or conjugate gradient methods.
 For example, MATLAB Optimization Toolbox contains the function
 \texttt{fminunc} utilizing both conjugate gradient and 
 quasi-Newton methods in certain cases \parencite{optimizationtoolbox2012}.
+Optimization methods are commonly formulated for finding the minimum of the
+objective function, so that we will present the canonical formulations and note
+that maximizing $\lLH$ is the same as minimizing $-\lLH$.
+
+The simplest gradient based method is probably the \emph{method of steepest descent}.
+It requires that the first partial derivatives of the objective function are defined
+and continuous in their domain. The method of steepest descent is then defined
+by the iteration
+\begin{align}
+	\Th_{j+1}&=\Th_j+\alpha_j\nabla\lLH[\Th_j].
+	\label{eq:steepest_descent}
+\end{align}
+Intuitively, the method moves in the direction
+of the negative gradient (thus $\alpha_j < 0$ when minimizing) and
+the \emph{step-size} is determined by $\alpha_j$.
+To determine $\alpha_j$, another minimization problem needs to be solved,
+namely
+\begin{align}
+	\alpha_j &= \argmin_\alpha \lLH[\Th_j+\alpha\nabla\lLH[\Th_j]].
+	\label{eq:line_search}
+\end{align}
+These one dimensional optimization algorithms that are used
+to solve the step-sizes are known as \emph{line searches} \parencite{luenberger2008}.
 
 Newton's and quasi-Newton
 methods will be covered more thoroughly in the end of this section.  
