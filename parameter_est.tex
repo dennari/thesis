@@ -74,7 +74,27 @@ from each other with maximum likelihood estimation if
 	\Pdf{\Y}{\Th}&=\Pdf{\Y}{\Th'},
 \end{align}
 i.e., if the same data can arise with two (or more) separate
-parameter values.
+parameter values. Let us then go through the second order sufficient conditions
+for a point $\x_\star$ to be a local maximum. We can define a local maximum
+to be a point $\x_\star$, for which $\lLH[\Th]-\lLH[\Th+\v{d}] \geq 0$ for small $\v{d}$.
+
+\begin{proposition}
+Let $\ell:\Theta \to \R$ have continuous second order partial derivatives and let $\x_\star$
+belong to the interior of $\Theta$. If
+\begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
+  \item $\nabla\lLH[\Th_\star] &=0$ 
+  \item $\nabla^2\lLH[\Th_\star]$ is negative definite
+\end{enumerate}
+then $\x_\_star$ is a strict local maximum of $\ell$.
+\end{proposition}
+ \begin{proof}
+ Taylor expanding around $\Th+\v{d}$ gives
+ \begin{align}
+	\lLH[\Th]-\lLH[\Th+\v{d}] &= \frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}-\F{o}{\abs{\v{d}}^2}\\
+	&\leq 0,\;\mathrm{when }\v{d}\to 0
+\end{align}
+ \end{proof}
+
 \todo{Elaborate on identifiability}
 \parencite{Haykin2001,Cappe2005}
 
