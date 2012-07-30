@@ -75,24 +75,28 @@ from each other with maximum likelihood estimation if
 \end{align}
 i.e., if the same data can arise with two (or more) separate
 parameter values. Let us then go through the second order sufficient conditions
-for a point $\x_\star$ to be a local maximum. We can define a local maximum
-to be a point $\x_\star$, for which $\lLH[\Th]-\lLH[\Th+\v{d}] \geq 0$ for small $\v{d}$.
+for a point $\Th_\star$ to be a local maximum. We can define a local maximum
+to be a point $\Th_\star$, for which $\lLH[\Th_\star]-\lLH[\Th_\star+\v{d}] \geq 0$ for small $\v{d}$.
 
-\begin{proposition}
-Let $\ell:\Theta \to \R$ have continuous second order partial derivatives and let $\x_\star$
+\begin{proposition}\label{prop:cond_for_max}
+Let $\ell:\Theta \to \R$ have continuous second order partial derivatives and let $\Th_\star$
 belong to the interior of $\Theta$. If
 \begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
-  \item $\nabla\lLH[\Th_\star] &=0$ 
+  \item $\nabla\lLH[\Th_\star] =0$ 
   \item $\nabla^2\lLH[\Th_\star]$ is negative definite
 \end{enumerate}
-then $\x_\_star$ is a strict local maximum of $\ell$.
+then $\Th_\star$ is a strict local maximum of $\ell$.
 \end{proposition}
  \begin{proof}
- Taylor expanding around $\Th+\v{d}$ gives
- \begin{align}
-	\lLH[\Th]-\lLH[\Th+\v{d}] &= \frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}-\F{o}{\abs{\v{d}}^2}\\
-	&\leq 0,\;\mathrm{when }\v{d}\to 0
-\end{align}
+ Since \textit{ii)}, there must exist a nonnegative number $a$ for which 
+ $-\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d} \geq a\abs{\v{d}}^2$.
+ Taylor expanding around $\Th_\star$ gives
+ \begin{align*}
+	\lLH[\Th_\star+\v{d}] &= \lLH[\Th_\star]+\nabla\lLH[\Th_\star]^\tr\v{d}+\frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}+\F[\big]{o}{\,\abs{\v{d}}^2}\\
+	\lLH[\Th_\star]-\lLH[\Th_\star+\v{d}] &= -\frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}-\F[\big]{o}{\,\abs{\v{d}}^2}\\
+	&\geq \frac{1}{2}a\abs{\v{d}^2}-\F[\big]{o}{\,\abs{\v{d}}^2}.
+\end{align*}
+For small enough $\abs{\v{d}}$, the right hand side of the last row must be nonnegative.
  \end{proof}
 
 \todo{Elaborate on identifiability}
@@ -170,31 +174,98 @@ Optimization methods are commonly formulated for finding the minimum of the
 objective function, so that we will present the canonical formulations and note
 that maximizing $\lLH$ is the same as minimizing $-\lLH$.
 
-The simplest gradient based method is probably the \emph{method of steepest descent}.
+The simplest gradient based method is the \emph{method of steepest ascent}.
 It requires that the first partial derivatives of the objective function are defined
-and continuous in their domain. The method of steepest descent is then defined
+and continuous in their domain. The method of steepest ascent is then defined
 by the iteration
 \begin{align}
 	\Th_{j+1}&=\Th_j+\alpha_j\nabla\lLH[\Th_j].
 	\label{eq:steepest_descent}
 \end{align}
-Intuitively, the method moves in the direction
-of the negative gradient (thus $\alpha_j < 0$ when minimizing) and
-the \emph{step-size} is determined by $\alpha_j$.
-To determine $\alpha_j$, another minimization problem needs to be solved,
+The idea is intuitive since it is well known that the gradient
+points to the direction of steepest ascent, i.e. to the direction
+that is orthogonal to the isolines of constant value.
+To determine $\alpha_j$, the \emph{step size}, another minimization problem needs to be solved,
 namely
 \begin{align}
 	\alpha_j &= \argmin_\alpha \lLH[\Th_j+\alpha\nabla\lLH[\Th_j]].
 	\label{eq:line_search}
 \end{align}
 These one dimensional optimization algorithms that are used
-to solve the step-sizes are known as \emph{line searches} \parencite{luenberger2008}.
+to solve the step-sizes are known as \emph{line search} methods \parencite{luenberger2008}.
+Common line search methods include the golden rule method and 
+methods based on polynomial interpolation.
 
-Newton's and quasi-Newton
-methods will be covered more thoroughly in the end of this section.  
-For know we will be concerned with computing the gradient of the
+We define the \emph{order of convergence} as the supremum of the
+numbers $p\geq 0$, where
+\begin{align}
+	0\geq \bar{\lim_{j\to\infty}}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}^p} < \infty.
+	\label{eq:order_of_convergence}
+\end{align}
+When $p=1$, we also define the \emph{linear rate of convergence} as
+the number $0 \leq \rho < 1$ in
+\begin{align}
+	\lim_{j\to\infty}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}} = \rho.
+	\label{eq:rate_of_convergence}
+\end{align}
+It can be shown the steepest ascent method has linear order of convergence ($p=1$)
+and if the Hessian of the objective function is positive definite with
+$r=A/a$, the ratio of the largest and smallest eigenvalues, 
+\begin{align}
+	\lim_{j\to\infty}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}} \leq \left(\frac{r-1}{r+1}\right)^2.
+\end{align}
+A much more efficient nonlinear optimization algorithm is the \emph{Newton's method}.
+It is based on Taylor expanding the objective function around the
+current estimate $\Th_j$. Assume that $\ell$ has continuous second-order partial derivatives. Then
+\begin{align}
+	\lLH[\Th] &\approx \lLH[\Th_j]+\nabla\lLH[\Th_j]^\tr\fparen*{\Th_j-\Th}+\frac{1}{2}\fparen*{\Th_j-\Th}^\tr\nabla^2\lLH[\Th_j]\fparen*{\Th_j-\Th}
+	\label{eq:second_order_expansion}
+\end{align}
+and then maximizing the approximation by setting its gradient to zero
+\begin{align}
+	\nabla\lLH[\Th_j]-\nabla^2\lLH[\Th_j]\fparen*{\Th_j-\Th} &= 0\\
+	\Rightarrow \Th_{j+1} &= \Th_j+\nabla^2\lLH[\Th_j]^{-1}\nabla\lLH[\Th_j].
+	\label{eq:newton_gradient}
+\end{align}
+Per proposition~\ref{prop:cond_for_max}, near $\Th_\star$ the Hessian is 
+invertable and so the algorithm is well defined there. It can be shown
+that when initialized sufficiently close to $\Th_\star$, (pure form)
+Newton's method always converges to $\Th_\star$ with order of convergence
+at least \emph{two}.
+ 
+Further away from the maximum, there are various problems with Newton's method as formulated
+in equation~\eqref{eq:newton_gradient}. There are no guarantees for the invertability
+of the Hessian and higher order terms may cause a step to actually decrease the objective
+function. Thus we turn our attention to algorithms of the general form
+\begin{align}
+	\Th_{j+1} &= \Th_j+\alpha_j\v{D}_j\nabla\lLH[\Th_j],
+	\label{eq:gradient_method_general}
+\end{align}
+where $\v{D}_j$ is a symmetric matrix, the \emph{search direction} is $\v{D}_j\nabla\lLH[\Th_j]$ and
+the step-size is $\alpha_j$. Generally $\v{D}_j$ should also be negative definite, to guarantee
+that the method is an ascent method for small $\alpha_j$ (as in proposition \eqref{prop:cond_for_max}).
+  
+Clearly we get gradient ascent with $\v{D}_j=\v{I}$
+and Newton's method with  $\v{D}_j=\nabla^2\lLH[\Th_j]^{-1}$. 
+Other methods of this form have thus orders of convergence
+between one and two. In practice the step
+size parameter is always determined by a line-search, so that different
+algorithms of the form \eqref{eq:gradient_method_general} differ only in how
+the search direction is computed. Even if we could guarantee the invertability of the Hessian, its computation is
+nevertheless notoriously computationally demanding. For that reason, one should
+in practice use \emph{quasi-Newton} methods, where the different kinds of
+approximations are used for the inverse Hessian. Probably the most commonly
+applied quasi-Newton method is the \emph{Broyden-Fletcher-Goldfarb-Shanno} (BFGS)
+one. It has the appealing properties that only gradient information is needed
+and it can guarantee ascent of the objective function on every step. We will not
+go deeper into details, but a clear description can be found in \textcite{luenberger2008}.
+Let us finally point out that the commonly used MATLAB unconditional nonlinear
+optimization function \texttt{fminunc} that we referred to earlier, uses
+the BFGS quasi-Newton method with cubic interpolation line search.
+
+
+Let us then focus on computing the gradient of the
 log-likelihood function $\lLH$, also known as the \emph{score function}.
-
 By marginalizing the joint distribution of equation~\eqref{eq:joint_per_kalmanstep}
 we get 
 \begin{align}
