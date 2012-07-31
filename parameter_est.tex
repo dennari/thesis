@@ -260,7 +260,7 @@ one. It has the appealing properties that only gradient information is needed
 and it can guarantee ascent of the objective function on every step. We will not
 go deeper into details, but a clear description can be found in \textcite{luenberger2008}.
 Let us finally point out that the commonly used MATLAB unconditional nonlinear
-optimization function \texttt{fminunc} that we referred to earlier, uses
+optimization function \texttt{fminunc} that we referred to earlier, uses 
 the BFGS quasi-Newton method with cubic interpolation line search.
 
 
@@ -273,7 +273,7 @@ we get
 \end{align}
 Applying equation~\eqref{eq:lh_factorization} and taking the logarithm then gives
 \begin{align}
-	\lLH&=-\frac{1}{2}\sum_{k=1}^T\log\abbs{\v{S}_k}
+	\lLH&=-\frac{1}{2}\sum_{k=1}^T\log\det{\v{S}_k}
 	-\frac{1}{2}\sum_{k=1}^T\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^\tr\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)+C,
 	\label{eq:logLH}
 \end{align}
@@ -562,9 +562,9 @@ Let us then look at how to apply EM to a SSM of the form \eqref{eq:ssm_general}.
 all, from the factorization in \eqref{eq:complete_data_likelihood}, the complete-data log-likelihood becomes
 \begin{align*}
 \begin{split}
-	\cLH =&-\frac{1}{2}\left(\x_0-\gv{\mu}_0\right)^\tr\gv{\Sigma}_0^{-1}\left(\x_0-\gv{\mu}_0\right)-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
-	&-\frac{1}{2}\sum_{k=1}^T\left(\x_k-\v{f}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{f}(\x_{k-1})\right)-\frac{T}{2}\log\abbs{\v{Q}}\\
-	&-\frac{1}{2}\sum_{k=1}^T\left(\y_k-\v{h}(\x_{k})\right)^\tr\v{R}^{-1}\left(\y_k-\v{h}(\x_{k})\right)-\frac{T}{2}\log\abbs{\v{R}}\\
+	\cLH =&-\frac{1}{2}\left(\x_0-\gv{\mu}_0\right)^\tr\gv{\Sigma}_0^{-1}\left(\x_0-\gv{\mu}_0\right)-\frac{1}{2}\log\det{\gv{\Sigma}_0}\\
+	&-\frac{1}{2}\sum_{k=1}^T\left(\x_k-\v{f}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{f}(\x_{k-1})\right)-\frac{T}{2}\log\det{\v{Q}}\\
+	&-\frac{1}{2}\sum_{k=1}^T\left(\y_k-\v{h}(\x_{k})\right)^\tr\v{R}^{-1}\left(\y_k-\v{h}(\x_{k})\right)-\frac{T}{2}\log\det{\v{R}}\\
 	&+\mathtt{const}
 \end{split}
 \end{align*}
@@ -572,9 +572,9 @@ Taking the expectation w.r.t. $\Pdf{\X}{\Y,\Th'}$ (assumed implicitly in the not
 denoting $\f_{k-1}\equiv \f(\x_{k-1})$ and $\h_k\equiv \h(\x_k)$ and dropping the constant terms we get
 \begin{align}
 \begin{split}
-	\EMQ{\Th'}{\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\abbs{\gv{\Sigma}_0}\\
-	&-\frac{1}{2}\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{Q}}\\
-	&-\frac{1}{2}\Tr[\bigg]{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}}-\frac{T}{2}\log\abbs{\v{R}}
+	\EMQ{\Th'}{\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\det{\gv{\Sigma}_0}\\
+	&-\frac{1}{2}\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr}}-\frac{T}{2}\log\det{\v{Q}}\\
+	&-\frac{1}{2}\Tr[\bigg]{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}}-\frac{T}{2}\log\det{\v{R}}
 \end{split}
 \label{eq:eclLH}
 \end{align} 
@@ -610,7 +610,7 @@ for $\v{R}$. It's easier to take the derivative with respect to $\v{Q}^{-1}$:
 \begin{align}
 	\dpd{\EMQ{\Th'}{\Th}}{\v{Q^{-1}}}=
 	&-\frac{1}{2}\dpd{}{\v{Q^{-1}}}\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\xk-\f_{k-1})\right)\left(\xk-\f_{k-1})\right)^\tr}}\nonumber\\
-	&-\frac{T}{2}\dpd{}{\v{Q^{-1}}}\log\abbs{\v{Q}}\nonumber\\
+	&-\frac{T}{2}\dpd{}{\v{Q^{-1}}}\log\det{\v{Q}}\nonumber\\
 	=&-\frac{1}{2}\sum_{k=1}^T\E{\left(\xk-\f_{k-1})\right)\left(\xk-\f_{k-1})\right)^\tr}+\frac{T}{2}\v{Q},
 	\label{eq:clLH_pdQ}
 \end{align}
@@ -989,15 +989,20 @@ are easier in the EM algorithm. This again depends on if the model is linear or 
 \end{itemize} 
 \end{description}
  
- \subsubsection{Hybrid algorithm}
+ \subsubsection{Hybrid algorithms}
  
- Since the gradient based methods provide faster convergence and no need to
- derive M-step maximization expressions, they appear to win the competition.
- However the gradient computations of equations
+The gradient based methods provide faster convergence and no need to
+solve the M-step maximization expressions. EM on the other hand
+provides a less laborious way of computing the gradient.
+ The gradient computations of equations
  \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} 
  are laborious and computationally more complex than using equation~\eqref{eq:EM_gradients}.
-Thus combining the methods in this way is a natural idea, explored for example in \textcite{Salakhutdinov2003a}
-and \textcite{Olsson2007}.
+
+Thus an obvious combination, explored for example in \textcite{Salakhutdinov2003a}
+and \textcite{Olsson2007}, is to compute the gradient through Fisher's identity
+and then use gradient based methods. Another possibility is to use gradient based
+optimization in the M-step of EM. This is analyzed in \parencite{Lange1995},
+where a \emph{single} step of Newton's method is run on every M-step. 
  
 
 

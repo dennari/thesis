@@ -93,21 +93,39 @@ can compute \eqref{eq:sum_expectations} with only forward recursions.
 \label{sec:nonlinear_state}
 In the nonlinear case at least one of the mappings $\v{f}_{\Th}$ and $\v{h}_{\Th}$ in
 \eqref{eq:ssm_general} is nonlinear. Unfortunately in this case computing the filtering
-distributions in closed form becomes intractable and one has to resort to approximations.
-Finding good approximations is however extremely valuable since a great many
-physically modeled dynamical phenoma could be forumulated as nonlinear-Gaussian SSM.
+distributions in closed form becomes intractable and one has to resort to 
+some sort of approximations. Following \textcite{Arasaratnam2009}, we can
+divide these approximate filtering (and smoothing) solutions into two 
+categories: 
+\begin{enumerate}[i)] \addtolength{\leftskip}{.5cm} \itemsep1pt \parskip0pt \parsep0pt
+  \item \emph{Local approaches} assume the parametric form of the posterior
+  distributions \eqref{eq:pred_bayes}, \eqref{eq:filt_bayes} and \eqref{eq:smooth_bayes} \emph{a priori}. 
+  These  methods are analytically inexact but less computationally demanding. This is the category that
+we will be concerned with in this thesis. 
+  \item \emph{Global approaches} require the use of particle filtering (or sequential Monte Carlo), 
+  which is asymptotically exact but computationally demanding
+\end{enumerate}
 
-The types of approximate filtering (and smoothing) solutions can be put into two 
-categories: particle filtering (or sequential Monte Carlo), which is asymptotically exact but
-computationally demanding and different kinds of deterministic approximation methods that
-are analytically inexact but less computationally demanding. We will only focus
-on the latter category. \todo{Mention EKF}
+The oldest and most well known filter belonging to the local approach is
+the \emph{extended Kalman filter} (EKF) \parencite{jazwinski2007stochastic}, which is based 
+on local linearisations.
+In this way, i.e. by forming local linear approximations to the dynamic
+and measurement models, the standard linear Kalman filter equations can be used.
+An undesirable requirement of the EKF is that it requires computing
+the Jacobian matrices of $\f$ and $\h$. A class of more recent deterministic approximation
+based filters are known as \emph{sigma point filters}. 
 
 \subsubsection{Gaussian filtering and smoothing}
 
-One approach to forming Gaussian approximations is to assume a
-Gaussian probability density function with mean and variance that match the
-actual ones \parencite{Ito2000,Sarkka2006}. Let 
+One approach to forming Gaussian approximations is to assume a Gaussian
+probability distribution a priori. Since a Gaussian distribution is 
+defined by its first two moments, a moment matched approximation
+can be obtained if the first two moments of the actual probability
+distribution can be computed \parencite{Ito2000,Sarkka2006}. As will
+be seen, computing these approximations reduces to the problem
+of computing multidimensional integrals of the form \emph{nonlinear function} $\times$ \emph{Gaussian}.
+
+Analogously to equation~\eqref{eq:ssm_distr_general}, let 
 \begin{align}
 	\v{a}&\sim \N{\m}{\gv{\Sigma}_a} \label{eq:pa}\\
 	\v{b}|\v{a}&\sim \N{\F*{f}{\v{a}}}{\gv{\Sigma}_{b|a}} \label{eq:pb_given_a}
@@ -115,9 +133,10 @@ actual ones \parencite{Ito2000,Sarkka2006}. Let
 then 
 \begin{align}
 	\label{eq:joint_nongaussian}
-	\Pdf{\v{a},\v{b}}&=\N[\v{a}]{\v{m}}{\gv{\Sigma}_a}\N[\v{b}]{\F*{f}{\v{a}}}{\gv{\Sigma}_{b|a}}
+	\Pdf{\v{a},\v{b}}&=\Pdf{\v{b}}{\v{a}}\Pdf{\v{a}}=\N[\v{a}]{\v{m}}{\gv{\Sigma}_a}\N[\v{b}]{\F*{f}{\v{a}}}{\gv{\Sigma}_{b|a}}
 \end{align}
-is only Gaussian if $\F*{f}{\v{a}}$ is linear. Let the Gaussian approximation
+is only Gaussian if $\F*{f}{\v{a}}$ is linear. Assuming that's not the case,
+let the Gaussian approximation
 to \eqref{eq:joint_nongaussian} be
 
 \begin{align}
@@ -134,44 +153,41 @@ to \eqref{eq:joint_nongaussian} be
 	}{
 	\begin{bmatrix}
 		\gv{\Sigma}_{aa}&\gv{\Sigma}_{ab}\\
-		\gv{\Sigma}_{ba}&\gv{\Sigma}_{bb}
+		\gv{\Sigma}_{ab}^\tr&\gv{\Sigma}_{bb}
 	\end{bmatrix}
 	}
 \end{align}
 Then since the marginal distributions of a Gaussian distribution are also
 Gaussian, we have to have
 \begin{align}
-	\gv{\mu}_a&=\v{m}\\
+	\gv{\mu}_a&=\v{m}&
 	\gv{\Sigma}_{aa}&=\gv{\Sigma}_{a}\\
-	\gv{\mu}_b&=\defint{}{}{\v{b}\,\Pdf{\v{b}}}{\v{b}} \label{eq:mub}\\
-	\gv{\Sigma}_{bb}&=\defint{}{}{(\v{b}-\gv{\mu}_b)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{b}}}{\v{b}} \label{eq:varb}
+	\gv{\mu}_b&=\defint{}{}{\v{b}\,\Pdf{\v{b}}}{\v{b}} &
+	\gv{\Sigma}_{bb}&=\defint{}{}{(\v{b}-\gv{\mu}_b)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{b}}}{\v{b}} 
 \end{align}
-Both \eqref{eq:mub} and \eqref{eq:varb} can be written in terms of \eqref{eq:pa} and \eqref{eq:pb_given_a}.
-To see this, let us rewrite \eqref{eq:mub} as
+Both $\gv{\mu}_b$ and $\gv{\Sigma}_{bb}$ can be written in terms of \eqref{eq:pa} and \eqref{eq:pb_given_a}.
+To see this, let us rewrite $\gv{\mu}_b$ as
 \begin{align}
-	\gv{\mu}_b&=\defint{}{}{\v{b}\Pdf{\v{b}}}{\v{b}} \nonumber\\
+	\gv{\mu}_b&=\defint{}{}{\v{b}\,\Pdf{\v{b}}}{\v{b}} \nonumber\\
 	&=\defint{}{}{\v{b}\Big(\!\defint{}{}{\Pdf{\v{b}}{\v{a}}\Pdf{\v{a}}}{\v{a}}\Big)}{\v{b}}\nonumber\\
+	&\mbox{{\small (change the order of integration according to Fubini's theorem)}}\nonumber\\
 	&=\defint{}{}{\v{f}(\v{a})\N{\v{m}}{\gv{\Sigma}_a}}{\v{a}}\label{eq:mean_int}
 \end{align}
-and \eqref{eq:varb} as
+and $\gv{\Sigma}_{bb}$ as
 \begin{align}
 	\gv{\Sigma}_{bb}&=\defint{}{}{\v{b}\v{b}^\tr\Pdf{\v{b}}}{\v{b}}-\gv{\mu}_b\gv{\mu}_b^\tr \nonumber\\
 	%&=\defint{}{}{\defint{}{}{\lbrack(\v{b}-\v{f}(\v{a}))(\v{b}-\v{f}(\v{a}))^\tr+\v{f}(\v{a})\v{f}(\v{a})^\tr\rbrack\Pdf{\v{b}}{\v{a}}}{\v{b}}\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^\tr\\
-	\begin{split}
-	&=\defint{}{}{\v{f}(\v{a})\v{f}(\v{a})^\tr\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^\tr\\
-	&\qquad+\defint{}{}{\lbrack(\v{b}-\v{f}(\v{a}))(\v{b}-\v{f}(\v{a}))^\tr\rbrack\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}}
-	\end{split}\nonumber\\
-	&=\defint{}{}{(\v{f}(\v{a})-\gv{\mu}_b)(\v{f}(\v{a})-\gv{\mu}_b)^\tr\N{\v{m}}{\gv{\Sigma}_a}}{\v{a}}+\gv{\Sigma}_{b|a}\label{eq:var_int}.
+	&=\defint{}{}{\v{f}(\v{a})\v{f}(\v{a})^\tr\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^\tr
++\defint{}{}{\fparen*{\v{b}-\F*{f}{\v{a}}}\fparen*{\v{b}-\F*{f}{\v{a}}}^\tr\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}}\nonumber\\
+	&=\defint{}{}{\fparen*{\F*{f}{\v{a}}-\gv{\mu}_b}\fparen*{\F*{f}{\v{a}}-\gv{\mu}_b}^\tr\N{\m}{\gv{\Sigma}_a}}{\v{a}}+\gv{\Sigma}_{b|a}\label{eq:var_int}.
 \end{align}
-Finally, the cross-covariance $\gv{\Sigma}_{ab}=\gv{\Sigma}_{ba}^\tr$ similarly reads
+Finally, the cross-covariance can be written as
 \begin{align}
-	\gv{\Sigma}_{ab}&=\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{a},\v{b}}}{\v{a}}{\v{b}} \nonumber\\
-	&=\defint{}{}{(\v{a}-\gv{\mu}_a)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{a}}\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}} \nonumber\\
-	&=\defint{}{}{(\v{a}-\gv{\mu}_a)\Big(\!\defint{}{}{\v{b}\Pdf{\v{b}}{\v{a}}}{\v{b}}-\gv{\mu}_b\Big)^\tr\Pdf{\v{a}}}{\v{a}} \nonumber\\
-	&=\defint{}{}{(\v{a}-\v{m})(\v{f}(\v{a})-\gv{\mu}_b)^\tr\N{\v{m}}{\gv{\Sigma}_a}}{\v{a}}\label{eq:cross_cov_int}
+	\gv{\Sigma}_{ab}&=\defint{}{}{\fparen[\big]{\v{a}-\gv{\mu}_a}\fparen[\big]{\v{b}-\gv{\mu}_b}^\tr\Pdf{\v{a},\v{b}}}{\v{a}}{\v{b}} \nonumber\\
+	&=\defint{}{}{\fparen[\big]{\v{a}-\gv{\mu}_a}\fparen[\big]{\v{b}-\gv{\mu}_b}^\tr\Pdf{\v{a}}\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}} \nonumber\\
+	&=\defint{}{}{\fparen[\big]{\v{a}-\gv{\mu}_a}\fparen[\big]{\defint{}{}{\v{b}\,\Pdf{\v{b}}{\v{a}}}{\v{b}}-\gv{\mu}_b}^\tr\Pdf{\v{a}}}{\v{a}} \nonumber\\
+	&=\defint{}{}{\fparen[\big]{\v{a}-\v{m}}\fparen*{\F*{f}{\v{a}}-\gv{\mu}_b}^\tr\N{\v{m}}{\gv{\Sigma}_a}}{\v{a}}\label{eq:cross_cov_int}
 \end{align}
-
-
  
 To see how this idea can be used to form a Gaussian
 approximation to $\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}}$, let us
@@ -183,39 +199,19 @@ rewrite it as
 	\label{eq:joint_smooth}
 \end{split}
 \end{align}
-where the dependance on the current estimate of the parameter $\hat{\Th}_j$
+where the dependence on the parameter $\Th$
 is suppressed for clarity. Since the Gaussian approximation to
 $\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}}$ will be calculated by forward
 (filtering) and backward (smoothing) recursions, let us assume that we already
 have available the Gaussian approximation
-
 \begin{align}
-	%\Pdf{\v{x}_{k}}{\v{Y},\hat{\Th}_j} &\approx \N{\v{m}_{k|T},\v{P}_{k|T}}\\
-	\Pdf{\v{x}_{k-1}}{\v{Y}_{1:k-1},\hat{\Th}_j} &\approx \N{\v{m}_{k-1|k-1}}{\v{P}_{k-1|k-1}}.
-	%\Pdf{\v{x}_{k}}{\v{Y}_{1:k-1},\hat{\Th}_j} &\approx \N{\v{m}_{k|k-1},\v{P}_{k|k-1}}.
+	\Pdf{\xkk}{\Y_{1:k-1}} &\approx \N[\xkk]{\m_{k-1|k-1}}{\P_{k-1|k-1}}.
 \end{align}
-The Gaussian approximation to 
+Then
 \begin{align}
-\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}_{1:k-1}}=\N{\v{x}_{k}}{\F{f}{\v{x}_{k-1}}}{\v{Q}}\Pdf{\v{x}_{k-1}}{\v{Y}_{1:k-1}}
-\end{align}
-is then given by application of equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} 
-\begin{align}
-	\begin{split}
-	\v{m}_{k|k-1}&=\defint{}{}{\v{f}(\v{x}_{k-1})\N{\v{x}_{k-1}}{\v{m}_{k-1|k-1}}{\v{P}_{k-1|k-1}}}{\v{x}_{k-1}}\label{eq:prediction_mean_intergral}
-	\end{split}\\
-	\begin{split}
-	\v{P}_{k|k-1}&=\defint{}{}{(\v{f}(\v{x}_{k-1})-\v{m}_{k|k-1})(\v{f}(\v{x}_{k-1})-\v{m}_{k|k-1})^\tr\\
-	&\qquad\N{\v{x}_{k-1}}{\v{m}_{k-1|k-1}}{\v{P}_{k-1|k-1}}}{\v{x}_{k-1}}+\v{Q}\label{eq:prediction_variance_intergral}
-	\end{split}\\
-	\begin{split}
-		\v{C}_{k^-}&=\defint{}{}{(\v{x}_{k-1}-\v{m}_{k-1|k-1})(\v{f}(\v{x}_{k-1})-\v{m}_{k|k-1})^\tr\\
-		&\qquad\N{\v{x}_{k-1}}{\v{m}_{k-1|T}}{\v{P}_{k-1|T}}}{\v{x}_{k-1}}\label{eq:prediction_cov_intergral}
-	\end{split}
-\end{align}
-so that the approximation is
-\begin{align}
-	\Pdf{\v{x}_{k-1},\v{x}_k}{\v{Y}_{1:k-1},\hat{\Th}_j}&\approx 
-	\N{
+	\Pdf{\xkk,\xk}{\v{Y}_{1:k-1}}&\approx\N[\xkk]{\m_{k-1|k-1}}{\P_{k-1|k-1}}\N[\xk]{\f_{k-1}}{\v{Q}}\\
+	&\approx
+	\N[\bm{\xkk \\ \xk}]{
 	\begin{bmatrix}
 		\v{m}_{k-1|k-1}\\
 		\v{m}_{k|k-1}
@@ -227,16 +223,30 @@ so that the approximation is
 	}
 	\label{eq:joint_predictive_approximation}
 \end{align}
+where by application of equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} 
+\begin{align}
+	\begin{split}
+	\v{m}_{k|k-1}&=\defint{}{}{\f_{k-1}\N[\xkk]{\m_{k-1|k-1}}{\P_{k-1|k-1}}}{\xkk}\label{eq:prediction_mean_intergral}
+	\end{split}\\
+	\begin{split}
+	\v{P}_{k|k-1}&=\defint{}{}{\fparen*{\f_{k-1}-\v{m}_{k|k-1}}\fparen*{\f_{k-1}-\m_{k|k-1}}^\tr\\
+	&\qquad\times\N[\xkk]{\m_{k-1|k-1}}{\P_{k-1|k-1}}}{\xkk}+\v{Q}\label{eq:prediction_variance_intergral}
+	\end{split}\\
+	\begin{split}
+		\v{C}_{k^-}&=\defint{}{}{\fparen*{\xkk-\m_{k-1|k-1}}\fparen*{\f_{k-1}-\v{m}_{k|k-1}}^\tr\\
+		&\qquad\times\N{\xkk}{\m_{k-1|T}}{\P_{k-1|T}}}{\xkk}\label{eq:prediction_cov_intergral}
+	\end{split}
+\end{align}
 In order to calculate \eqref{eq:prediction_mean_intergral} and \eqref{eq:prediction_variance_intergral}
 we also need a Gaussian approximation for the joint distribution of
 the current state and measurement given the previous measurements
 \begin{align}
 \begin{split}
-	\Pdf{\v{x}_{k},\v{y}_k}{\v{Y}_{1:k-1}}&=\N{\v{y}_{k}}{\v{h}(\v{x}_{k})}{\v{R}}\Pdf{\v{x}_{k}}{\v{Y}_{1:k-1}}\\
+	\Pdf{\xk,\yk}{\Y_{1:k-1}}&\approx\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}\N[\yk]{\h_k}{\v{R}}\\
 	&\approx 
 	\N{
 	\begin{bmatrix}
-		\v{m}_{k|k-1}\\
+		\m_{k|k-1}\\
 		\gv{\mu}_{k}
 	\end{bmatrix}}{
 	\begin{bmatrix}
@@ -251,57 +261,67 @@ Applying equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_c
 we get
 \begin{align}
 	\gv{\mu}_{k}
-	&=\defint{}{}{\F*{h}{\v{x}_{k}}\N{\v{x}_{k}}{\v{m}_{k|k-1}}{\v{P}_{k|k-1}}}{\v{x}_{k}}\label{eq:update_mean_intergral}\\
+	&=\defint{}{}{\h_k\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}}{\xk}\label{eq:update_mean_intergral}\\
 	\v{S}_{k}
-	&=\defint{}{}{\!\big(\F*{h}{\v{x}_{k}}-\gv{\mu}_k\big)\big(\F*{h}{\v{x}_{k}}-\gv{\mu}_k\big)^\tr\N{\v{x}_{k}}{\v{m}_{k|k-1}}{\v{P}_{k|k-1}}}{\v{x}_{k}}+\v{R} \label{eq:update_variance_intergral}\\
+	&=\defint{}{}{\fparen[\big]{\h_k-\gv{\mu}_k}\fparen[\big]{\h_k-\gv{\mu}_k}^\tr\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}}{\xk}+\v{R} \label{eq:update_variance_intergral}\\
 	\v{C}_{k}
-	&=\defint{}{}{\!\big(\v{x}_{k}-\v{m}_{k|k-1}\big)\big(\F*{h}{\v{x}_{k}}-\gv{\mu}_k\big)^\tr\N{\v{x}_{k}}{\v{m}_{k|k-1}}{\v{P}_{k|k-1}}}{\v{x}_{k}} \label{eq:update_covariance_intergral}
+	&=\defint{}{}{\fparen[\big]{\xk-\m_{k|k-1}}\fparen[\big]{\h_k-\gv{\mu}_k}^\tr\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}}{\xk} \label{eq:update_covariance_intergral}
 \end{align}
 and by using the well known formula for calculating the conditional distribution of jointly Gaussian variables
 we have
 \begin{align}
-	\v{m}_{k|k}
-	&=\v{m}_{k|k-1}+\v{C}_{k}\v{S}_{k}^{-1}\left(\v{y}_k-\gv{\mu}_k\right)\label{eq:update_mean}\\
-	\v{P}_{k|k}
-	&=\v{P}_{k|k-1}-\v{C}_{k}\v{S}_{k}^{-1}\v{C}_{k}^\tr. \label{eq:update_variance}
+	\m_{k|k}
+	&=\m_{k|k-1}+\v{C}_{k}\v{S}_{k}^{-1}\left(\yk-\gv{\mu}_k\right)\label{eq:update_mean}\\
+	\P_{k|k}
+	&=\P_{k|k-1}-\v{C}_{k}\v{S}_{k}^{-1}\v{C}_{k}^\tr. \label{eq:update_variance}
 \end{align}
-Again using the formula for the conditional of jointly Gaussian variables we get
-from \eqref{eq:joint_predictive_approximation}
-\begin{align}
-	\Pdf{\v{x}_{k-1}}{\v{x}_k,\v{Y}_{1:k-1}}&\approx\N{\v{m}_2}{\v{P}_2}\\
-	\v{G}_{k-1}&=\v{C}_{k^-}\v{P}_{k|k-1}^{-1}\\
-	\v{m}_2&=\v{m}_{k-1|k-1}+\v{G}_{k-1}(\v{x}_k-\v{m}_{k|k-1})\\
-	\v{P}_2&=\v{P}_{k-1|k-1}-\v{G}_{k-1}\v{P}_{k|k-1}\v{G}_{k-1}^\tr
-\end{align}
-and then finally we can write the Gaussian approximation to the joint distribution of consecutive states given all the measurements
+Then finally we can write the Gaussian approximation to the joint distribution of consecutive states given all the measurements
 as
 \begin{align}
 \begin{split}
-	\Pdf{\v{x}_{k-1},\v{x}_{k}}{\v{Y}}&=\Pdf{\v{x}_{k-1}}{\v{x}_{k},\v{Y}_{1:k-1}}\Pdf{\v{x}_{k}}{\v{Y}}\\
+	\Pdf{\xkk,\xk}{\v{Y}}&=\Pdf{\xkk}{\xk,\v{Y}_{1:k-1}}\Pdf{\xk}{\v{Y}}\\
 	&\approx
 	\N{
 	\begin{bmatrix}
-		\v{m}_{k-1|T}\\
-		\v{m}_{k|T}
+		\m_{k-1|T}\\
+		\m_{k|T}
 	\end{bmatrix}}{
 	\begin{bmatrix}
-		\v{P}_{k-1|T}&\v{D}_{k}\\
-		\v{D}_{k}^\tr&\v{P}_{k|T}
+		\P_{k-1|T}&\v{D}_{k}\\
+		\v{D}_{k}^\tr&\P_{k|T}
 	\end{bmatrix}
 	}
 \end{split}
 \end{align}
 where
 \begin{align}
-	\v{D}_{k}&=\v{G}_{k-1}\v{P}_{k|T}\\
-	\v{m}_{k-1|T}&=\v{m}_{k-1|k-1}+\v{G}_{k-1}\left(\v{m}_{k|T}-\v{m}_{k|k-1}\right)\\
-	\v{P}_{k-1|T}&=\v{P}_{k-1|k-1}+\v{G}_{k-1}\left(\v{P}_{k|T}-\v{P}_{k|k-1}\right)\v{G}_{k-1}^\tr
+	\v{D}_{k}&=\v{G}_{k-1}\P_{k|T}\\
+	\m_{k-1|T}&=\m_{k-1|k-1}+\v{G}_{k-1}\left(\m_{k|T}-\m_{k|k-1}\right)\\
+	\P_{k-1|T}&=\P_{k-1|k-1}+\v{G}_{k-1}\left(\P_{k|T}-\P_{k|k-1}\right)\v{G}_{k-1}^\tr
 \end{align}
 
+What we have now established is that a Gaussian assumed density approximation to the
+predictive distributions depends on solving the multidimensional integrals in equations
+\eqref{eq:prediction_mean_intergral}, \eqref{eq:prediction_variance_intergral} and \eqref{eq:prediction_cov_intergral}.
+Analogously, the filtering distribution approximations depend on solving the integrals
+in equations \eqref{eq:update_mean_intergral}, \eqref{eq:update_variance_intergral} and
+\eqref{eq:update_covariance_intergral}. All these integrals are of the same form,
+namely 
+\begin{align}
+	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x}\\
+	\equiv\defint{}{}{&\F*{l}{\x}\fparen*{\fparen*{2\pi}^{d_x}\det\P}^{-\sfrac{1}{2}}\exp\brak[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)}}{\x},
+	\label{eq:gauss_integral}
+\end{align}
+with differing nonlinear functions $\F*{l}{\x}$. Notably, the smoothing distribution approximations can be computed
+without further integrations.
+
+
 \subsubsection{Quadrature and cubature}
-\parencite{Arasaratnam2009}
-\subsubsection{Gauss-Hermite Kalman Filter and Smoother}
-\parencite{Ito2000}
+ We will now discuss the topic of numerically solving integrals of the form \eqref{eq:gauss_integral}.
+ Numerical integration in one dimension is known as \emph{quadrature} and in higher dimensions as \emph{cubature}.
+
+
+\parencite{Arasaratnam2009,Ito2000}
 \subsubsection{Unscented Kalman Filter and Smoother}
 \parencite{julier1997new,Merwe2004}
 \subsubsection{Cubature Kalman Filter and Smoother}

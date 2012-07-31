@@ -111,13 +111,14 @@ k). Thus the SSMs considered in this thesis are of the form
 \end{subequations}
 We will assume an implicit dependence of the distributional parameters $\v{Q}$,
 $\v{R}$,$\gv{\mu}_0$ and $\gv{\Sigma}_0$ on $\Th$. Regarding the Gaussian distribution,
-suppose $\x\in\R^m$ is normally distributed with mean $\m$ and covariance matrix $\P$.
+suppose $\x\in\R^{d_x}$ is normally distributed with mean $\m$ and covariance matrix $\P$.
 We will then use the notation
 \begin{align}
 	\x &\sim \N{\m}{\P}\\
-\Leftrightarrow \Pdf{\x}{\m,\P}&=\N[\x]{\m}{\P}\\
-	&= \left(2\pi\right)^{-\sfrac{m}{2}}\abbs{\P}^{-\sfrac{1}{2}}e^{-\sfrac{1}{2}\left(\x-\m\right)^\tr\P^{-1}\left(\x-\m\right)}		
+\Leftrightarrow \Pdf{\x}&=\N[\x]{\m}{\P}\\
+	&\equiv \fparen*{\fparen*{2\pi}^{d_x}\detr\P}^{-\sfrac{1}{2}}\exp\brak[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)},		
 \end{align}
+
 Now clearly the mappings $\v{f}_{\Th}:\mathcal{X}\to\mathcal{X}$ and
 $\v{h}_{\Th}:\mathcal{X}\to\mathcal{Y}$ specify the means of the dynamic
 and the measurement models:
@@ -191,6 +192,7 @@ rule (see for example \cite{gelman2004})\todo{check marginal likelihood wording}
 \begin{align}
 	\underbrace{\Pdf{\xk}{\y_{1:k},\Th}}_\text{posterior}&=\frac{\overbrace{\Pdf{\yk}{\xk,\Th}}^\text{likelihood}\overbrace{\Pdf{\xk}{\y_{1:k-1},\Th}}^\text{prior}}{\underbrace{\Pdf{\y_{k}}{\y_{1:k-1},\Th}}_\text{marginal likelihood}}\nonumber\\
 	&=\frac{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\defint{}{}{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\xk}}
+	\label{eq:filt_bayes}
 \end{align}
 which is called the measurement update equation.
 In this thesis the filtering distributions will be Gaussian or approximated with a Gaussian
@@ -211,6 +213,7 @@ Since
 we get
 \begin{align}
 	\Pdf{\xk}{\y_{1:T},\Th}&=\Pdf{\xk}{\y_{1:k},\Th}\defint{}{}{\left[\frac{\Pdf{\x_{k+1}}{\xk,\Th}\Pdf{\x_{k+1}}{\y_{1:T},\Th}}{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}\right]}{\x_{k+1}},
+	\label{eq:smooth_bayes}
 \end{align}
 where $\Pdf{\x_{k+1}}{\y_{1:k}}$ can be computed by equation \eqref{eq:pred_bayes}.
 In this thesis the smoothing distributions will be Gaussian or approximated with a Gaussian
@@ -232,56 +235,6 @@ we find that the marginal likelihood can be computed from
 	\label{eq:lh_factorization}
 \end{align}
 
-\subsubsection{Notation related to differentiation}
-
-In this thesis we will (unfortunately) have to use six
-different kind of differential operators: first and second
-order taken with respect to a vector or scalar. To be always
-clear whether the resulting object is a scalar, a vector or a matrix,
-the following notational rules will be applied.
-\begin{description}
-  \item[First order] 
-  The most general case here is that of a vector valued function of a vector
-  variable and the differentiation is with respect to a vector. The result
-  is a matrix called the $Jacobian$:
-\begin{align*}
-	\F{\v{J}\v{f}}{\x} \equiv \dpd{\F*{f}{\x}}{\x} \equiv 
-	\begin{bmatrix} \dfrac{\partial f_1}{\partial x_1} & \cdots & \dfrac{\partial f_1}{\partial x_n} \\ \vdots & \ddots & \vdots \\ \dfrac{\partial f_m}{\partial x_1} & \cdots & \dfrac{\partial f_m}{\partial x_n}  \end{bmatrix}
-\end{align*}   
-Here the rows are gradients of the scalar valued component functions and the columns
-are partial derivatives of a vector valued function. 
-  \item[Second order]
-Here the second most gereneral case is the the second order differential of a scalar
-valued function of a vector variable known as the \emph{Hessian matrix}:
-\begin{align*}
-	\v{H}\F{f}{\x} \equiv \dmd{\F{f}{\x}}{2}{\x}{}{\left.\mkern-2mu\x^\tr\right.}{} \equiv 
-\begin{bmatrix}
-\dfrac{\partial^2 f}{\partial x_1^2} & \dfrac{\partial^2 f}{\partial x_1\,\partial x_2} & \cdots & \dfrac{\partial^2 f}{\partial x_1\,\partial x_n} \\[2.2ex]
-\dfrac{\partial^2 f}{\partial x_2\,\partial x_1} & \dfrac{\partial^2 f}{\partial x_2^2} & \cdots & \dfrac{\partial^2 f}{\partial x_2\,\partial x_n} \\[2.2ex]
-\vdots & \vdots & \ddots & \vdots \\[2.2ex]
-\dfrac{\partial^2 f}{\partial x_n\,\partial x_1} & \dfrac{\partial^2 f}{\partial x_n\,\partial x_2} & \cdots & \dfrac{\partial^2 f}{\partial x_n^2}
-\end{bmatrix}
-\end{align*}  
-  
-\end{description}
-
-
-
-
-\begin{description}
-  \item[Result is a scalar]
-\begin{align*}
-	\F{f'}{x'} \equiv \eval{\dod{\F{f}{x}}{x}}_{x=x'}\\
-	\F{\partial_{x_i}\v{f}}{x'} \equiv \eval{\dpd{\F*{f}{\x}}{x_i}}_{x_i=x'}\\
-\end{align*}
-  \item[Result is a vector]
-\begin{align*}
-	\F{\nabla f}{\x} \equiv \eval{\dod{\F{f}{x}}{x}}_{x=x'}\\
-	\F{\partial_{x_i}\v{f}}{x'} \equiv \eval{\dpd{\F*{f}{\x}}{x_i}}_{x_i=x'}\\
-\end{align*}   
-   
-   \item[Result is a matrix]
-\end{description}
 
 
 
