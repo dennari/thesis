@@ -138,8 +138,8 @@ $T$ is said to be \emph{closed} at $\x \in X$ if
 This can be considered a generalization of continuity.
 \begin{theorem}
 Given an initial value $\Th_0$, let the point-to-set map $\EMM*:\Theta\to Y$ construct a sequence
-of estimates $\brac[\big]{\Th_{j+1}\in\Theta : \Th_{j+1}\in\EMM{\Th_j}}$ and let $\mathcal{S}\subset\Theta$ denote the solution
-set. 
+of estimates $\brac[\big]{\Th_{j+1}\in\Theta : \Th_{j+1}\in\EMM{\Th_j}}$, let $\mathcal{S}\subset\Theta$ denote the solution
+set and let $\ell:\Theta\to\R$ denote the ``ascent'' (or objective) function. 
 Then given the conditions
 \begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
 	\item all $\Th_j$ belong to $\Theta_c$,  a compact subset of $\Theta$
@@ -228,13 +228,13 @@ and then maximizing the approximation by setting its gradient to zero
 	\label{eq:newton_gradient}
 \end{align}
 Per proposition~\ref{prop:cond_for_max}, near $\Th_\star$ the Hessian is 
-invertable and so the algorithm is well defined there. It can be shown
+invertible and so the algorithm is well defined there. It can be shown
 that when initialized sufficiently close to $\Th_\star$, (pure form)
 Newton's method always converges to $\Th_\star$ with order of convergence
 at least \emph{two}.
  
 Further away from the maximum, there are various problems with Newton's method as formulated
-in equation~\eqref{eq:newton_gradient}. There are no guarantees for the invertability
+in equation~\eqref{eq:newton_gradient}. There are no guarantees for the invertibility
 of the Hessian and higher order terms may cause a step to actually decrease the objective
 function. Thus we turn our attention to algorithms of the general form
 \begin{align}
@@ -334,13 +334,12 @@ a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside 
 As noted in \textcite{Cappe2005}, these equations are sometimes known as the \emph{sensitivity equations}
 and they are derived at least in \textcite{Gupta1974} and \textcite{Mbalawataa}.
 
-\subsubsection{Newton's method}
+\subsubsection{Complexity}
 
-\subsubsection{Quasi-Newton methods}
-
-\subsubsection{Convergence properties}
-
-\subsubsection{Computational load}
+The computational complexity per iteration of a quasi-Newton procedure is
+highly dependent on the required amount of line-search steps. It is definitely
+undesirable to perform these suboptimization, i.e. iterations inside iterations.
+\todo{Elaborate on BFGS complexity}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Expectation maximization (EM)}%%%%
@@ -410,8 +409,8 @@ the score, itself. From equations \eqref{eq:EM_B}
 and \eqref{eq:EM_sharp_bound} it can be seen rather easily, that  
 the score evaluated at $\widehat{\Th}$ is given by
 \begin{align}
-		\eval{\dod{\lLH}{\Th}}_{\Th=\widehat\Th}&=
-		\eval{\dpd{ \EMQ{\widehat\Th}{\Th}}{\Th}}_{\Th=\widehat\Th} \label{eq:EM_gradients}
+		\score[\widehat\Th]&=
+		\eval{\dpd{ \EMQ[\big]{\widehat\Th}{\Th}}{\Th}}_{\Th=\widehat\Th} \label{eq:EM_gradients}
 \end{align} 
 Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005}. It gives
 an alternative route for the score function computation.
@@ -871,28 +870,27 @@ and
 
 \subsubsection{Convergence properties}
 
-Let us denote by $\EMM$ the point-to-set map implicitly defined by the EM
-algorithm and by $\brac*{\Th_j}$ the sequence of parameter estimates
-\begin{align}
-	 \Th_{j+1} &\in \EMM{\Th_{j}},
-\end{align}
-given the initial point $\Th_0$.
+We would like to demonstrate the applicability of theorem~\ref{th:global_convergence}.
+Let $\EMM*$ then denote the point-to-set map implicitly defined by the EM algorithm.
+From theorem~\ref{th:global_convergence} it can be deduced, that the convergence of all the
+subsequences of $\brac[\big]{\Th_j}$ to some point in $\mathcal{S}$ implies that
+the objective function converges to some value $\ell_\star$, which is the same
+for all $\Th_\star\in\mathcal{S}$.
 
-Suppose now that the set $\Theta^0=\brac{\Th\in\Theta : \lLH[\Th]\geq \Th_0}$ 
-is compact and contained in the interior of $\Theta$ for any $\Th^0$,
-the solution set for the EM algorithm initialized at $\Th_0$ is 
-$\mathcal{L}^0=\brac*{\Th\in\Theta^0 : \dif\lLH[\Th]=0}$, 
-that $\brac*{\Th_j}$ is contained in a compact subset of $\Theta$,
-$\EMH$ is continuous in both of its arguments and
-$\lLH[\Th]\geq\lLH[\Th']\quad \forall \Th\in\EMM{\Th'}$. 
+Suppose now that 
+\begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
+	\item we are given the initial value $\Th_0$
+	\item the level set $\Theta^0=\brac{\Th\in\Theta : \lLH[\Th]\geq \Th_0}$ 
+is compact and contained in the interior of $\Theta$
+	\item the solution set is $\mathcal{L}^0=\brac*{\Th\in\Theta^0 : \nabla\lLH[\Th]=0}$
+	\item $\EMH$ is continuous in both of its arguments
+	\item $\lLH[\Th]\geq\lLH[\Th']\quad \forall \Th\in\EMM{\Th'}$
+\end{enumerate}
 Then $\lim_{j\to\infty}\Th_j\in\mathcal{L}^0$ and 
 this also applies to every subsequence of $\brac*{\Th_j}$. Additionally
 $\lim_{j\to\infty}\lLH[\Th_j]=\lLH[\Th_\star]$ where $\Th_\star\in\mathcal{L}^0$.
-It is important to realize that the convergence of $\lLH[\Th_j]$ does not imply
-that the sequence of parameters itself converges, only that the points in $\mathcal{L}^0$
-are equivalent with respect to the objective function. This ties in with the the questions
-of identifiability discussed earlier. In order for the parameter sequence to converge to some 
-$\Th_\star\in\mathcal{L}^0$, we need to assume in addition that $\lim_{j\to\infty}\abs{\Th_{j+1}-\Th_{j}}=0$.
+For the parameter sequence to converge to some 
+$\Th_\star\in\mathcal{L}^0$, we need to assume in addition that $\lim_{j\to\infty}\abs{\Th_{j+1}-\Th_{j}}=0$
 
 We will now assume that $\EMM$ is singular, i.e.
 $\v{M}:\Theta\to\Theta$, and continuous. Then if $\brac[\big]{\Th_0,\EMM{\Th_0},\EMM{\EMM{\Th_0}},\dots }$
@@ -942,14 +940,14 @@ we get
 \end{align}
 What we can infer from \eqref{eq:EM_P} and \eqref{eq:EM_P_approx} is that, near $\Th_\star$, if the dominant eigenvalue
 of $\dif\EMM$ approaches unity, i.e. when the proportion of hidden information approaches zero, the EM algorithm behaves like 
-a true Newton's method, where the step size is the negative inverse Hessian of the objective function. Also, as the dominant 
+a true Newton's method. On the other hand when the dominant 
 eigenvalue of $\dif\EMM$ approaches zero, i.e when the proportion of hidden information approaches unity, the convergence 
 of the EM-algorithm becomes slower and stops. 
 
 
 \parencite{Wu1983,Sandell1978,Meng1997,Elliott1999,Salakhutdinov2003a,Salakhutdinov2003,Olsson2007,Paninski2010}
 
-\subsubsection{Computational load}
+\subsubsection{Complexity}
 
 \parencite{Harvey1990,Watson1983,Cappe2005,Saatci2011,Olsson2007,Salakhutdinov2003a}
 
@@ -990,6 +988,16 @@ are easier in the EM algorithm. This again depends on if the model is linear or 
  method the gradient and the Hessian, and so the convergence, are affected by the parameterization.
 \end{itemize} 
 \end{description}
+ 
+ \subsubsection{Hybrid algorithm}
+ 
+ Since the gradient based methods provide faster convergence and no need to
+ derive M-step maximization expressions, they appear to win the competition.
+ However the gradient computations of equations
+ \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} 
+ are laborious and computationally more complex than using equation~\eqref{eq:EM_gradients}.
+Thus combining the methods in this way is a natural idea, explored for example in \textcite{Salakhutdinov2003a}
+and \textcite{Olsson2007}.
  
 
 
