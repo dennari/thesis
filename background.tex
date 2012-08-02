@@ -212,6 +212,11 @@ Since
 \end{align*}
 we get
 \begin{align}
+	\Pdf{\xk,\x_{k+1}}{\y_{1:T},\Th}&=\overbrace{\Pdf{\xk}{\y_{1:k},\Th}}^\text{filtering}\frac{\overbrace{\Pdf{\x_{k+1}}{\xk,\Th}}^\text{dynamic}\Pdf{\x_{k+1}}{\y_{1:T},\Th}}{\underbrace{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}_\text{predictive}},
+	\label{eq:smooth_joint_bayes}
+\end{align}
+so that the marginal is given by
+\begin{align}
 	\Pdf{\xk}{\y_{1:T},\Th}&=\Pdf{\xk}{\y_{1:k},\Th}\defint{}{}{\left[\frac{\Pdf{\x_{k+1}}{\xk,\Th}\Pdf{\x_{k+1}}{\y_{1:T},\Th}}{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}\right]}{\x_{k+1}},
 	\label{eq:smooth_bayes}
 \end{align}
