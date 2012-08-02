@@ -210,8 +210,8 @@ Then
 		\v{m}_{k|k-1}
 	\end{bmatrix}}{
 	\begin{bmatrix}
-		\v{P}_{k-1|k-1}&\v{C}_{k^-}\\
-		\v{C}_{k^-}^\tr&\v{P}_{k|k-1}
+		\v{P}_{k-1|k-1}&\v{C}_{k-1,k}\\
+		\v{C}_{k-1,k}^\tr&\v{P}_{k|k-1}
 	\end{bmatrix}
 	}
 	\label{eq:joint_predictive_approximation}
@@ -226,21 +226,11 @@ where by application of equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \e
 	&\qquad\times\N[\xkk]{\m_{k-1|k-1}}{\P_{k-1|k-1}}}{\xkk}+\v{Q}\label{eq:prediction_variance_intergral}
 	\end{split}\\
 	\begin{split}
-		\v{C}_{k^-}&=\defint{}{}{\fparen*{\xkk-\m_{k-1|k-1}}\fparen*{\f_{k-1}-\v{m}_{k|k-1}}^\tr\\
+		\v{C}_{k-1,k}&=\defint{}{}{\fparen*{\xkk-\m_{k-1|k-1}}\fparen*{\f_{k-1}-\v{m}_{k|k-1}}^\tr\\
 		&\qquad\times\N{\xkk}{\m_{k-1|T}}{\P_{k-1|T}}}{\xkk}\label{eq:prediction_cov_intergral}
 	\end{split}
 \end{align}%
 %
-Since it will be useful later, let us also write down the approximation to a 
-conditional distribution that can be easily derived from equation~\eqref{eq:joint_predictive_approximation}, 
-namely:
-\begin{align}
-	\Pdf{\xkk}{\xk,\y_{1:k-1}}&\approx \N[\xkk]{\m'_{k-1}}{\P'_{k-1}}\\
-	\v{G}_k &= \v{C}_{k^-}\v{P}_{k|k-1}^{-1}
-	\label{eq:middle_conditional}
-\end{align}
-
-
 
 \subsubsection*{Update step}
 
@@ -283,61 +273,111 @@ Gaussian variables, giving
 \end{align}
 
 \subsubsection*{Smoothing step}
+
+Let us write down the approximation to a 
+conditional distribution that is easily derived from equation~\eqref{eq:joint_predictive_approximation}, 
+namely (note the change in indexing):
+\begin{align}
+	\Pdf{\xk}{\x_{k+1},\y_{1:T}}=\Pdf{\xk}{\x_{k+1},\y_{1:k}}&\approx \N[\xk]{\m'_{k}}{\P'_{k}}\\
+	\m'_{k} &= \m_{k|k}+\v{G}_k\fparen*{\x_{k+1}-\m_{k+1|k}}\\
+	\P'_{k} &= \P_{k|k}-v{G}_k\P_{k+1|k}v{G}_k^\tr\\
+	\v{G}_k &= \v{C}_{k,k+1}\v{P}_{k+1|k}^{-1}
+	\label{eq:middle_conditional}
+\end{align}
 At this point we have derived all the components needed to compute
-\eqref{eq:smooth_joint_bayes} and the final steps are given
-by some Gaussian manipulations. The smoothing recursions
+\eqref{eq:smooth_joint_bayes}. As pointed out previously, the last, i.e $T$:th, filtering 
+distribution is also the ``first" smoothing distribution, and smoothing recursions
+then advance backwards in time. Let us then that the smoothing
+distribution of the previous step, $\Pdf{\x_{k+1}}{\y_{1:T}}$, is available. Then
 \begin{align}
 \begin{split}
-	\Pdf{\xk,\x_{k+1}}{\y_{1:T}}&=\Pdf{\xk}{\x_{k+1},\y_{1:k}}\Pdf{\x_{k+1}}{\y_{1:T}}\\
+	\Pdf{\x,\x_{k+1}}{\y_{1:T}}&=\Pdf{\xk}{\x_{k+1},\y_{1:T}}\Pdf{\x_{k+1}}{\y_{1:T}}\\
 	&\approx
 	\N{
 	\begin{bmatrix}
-		\m_{k-1|T}\\
-		\m_{k|T}
+		\m_{k|T}\\
+		\m_{k+1|T}
 	\end{bmatrix}}{
 	\begin{bmatrix}
-		\P_{k-1|T}&\v{D}_{k}\\
-		\v{D}_{k}^\tr&\P_{k|T}
+		\P_{k|T}&\v{D}_{k}\\
+		\v{D}_{k}^\tr&\P_{k+1|T}
 	\end{bmatrix}
 	}
 \end{split}
 \end{align}
 where
 \begin{align}
-	\v{D}_{k}&=\v{G}_{k-1}\P_{k|T}\\
-	\m_{k-1|T}&=\m_{k-1|k-1}+\v{G}_{k-1}\left(\m_{k|T}-\m_{k|k-1}\right)\\
-	\P_{k-1|T}&=\P_{k-1|k-1}+\v{G}_{k-1}\left(\P_{k|T}-\P_{k|k-1}\right)\v{G}_{k-1}^\tr
-\end{align}
-
-What we have now established is that a Gaussian assumed density approximation to the
-predictive distributions depends on solving the multidimensional integrals in equations
-\eqref{eq:prediction_mean_intergral}, \eqref{eq:prediction_variance_intergral} and \eqref{eq:prediction_cov_intergral}.
-Analogously, the filtering distribution approximations depend on solving the integrals
-in equations \eqref{eq:update_mean_intergral}, \eqref{eq:update_variance_intergral} and
-\eqref{eq:update_covariance_intergral}. All these integrals are of the same form,
-namely 
-\begin{align}
-	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x}\\
-	\equiv\defint{}{}{&\F*{l}{\x}\fparen*{\fparen*{2\pi}^{d_x}\det\P}^{-\sfrac{1}{2}}\exp\brak[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)}}{\x},
-	\label{eq:gauss_integral}
-\end{align}
-with differing nonlinear functions $\F*{l}{\x}$. Notably, the smoothing distribution approximations can be computed
+	\v{D}_{k}&=\v{G}_{k}\P_{k+1|T}\\
+	\m_{k|T}&=\m_{k|k}+\v{G}_{k}\left(\m_{k+1|T}-\m_{k+1|k}\right)\\
+	\P_{k|T}&=\P_{k|k}+\v{G}_{k}\left(\P_{k+1|T}-\P_{k+1|k}\right)\v{G}_{k}^\tr.
+\end{align}%
+%
+What we have now established is that a Gaussian assumed density approximation to the joint 
+smoothing distributions \eqref{eq:smooth_joint_bayes} is transformed into solving six
+multidimensional integrals of form \emph{nonlinear function} $\times$ \emph{Gaussian}, 
+namely the ones in
+\eqref{eq:prediction_mean_intergral}, \eqref{eq:prediction_variance_intergral}, \eqref{eq:prediction_cov_intergral},
+\eqref{eq:update_mean_intergral}, \eqref{eq:update_variance_intergral} and
+\eqref{eq:update_covariance_intergral}. 
+Notably, the smoothing distribution approximations can be computed
 without further integrations.
 
+\subsubsection{Numerical integration approach}
+ We will now discuss the topic of numerically solving integrals of the form
+ \begin{align}
+	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x} \nonumber\\
+	\equiv\defint{}{}{&\F*{l}{\x}\fparen*{\fparen*{2\pi}^{d_x}\det\P}^{-\sfrac{1}{2}}\exp\brak[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)}}{\x}.
+	\label{eq:gauss_integral}
+\end{align}
+%Numerical integration in one dimension is known as \emph{quadrature} and in higher dimensions as \emph{cubature}.
+As explained in \textcite{Wu2006}, the approaches to solving \eqref{eq:gauss_integral}
+can be justifiably divided into three categories: 
+\begin{enumerate}[i)] \addtolength{\leftskip}{.5cm} \itemsep1pt \parskip0pt \parsep0pt
+  \item product rules
+  \item rules exact for monomials
+  \item integrand approximations.
+\end{enumerate}
+Recognizing that the chosen numerical integration method is the principal differentiator, provides a 
+common framework for analyzing the properties of the numerous Gaussian filters.
+Furthermore the first two categories differ only in their approach to multidimensional integrals,
+so that main difference between the categories can be described
+as applying an integration formula known to be exact for certain class of integrands
+or approximating the integrand and integrating the approximation exactly.
+Since truncated Taylor series approximations are often used in the latter case, an important distinction
+is that the former doesn't require computation of Jacobians or higher order differentials. 
 
-\subsubsection{Quadrature and cubature}
- We will now discuss the topic of numerically solving integrals of the form \eqref{eq:gauss_integral}.
- Numerical integration in one dimension is known as \emph{quadrature} and in higher dimensions as \emph{cubature}.
+Since there exists many efficient integration rules defined on the unidimensional line,
+a natural idea is to extend these to the hypercube by iterated integrals. This is exactly the 
+basic premise of the product rules. The most efficient polynomial interpolation type of rules
+in one dimension are known as \emph{Gauss' quadrature} rules and the subset of them
+meant for integrals of the form \eqref{eq:gauss_integral} are the \emph{Gauss-Hermite}
+quadrature rules. A common form for numerical integration is
+\begin{align}
+	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x} \approx \sum_{i=1}^m w_i\F*{l}{\v{u}_i}, 
+\end{align}
+where the points of evaluation $\brac*{\v{u}_i}_{i=1}^m$ are called the \emph{sigma points}
+and $w_i$ are the weights. As is expected from the iterated integration approach,
+the problem with product rules is the exponential increase in the number of sigma points with
+the number of dimensions, also known as the \emph{curse of dimensionality}. Thus if the unidimensional rule has $m$ sigma points (and thus $m$ integrand evaluations),
+then the $d$ dimensional product rule has $m^d$ sigma points. The Gaussian filter based
+on Gauss-Hermite product rules is know simply as the Gauss-Hermite Kalman filter (GHKF) \parencite{Ito2000}.
+The number of sigma points in the unidimensional rule is a parameter of GHKF.
 
-The oldest and most well known filter belonging to the local approach is
-the \emph{extended Kalman filter} (EKF) \parencite{jazwinski2007stochastic}, which is based 
-on local linearisations.
-In this way, i.e. by forming local linear approximations to the dynamic
-and measurement models, the standard linear Kalman filter equations can be used.
+More sophisticated multidimensional integration rules try to search for rules
+exact for \emph{monomials} $\prod_{j=1}^d x_j^{e_j}$. The order of the monomial
+is defined as $\sum_j e_j$. Naturally since integration is a linear operation, a rule which is exact 
+for a monomial up to order $o$ is exact for multidimensional polynomials of order $o$.
+
+
+
+
+
+The oldest and most well known nonlinear filter, belonging to the third category, is
+the \emph{extended Kalman filter} (EKF) \parencite{jazwinski2007stochastic}. 
+It is based on forming local linear approximations to the dynamic
+and measurement models so that the standard linear Kalman filter equations can be used.
 An undesirable requirement of the EKF is that it requires computing
-the Jacobian matrices of $\f$ and $\h$. A class of more recent deterministic approximation
-based filters are known as \emph{sigma point filters}. 
-\parencite{Sarkka2010,Wu2006}
+the Jacobian matrices of $\f$ and $\h$.
 
 \parencite{Arasaratnam2009,Ito2000}
 \subsubsection{Unscented Kalman Filter and Smoother}
