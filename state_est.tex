@@ -328,7 +328,12 @@ without further integrations.
 	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x} \nonumber\\
 	\equiv\defint{}{}{&\F*{l}{\x}\fparen*{\fparen*{2\pi}^{d_x}\det\P}^{-\sfrac{1}{2}}\exp\brak[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)}}{\x}.
 	\label{eq:gauss_integral}
-\end{align}
+\end{align}%
+%
+Even though omitted in the notation, it is assumed that the integral
+is over the unbounded space $\R^{d_x}$ of $\x$. Thus \eqref{eq:gauss_integral}
+is a Gaussian weighted multidimensional integral, so that the Gaussian
+probability density function is considered to be a 
 %Numerical integration in one dimension is known as \emph{quadrature} and in higher dimensions as \emph{cubature}.
 As explained in \textcite{Wu2006}, the approaches to solving \eqref{eq:gauss_integral}
 can be justifiably divided into three categories: 
@@ -363,10 +368,12 @@ then the $d$ dimensional product rule has $m^d$ sigma points. The Gaussian filte
 on Gauss-Hermite product rules is know simply as the Gauss-Hermite Kalman filter (GHKF) \parencite{Ito2000}.
 The number of sigma points in the unidimensional rule is a parameter of GHKF.
 
-More sophisticated multidimensional integration rules try to search for rules
+More sophisticated methods search for rules
 exact for \emph{monomials} $\prod_{j=1}^d x_j^{e_j}$. The order of the monomial
 is defined as $\sum_j e_j$. Naturally since integration is a linear operation, a rule which is exact 
 for a monomial up to order $o$ is exact for multidimensional polynomials of order $o$.
+Unfortunately finding these rules is something of an art in itself, since the problem
+boils down to solving a nonlinear system of equations 
 
 
 
