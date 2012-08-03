@@ -330,10 +330,12 @@ without further integrations.
 	\label{eq:gauss_integral}
 \end{align}%
 %
-Even though omitted in the notation, it is assumed that the integral
-is over the unbounded space $\R^{d_x}$ of $\x$. Thus \eqref{eq:gauss_integral}
-is a Gaussian weighted multidimensional integral, so that the Gaussian
-probability density function is considered to be a 
+Even though omitted in the notation, it is assumed that the integral\todo{existence of the integral}
+is over the unbounded space $\R^{d_x}$ of $\x$. Furthermore \eqref{eq:gauss_integral}
+should be thought of as a Gaussian \emph{weighted} multidimensional integral, so that $\N[\x]{\m}{\P}$
+is not considered to be part of the integrand (more generally, \eqref{eq:gauss_integral}
+should be stated as the \emph{Lebesgue} integral $\defint{\R^{d_x}}{}{\F*{l}{\x}}{F}$, where $F$
+defines the probability measure of the probability space).
 %Numerical integration in one dimension is known as \emph{quadrature} and in higher dimensions as \emph{cubature}.
 As explained in \textcite{Wu2006}, the approaches to solving \eqref{eq:gauss_integral}
 can be justifiably divided into three categories: 
@@ -354,30 +356,35 @@ is that the former doesn't require computation of Jacobians or higher order diff
 Since there exists many efficient integration rules defined on the unidimensional line,
 a natural idea is to extend these to the hypercube by iterated integrals. This is exactly the 
 basic premise of the product rules. The most efficient polynomial interpolation type of rules
-in one dimension are known as \emph{Gauss' quadrature} rules and the subset of them
-meant for integrals of the form \eqref{eq:gauss_integral} are the \emph{Gauss-Hermite}
-quadrature rules. A common form for numerical integration is
+in one dimension are known as \emph{Gauss' quadrature} rules and the subset
+for Gaussian weighted integrals are called the \emph{Gauss-Hermite}
+quadrature rules. Quadrature is a term referring to unidimensional numerical integration, whereas
+\emph{cubature} is the generalization to higher dimensions. A common form for cubature rules is
 \begin{align}
 	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x} \approx \sum_{i=1}^m w_i\F*{l}{\v{u}_i}, 
 \end{align}
 where the points of evaluation $\brac*{\v{u}_i}_{i=1}^m$ are called the \emph{sigma points}
-and $w_i$ are the weights. As is expected from the iterated integration approach,
+(or just points) and $w_i$ are the weights. As is expected from the iterated integration approach,
 the problem with product rules is the exponential increase in the number of sigma points with
 the number of dimensions, also known as the \emph{curse of dimensionality}. Thus if the unidimensional rule has $m$ sigma points (and thus $m$ integrand evaluations),
 then the $d$ dimensional product rule has $m^d$ sigma points. The Gaussian filter based
 on Gauss-Hermite product rules is know simply as the Gauss-Hermite Kalman filter (GHKF) \parencite{Ito2000}.
 The number of sigma points in the unidimensional rule is a parameter of GHKF.
 
-More sophisticated methods search for rules
-exact for \emph{monomials} $\prod_{j=1}^d x_j^{e_j}$. The order of the monomial
-is defined as $\sum_j e_j$. Naturally since integration is a linear operation, a rule which is exact 
+More sophisticated cubature methods search for rules
+exact for \emph{monomials} $\prod_{j=1}^{d_x} x_j^{e_j}$, where $\x=\brak[\big]{x_1,\dots,x_{d_x}}^\tr$. 
+The \emph{degree} of the monomial is defined as $\sum_j e_j$ and a cubature rule is then said to have
+\emph{precision} $p$, if it integrates exactly monomials up to degree $p$ but not
+to degree $p+1$. Naturally since integration is a linear operation, a rule which is exact 
 for a monomial up to order $o$ is exact for multidimensional polynomials of order $o$.
-Unfortunately finding these rules is something of an art in itself, since the problem
-boils down to solving a nonlinear system of equations 
-
-
-
-
+Unfortunately finding efficient rules exact for monomials is something of an art, since
+even the least possible number of points required for given precision and dimension is in many
+instances unknown. Nevertheless in \textcite{Arasaratnam2009,Arasaratnam2011} a filter
+and a corresponding smoother are presented, which are based on a third degree 
+cubature rule. The theoretical lower bound in points for a third degree rule
+is $2\,d_x$, which is met by the rule used in the \emph{Cubature Kalman Filter} (CKF) and
+the \emph{Cubature Kalman Smoother} (CKS). Another notable nonlinear filter in this
+category is the \emph{Unscented Kalman Filter} (UKF) \textcite{julier1997new,Merwe2004}, also based on a third degree rule.  
 
 The oldest and most well known nonlinear filter, belonging to the third category, is
 the \emph{extended Kalman filter} (EKF) \parencite{jazwinski2007stochastic}. 
@@ -385,12 +392,4 @@ It is based on forming local linear approximations to the dynamic
 and measurement models so that the standard linear Kalman filter equations can be used.
 An undesirable requirement of the EKF is that it requires computing
 the Jacobian matrices of $\f$ and $\h$.
-
-\parencite{Arasaratnam2009,Ito2000}
-\subsubsection{Unscented Kalman Filter and Smoother}
-\parencite{julier1997new,Merwe2004}
-\subsubsection{Cubature Kalman Filter and Smoother}
-\parencite{Arasaratnam2009,Arasaratnam2011,Jia2012}
-
-
 
