@@ -944,6 +944,7 @@ a true Newton's method. On the other hand when the dominant
 eigenvalue of $\dif\EMM$ approaches zero, i.e when the proportion of hidden information approaches unity, the convergence 
 of the EM-algorithm becomes slower and stops. 
 
+\todo{Note the fast initial convergence}
 
 \parencite{Wu1983,Sandell1978,Meng1997,Elliott1999,Olsson2007,Paninski2010}
 
@@ -954,18 +955,27 @@ of the EM-algorithm becomes slower and stops.
 
  \subsection{Hybrid algorithms}
  
-The gradient based methods provide faster convergence and no need to
-solve the M-step maximization expressions. EM on the other hand
-provides a less laborious way of computing the gradient.
+The two methods we have discussed could clearly benefit from each other:
+EM provides a seemingly simpler method for score computation than
+the sensitivity equations and the M-step maximization could obviously
+utilize a gradient based optimization algorithm. 
+
+The first observation has lead to the development of the
+expectation-conjugate-gradient (ECG) method of \textcite{Salakhutdinov2003a}
+and the coining of the ``easy gradient recipe'' of \textcite{Olsson2007} 
+
+The second observation has lead to the 
+optimization in the M-step of EM. This is analyzed in \parencite{Lange1995},
+where a \emph{single} step of Newton's method is run on every M-step.
+
+
  The gradient computations of equations
  \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} 
  are laborious and computationally more complex than using equation~\eqref{eq:EM_gradients}.
 
 Thus an obvious combination, explored for example in \textcite{Salakhutdinov2003a}
 and \textcite{Olsson2007}, is to compute the gradient through Fisher's identity
-and then use gradient based methods. Another possibility is to use gradient based
-optimization in the M-step of EM. This is analyzed in \parencite{Lange1995},
-where a \emph{single} step of Newton's method is run on every M-step. 
+and then use gradient based methods.  
  
 
 
