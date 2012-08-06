@@ -550,6 +550,17 @@ If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we h
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Partial E and M steps}%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+As can be seen from equation~\eqref{eq:fundamental_inequality},
+to ensure monotonicity it is enough that $\EMQ{\Th_{j+1}}{\Th_j}\geq \EMQ{\Th_{j}}{\Th_j}$,
+i.e. $\Th_{j+1}$ is not required to be the maximum of $\EMQ{\Th_{j+1}}{\Th_j}$.
+This was observed already in \textcite{Dempster1977}, where methods
+that only seek an increase in the M-step were termed \emph{generalized} EM
+algorithms. This modification only affects the convergence rate.
+
+Another modification is a partial, or approximate, E-step. Analyzing
+its effects is quite important, since in the nonlinear case we can only
+hope for approximate solutions.  
+
 
 \parencite{Lange1995,Goodwin2005}
 
@@ -955,27 +966,24 @@ of the EM-algorithm becomes slower and stops.
 
  \subsection{Hybrid algorithms}
  
-The two methods we have discussed could clearly benefit from each other:
-EM provides a seemingly simpler method for score computation than
-the sensitivity equations and the M-step maximization could obviously
-utilize a gradient based optimization algorithm. 
+Now that the main properties of the two algorithms have been presented,
+at least two ideas of combining the methods come to mind: using gradient based
+optimization by computing the score through the Fisher's identity \eqref{eq:EM_gradients}
+and utilizing gradient based optimization in the M-step of the EM algorithm.
+Both of these ideas have been presented in the literary. 
 
-The first observation has lead to the development of the
-expectation-conjugate-gradient (ECG) method of \textcite{Salakhutdinov2003a}
-and the coining of the ``easy gradient recipe'' of \textcite{Olsson2007} 
+The first idea is used in the expectation-conjugate-gradient (ECG) 
+method of \textcite{Salakhutdinov2003a}.
+Furthermore, it is termed the ``easy gradient recipe" in \textcite{Olsson2007}. 
+The gradient computations of equations
+\eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} 
+are laborious and computationally more complex than using equation~\eqref{eq:EM_gradients}.
 
-The second observation has lead to the 
-optimization in the M-step of EM. This is analyzed in \parencite{Lange1995},
+The second idea is analyzed in \parencite{Lange1995},
 where a \emph{single} step of Newton's method is run on every M-step.
-
-
- The gradient computations of equations
- \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} 
- are laborious and computationally more complex than using equation~\eqref{eq:EM_gradients}.
-
-Thus an obvious combination, explored for example in \textcite{Salakhutdinov2003a}
-and \textcite{Olsson2007}, is to compute the gradient through Fisher's identity
-and then use gradient based methods.  
+Using only a single step was only a heuristic argument in
+\parencite{Lange1995}, which raises the question of the optimal
+amount of increase that should be achieved in the M-step. 
  
 
 
