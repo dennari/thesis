@@ -130,28 +130,6 @@ and the measurement models:
 \end{align}
 \end{subequations}
 
-\subsubsection*{Example: 1D random walk}
-The simplest example is a one dimensional random-walk observed in Gaussian noise.
-We will assume $\Pdf{\v{x}_0}=\N{0}{P_0}$. In an alternative (but equivalent) notation
-the dynamics model is now
-\begin{align}
-	\Pdf{x_k}{x_{k-1}}&=x_{k-1}+q_{k-1},
-\end{align}
-where $q_{k-1}\sim \N{0}{Q}$ and the measurement model is
-\begin{align}
-	\Pdf{y_k}{x_{k}}&=x_{k}+r_{k},
-\end{align}
-where $r_{k}\sim \N{0}{R}$. A simulation from the model is presented in figure~\ref{fig:rw1d}.
-
-\begin{figure}[htp]
-\begin{center}
-	\missingfigure{A missing 1D RW simulation}
-  \caption{Simulation from the 1D RW model}
-  \label{fig:rw1d}
-\end{center}
-\end{figure}
-
-
 \subsection{Bayesian optimal filtering and smoothing}
 
 Inference can be defined as answering questions of interest with a probability distribution \parencite{barber2011bayesian}.

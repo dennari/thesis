@@ -344,8 +344,8 @@ can be justifiably divided into three categories:
   \item rules exact for monomials
   \item integrand approximations.
 \end{enumerate}
-Recognizing that the chosen numerical integration method is the principal differentiator, provides a 
-common framework for analyzing the properties of the numerous Gaussian filters.
+Recognizing that the chosen numerical integration method is the principal differentiator provides a 
+common framework for analyzing the properties of the numerous Gaussian filters and smoothers \parencite{Sarkka2010, Sarkka2008a}.
 Furthermore the first two categories differ only in their approach to multidimensional integrals,
 so that main difference between the categories can be described
 as applying an integration formula known to be exact for certain class of integrands
@@ -384,7 +384,8 @@ and a corresponding smoother are presented, which are based on a third degree
 cubature rule. The theoretical lower bound in points for a third degree rule
 is $2\,d_x$, which is met by the rule used in the \emph{Cubature Kalman Filter} (CKF) and
 the \emph{Cubature Kalman Smoother} (CKS). Another notable nonlinear filter in this
-category is the \emph{Unscented Kalman Filter} (UKF) \textcite{julier1997new,Merwe2004}, also based on a third degree rule.  
+category is the \emph{Unscented Kalman Filter} (UKF) \textcite{julier1997new,Merwe2004}, 
+also based on a third degree rule. A corresponding smoother is derived in \textcite{Sarkka2008a}.
 
 The oldest and most well known nonlinear filter, belonging to the third category, is
 the \emph{extended Kalman filter} (EKF) \parencite{jazwinski2007stochastic}. 

@@ -170,9 +170,6 @@ classes of quasi-Newton or conjugate gradient methods.
 For example, MATLAB Optimization Toolbox contains the function
 \texttt{fminunc} utilizing both conjugate gradient and 
 quasi-Newton methods in certain cases \parencite{optimizationtoolbox2012}.
-Optimization methods are commonly formulated for finding the minimum of the
-objective function, so that we will present the canonical formulations and note
-that maximizing $\lLH$ is the same as minimizing $-\lLH$.
 
 The simplest gradient based method is the \emph{method of steepest ascent}.
 It requires that the first partial derivatives of the objective function are defined
@@ -252,14 +249,45 @@ between one and two. In practice the step
 size parameter is always determined by a line-search, so that different
 algorithms of the form \eqref{eq:gradient_method_general} differ only in how
 the search direction is computed. Even if we could guarantee the invertability of the Hessian, its computation is
-nevertheless notoriously computationally demanding. For that reason, one should
-in practice use \emph{quasi-Newton} methods, where the different kinds of
-approximations are used for the inverse Hessian. Probably the most commonly
-applied quasi-Newton method is the \emph{Broyden-Fletcher-Goldfarb-Shanno} (BFGS)
-one. It has the appealing properties that only gradient information is needed
-and it can guarantee ascent of the objective function on every step. We will not
-go deeper into details, but a clear description can be found in \textcite{luenberger2008}.
-Let us finally point out that the commonly used MATLAB unconditional nonlinear
+nevertheless notoriously computationally demanding. 
+
+Thus we will discuss methods derived from Newton's method, but which only require
+gradient information. These are commonly known as \emph{quasi-Newton} methods or 
+sometimes \emph{secant methods} \parencite{Battiti1992}. Given the analytical gradient, 
+the idea is to \emph{iteratively} approximate the analytical inverse Hessian by utilizing
+the information gathered as the ascent method advances. Suppose we are given
+two points $\Th_{j}$ and $\Th_{j+1}$ and that
+\begin{align}
+	\g_j &\equiv \nabla\lLH[\Th_j]\\
+	\q_j &\equiv \g_{j+1}-\g_j\\
+	\p_k &\equiv \Th_{j+1}-\Th_j.
+\end{align}  
+We could then approximate the Hessian with
+\begin{align}
+	\q_j &\approx \nabla^2\lLH[\Th_j] \p_j,
+	\label{eq:secant_approx}
+\end{align}
+which in the one dimensional case is the slope of the secant line drawn 
+through the two points $\theta_1$ and $\theta_2$.
+In case of constant Hessian, equation~\eqref{eq:secant_approx} becomes exact.
+In multiple dimensions equation~\ref{eq:secant_approx} doesn't give a unique solution for
+the approximate Hessian. The Broyden \emph{update} suggests to pick the one
+that deviates the least from the current approximation in the sense of the Frobenius norm.
+Let us suppose that we're searching for a symmetric and negative definite approximate Hessian
+$\widehat{\v{H}}_{j+1}$ based on the current approximation $\widehat{\v{H}}_{j}$.
+Since the Broyden update doesn't guarantee negative definiteness we instead update 
+an \emph{invertible} Cholesky factor, thus guaranteeing the negative-definiteness of $\widehat{\v{H}}_{j+1}$.
+These considerations lead to the widely applied \emph{Broyden-Fletcher-Goldfarb-Shanno} (BFGS) \parencite{BROYDEN01121973,Battiti1992} update
+\begin{align}
+	\widehat{\v{H}}_{j+1}=\widehat{\v{H}}_{j}+\frac{\q_k\q_k^\tr}{\q_k^\tr\p_k}+\frac{\widehat{\v{H}}_{j}\p_k\p_k^\tr\widehat{\v{H}}_{j}}{\p_k^\tr\widehat{\v{H}}_{j}\p_k}.
+\end{align}
+Since we are actually in need for the approximate \emph{inverse} Hessian,
+applying the Sherman-Morrison inversion formula gives
+\begin{align}
+	\widehat{\v{H}}_{j+1}^{-1}=\widehat{\v{H}}_{j}^{-1}+\fparen*{\frac{1+\q_k^\tr\widehat{\v{H}}_{j}^{-1}\q_k}{\q_k^\tr\q_k}}\frac{\p_k\p_k^\tr}{\p_k^\tr\q_k}+
+	\frac{\p_k\q_k^\tr\widehat{\v{H}}^{-1}_{j}+\widehat{\v{H}}^{-1}_{j}\q_k\q_k^\tr}{\q_k^\tr\p_k}.
+\end{align}
+It should be pointed that the commonly used MATLAB unconditional nonlinear
 optimization function \texttt{fminunc} that we referred to earlier, uses 
 the BFGS quasi-Newton method with cubic interpolation line search.
 
