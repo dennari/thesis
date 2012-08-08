@@ -139,8 +139,8 @@ then
 	\N[\v{a}]{\v{m}}{\gv{\Sigma}_a}
 \end{align}
 is only Gaussian if $\F*{f}{\v{a}}$ is linear. Assuming that's not the case,
-let the Gaussian approximation
-to \eqref{eq:joint_nongaussian} be
+let us denote a Gaussian approximation
+to \eqref{eq:joint_nongaussian} with
 \begin{align}
 	\label{eq:joint_gaussian_approx}
 	\Pdf{\begin{bmatrix}
@@ -159,8 +159,7 @@ to \eqref{eq:joint_nongaussian} be
 	\end{bmatrix}
 	}
 \end{align}
-Then since the marginal distributions of a Gaussian distribution are also
-Gaussian, we have to have
+Then for a moment matched approximation we have to have
 \begin{align}
 	\gv{\mu}_a&=\v{m}&
 	\gv{\Sigma}_{aa}&=\gv{\Sigma}_{a}\\
@@ -280,14 +279,14 @@ namely (note the change in indexing):
 \begin{align}
 	\Pdf{\xk}{\x_{k+1},\y_{1:T}}=\Pdf{\xk}{\x_{k+1},\y_{1:k}}&\approx \N[\xk]{\m'_{k}}{\P'_{k}}\\
 	\m'_{k} &= \m_{k|k}+\v{G}_k\fparen*{\x_{k+1}-\m_{k+1|k}}\\
-	\P'_{k} &= \P_{k|k}-v{G}_k\P_{k+1|k}v{G}_k^\tr\\
+	\P'_{k} &= \P_{k|k}-\v{G}_k\P_{k+1|k}\v{G}_k^\tr\\
 	\v{G}_k &= \v{C}_{k,k+1}\v{P}_{k+1|k}^{-1}
 	\label{eq:middle_conditional}
 \end{align}
 At this point we have derived all the components needed to compute
 \eqref{eq:smooth_joint_bayes}. As pointed out previously, the last, i.e $T$:th, filtering 
 distribution is also the ``first" smoothing distribution, and smoothing recursions
-then advance backwards in time. Let us then that the smoothing
+then advance backwards in time. Let us then assume that the smoothing
 distribution of the previous step, $\Pdf{\x_{k+1}}{\y_{1:T}}$, is available. Then
 \begin{align}
 \begin{split}
