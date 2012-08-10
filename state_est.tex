@@ -4,14 +4,24 @@ Since linear mappings can be described by matrices, stationary linear-Gaussian S
 are described by the subset of SSMs of the form \eqref{eq:ssm_general} where  
 \begin{align}
 	\v{f}_{\Th}\left(\x_{k-1}\right)&=\v{A}\x_{k-1}\\
-	\v{h}_{\Th}\left(\xk\right)&=\v{H}\xk
+	\v{h}_{\Th}\left(\xk\right)&=\v{H}\xk.
 \end{align}
-\todo{Explain something about linear-Gaussian SSMs}
+The $d_x\times d_x$ matrix $A$ is called the \emph{transition matrix} and
+the $d_y\times d_x$ matrix $H$ the \emph{emission matrix}.
+These linear-Gaussian SSMs, equivalently known as \emph{linear dynamical systems} \parencite{Bishop2006},
+are one of the few cases where computing the predictive, filtering and
+smoothing distributions is tractable \parencite{Sarkka2006}. As can be seen,
+all of the aforementioned distributions stay Gaussian.
 
 \subsubsection{Kalman filter}
 
-The recursions are as follows \parencite{Kalman1960,jazwinski2007stochastic}:
-\todo{Elaborate on the Kalman filter}
+Tha Kalman filter is the best known filter, first presented in
+the seminal article of \textcite{Kalman1960}. It provides the
+closed form solution to computing the predictive and filtering distributions
+of equations \eqref{eq:pred_bayes} and \eqref{eq:filt_bayes}.
+With the help of lemmas \eqref{lemma:gaussian_joint} and \eqref{lemma:gaussian_cond}
+deriving the Kalman filter equations is quite straightforward \parencite{Sarkka2006}.
+The resulting recursions are \parencite{jazwinski2007stochastic}:
 \begin{subequations}
 \label{eq:Kalman_filter}
 \begin{description}
@@ -55,7 +65,16 @@ joint distributions
 
 \subsubsection{Rauch-Tung-Striebel Smoother}
 
-The standard Rauch-Tung-Striebel (RTS) smoother gives the statistics $\v{m}_{k|T}$ and $\v{P}_{k|T}$ \parencite{jazwinski2007stochastic,Rauch1965}.
+Once the filtering distributions are obtained going \emph{forward} in time,
+the joint smoothing dustributions \eqref{eq:smooth_joint_bayes} can be computed
+going \emph{backwards} in time. In this computing order sense, the last filtering distribution
+is the first smoothing distribution. In the linear-Guassian case,
+the Rauch-Tung-Striebel (RTS) smoother gives the statistics $\v{m}_{k|T}$ and 
+$\v{P}_{k|T}$ \parencite{jazwinski2007stochastic,Rauch1965} in equation \eqref{eq:smoothing_gaussian}.
+We will use a version that gives the joint distribution of the states across a timestep, since
+the cross-timestep covariance will be needed in the parameter estimation phase.
+Assuming now that all the predictive and filtering distributions, i.e $\N[\x_{k+1}]{\m_{k+1|k}}{\v{P}_{k+1|k}}$ and $\N[\xk]{\m_{k|k}}{\v{P}_{k|k}}$ respectively,
+are available, the RTS recursions can be written as
 \begin{subequations}
 \begin{align}
 	\v{J}_k&=\v{P}_{k|k}\v{A}^\tr\v{P}_{k|k+1}^{-1}\\
@@ -82,17 +101,13 @@ The standard Rauch-Tung-Striebel (RTS) smoother gives the statistics $\v{m}_{k|T
 \label{eq:sum_expectations}
 \end{align}
 
-In \parencite{Elliott1999} a new kind of filter is presented that
-can compute \eqref{eq:sum_expectations} with only forward recursions. 
-\todo{Elaborate on the RTS smoother}
-\parencite{Paninski2010}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Nonlinear-Gaussian SSMs}%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:nonlinear_state}
-In the nonlinear case at least one of the mappings $\v{f}_{\Th}$ and $\v{h}_{\Th}$ in
-\eqref{eq:ssm_general} is nonlinear. Unfortunately in this case computing the filtering
+In the nonlinear case at least one of the mappings $\v{f}$ and $\v{h}$ in
+\eqref{eq:ssm_general} is nonlinear (in $\x$). Unfortunately in this case computing the filtering
 distributions in closed form becomes intractable and one has to resort to 
 some sort of approximations. Following \textcite{Arasaratnam2009}, we can
 divide these approximate filtering (and smoothing) solutions into two 
@@ -122,74 +137,47 @@ can be obtained if the first two moments of the actual probability
 distribution can be computed \parencite{Ito2000,Sarkka2006}. As will
 be seen, computing these approximations reduces to the problem
 of computing multidimensional moment integrals of the form 
-\emph{nonlinear function} $\times$ \emph{Gaussian}. We will next derive 
+\emph{nonlinear function} $\times$ \emph{Gaussian}. 
+
+We shall next derive 
 the general form of the three moment integrals and then show how they can be applied
 in the specific case of approximating the joint smoothing distribution
-of equation \eqref{eq:smooth_joint_bayes}.
-
-Analogously to equation~\eqref{eq:ssm_distr_general}, let 
+of equation \eqref{eq:smooth_joint_bayes}. Suppose now that  
 \begin{align}
-	\Pdf{\v{a}}&= \N{\m}{\gv{\Sigma}_a} \label{eq:pa}\\
-	\Pdf{\v{b}}{\v{a}}&= \N{\F*{f}{\v{a}}}{\gv{\Sigma}_{b|a}} \label{eq:pb_given_a}
+	\Pdf{\x}&= \N[\x]{\m}{\P} \label{eq:pa}\\
+	\Pdf{\y}{\x}&= \N[\y]{\F*{f}{\x}}{\v{R}}. \label{eq:pb_given_a}
 \end{align}
-then 
-\begin{align}
-	\label{eq:joint_nongaussian}
-	\Pdf{\v{a},\v{b}}&=\Pdf{\v{b}}{\v{a}}\Pdf{\v{a}}=\N[\v{b}]{\F*{f}{\v{a}}}{\gv{\Sigma}_{b|a}}
-	\N[\v{a}]{\v{m}}{\gv{\Sigma}_a}
-\end{align}
-is only Gaussian if $\F*{f}{\v{a}}$ is linear. Assuming that's not the case,
+Then as in lemma \eqref{lemma:gaussian_joint}, $\Pdf{\x,\y}$ 
+is only Gaussian if $\F*{f}{\x}$ is linear. Assuming that's not the case,
 let us denote a Gaussian approximation
-to \eqref{eq:joint_nongaussian} with
+to $\Pdf{\x,\y}$ with
 \begin{align}
 	\label{eq:joint_gaussian_approx}
 	\Pdf{\begin{bmatrix}
-		\v{a}\\
-		\v{b}
+		\x\\
+		\y
 	\end{bmatrix}}&\approx
 	\N{
 	\begin{bmatrix}
-		\gv{\mu}_a\\
-		\gv{\mu}_b
+		\gv{\mu}_x\\
+		\gv{\mu}_y
 	\end{bmatrix}
 	}{
 	\begin{bmatrix}
-		\gv{\Sigma}_{aa}&\gv{\Sigma}_{ab}\\
-		\gv{\Sigma}_{ab}^\tr&\gv{\Sigma}_{bb}
+		\gv{\Sigma}_{xx}&\gv{\Sigma}_{xy}\\
+		\gv{\Sigma}_{xy}^\tr&\gv{\Sigma}_{yy}
 	\end{bmatrix}
 	}
 \end{align}
-Then for a moment matched approximation we have to have
+Then according to lemmas \eqref{lemma:gaussian_joint} and \eqref{lemma:gaussian_cond}, 
+for a moment matched approximation we have to have
 \begin{align}
-	\gv{\mu}_a&=\v{m}&
-	\gv{\Sigma}_{aa}&=\gv{\Sigma}_{a}\\
-	\gv{\mu}_b&=\defint{}{}{\v{b}\,\Pdf{\v{b}}}{\v{b}} &
-	\gv{\Sigma}_{bb}&=\defint{}{}{(\v{b}-\gv{\mu}_b)(\v{b}-\gv{\mu}_b)^\tr\Pdf{\v{b}}}{\v{b}} 
+	\gv{\mu}_x&=\v{m}\\
+	\gv{\Sigma}_{xx}&=\v{P}\\
+	\gv{\mu}_y&=\defint{}{}{\F*{f}{\x}\N[\x]{\m}{\P}}{\x} \label{eq:mean_int}\\
+	\gv{\Sigma}_{yy}&=\defint{}{}{\fparen*{\F*{f}{\x}-\gv{\mu}_y}\fparen*{\F*{f}{\x}-\gv{\mu}_y}^\tr\N[\x]{\m}{\P}}{\x}+\v{R}\label{eq:var_int}\\
+	\gv{\Sigma}_{xy}&=\defint{}{}{\fparen[\big]{\x-\v{m}}\fparen*{\F*{f}{\x}-\gv{\mu}_y}^\tr\N[\x]{\m}{\P}}{\x}\label{eq:cross_cov_int}
 \end{align}
-It is straightforward to show that $\gv{\mu}_b$, $\gv{\Sigma}_{bb}$ and $\gv{\Sigma}_{ab}$ 
-can all be written in terms of \eqref{eq:pa} and \eqref{eq:pb_given_a}.
-To see this, let us rewrite $\gv{\mu}_b$ as
-\begin{align}
-	\gv{\mu}_b&=\defint{}{}{\v{b}\,\Pdf{\v{b}}}{\v{b}} \nonumber\\
-	&=\defint{}{}{\v{b}\Big(\!\defint{}{}{\Pdf{\v{b}}{\v{a}}\Pdf{\v{a}}}{\v{a}}\Big)}{\v{b}}\nonumber\\
-	&\mbox{{\small (change the order of integration according to Fubini's theorem)}}\nonumber\\
-	&=\defint{}{}{\v{f}(\v{a})\Pdf{\v{a}}}{\v{a}}\label{eq:mean_int},
-\end{align}
-$\gv{\Sigma}_{bb}$ as
-\begin{align}
-	\gv{\Sigma}_{bb}&=\defint{}{}{\v{b}\v{b}^\tr\Pdf{\v{b}}}{\v{b}}-\gv{\mu}_b\gv{\mu}_b^\tr \nonumber\\
-	%&=\defint{}{}{\defint{}{}{\lbrack(\v{b}-\v{f}(\v{a}))(\v{b}-\v{f}(\v{a}))^\tr+\v{f}(\v{a})\v{f}(\v{a})^\tr\rbrack\Pdf{\v{b}}{\v{a}}}{\v{b}}\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^\tr\\
-	&=\defint{}{}{\v{f}(\v{a})\v{f}(\v{a})^\tr\Pdf{\v{a}}}{\v{a}}-\gv{\mu}_b\gv{\mu}_b^\tr
-+\defint{}{}{\fparen*{\v{b}-\F*{f}{\v{a}}}\fparen*{\v{b}-\F*{f}{\v{a}}}^\tr\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}}\nonumber\\
-	&=\defint{}{}{\fparen*{\F*{f}{\v{a}}-\gv{\mu}_b}\fparen*{\F*{f}{\v{a}}-\gv{\mu}_b}^\tr\Pdf{\v{a}}}{\v{a}}+\gv{\Sigma}_{b|a}\label{eq:var_int}.
-\end{align}
-and the cross-covariance $\gv{\Sigma}_{ab}$ as
-\begin{align}
-	\gv{\Sigma}_{ab}&=\defint{}{}{\fparen[\big]{\v{a}-\gv{\mu}_a}\fparen[\big]{\v{b}-\gv{\mu}_b}^\tr\Pdf{\v{a}}\Pdf{\v{b}}{\v{a}}}{\v{a}}{\v{b}} \nonumber\\
-	&=\defint{}{}{\fparen[\big]{\v{a}-\gv{\mu}_a}\fparen[\big]{\defint{}{}{\v{b}\,\Pdf{\v{b}}{\v{a}}}{\v{b}}-\gv{\mu}_b}^\tr\Pdf{\v{a}}}{\v{a}} \nonumber\\
-	&=\defint{}{}{\fparen[\big]{\v{a}-\gv{\mu}_a}\fparen*{\F*{f}{\v{a}}-\gv{\mu}_b}^\tr\N{\v{m}}{\gv{\Sigma}_a}}{\v{a}}\label{eq:cross_cov_int}
-\end{align}%
-%
 
 \subsubsection*{Prediction step} 
 Since the Gaussian approximation to

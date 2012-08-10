@@ -68,7 +68,7 @@ the Cramér-Rao lower bound, i.e. no other consistent estimator has lower asympt
 
 \subsubsection{Identifiability}
 
-Intuitively, any parameters $\Th,\:\Th' \in \Theta$ cannot be distinguished
+Intuitively, any parameters $\Th,\:\Th' \in \Theta,\; \Th \not= \Th'$ cannot be distinguished
 from each other with maximum likelihood estimation if
 \begin{align}
 	\Pdf{\Y}{\Th}&=\Pdf{\Y}{\Th'},
@@ -130,12 +130,12 @@ we need to define the concept of a closed point-to-set mapping. $T$ is a point-t
 from $X$ to $Y$, if it maps points in $X$ to subsets of $Y$.
 $T$ is said to be \emph{closed} at $\x \in X$ if
 \begin{alignat*}{3}
-	\mathrm{(i)}&\; & \x_j & \to \x,&\;&\x_j \in X\\
-	\mathrm{(ii)} && \y_j &\to \y, && \y_j\in\F{T}{\x_j}\\
+	\mathrm{(i)}&\; & \x_j & \to \x,&\;&\x_j \in X,\;j=0,1,2,\dots\\
+	\mathrm{(ii)} && \y_j &\to \y, && \y_j\in\F{T}{\x_j},\;j=0,1,2,\dots\\
 \shortintertext{imply that}
 	&& \y&\in\F{T}{\x}	&&
 \end{alignat*}
-This can be considered a generalization of continuity.
+This can be considered a generalization of continuity for point-to-set mappings.
 \begin{theorem}
 Given an initial value $\Th_0$, let the point-to-set map $\EMM*:\Theta\to Y$ construct a sequence
 of estimates $\brac[\big]{\Th_{j+1}\in\Theta : \Th_{j+1}\in\EMM{\Th_j}}$, let $\mathcal{S}\subset\Theta$ denote the solution
@@ -742,16 +742,16 @@ we get
 \bm{\sum_{k=1}^T\E{\xk\xk^\tr} & \sum_{k=1}^T\E{\xk\xkk^\tr} \\ \sum_{k=1}^T\E{\xkk\xk^\tr} & \sum_{k=1}^T\E{\xkk\xkk^\tr} }
 \bm{\v{I}\\-\v{A}^\tr}\nonumber\\
 &=\bm{\v{I} & -\v{A}}	
-\bm{\bar{\X}_{00} & \bar{\X}_{01} \\ \bar{\X}_{01}^\tr & \bar{\X}_{11} }
+\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }
 \bm{\v{I}\\-\v{A}^\tr}\nonumber\\
-&=\bar{\X}_{00}-\v{A}\bar{\X}_{01}^\tr-\bar{\X}_{01}\v{A}^\tr+\v{A}\bar{\X}_{11}\v{A}^\tr\nonumber\\
-&=\left(\v{A}-\bar{\X}_{01}\bar{\X}_{11}^{-1}\right)\bar{\X}_{11}\left(\v{A}-\bar{\X}_{01}\bar{\X}_{11}^{-1}\right)^\tr+\bar{\X}_{00}+\bar{\X}_{01}\bar{\X}_{11}^{-1}\bar{\X}_{01}^\tr.
+&=\XX_{00}-\v{A}\XX_{01}^\tr-\XX_{01}\v{A}^\tr+\v{A}\XX_{11}\v{A}^\tr\nonumber\\
+&=\left(\v{A}-\XX_{01}\XX_{11}^{-1}\right)\XX_{11}\left(\v{A}-\XX_{01}\XX_{11}^{-1}\right)^\tr+\XX_{00}+\XX_{01}\XX_{11}^{-1}\XX_{01}^\tr.
 \label{eq:Amax}
 \end{align}
 It's easy to see that the extremum value of the last line with respect to $\v{A}$
 is obtained by setting
 \begin{align}
-	\v{A}_{j+1}&=\bar{\X}_{01}\bar{\X}_{11}^{-1} \label{eq:EM_M_A}.	
+	\v{A}_{j+1}&=\XX_{01}\XX_{11}^{-1} \label{eq:EM_M_A}.	
 \end{align}
 For $\v{I}_3$ we get
 \begin{align}
@@ -762,12 +762,12 @@ For $\v{I}_3$ we get
 \bm{\v{I}\\-\v{H}^\tr} \label{eq:LGSSM_I3}\\
 &=\bm{\v{I} & -\v{H}}	
 \sum_{k=1}^T
-	\bm{\bar{\Y}_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \bar{\X}_{00} }
+	\bm{\YY_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \XX_{00} }
 \bm{\v{I}\\-\v{H}^\tr},
 \end{align}
 so with analogous manipulation as in \eqref{eq:Amax} we get
 \begin{align}
-	\v{H}_{j+1}&=\bar{\v{C}}_{00}\bar{\X}_{00}^{-1} \label{eq:EM_M_H}.	
+	\v{H}_{j+1}&=\bar{\v{C}}_{00}\XX_{00}^{-1} \label{eq:EM_M_H}.	
 \end{align}
 
 All in all, the E-step of EM algorithm in linear-Gaussian SSM:s consists of
@@ -796,13 +796,13 @@ in the linear-Gaussian case:
 	-\dpd{\gv{\Sigma}}{\theta_i}\bigg)\Bigg]\\
 %
 	+&\frac{1}{2}\mathrm{Tr}\!\Bigg[\v{Q}^{-1}\bigg(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
-	\bm{\v{I} & -\v{A}}\bm{\bar{\X}_{00} & \bar{\X}_{01} \\ \bar{\X}_{01}^\tr & \bar{\X}_{11} }\bm{\v{I}\\-\v{A}^\tr}\\	
-	&\quad +2\bm{\v{0} & -\dpd{\v{A}}{\theta_i}}\bm{\bar{\X}_{00} & \bar{\X}_{01} \\ \bar{\X}_{01}^\tr & \bar{\X}_{11} }\bm{\v{I}\\-\v{A}^\tr}
+	\bm{\v{I} & -\v{A}}\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }\bm{\v{I}\\-\v{A}^\tr}\\	
+	&\quad +2\bm{\v{0} & -\dpd{\v{A}}{\theta_i}}\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }\bm{\v{I}\\-\v{A}^\tr}
 	-T\dpd{\v{Q}}{\theta_i}\bigg)\Bigg]\\
 %	
 	+&\frac{1}{2}\mathrm{Tr}\!\Bigg[\v{R}^{-1}\bigg(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
-	\bm{\v{I} & -\v{H}}\bm{\bar{\Y}_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \bar{\X}_{00} }\bm{\v{I}\\-\v{H}^\tr}\\
-	&\quad +2\bm{\v{0} & -\dpd{\v{H}}{\theta_i}}\bm{\bar{\Y}_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \bar{\X}_{00} }\bm{\v{I}\\-\v{H}^\tr}
+	\bm{\v{I} & -\v{H}}\bm{\YY_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \XX_{00} }\bm{\v{I}\\-\v{H}^\tr}\\
+	&\quad +2\bm{\v{0} & -\dpd{\v{H}}{\theta_i}}\bm{\YY_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \XX_{00} }\bm{\v{I}\\-\v{H}^\tr}
 	-T\dpd{\v{R}}{\theta_i}\bigg)\Bigg].
 \end{split}	
 \end{align}
