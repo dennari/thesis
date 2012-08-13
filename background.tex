@@ -92,21 +92,21 @@ presentation of discrete-time SSMs is
 \begin{subequations}
 \label{eq:ssm_too_general}
 \begin{align}
-	\xk &= \F{\v{f}_{\Th,k}}{\x_{k-1},\v{q}_{k-1}}\\
-	\yk &= \F{\v{h}_{\Th,k}}{\xk,\v{r}_{k}}.
+	\xk &= \F{\v{f}_{k}}{\x_{k-1},\v{q}_{k-1},\Th}\\
+	\yk &= \F{\v{h}_{k}}{\xk,\v{r}_{k},\Th}.
 \end{align}
 \end{subequations}
 Here the stochasticity is separated into the noise processes $\v{q}$ and $\v{r}$ which are usually
 assumed to be zero mean, white and independent of each other. We will restrict ourselves
 to the case of zero mean, white and additive Gaussian noise and in our case the mappings
-$\v{f}_{\Th,k}$ and $\v{h}_{\Th,k}$ and the noise processes $\v{q}$ and $\v{r}$ will be stationary (i.e. independent of
+$\f_k$ and $\h_k$ and the noise processes $\v{q}$ and $\v{r}$ will be stationary (i.e. independent of
 k). Thus the SSMs considered in this thesis are of the form
 \begin{subequations}
 \label{eq:ssm_general}
 \begin{alignat}{2}
-	\xk &= \F{\v{f}}{\x_{k-1},\Th}+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0}}{\v{Q}} \label{eq:Q}\\
-	\yk &= \F{\v{h}}{\xk,\Th}+\v{r}_{k} & \v{r}_k&\sim \N{\v{0}}{\v{R}} \label{eq:R}\\
-	\v{x}_{0} &\sim \N{\gv{\mu}_0}{\gv{\Sigma}_0} && \label{eq:prior},
+	\xk &= \ff+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0}}{\v{Q}} \label{eq:Q}\\
+	\yk &= \hh+\v{r}_{k} & \v{r}_k&\sim \N{\v{0}}{\v{R}} \label{eq:R}\\
+	\v{x}_{0} &\sim \N{\gv{\mu}_0}{\gv{\Sigma}_0},\label{eq:prior}
 \end{alignat}
 \end{subequations}
 We will assume an implicit dependence of the distributional parameters $\v{Q}$,
@@ -116,17 +116,19 @@ We will then use the notation
 \begin{align}
 	\x &\sim \N{\m}{\P}\\
 \Leftrightarrow \Pdf{\x}&=\N[\x]{\m}{\P}\\
-	&\equiv \fparen*{\fparen*{2\pi}^{d_x}\detr\P}^{-\sfrac{1}{2}}\exp\brak[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)},		
+	&\equiv \fparen*{\fparen*{2\pi}^{d_x}\detr\P}^{-\sfrac{1}{2}}\exp\fparen[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)}\\		
+	&= \fparen*{\fparen*{2\pi}^{d_x}\detr\P}^{-\sfrac{1}{2}}\exp\fparen*{-\frac{1}{2}
+	\Tr{\P^{-1}\bm{\v{I}\\-\v{I}}^\tr\bm{\x\\\m}\bm{\x\\\m}^\tr\bm{\v{I}\\-\v{I}}}},		
 \end{align}
 
-Now clearly the mappings $\v{f}:\mathcal{X}\to\mathcal{X}$ and
-$\v{h}:\mathcal{X}\to\mathcal{Y}$ specify the means of the dynamic
+Now clearly the mappings $\f:\mathcal{X}\to\mathcal{X}$ and
+$\h:\mathcal{X}\to\mathcal{Y}$ specify the means of the dynamic
 and the measurement models:
 \begin{subequations}
 \label{eq:ssm_distr_general}
 \begin{align}
-	\Pdf{\xk}{\x_{k-1},\Th}&=\N{\F{\v{f}}{\x_{k-1},\Th}}{\v{Q}}\label{eq:dynamics_distr_general}\\
-	\Pdf{\yk}{\xk,\Th}&=\N{\F{\v{h}}{\xk,\Th}}{\v{R}}\label{eq:measurement_distr_general}
+	\Pdf{\xk}{\x_{k-1},\Th}&=\N{\ff}{\v{Q}}\label{eq:dynamics_distr_general}\\
+	\Pdf{\yk}{\xk,\Th}&=\N{\hh}{\v{R}}\label{eq:measurement_distr_general}
 \end{align}
 \end{subequations}
 

@@ -76,6 +76,9 @@ pdfproducer={xetex}
 %\newcommand{\lcLH}{\log\cLH}
 \newcommand{\tP}{q}
 \NewDocumentCommand\tPX{G{\gv{\psi}}}{\Pdf[\tP]{\X}{#1}}
+\NewDocumentCommand\ff{O{\displaysize} G{\xkk} G{\Th}}{\F[#1]{\f}{#2,#3}}
+\NewDocumentCommand\hh{O{\displaysize} G{\xk} G{\Th}}{\F[#1]{\h}{#2,#3}}
+\NewDocumentCommand\II{O{\displaysize} m}{\F[#1]{\v{I}_{#2}}{\Th,\Th'}}
 \NewDocumentCommand\post{G{\Th}}{\Pdf[p]{\X}{\Y,#1}}
 \NewDocumentCommand\cLH{G{\Th}}{\Pdf{\X,\Y}{#1}}
 \NewDocumentCommand\LH{G{\Th}}{\Pdf{\Y}{#1}}
@@ -142,14 +145,19 @@ firstinits=true
 
 
 
-%\input{abstract}
-%\newpage
+\input{abstract}
+\mysection{Preface}
+\input{preface}
+\newpage
 
 
 \addcontentsline{toc}{section}{Contents}
 \tableofcontents
 
-%\input{abbr}
+\mysection{Symbols and abbreviations}
+\input{abbr}
+
+
 
 
 %% Sivulaskurin viilausta opinnäytteen vaatimusten mukaan:
@@ -203,85 +211,7 @@ firstinits=true
 \appendix
 \numberwithin{equation}{section}
 \numberwithin{lemma}{section}
-\section{Additional material}
-\subsection{Properties of the Gaussian distribution}
-\begin{lemma} \label{lemma:gaussian_joint}
-Suppose $\x\in\R^n$ and $\y\in\R^m$ have the distributions
-\begin{align*}
-	\Pdf{\x}&= \N[\x]{\v{m}}{\v{P}} \\
-	\Pdf{\y}{\x}&= \N[\y]{\v{H}\x+\v{u}}{\v{R}}.
-\end{align*}
-Then the joint distribution is
-\begin{align*}
-	\Pdf{\begin{bmatrix}
-		\x\\
-		\y
-	\end{bmatrix}}&=
-	\N[\bm{\x\\\y}]{
-	\begin{bmatrix}
-		\v{m}\\
-		\v{H}\v{m}+\v{u}
-	\end{bmatrix}
-	}{
-	\begin{bmatrix}
-		\v{P}&\v{P}\v{H}^\tr\\
-		\v{H}\v{P}&\v{H}\v{P}\v{H}^\tr+\v{R}\\
-	\end{bmatrix}
-	}
-\end{align*}
-\end{lemma}
-\begin{proof}
-\begin{align}
-	\E{\y}&=\defint{}{}{\y\,\Pdf{\y}}{\y} \nonumber\\
-	&=\defint{}{}{\y\Big(\!\defint{}{}{\Pdf{\y}{\x}\Pdf{\x}}{\x}\Big)}{\y}\nonumber\\
-	&\mbox{{\small (change the order of integration according to Fubini's theorem)}}\nonumber\\
-	&=\E{\E{\y\mid\x}}\\
-	%&=\defint{}{}{\fparen*{\v{H}\x+\v{u}}\Pdf{\x}}{\x}\label{eq:mean_int},\\
-	&=\v{H}\v{m}+\v{u}\\
-%\end{align}
-%\begin{align}
-	\var{\y}&=\defint{}{}{\fparen*{\y-\E{\y}}\fparen*{\y-\E{\y}}^\tr\Pdf{\y}{\x}\Pdf{\x}}{\y}{\x} \nonumber\\
-	%&=\defint{}{}{\fparen*{\y-\E{\y}}\fparen*{\y-\E{\y}}^\tr\defint{}{}{\Pdf{\y}{\x}\Pdf{\x}}{\y}}{\x} \nonumber\\
-	&=\E{\E{\y\mid\x}\E{\y\mid\x}^\tr}-\E{\E{\y\mid\x}}\E{\E{\y\mid\x}}^\tr \nonumber \\
-&\quad+\defint{}{}{\fparen*{\y-\E{\y\mid\x}}\fparen*{\y-\E{\y\mid\x}}^\tr\Pdf{\y}{\x}\Pdf{\x}}{\y}{\x} \nonumber \\
-	&= \var{\E{\y\mid\x}}+\E{\var{\y\mid\x}}\\
-	&= \v{H}\v{P}\v{H}^\tr+\v{R}\\
-%\end{align}
-%\begin{align}
-	\cov{\x}{\y}&=\defint{}{}{\fparen[\big]{\x-\E{\x}}\fparen[\big]{\y-\E{\y}}^\tr\Pdf{\x}\Pdf{\y}{\x}}{\x}{\y} \nonumber\\
-	&=\defint{}{}{\fparen[\big]{\x-\E{\x}}\fparen[\big]{\E{\y\mid\x}-\E{\y}}^\tr\Pdf{\x}}{\x} \nonumber\\
-	&=\defint{}{}{\fparen[\big]{\x-\v{m}}\fparen[\big]{\x-\v{m}}^\tr\v{H}^\tr\Pdf{\x}}{\x} \nonumber\\
-	&=\v{P}\v{H}^\tr
-\end{align}%
-
-\end{proof}
-\begin{lemma} \label{lemma:gaussian_cond}
-Suppose $\x\in\R^n$ and $\y\in\R^m$ have the joint distribution
-\begin{align*}
-	\Pdf{\begin{bmatrix}
-		\x\\
-		\y
-	\end{bmatrix}}&=
-	\N[\bm{\x\\\y}]{
-	\begin{bmatrix}
-		\v{a}\\
-		\v{b}
-	\end{bmatrix}
-	}{
-	\begin{bmatrix}
-		\v{A}&\v{C}\\
-		\v{C}^\tr&\v{B}
-	\end{bmatrix}
-	}.
-\end{align*}
-Then the marginal and conditional distributions are given by
-\begin{align*}
-	\Pdf{\x} &= \N[\x]{\v{a}}{\v{A}}\\
-	\Pdf{\y} &= \N[\x]{\v{b}}{\v{B}}\\
-	\Pdf{\x}{\y}&= \N[\x][\displaystyle]{\v{a}+\v{C}\v{B}^{-1}\fparen*{\v{y}-\v{b}}}{\v{A}-\v{C}\v{B}^{-1}\v{C}^\tr}\\
-	\Pdf{\y}{\x}&= \N[\x][\displaystyle]{\v{b}+\v{C}^\tr\v{A}^{-1}\fparen*{\v{x}-\v{a}}}{\v{B}-\v{C}^\tr\v{A}^{-1}\v{C}}
-\end{align*}
-\end{lemma}
+\input{appendix}
 \clearpage
 \printbibliography
 \end{document}

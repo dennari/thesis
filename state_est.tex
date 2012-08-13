@@ -226,7 +226,7 @@ For the update step we first approximate
 \begin{split}
 	\Pdf{\xk,\yk}{\y_{1:k-1}}=\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}&\approx\N[\yk]{\h_k}{\v{R}}\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}\\
 	&\approx 
-	\N{
+	\N[\bm{\xk\\\yk}]{
 	\begin{bmatrix}
 		\m_{k|k-1}\\
 		\gv{\mu}_{k}
@@ -250,8 +250,7 @@ we get
 	&=\defint{}{}{\fparen[\big]{\xk-\m_{k|k-1}}\fparen[\big]{\h_k-\gv{\mu}_k}^\tr\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}}{\xk} \label{eq:update_covariance_intergral}.
 \end{align}
 The approximation to the filtering distribution $\Pdf{\xk}{\y_{1:k}}\approx \N[\xk]{\m_{k|k}}{\P_{k|k}}$ 
-is then given by applying the well known formula for calculating the conditional distribution of jointly 
-Gaussian variables, giving
+is then given by applying Lemma~\ref{lemma:gaussian_cond} to \eqref{eq:joint_update_approximation}:
 \begin{align}
 	\m_{k|k}
 	&=\m_{k|k-1}+\v{C}_{k}\v{S}_{k}^{-1}\left(\yk-\gv{\mu}_k\right)\label{eq:update_mean}\\
@@ -276,11 +275,12 @@ At this point we have derived all the components needed to compute
 distribution is also the ``first" smoothing distribution, and smoothing recursions
 then advance backwards in time. Let us then assume that the smoothing
 distribution of the previous step, $\Pdf{\x_{k+1}}{\y_{1:T}}$, is available. Then
+by applying Lemma~\ref{lemma:gaussian_joint}, we have
 \begin{align}
 \begin{split}
-	\Pdf{\x,\x_{k+1}}{\y_{1:T}}&=\Pdf{\xk}{\x_{k+1},\y_{1:T}}\Pdf{\x_{k+1}}{\y_{1:T}}\\
+	\Pdf{\xk,\x_{k+1}}{\y_{1:T}}&=\Pdf{\xk}{\x_{k+1},\y_{1:T}}\Pdf{\x_{k+1}}{\y_{1:T}}\\
 	&\approx
-	\N{
+	\N[\bm{\xk\\\x_{k+1}}]{
 	\begin{bmatrix}
 		\m_{k|T}\\
 		\m_{k+1|T}
@@ -310,19 +310,19 @@ Notably, the smoothing distribution approximations can be computed
 without further integrations.
 
 \subsubsection{Numerical integration approach}
- We will now discuss the topic of numerically solving integrals of the form
+ We will now discuss the topic of numerically solving Gaussian 
+ expectation integrals of the form
  \begin{align}
-	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x} \nonumber\\
-	\equiv\defint{}{}{&\F*{l}{\x}\fparen*{\fparen*{2\pi}^{d_x}\det\P}^{-\sfrac{1}{2}}\exp\brak[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)}}{\x}.
+	\E{\F{\gv{\kappa}}{\x}}&\equiv \defint{\mathcal{X}}{}{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}{\x}
 	\label{eq:gauss_integral}
 \end{align}%
-%
-Even though omitted in the notation, it is assumed that the integral\todo{existence of the integral}
-is over the unbounded space $\R^{d_x}$ of $\x$. Furthermore \eqref{eq:gauss_integral}
-should be thought of as a Gaussian \emph{weighted} multidimensional integral, so that $\N[\x]{\m}{\P}$
-is not considered to be part of the integrand (more generally, \eqref{eq:gauss_integral}
-should be stated as the \emph{Lebesgue} integral $\defint{\R^{d_x}}{}{\F*{l}{\x}}{F}$, where $F$
-defines the probability measure of the probability space).
+where it is assumed that 
+\begin{align}
+	\mathcal{X} &= \R^{d_x}\\
+	\x &\sim \N{\m}{\P}\\
+	\defint{}{}{\abs{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}}{\x} & < \infty. 
+\end{align}
+
 %Numerical integration in one dimension is known as \emph{quadrature} and in higher dimensions as \emph{cubature}.
 As explained in \textcite{Wu2006}, the approaches to solving \eqref{eq:gauss_integral}
 can be justifiably divided into three categories: 
@@ -348,7 +348,7 @@ for Gaussian weighted integrals are called the \emph{Gauss-Hermite}
 quadrature rules. Quadrature is a term referring to unidimensional numerical integration, whereas
 \emph{cubature} is the generalization to higher dimensions. A common form for cubature rules is
 \begin{align}
-	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x} \approx \sum_{i=1}^m w_i\F*{l}{\v{u}_i}, 
+	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x} \approx \sum_{i=1}^m w_i\F*{l}{\v{u}_i},
 \end{align}
 where the points of evaluation $\brac*{\v{u}_i}_{i=1}^m$ are called the \emph{sigma points}
 (or just points) and $w_i$ are the weights. As is expected from the iterated integration approach,

@@ -1,38 +1,3 @@
-\subsection{Comparisons}
-Both the direct method of section~\ref{sec:grad} and the EM algorithm of section~\ref{sec:EM_SSM}
-have their strengths and weaknesses. Neither of them can be said to eclipse the other in an absolute sense.
-In this section we will go through some features of the said algorithms found in the literature.
-Then a more detailed analysis will be performed on two essential aspects of any estimation algorithm:
-the convergence properties, i.e. when should one expect the algorithm to find a local maximum and
-the computational requirements of the algorithms.
-
-\textcite{Cappe2005} contains a list of arguments in favor of either of the methods. The following list includes
-those and additional points with comments:
-\begin{description}
-  \item[Direct]\hfill
-\begin{itemize}
-  \item\emph{No smoother needed} The log-likelihood, or an approximation to it, can be evaluated
-  with forward-filtering
-  \item\emph{No M-step}. There is no need to figure out model-dependent maximization
-  formulas even in nonlinear models 
-  \item\emph{Faster convergence}. Advanced gradient-based optimization
-  methods can reach convergence speeds that are close to quadratic
-\end{itemize}
-  \item[EM]\hfill
-  \begin{itemize}
-  \item \emph{Simple to implement}. This argument is often put forward in favor of the EM
- algorithm. However in practice when using the gradient-based method one would use any one of
-the off-the-self nonlinear optimizers and not re-implement one. Thus which one is easier to implement
-boils down to gradient computation. If the model is linear or linear-in-the-parameters the EM
-algorithm doesn't need any gradient information.
-  \item\emph{Parameter constraints}. In \textcite{Cappe2005} it is argued that
-since the M-step maximization equations are so simple, including parameter constraints
-are easier in the EM algorithm. This again depends on if the model is linear or linear-in-the-parameters.
-  \item\emph{Parameterization independent}. This again depends on if one has to use gradient-based
- optimization in the M-step. If not, then the EM algorithm is parameterization independent. In the gradient-based
- method the gradient and the Hessian, and so the convergence, are affected by the parameterization.
-\end{itemize} 
-\end{description}
 \todo{shortcomings of Gaussian filtering}
 \todo{Dual and joint filtering}
 \todo{particle filtering}

@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Maximum likelihood and maximum a posteriori estimation}%%%%%%
+\subsection{Bayesian Estimation of Parameters}%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In the Bayesian sense the complete answer to the parameter estimation
@@ -35,72 +35,8 @@ be remembered that both of the methods we consider can be extended
 to the estimation of the MAP estimate in a straightforward fashion.
 \todo{Explain MAP in both cases}
 
-Among different point estimates, the maximum likelihood estimator has good statistical properties.
-Let us denote the true parameter value, the value that the data was generated with, with $\Th_\star$ and 
-let $T$ denote the amount of observations.
-Then provided that some conditions of not very restricting nature hold, we can state the following asymptotic properties 
-for the ML estimate $\Th_{\text{ML}}$:\todo{Modify to reflect p.465 in Cappé}
-\begin{description}
-\addtolength{\leftskip}{1cm}
-\item[Strong consistency]\hfill\\
-An important property for an estimator, which says that
-the estimator tends to the true value as the amount of data tends to infinity:
-\begin{align}
-	%\forall \Th \in \Theta\quad \frac{1}{n}\Pdf[\ell_n]{\Th} \xrightarrow{\mathrm{a.s.}} \lLH, \mathrm{when} n\to\infty
-	\F{\ell_T}{\Th_{\text{ML}}} \xrightarrow{\mathrm{a.s.}} \F{\ell}{\Th_\star},\quad \mathrm{when}\;T\to\infty,
-\end{align}
-where $\ell_T$ is the likelihood function after $T$ measurements and $\ell$ is a continuous
-deterministic function with a unique global maximum at $\Th_\star$.
-%where $\Pdf[\ell_n]{\Th}$ is the log-likelihood given $n$ observations and $\lLH$ is a continuous deterministic
-%function with a unique global maximum at $\Th_\star$.
-\item[Asymptotic normality]\hfill\\
-This property gives us the means to compute asymptotic error bounds for
-the estimate:
-\begin{align}
-	\sqrt{T}\left(\Th_{\text{ML}}-\Th_\star\right) \xrightarrow{D} \N{\v{0}}{\F{\mathcal{I}^{-1}}{\Th_\star}},\quad \mathrm{when}\;T\to\infty,	
-\end{align}
-where $\F{\mathcal{I}}{\Th_\star}$ is the \emph{Fisher information matrix} evaluated at $\Th_\star$ 
-\item[Efficiency]\hfill\\
-When the amount of information tends to infinity, the ML-estimate achieves
-the Cramér-Rao lower bound, i.e. no other consistent estimator has lower asymptotic mean-squared-error.
-\end{description}
 
-
-\subsubsection{Identifiability}
-
-Intuitively, any parameters $\Th,\:\Th' \in \Theta,\; \Th \not= \Th'$ cannot be distinguished
-from each other with maximum likelihood estimation if
-\begin{align}
-	\Pdf{\Y}{\Th}&=\Pdf{\Y}{\Th'},
-\end{align}
-i.e., if the same data can arise with two (or more) separate
-parameter values. Let us then go through the second order sufficient conditions
-for a point $\Th_\star$ to be a local maximum. We can define a local maximum
-to be a point $\Th_\star$, for which $\lLH[\Th_\star]-\lLH[\Th_\star+\v{d}] \geq 0$ for small $\v{d}$.
-
-\begin{proposition}\label{prop:cond_for_max}
-Let $\ell:\Theta \to \R$ have continuous second order partial derivatives and let $\Th_\star$
-belong to the interior of $\Theta$. If
-\begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
-  \item $\nabla\lLH[\Th_\star] =0$ 
-  \item $\nabla^2\lLH[\Th_\star]$ is negative definite
-\end{enumerate}
-then $\Th_\star$ is a strict local maximum of $\ell$.
-\end{proposition}
- \begin{proof}
- Since \textit{ii)}, there must exist a nonnegative number $a$ for which 
- $-\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d} \geq a\abs{\v{d}}^2$.
- Taylor expanding around $\Th_\star$ gives
- \begin{align*}
-	\lLH[\Th_\star+\v{d}] &= \lLH[\Th_\star]+\nabla\lLH[\Th_\star]^\tr\v{d}+\frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}+\F[\big]{o}{\,\abs{\v{d}}^2}\\
-	\lLH[\Th_\star]-\lLH[\Th_\star+\v{d}] &= -\frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}-\F[\big]{o}{\,\abs{\v{d}}^2}\\
-	&\geq \frac{1}{2}a\abs{\v{d}^2}-\F[\big]{o}{\,\abs{\v{d}}^2}.
-\end{align*}
-For small enough $\abs{\v{d}}$, the right hand side of the last row must be nonnegative.
- \end{proof}
-
-\todo{Elaborate on identifiability}
-\parencite{Haykin2001,Cappe2005}
+\subsubsection{Maximuma a posteriori and maximum likelihood}
 
 \subsubsection{Ascent methods}
 
@@ -159,7 +95,7 @@ of the above theorem that produces difficulties with actual implementations
 of iterative ascent algorithms. We will discuss this point in further detail in connection
 with the specific methods we're considering.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Gradient based nonlinear optimization}\label{sec:grad}%%%
+\subsection{Gradient based nonlinear optimization of parameters}\label{sec:grad}%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 There exists a large amount of efficient nonlinear optimization,
@@ -291,6 +227,7 @@ It should be pointed that the commonly used MATLAB unconditional nonlinear
 optimization function \texttt{fminunc} that we referred to earlier, uses 
 the BFGS quasi-Newton method with cubic interpolation line search.
 
+\subsubsection{Linear-Gaussian SSMs}
 
 Let us then focus on computing the gradient of the
 log-likelihood function $\lLH$, also known as the \emph{score function}.
@@ -362,16 +299,12 @@ a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside 
 As noted in \textcite{Cappe2005}, these equations are sometimes known as the \emph{sensitivity equations}
 and they are derived at least in \textcite{Gupta1974} and \textcite{Mbalawataa}.
 
-\subsubsection{Complexity}
-
-The computational complexity per iteration of a quasi-Newton procedure is
-highly dependent on the required amount of line-search steps. It is definitely
-undesirable to perform these suboptimization, i.e. iterations inside iterations.
-\todo{Elaborate on BFGS complexity}
+\subsubsection{Nonlinear-Gaussian SSMs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Expectation maximization (EM)}%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 Expectation maximization (EM) algorithm is a general
 method for finding ML and MAP estimates in probabilistic models with missing data or
@@ -438,7 +371,8 @@ and \eqref{eq:EM_sharp_bound} it can be seen rather easily, that
 the score evaluated at $\widehat{\Th}$ is given by
 \begin{align}
 		\score[\widehat\Th]&=
-		\eval{\dpd{ \EMQ[\big]{\widehat\Th}{\Th}}{\Th}}_{\Th=\widehat\Th} \label{eq:EM_gradients}
+		\nabla_{\Th}\EMQ[\big]{\widehat\Th}{\widehat\Th}
+		=\eval{\dpd{ \EMQ[\big]{\widehat\Th}{\Th}}{\Th}}_{\Th=\widehat\Th} \label{eq:EM_gradients}
 \end{align} 
 Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005}. It gives
 an alternative route for the score function computation.
@@ -484,7 +418,7 @@ $\EMQ{\Th_l}{\Th}$ must be maximal at $\Th=\Th_l$ and thus its gradient, and
 by \eqref{eq:EM_gradients} that of the likelihood, must be zero at $\Th=\Th_l$. Thus
 $\Th_l$ is a \emph{stationary point} of $\lLH$, i.e a local maximum or a saddle point.
 
-\subsubsection{EM in exponential families of distributions}
+\subsubsection*{EM in exponential families of distributions}\label{sec:EM_exp}
 
 Computing the intermediate quantity of EM is especially simple
 if the dynamic model and the measurement model belong to an exponential
@@ -497,11 +431,11 @@ Here $\F*{s}{\z}$ is called the vector of \emph{natural sufficient statistics} a
 $\gv{\eta}\equiv \F{\gv{\psi}}{\Th}$ is the \emph{natural parameterization}.
 Let us suppose now that the complete-data likelihood is of the form \eqref{eq:exp_family}, so
 that $\v{z}^\tr=\brak*{\mathrm{vec}\brac*{\X}^\tr,\mathrm{vec}\brac*{\Y}^\tr}$, where the operator $\mathrm{vec}\brac*{\cdot}$
-creates vectors out of matrices by stacking their columns, contains the
-hidden variables $\X$ and the measurements $\Y$. 
+creates vectors out of matrices by stacking their columns. Thus $\v{z}$ 
+contains the hidden variables $\X$ and the measurements $\Y$. 
 
 The intermediate quantity, i.e the expectation of the logarithm of $\Pdf[q]{\z}{\Th}$ over the posterior distribution of 
-$\X$ (implied) becomes now
+$\X$ (implicit in the notation) becomes now
 \begin{align}
 	\EMQ&=	\F{\gv{\psi}}{\Th}^\tr \E{\F*{s}{\z}}-\F{c}{\Th}+\E{\F{h}{\z}}.
 \end{align}
@@ -510,7 +444,7 @@ is independent of this last term. Thus the role of the E-step degenerates into c
 expectation of the sufficient statistics $\E{\F*{s}{\z}}$.
 
 
-\subsubsection{EM as a special case of variational Bayes}
+\subsubsection*{EM as a special case of variational Bayes}
 \todo{Ensure that notation matches prev chapter}
 
 \parencite{barber2012bayesian,jordan1998learning}
@@ -593,38 +527,51 @@ hope for approximate solutions.
 \parencite{Lange1995,Goodwin2005}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{EM in SSMs}%%%%%%%%%%
+\subsubsection{Linear-Gaussian SSMs}%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:EM_SSM}
 
-Let us then look at how to apply EM to a SSM of the form \eqref{eq:ssm_general}. First of
-all, from the factorization in \eqref{eq:complete_data_likelihood}, the complete-data log-likelihood becomes
-\begin{align*}
+Let us then turn to applying EM to the case of linear-Gaussian SSMs
+\parencite{shumway1982approach,Ghahramani1996}
+, so that
+\begin{align}
+	\ff &\equiv \v{A}\xkk\\
+	\hh &\equiv \v{H}\xk\\
+	\Th &\equiv \brac{\v{A},\v{Q},\v{H},\v{R}}.
+	\label{tablelabel}
+\end{align}
+First of all, from the factorization in \eqref{eq:complete_data_likelihood}, the complete-data log-likelihood becomes
+\begin{align}
+\label{eq:clLH_LG}
 \begin{split}
-	\cLH =&-\frac{1}{2}\left(\x_0-\gv{\mu}_0\right)^\tr\gv{\Sigma}_0^{-1}\left(\x_0-\gv{\mu}_0\right)-\frac{1}{2}\log\det{\gv{\Sigma}_0}\\
-	&-\frac{1}{2}\sum_{k=1}^T\left(\x_k-\v{f}(\x_{k-1})\right)^\tr\v{Q}^{-1}\left(\x_k-\v{f}(\x_{k-1})\right)-\frac{T}{2}\log\det{\v{Q}}\\
-	&-\frac{1}{2}\sum_{k=1}^T\left(\y_k-\v{h}(\x_{k})\right)^\tr\v{R}^{-1}\left(\y_k-\v{h}(\x_{k})\right)-\frac{T}{2}\log\det{\v{R}}\\
+	\lLH
+	=&-\frac{1}{2}\left(\x_0-\gv{\mu}_0\right)^\tr\gv{\Sigma}_0^{-1}\left(\x_0-\gv{\mu}_0\right)-\frac{1}{2}\log\detr{\gv{\Sigma}_0}\\
+	&-\frac{1}{2}\sum_{k=1}^T\left(\x_k-\v{A}\xkk\right)^\tr\v{Q}^{-1}\left(\x_k-\v{A}\xkk)\right)-\frac{T}{2}\log\detr{\v{Q}}\\
+	&-\frac{1}{2}\sum_{k=1}^T\left(\y_k-\v{H}\xk\right)^\tr\v{R}^{-1}\left(\y_k-\v{H}\xk\right)-\frac{T}{2}\log\detr{\v{R}}\\
 	&+\mathtt{const}
 \end{split}
-\end{align*}
-Taking the expectation w.r.t. $\Pdf{\X}{\Y,\Th'}$ (assumed implicitly in the notation), applying the identity $\v{a}^\tr\v{C}\v{b}=\Tr{\v{a}^\tr\v{C}\v{b}}=\Tr{\v{C}\v{b}\v{a}^\tr}$, 
-denoting $\f_{k-1}\equiv \f(\x_{k-1})$ and $\h_k\equiv \h(\x_k)$ and dropping the constant terms we get
+\end{align}
+Taking the expectation of \eqref{eq:clLH_LG} with respect to $\Pdf{\X}{\Y,\Th'}$ (assumed implicitly in the notation),
+applying the identity $\v{a}^\tr\v{C}\v{b}=\Tr{\v{a}^\tr\v{C}\v{b}}=\Tr{\v{C}\v{b}\v{a}^\tr}$, and dropping the constant terms we get
 \begin{align}
 \begin{split}
-	\EMQ{\Th'}{\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\det{\gv{\Sigma}_0}\\
-	&-\frac{1}{2}\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr}}-\frac{T}{2}\log\det{\v{Q}}\\
-	&-\frac{1}{2}\Tr[\bigg]{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}}-\frac{T}{2}\log\det{\v{R}}
+	\EMQ{\Th'}{\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\detr{\gv{\Sigma}_0}\\
+	&-\frac{1}{2}\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\v{A}\xkk\right)\left(\x_k-\v{A}\xkk\right)^\tr}}-\frac{T}{2}\log\detr{\v{Q}}\\
+	&-\frac{1}{2}\Tr[\bigg]{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\v{H}\xk\right)\left(\y_k-\v{H}\xk\right)^\tr}}-\frac{T}{2}\log\detr{\v{R}}
 \end{split}
 \label{eq:eclLH}
 \end{align} 
 Let us denote the three expectations in equation~\eqref{eq:eclLH} with
 \begin{align}
-	\v{I}_1 &= \E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}\\ 
+	\II{1} &= \E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}\\ 
 	&=\defint{\mathcal{X}\times T}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\X}{\Y,\Th'}}{\X}\nonumber\\
 	&= 	\defint{\mathcal{X}}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\x_0}{\Y,\Th'}}{\x_0} \label{eq:I1_general}\\
-	\v{I}_2 &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr\Pdf{\xk,\xkk}{\Y,\Th'}}{\xk}{\xkk} \label{eq:I2_general}\\
-	\v{I}_3 &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr\Pdf{\xk}{\Y,\Th'}}{\xk} \label{eq:I3_general}
-\end{align}
+	\II{2} &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\x_k-\v{A}\xkk\right)\left(\x_k-\v{A}\xkk\right)^\tr\Pdf{\xk,\xkk}{\Y,\Th'}}{\xk}{\xkk} \label{eq:I2_general}\\
+	\II{3} &=
+	\sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\y_k-\v{H}\xk\right)\left(\y_k-\v{H}\xk\right)^\tr\Pdf{\xk}{\Y,\Th'}}{\xk}
+	\label{eq:I3_general} \end{align}%
+%
+%
 It is clear then that in the E-step one needs to compute the $T+1$ smoothing
 distributions, including the $T$ cross-timestep distributions, since these
 will be needed in the expectations.
@@ -634,18 +581,85 @@ By applying the identity
 \end{align} 
 we can already write the first expectation as
 \begin{align}
-	\v{I}_1&= \v{P}_{0|T}+(\v{m}_{0|T}-\gv{\mu}_0)(\v{m}_{0|T}-\gv{\mu}_0)^\tr.
+	\II{1}&= \v{P}_{0|T}+(\v{m}_{0|T}-\gv{\mu}_0)(\v{m}_{0|T}-\gv{\mu}_0)^\tr,
 	\label{eq:I1}
 \end{align}
+where we denote Gaussian smoothing distributions by $\Pdf{\xk}{\Y}=\N[\xk]{\m_{k|T}}{\P_{k|T}}$.
 This was a result of assuming the Gaussian prior distribution of equation~\eqref{eq:prior} and
 it is common for the more specific models we're assessing in the next chapters.
 
-Since in this thesis we're assuming Gaussian noise, the M-step maximization equations for
-the complete noise covariance matrices $\v{Q}$ and $\v{R}$ will also be common.
-To derive these equations, we will derivate \eqref{eq:eclLH} with respect to these
-matrices. As can be seen from \eqref{eq:eclLH}, the terms involving $\v{Q}$ or $\v{R}$
-are analogous and so we will only the derivation for $\v{Q}$ and only the result
-for $\v{R}$. It's easier to take the derivative with respect to $\v{Q}^{-1}$:
+Let us also denote by
+\begin{align}
+	\Pdf{\xk, \xkk}{\Y,\Th}&=
+	\N[
+	\begin{bmatrix}
+		\xk\\\xkk
+	\end{bmatrix}
+	]{\m_{k,k-1|T}}{\P_{k,k-1|T}} \label{eq:pdf_smooth_joint},
+\end{align}
+the joint smoothing distribution of $\xk$ and $\xkk$.
+Then by applying the manipulation
+\begin{align}
+\begin{split}
+&\E{\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^\tr}\\
+=&\bm{\v{I} \\ -\v{A}^\tr}^\tr	
+\E{
+\begin{bmatrix}
+	\xk\\\xkk
+\end{bmatrix}
+\begin{bmatrix}
+	\xk \\ \xkk	
+\end{bmatrix}^\tr
+}
+\bm{\v{I}\\-\v{A}^\tr}	
+\end{split}
+\end{align}
+we get
+\begin{align}
+	\II{2}&=
+\bm{\v{I} \\ -\v{A}^\tr}^\tr	
+\sum_{k=1}^T\left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)
+\bm{\v{I}\\-\v{A}^\tr} \label{eq:LGSSM_I2}\\
+&=\bm{\v{I} \\ -\v{A}^\tr}^\tr	
+%\bm{\P_{k|T}+\m_{k|T}\m_{k|T}^\tr & \left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)^\tr \\ \P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr & \P_{k-1|T}+\m_{k-1|T}\m_{k-1|T}^\tr }
+\bm{\sum_{k=1}^T\E{\xk\xk^\tr} & \sum_{k=1}^T\E{\xk\xkk^\tr} \\ \sum_{k=1}^T\E{\xkk\xk^\tr} & \sum_{k=1}^T\E{\xkk\xkk^\tr} }
+\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
+&=\bm{\v{I} \\ -\v{A}^\tr}^\tr	
+\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }
+\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
+&=\XX_{00}-\v{A}\XX_{01}^\tr-\XX_{01}\v{A}^\tr+\v{A}\XX_{11}\v{A}^\tr\nonumber\\
+&=\left(\v{A}-\XX_{01}\XX_{11}^{-1}\right)\XX_{11}\left(\v{A}-\XX_{01}\XX_{11}^{-1}\right)^\tr+\XX_{00}+\XX_{01}\XX_{11}^{-1}\XX_{01}^\tr.
+\label{eq:Amax}
+\end{align}
+It's easy to see that the extremum value of the last line with respect to $\v{A}$
+is obtained by setting
+\begin{align}
+	\v{A}_{j+1}&=\XX_{01}\XX_{11}^{-1} \label{eq:EM_M_A}.	
+\end{align}
+For $\II{3}$ we get
+\begin{align}
+\II{3}&=
+\bm{\v{I} \\ -\v{H}^\tr}^\tr	
+\sum_{k=1}^T
+\bm{\yk\yk^\tr & \yk\E{\xk}^\tr \\ \E{\xk}\yk^\tr & \E{\xk\xk^\tr} }
+\bm{\v{I}\\-\v{H}^\tr} \label{eq:LGSSM_I3}\\
+&=\bm{\v{I} \\ -\v{H}^\tr}^\tr	
+\sum_{k=1}^T
+	\bm{\YY_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \XX_{00} }
+\bm{\v{I}\\-\v{H}^\tr},
+\end{align}
+so with analogous manipulation as in \eqref{eq:Amax} we get
+\begin{align}
+	\v{H}_{j+1}&=\bar{\v{C}}_{00}\XX_{00}^{-1} \label{eq:EM_M_H}.	
+\end{align}
+
+
+The next task is to derive the M-step maximization equations for the 
+process and measurement model noise covariance matrices $\v{Q}$ and $\v{R}$. 
+To achieve this, we will differentiate \eqref{eq:eclLH} with respect to
+these matrices. As can be seen from \eqref{eq:eclLH}, the terms involving $\v{Q}$ or $\v{R}$
+are similar in form and so the resulting maximization equations are analogous.
+Focusing on $\v{Q}$, it is easier to differentiate with respect to $\v{Q}^{-1}$:
 \begin{align}
 	\dpd{\EMQ{\Th'}{\Th}}{\v{Q^{-1}}}=
 	&-\frac{1}{2}\dpd{}{\v{Q^{-1}}}\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\xk-\f_{k-1})\right)\left(\xk-\f_{k-1})\right)^\tr}}\nonumber\\
@@ -658,117 +672,13 @@ formula 51 for the second. Setting \eqref{eq:clLH_pdQ}
 to zero \todo{Why is it same for the inverse?} we get the update equation for the next estimate of $\v{Q}$
 \begin{align}
 	\v{Q}_{j+1}&=\frac{1}{T}\sum_{k=1}^T\E{\left(\xk-\f_{k-1}\right)\left(\xk-\f_{k-1}\right)^\tr} \label{eq:EM_M_Q}\\
-	&=\frac{1}{T}\v{I}_2\nonumber
+	&=\frac{1}{T}\II{2}\nonumber
 \end{align}
-The derivation of the update equation for the next estimate of $\v{R}$ is exactly analogous, giving
+The analogous result for $\v{R}$ is given by
 \begin{align}
 	\v{R}_{j+1}&=\frac{1}{T}\sum_{k=1}^T\E{\left(\yk-\h_{k}\right)\left(\yk-\h_{k}\right)^\tr} \label{eq:EM_M_R}\\
-	&=\frac{1}{T}\v{I}_3\nonumber
+	&=\frac{1}{T}\II{3}\nonumber
 \end{align} 
-In the following more specific cases, we will only
-consider the two remaining expectations and the rest of the M-step maximization
-equations.
-
-Let us then discuss a certain important aspect of the M-step maximization equations, with a consequence
-that is useful also for gradient based methods for ML. Often times
-one is not interested in estimating any \emph{full} matrix, with which we mean that the model
-might have been parameterized so that there are only scalar parameters embedded inside matrices or 
-as part of $\f$ or $\h$. In that case
-it is quite likely that the M-step maximization equations will not admit themselves to closed form
-analytical expressions. Rather the use of nonlinear optimization methods is needed and for that
-we would like have the gradient of $\EMQ$. This is fortunately rather straightforward. Let
-$\theta_i$ be an element of $\Th$. Then
-\begin{align}
-\label{eq:dLB_nonlinear}
-\begin{split}
-	\dpd{\EMQ{\Th}{\Th'}}{\theta_i}
-	=\quad{}&\frac{1}{2}\mathrm{Tr}\!\Bigg[\gv{\Sigma}^{-1}\bigg(
-	\dpd{\gv{\Sigma}}{\theta_i}\gv{\Sigma}^{-1}
-	\sum_{k=1}^T\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}{\hat{\Th}_j}\\
-%
-	&\quad+2\sum_{k=1}^T\E[\Big]{\dpd{\gv{\mu}_0}{\theta_i}\left(\x_0-\gv{\mu}_0\right)^\tr}
-	-\dpd{\gv{\Sigma}}{\theta_i}\bigg)\Bigg]\\
-	+&\frac{1}{2}\mathrm{Tr}\!\Bigg[\v{Q}^{-1}\bigg(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
-	\sum_{k=1}^T\E{\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr}\\
-%	
-	&\quad +2\sum_{k=1}^T\E[\Big]{\dpd{\f_{k-1}}{\theta_i}\left(\x_k-\f_{k-1}\right)^\tr}
-	-T\dpd{\v{Q}}{\theta_i}\bigg)\Bigg]\\
-	+&\frac{1}{2}\mathrm{Tr}\!\Bigg[\v{R}^{-1}\bigg(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
-	\sum_{k=1}^T\E{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr}\\
-	&\quad +2\sum_{k=1}^T\E[\Big]{\dpd{\h_{k}}{\theta_i}\left(\y_k-\h_{k}\right)^\tr}
-	-T\dpd{\v{R}}{\theta_i}\bigg)\Bigg].
-\end{split}	
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{EM in linear-Gaussian SSMs}%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\parencite{shumway1982approach,Ghahramani1996}
-Let us substitute $\v{A}\xkk$ for $\f_{k-1}$ and $\v{H}\xk$ for $\h_{k}$.
-Let us also denote by
-\begin{align}
-	\Pdf{\xk, \xkk}{\v{Y},\Th}&=
-	\N[
-	\begin{bmatrix}
-		\xk\\\xkk
-	\end{bmatrix}
-	]{\m_{k,k-1|T}}{\P_{k,k-1|T}} \label{eq:pdf_smooth_joint},
-\end{align}
-the joint smoothing distribution of $\xk$ and $\xkk$.
-Then by applying the manipulation
-\begin{align}
-\begin{split}
-&\E{\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^\tr}\\
-=&\bm{\v{I} & -\v{A}}	
-\E{
-\begin{bmatrix}
-	\xk\\\xkk
-\end{bmatrix}
-\begin{bmatrix}
-	\xk^\tr & \xkk^\tr	
-\end{bmatrix}
-}
-\bm{\v{I}\\-\v{A}^\tr}	
-\end{split}
-\end{align}
-we get
-\begin{align}
-	\v{I}_{2}&=
-\bm{\v{I} & -\v{A}}	
-\sum_{k=1}^T\left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)
-\bm{\v{I}\\-\v{A}^\tr} \label{eq:LGSSM_I2}\\
-&=\bm{\v{I} & -\v{A}}	
-%\bm{\P_{k|T}+\m_{k|T}\m_{k|T}^\tr & \left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)^\tr \\ \P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr & \P_{k-1|T}+\m_{k-1|T}\m_{k-1|T}^\tr }
-\bm{\sum_{k=1}^T\E{\xk\xk^\tr} & \sum_{k=1}^T\E{\xk\xkk^\tr} \\ \sum_{k=1}^T\E{\xkk\xk^\tr} & \sum_{k=1}^T\E{\xkk\xkk^\tr} }
-\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
-&=\bm{\v{I} & -\v{A}}	
-\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }
-\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
-&=\XX_{00}-\v{A}\XX_{01}^\tr-\XX_{01}\v{A}^\tr+\v{A}\XX_{11}\v{A}^\tr\nonumber\\
-&=\left(\v{A}-\XX_{01}\XX_{11}^{-1}\right)\XX_{11}\left(\v{A}-\XX_{01}\XX_{11}^{-1}\right)^\tr+\XX_{00}+\XX_{01}\XX_{11}^{-1}\XX_{01}^\tr.
-\label{eq:Amax}
-\end{align}
-It's easy to see that the extremum value of the last line with respect to $\v{A}$
-is obtained by setting
-\begin{align}
-	\v{A}_{j+1}&=\XX_{01}\XX_{11}^{-1} \label{eq:EM_M_A}.	
-\end{align}
-For $\v{I}_3$ we get
-\begin{align}
-\v{I}_{3}&=
-\bm{\v{I} & -\v{H}}	
-\sum_{k=1}^T
-\bm{\yk\yk^\tr & \yk\E{\xk}^\tr \\ \E{\xk}\yk^\tr & \E{\xk\xk^\tr} }
-\bm{\v{I}\\-\v{H}^\tr} \label{eq:LGSSM_I3}\\
-&=\bm{\v{I} & -\v{H}}	
-\sum_{k=1}^T
-	\bm{\YY_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \XX_{00} }
-\bm{\v{I}\\-\v{H}^\tr},
-\end{align}
-so with analogous manipulation as in \eqref{eq:Amax} we get
-\begin{align}
-	\v{H}_{j+1}&=\bar{\v{C}}_{00}\XX_{00}^{-1} \label{eq:EM_M_H}.	
-\end{align}
 
 All in all, the E-step of EM algorithm in linear-Gaussian SSM:s consists of
 computing the $T$ joint distributions in equation~\eqref{eq:pdf_smooth_joint} with the RTS smoother.
@@ -779,68 +689,185 @@ After this, the M-step estimates are computed for $\v{Q}$
 from equation~\eqref{eq:EM_M_Q}, for $\v{R}$ from equation~\eqref{eq:EM_M_R}, for $\v{A}$ from equation~\eqref{eq:EM_M_A}
 and for $\v{H}$ from equation~\eqref{eq:EM_M_H}. Also for evaluating the convergence,
 one needs to compare the current value of $\EMQ$ with the previous one.
-For this we can compute $\v{I}_1$ from equation~\eqref{eq:I1},
-$\v{I}_2$ from equation~\eqref{eq:LGSSM_I2} and $\v{I}_3$\todo{index $\v{I}$:s} from equation~\eqref{eq:LGSSM_I3}.
+For this we can compute $\II{1}$ from equation~\eqref{eq:I1},
+$\II{2}$ from equation~\eqref{eq:LGSSM_I2} and $\II{3}$\todo{index $\v{I}$:s} from equation~\eqref{eq:LGSSM_I3}.
 
-For working with structured matrices let us rewrite the gradient equation~\eqref{eq:dLB_nonlinear}
-in the linear-Gaussian case:
-
-\begin{align}
-\label{eq:dLB_linear}
-\begin{split}
-	\dpd{\EMQ{\Th}{\Th'}}{\theta_i}
-	=\quad{}&\frac{1}{2}\mathrm{Tr}\!\Bigg[\gv{\Sigma}^{-1}\bigg(
-	\dpd{\gv{\Sigma}}{\theta_i}\gv{\Sigma}^{-1}
-	\sum_{k=1}^T\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}{\hat{\Th}_j}\\
-	&\quad+2\sum_{k=1}^T\E[\Big]{\dpd{\gv{\mu}_0}{\theta_i}\left(\x_0-\gv{\mu}_0\right)^\tr}
-	-\dpd{\gv{\Sigma}}{\theta_i}\bigg)\Bigg]\\
-%
-	+&\frac{1}{2}\mathrm{Tr}\!\Bigg[\v{Q}^{-1}\bigg(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
-	\bm{\v{I} & -\v{A}}\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }\bm{\v{I}\\-\v{A}^\tr}\\	
-	&\quad +2\bm{\v{0} & -\dpd{\v{A}}{\theta_i}}\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }\bm{\v{I}\\-\v{A}^\tr}
-	-T\dpd{\v{Q}}{\theta_i}\bigg)\Bigg]\\
-%	
-	+&\frac{1}{2}\mathrm{Tr}\!\Bigg[\v{R}^{-1}\bigg(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
-	\bm{\v{I} & -\v{H}}\bm{\YY_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \XX_{00} }\bm{\v{I}\\-\v{H}^\tr}\\
-	&\quad +2\bm{\v{0} & -\dpd{\v{H}}{\theta_i}}\bm{\YY_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \XX_{00} }\bm{\v{I}\\-\v{H}^\tr}
-	-T\dpd{\v{R}}{\theta_i}\bigg)\Bigg].
-\end{split}	
-\end{align}
-
+% For working with structured matrices let us rewrite the gradient equation~\eqref{eq:dLB_nonlinear}
+% in the linear-Gaussian case:
+% 
+% \begin{align}
+% \label{eq:dLB_linear}
+% \begin{split}
+% 	\dpd{\EMQ{\Th}{\Th'}}{\theta_i}
+% 	=\quad{}&\frac{1}{2}\mathrm{Tr}\!\Bigg[\gv{\Sigma}^{-1}\bigg(
+% 	\dpd{\gv{\Sigma}}{\theta_i}\gv{\Sigma}^{-1}
+% 	\sum_{k=1}^T\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}{\hat{\Th}_j}\\
+% 	&\quad+2\sum_{k=1}^T\E[\Big]{\dpd{\gv{\mu}_0}{\theta_i}\left(\x_0-\gv{\mu}_0\right)^\tr}
+% 	-\dpd{\gv{\Sigma}}{\theta_i}\bigg)\Bigg]\\
+% %
+% 	+&\frac{1}{2}\mathrm{Tr}\!\Bigg[\v{Q}^{-1}\bigg(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
+% 	\bm{\v{I} & -\v{A}}\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }\bm{\v{I}\\-\v{A}^\tr}\\	
+% 	&\quad +2\bm{\v{0} & -\dpd{\v{A}}{\theta_i}}\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }\bm{\v{I}\\-\v{A}^\tr}
+% 	-T\dpd{\v{Q}}{\theta_i}\bigg)\Bigg]\\
+% %	
+% 	+&\frac{1}{2}\mathrm{Tr}\!\Bigg[\v{R}^{-1}\bigg(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
+% 	\bm{\v{I} & -\v{H}}\bm{\YY_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \XX_{00} }\bm{\v{I}\\-\v{H}^\tr}\\
+% 	&\quad +2\bm{\v{0} & -\dpd{\v{H}}{\theta_i}}\bm{\YY_{00} & \bar{\v{C}}_{00} \\ \bar{\v{C}}_{00}^\tr & \XX_{00} }\bm{\v{I}\\-\v{H}^\tr}
+% 	-T\dpd{\v{R}}{\theta_i}\bigg)\Bigg].
+% \end{split}	
+% \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{EM in nonlinear-Gaussian SSMs}%%%%%
+\subsubsection{Nonlinear-Gaussian SSMs}%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 As explained in section \ref{sec:nonlinear_state}, in then nonlinear case
 the filtering and smoothing distributions cannot be computed exactly.
 Thus the E-step is also only approximate and the convergence
-guarantees of EM won't apply anymore. The proposed methods can nevertheless
-provide good results most of the time. In the fortunate case that the
+guarantees of EM won't apply anymore. In the fortunate case that the
 model is linear-in-the-parameters the M-step can be solved in closed form.
-This situation will be covered later in section~\ref{sec:litp}. Currently we will assume
-however that the model is nonlinear in the parameters as well as in the states so that
-the simplest form to write the model is exactly \eqref{eq:ssm_general}.
+This situation will be covered later in section~\ref{sec:litp}. 
+Currently we will assume however that the model is nonlinear in the 
+parameters as well as in the states so that the simplest form to write the 
+model is exactly \eqref{eq:ssm_general}. This situation leads to complications
+in both the E and the M steps of the EM algorithm.
 
-The E-step in the EM-algorithm consists now of computing approximations to $\v{I}_1$, $\v{I}_2$ and $\v{I}_3$
-from equations~\eqref{eq:I1}, \eqref{eq:I2_general} and \eqref{eq:I3_general}. In the
-M-step one should a gradient based nonlinear optimization algorithm to compute
-the next parameter estimate \eqref{eq:EM_M}. The gradient can be computed with
-the equation~\eqref{eq:dLB_nonlinear}.  
+Our strategy then will be to apply Gaussian filtering and smoothing
+in the E-step to compute the expectations of the sufficient statistics,
+which is according to section~\ref{sec:EM_exp} what the E step reduces
+to after the Gaussian assumption. In the M-step
+we shall utilize the BFGS nonlinear optimization method to
+maximize the intermediate quantity with respect to $\Th$. This however
+leads to the requirement of being able to compute 
+$\nabla_{\Th}\EMQ$, i.e the gradient of the intermediate quantity with respect
+to $\Th$.
+
+
+
+Denoting $\f_{k-1}\equiv \ff$ and $\h_k\equiv \hh$, we now have
+\begin{align}
+\label{eq:EMQ_approx}
+\begin{split}
+	\EMQ{\Th'}{\Th} \approx& -\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\II{1}}-\frac{1}{2}\log\detr{\gv{\Sigma}_0}\\
+	&-\frac{1}{2}\Tr[\bigg]{\v{Q}^{-1}\II{2}}-\frac{T}{2}\log\detr{\v{Q}}\\
+	&-\frac{1}{2}\Tr[\bigg]{\v{R}^{-1}\II{3}}-\frac{T}{2}\log\detr{\v{R}},
+\end{split}
+\end{align}
+where $\II{1}$ is the same as in \eqref{eq:I1_general} and
+\begin{align}
+\II{2} &= 
+\sum_{k=1}^T\iint_{\mathcal{X}}\left(\xk-\ff\right)\left(\xk-\ff\right)^\tr \nonumber\\
+&\quad\times\Pdf{\xk,\xkk}{\Y,\Th'}\,\dif\xkk\dif\xk \label{eq:I2_general}\\
+&\approx \sum_{k=1}^T\iint_\mathcal{X}\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr \nonumber\\
+&\quad \times \N[\bm{\xkk\\\xk}]{
+	\begin{bmatrix}
+		\m_{k-1|T}\\
+		\m_{k|T}
+	\end{bmatrix}}{
+	\begin{bmatrix}
+		\P_{k-1|T}&\v{D}_{k-1}\\
+		\v{D}_{k-1}^\tr&\P_{k|T}
+	\end{bmatrix}
+	}
+	\,\dif\xkk\dif\xk \label{eq:I2_approx}\\
+&=
+\bm{\v{I} \\ -\v{I}}^\tr	
+\sum_{k=1}^T
+\E{\bm{\xk \\ \f_{k-1}}\bm{\xk \\ \f_{k-1}}^\tr} 
+\bm{\v{I}\\-\v{I}}\nonumber\\	
+\shortintertext{and}
+\II{3} &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\yk-\hh\right)\left(\yk-\hh\right)^\tr\Pdf{\xk}{\Y,\Th'}}{\xk}\\
+&\approx \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr\N[\xk]{\m_{k|T}}{\P_{k|T}}}{\xk} \label{eq:I3_approx}\\
+&=
+\bm{\v{I} \\ -\v{I}}^\tr	
+\sum_{k=1}^T
+\E{\bm{\yk \\ \h_{k}}\bm{\yk \\ \h_{k}}^\tr} 
+\bm{\v{I}\\-\v{I}}. \nonumber	
+\end{align}
+Clearly the integrals \eqref{eq:I2_approx} and \eqref{eq:I3_approx} are Gaussian
+expectation integrals of the form \eqref{eq:gauss_integral}. An obvious
+strategy is thus to utilize a Gaussian smoother to compute the joint
+smoothing distributions and then compute the $2T$ expectation integrals
+by applying the same integration rule as was used by the smoother. Naturally
+any other rule could also be used, but the error in the integrals
+will nevertheless be at least as big as the error incurred by the smoother
+integration rule.
+
+To use BFGS optimization, we will need the analytical gradient of the objective function.
+Let us find out the formal differential of a general log-Gaussian, where
+both the mean and the variance depend on the scalar parameter $\theta$. We get
+\begin{align}
+	\dpd{}{\theta}&\log\N[\x]{\m}{\P}\\
+	&=-\frac{1}{2}\dpd{}{\theta}\brak*{(\x-\m)^\tr\P^{-1}(\x-\m)}-\frac{1}{2}\dpd{}{\theta}\log\detr\P\\		
+	&=-\frac{1}{2}\dpd{}{\theta}\Tr{\P^{-1}(\x-\m)(\x-\m)^\tr}-\frac{1}{2}\Tr{\P^{-1}\dpd{\P}{\theta}}\\		
+	&=\frac{1}{2}\Tr{\P^{-1}\fparen*{\dpd{\P}{\theta}\P^{-1}(\x-\m)(\x-\m)^\tr+2\dpd{\m}{\theta}(\x-\m)^\tr+\dpd{\P}{\theta}}}\\		
+	%&= \fparen*{\fparen*{2\pi}^{d_x}\detr\P}^{-\sfrac{1}{2}}\exp\fparen*{-\frac{1}{2}
+	%\Tr{\P^{-1}\bm{\v{I}\\-\v{I}}^\tr\bm{\x\\\m}\bm{\x\\\m}^\tr\bm{\v{I}\\-\v{I}}}},		
+\end{align}
+If we then assume
+that $\ff$ , $\v{Q}$, $\hh$, $\v{R}$, $\gv{\mu}_0$ and $\gv{\Sigma}_0$ depend on $\theta_i\in\Th$,
+we can write
+\begin{align}
+	\nabla_{\Th}\EMQ &= \bm{\dpd{\EMQ}{\theta_1}&\dots&\dpd{\EMQ}{\theta_{d_\theta}}}^\tr
+\end{align}
+and
+\begin{align}
+\label{eq:dLB_nonlinear}
+\begin{split}
+	&\dpd{\EMQ}{\theta_i}
+	\approx\frac{1}{2}\mathrm{Tr}\!\Bigg[\\
+%	
+	&\gv{\Sigma}_0^{-1}\bigg(
+	\dpd{\gv{\Sigma}_0}{\theta_i}\gv{\Sigma}_0^{-1}
+	\II{1}
+	+2\E[\Big]{\dpd{\gv{\mu}_0}{\theta_i}\left(\x_0-\gv{\mu}_0\right)^\tr}
+	-\dpd{\gv{\Sigma}_0}{\theta_i}\bigg)\\
+%	
+	+&\v{Q}^{-1}\bigg(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
+	\II{2}
+	+2\sum_{k=1}^T\E[\Big]{\dpd{\ff}{\theta_i}\left(\x_k-\ff\right)^\tr}
+	-T\dpd{\v{Q}}{\theta_i}\bigg)\\
+%	
+	+&\v{R}^{-1}\bigg(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
+	\II{3}
+	+2\sum_{k=1}^T\E[\Big]{\dpd{\hh}{\theta_i}\left(\y_k-\hh\right)^\tr}
+	-T\dpd{\v{R}}{\theta_i}\bigg)\Bigg].
+\end{split}	
+\end{align}
+In order to gather the computations needed evaluate $\EMQ$ and $\nabla_{\Th}\EMQ$ given the sufficient statistics
+of the $T$ joint smoothing distributions, let us introduce the shorthand notation $\f^{\nabla}_{k-1,i}\equiv=\dpd{\ff}{\theta_i}$
+and  $\h^\nabla_{k,i}\equiv=\dpd{\hh}{\theta_i}$.
+One should then
+perform the following operations:
+\begin{enumerate}
+  \item For $k=1,\dots,T$ and $i=1,\dots,d_\theta$, apply a numerical integration scheme to compute
+%  
+\begin{align}
+\E{\bm{\xk \\ \f_{k-1} \\ \f^\nabla_{k-1,i}}\bm{\xk \\ \f_{k-1} \\ \f^\nabla_{k-1,i}}^\tr} 		
+\end{align}
+and
+\begin{align}
+\E{\bm{\yk \\ \h_{k} \\ \h^\nabla_{k,i}}\bm{\yk \\ \h_{k} \\ \h^\nabla_{k,i}}^\tr}. 		
+\end{align}
+\item compute $\II{1}$, $\II{2}$, $\II{3}$ and $\EMQ$ from equations
+\eqref{eq:I1}, \eqref{eq:I2_approx}, \eqref{eq:I3_approx} and \eqref{eq:EMQ_approx} respectively.
+\item compute $\nabla_{\Th}\EMQ$ from equation \eqref{eq:dLB_nonlinear}
+\end{enumerate}
+ 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{EM in linear-in-the-parameters SSM:s}%%%%%
+\subsubsection*{Linear-in-the-parameters SSM:s}%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:litp}
 
-Suppose now that $\v{f}(\x):\mathcal{X}\to\mathcal{X}$ is a linear
+Suppose now that $\f:\mathcal{X}\to\mathcal{X}$ is a linear
 combination of vector valued functions $\gv{\rho}_k:\mathcal{X}\to\R^{d_{\Phi,k}}$,
 so that the parameters of $\f$, $\gv{\Phi}_k$, are matrices of size $d_x\times d_{\Phi,k}$.
 Then $\f$ can be written as 
 \begin{align}
 \begin{split}
-	\v{f}(\x)&=\gv{\Phi}\gv{\rho}_1(\x)+\dots+\gv{\Phi}_m\gv{\rho}_m(\x)\\
+	\ff &=\gv{\Phi}\gv{\rho}_1(\x)+\dots+\gv{\Phi}_m\gv{\rho}_m(\x)\\
 	&=
 	\begin{bmatrix}
 		\gv{\Phi}_1 & \dots & \gv{\Phi}_m
@@ -857,7 +884,7 @@ so that $\v{A}$ is now a matrix of size ${d_x\times\sum_{k=1}^m d_{\Phi,k}}$ and
 Denoting $\v{g}\left(\xkk\right)\equiv\v{g}_{k-1}$ and $\v{l}\left(\xk\right)\equiv\v{l}_{k}$
 and following the derivation in equation~\eqref{eq:LGSSM_I2} we have
 \begin{align}
-	\v{I}_{2}
+	\II{2}
 	&=\bm{\v{I} & -\v{A}}	
 	\bm{\sum_{k=1}^T\E{\xk\xk^\tr} & \sum_{k=1}^T\E{\xk\v{g}_{k-1}^\tr} \\ \sum_{k=1}^T\E{\v{g}_{k-1}\xk^\tr} & \sum_{k=1}^T\E{\v{g}_{k-1}\v{g}_{k-1}^\tr} }
 	\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
@@ -871,7 +898,7 @@ Then similarly to \eqref{eq:EM_M_A}
 	\v{A}_{j+1}&=\bar{\v{G}}_{01}\bar{\v{G}}_{11}^{-1} \label{eq:EM_LIP_M_A}.	
 \end{align}
 
-Applying similar assumptions as for $\v{f}$ to $\h$, we can write
+Applying similar assumptions as for $\f$ to $\h$, we can write
 \begin{align}
 \begin{split}
 	\v{h}(\x)&=\gv{\Upsilon}\gv{\pi}_1(\x)+\dots+\gv{\Upsilon}_m\gv{\pi}_m(\x)\\
@@ -889,9 +916,9 @@ Applying similar assumptions as for $\v{f}$ to $\h$, we can write
 \end{align}
 where the size of $\v{H}$ is now ${d_x\times\sum_{k=1}^m d_{\Upsilon,k}}$ and 
 $\v{l}:\mathcal{X}\to \R^{\sum_{k=1}^m d_{\Upsilon,k}}$ .
-For $\v{I}_3$ we get
+For $\II{3}$ we get
 \begin{align}
-	\v{I}_{3}&=
+	\II{3}&=
 	\bm{\v{I} & -\v{H}}	
 	\sum_{k=1}^T
 	\bm{\yk\yk^\tr & \yk\E{\v{l}_k}^\tr \\ \E{\v{l}_k}\yk^\tr & \E{\v{l}_k\v{l}_k^\tr} }
@@ -906,8 +933,74 @@ and
 	\v{H}_{j+1}&=\bar{\v{D}}_{00}\bar{\v{L}}_{00}^{-1} \label{eq:EM_LIP_M_H}.	
 \end{align}
 
+\subsection{Theoretical considerations}
+\subsubsection{Properties of the estimators}
+Among different point estimates, the maximum likelihood estimator has good statistical properties.
+Let us denote the true parameter value, the value that the data was generated with, with $\Th_\star$ and 
+let $T$ denote the amount of observations.
+Then provided that some conditions of not very restricting nature hold, we can state the following asymptotic properties 
+for the ML estimate $\Th_{\text{ML}}$:\todo{Modify to reflect p.465 in Cappé}
+\begin{description}
+\addtolength{\leftskip}{1cm}
+\item[Strong consistency]\hfill\\
+An important property for an estimator, which says that
+the estimator tends to the true value as the amount of data tends to infinity:
+\begin{align}
+	%\forall \Th \in \Theta\quad \frac{1}{n}\Pdf[\ell_n]{\Th} \xrightarrow{\mathrm{a.s.}} \lLH, \mathrm{when} n\to\infty
+	\F{\ell_T}{\Th_{\text{ML}}} \xrightarrow{\mathrm{a.s.}} \F{\ell}{\Th_\star},\quad \mathrm{when}\;T\to\infty,
+\end{align}
+where $\ell_T$ is the likelihood function after $T$ measurements and $\ell$ is a continuous
+deterministic function with a unique global maximum at $\Th_\star$.
+%where $\Pdf[\ell_n]{\Th}$ is the log-likelihood given $n$ observations and $\lLH$ is a continuous deterministic
+%function with a unique global maximum at $\Th_\star$.
+\item[Asymptotic normality]\hfill\\
+This property gives us the means to compute asymptotic error bounds for
+the estimate:
+\begin{align}
+	\sqrt{T}\left(\Th_{\text{ML}}-\Th_\star\right) \xrightarrow{D} \N{\v{0}}{\F{\mathcal{I}^{-1}}{\Th_\star}},\quad \mathrm{when}\;T\to\infty,	
+\end{align}
+where $\F{\mathcal{I}}{\Th_\star}$ is the \emph{Fisher information matrix} evaluated at $\Th_\star$ 
+\item[Efficiency]\hfill\\
+When the amount of information tends to infinity, the ML-estimate achieves
+the Cramér-Rao lower bound, i.e. no other consistent estimator has lower asymptotic mean-squared-error.
+\end{description}
 
-\subsubsection{Convergence properties}
+
+
+\subsubsection{Identifiability}
+
+Intuitively, any parameters $\Th,\:\Th' \in \Theta,\; \Th \not= \Th'$ cannot be distinguished
+from each other with maximum likelihood estimation if
+\begin{align}
+	\Pdf{\Y}{\Th}&=\Pdf{\Y}{\Th'},
+\end{align}
+i.e., if the same data can arise with two (or more) separate
+parameter values. Let us then go through the second order sufficient conditions
+for a point $\Th_\star$ to be a local maximum. We can define a local maximum
+to be a point $\Th_\star$, for which $\lLH[\Th_\star]-\lLH[\Th_\star+\v{d}] \geq 0$ for small $\v{d}$.
+
+\begin{proposition}\label{prop:cond_for_max}
+Let $\ell:\Theta \to \R$ have continuous second order partial derivatives and let $\Th_\star$
+belong to the interior of $\Theta$. If
+\begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
+  \item $\nabla\lLH[\Th_\star] =0$ 
+  \item $\nabla^2\lLH[\Th_\star]$ is negative definite
+\end{enumerate}
+then $\Th_\star$ is a strict local maximum of $\ell$.
+\end{proposition}
+ \begin{proof}
+ Since \textit{ii)}, there must exist a nonnegative number $a$ for which 
+ $-\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d} \geq a\abs{\v{d}}^2$.
+ Taylor expanding around $\Th_\star$ gives
+ \begin{align*}
+	\lLH[\Th_\star+\v{d}] &= \lLH[\Th_\star]+\nabla\lLH[\Th_\star]^\tr\v{d}+\frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}+\F[\big]{o}{\,\abs{\v{d}}^2}\\
+	\lLH[\Th_\star]-\lLH[\Th_\star+\v{d}] &= -\frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}-\F[\big]{o}{\,\abs{\v{d}}^2}\\
+	&\geq \frac{1}{2}a\abs{\v{d}^2}-\F[\big]{o}{\,\abs{\v{d}}^2}.
+\end{align*}
+For small enough $\abs{\v{d}}$, the right hand side of the last row must be nonnegative.
+ \end{proof}
+
+\subsubsection{Global convergence}
 
 We would like to demonstrate the applicability of theorem~\ref{th:global_convergence}.
 Let $\EMM*$ then denote the point-to-set map implicitly defined by the EM algorithm.
@@ -987,12 +1080,14 @@ of the EM-algorithm becomes slower and stops.
 
 \parencite{Wu1983,Sandell1978,Meng1997,Elliott1999,Olsson2007,Paninski2010}
 
+\subsubsection{Local convergence}
+
 \subsubsection{Complexity}
 
 \parencite{Harvey1990,Watson1983,Cappe2005,Saatci2011,Olsson2007}
 
 
- \subsection{Hybrid algorithms}
+\subsection*{Hybrid algorithms}
  
 Now that the main properties of the two algorithms have been presented,
 at least two ideas of combining the methods come to mind: using gradient based
