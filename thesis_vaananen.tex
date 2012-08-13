@@ -4,9 +4,11 @@
 \usepackage{mylayout}
 \setmainlanguage{english}
 \usepackage{csquotes}
+\def\herospath{/usr/share/texmf/fonts/opentype/public/tex-gyre/}
+\InputIfFileExists{local.conf.tex}{}{}
 % replaces Helvetica in the cover page
 \newfontfamily\texgyreheros[
-	Path=/usr/share/texmf/fonts/opentype/public/tex-gyre/,
+	Path=\herospath,
     Extension=.otf,
     UprightFont= *-regular,
     BoldFont=*-bold,
