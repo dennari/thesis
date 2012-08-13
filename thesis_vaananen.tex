@@ -5,6 +5,7 @@
 \setmainlanguage{english}
 \usepackage{csquotes}
 \def\herospath{/usr/share/texmf/fonts/opentype/public/tex-gyre/}
+\def\bibpath{bibliography.bib}
 \InputIfFileExists{local.conf.tex}{}{}
 % replaces Helvetica in the cover page
 \newfontfamily\texgyreheros[
@@ -121,7 +122,7 @@ pdfproducer={xetex}
 
 % BIBLIOGRAPHY
 \usepackage[style=authoryear-comp,backend=biber]{biblatex} % TEXLIPSE BUG: backend cannot be first
-\addbibresource{Dippa.bib}
+\addbibresource{\bibpath}
 \ExecuteBibliographyOptions{ % use this to override options set by the style
 uniquename=false,
 uniquelist=minyear,
@@ -144,7 +145,6 @@ firstinits=true
 
 \input{coverpage}
 \makecoverpage
-
 
 
 \input{abstract}
