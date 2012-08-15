@@ -1,0 +1,204 @@
+
+There exists a large amount of efficient nonlinear optimization,
+also called nonlinear programming, methods that require the gradient of the 
+objective function to be available \parencite{luenberger2008}.
+The best known general purpose algorithms probably belong to the 
+classes of quasi-Newton or conjugate gradient methods. 
+For example, MATLAB Optimization Toolbox contains the function
+\texttt{fminunc} utilizing both conjugate gradient and 
+quasi-Newton methods in certain cases \parencite{optimizationtoolbox2012}.
+
+The simplest gradient based method is the \emph{method of steepest ascent}.
+It requires that the first partial derivatives of the objective function are defined
+and continuous in their domain. The method of steepest ascent is then defined
+by the iteration
+\begin{align}
+	\Th_{j+1}&=\Th_j+\alpha_j\nabla\lLH[\Th_j].
+	\label{eq:steepest_descent}
+\end{align}
+The idea is intuitive since it is well known that the gradient
+points to the direction of steepest ascent, i.e. to the direction
+that is orthogonal to the isolines of constant value.
+To determine $\alpha_j$, the \emph{step size}, another minimization problem needs to be solved,
+namely
+\begin{align}
+	\alpha_j &= \argmin_\alpha \lLH[\Th_j+\alpha\nabla\lLH[\Th_j]].
+	\label{eq:line_search}
+\end{align}
+These one dimensional optimization algorithms that are used
+to solve the step-sizes are known as \emph{line search} methods \parencite{luenberger2008}.
+Common line search methods include the golden rule method and 
+methods based on polynomial interpolation.
+
+We define the \emph{order of convergence} as the supremum of the
+numbers $p\geq 0$, where
+\begin{align}
+	0\geq \bar{\lim_{j\to\infty}}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}^p} < \infty.
+	\label{eq:order_of_convergence}
+\end{align}
+When $p=1$, we also define the \emph{linear rate of convergence} as
+the number $0 \leq \rho < 1$ in
+\begin{align}
+	\lim_{j\to\infty}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}} = \rho.
+	\label{eq:rate_of_convergence}
+\end{align}
+It can be shown the steepest ascent method has linear order of convergence ($p=1$)
+and if the Hessian of the objective function is positive definite with
+$r=A/a$, the ratio of the largest and smallest eigenvalues, 
+\begin{align}
+	\lim_{j\to\infty}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}} \leq \left(\frac{r-1}{r+1}\right)^2.
+\end{align}
+A much more efficient nonlinear optimization algorithm is the \emph{Newton's method}.
+It is based on Taylor expanding the objective function around the
+current estimate $\Th_j$. Assume that $\ell$ has continuous second-order partial derivatives. Then
+\begin{align}
+	\lLH[\Th] &\approx \lLH[\Th_j]+\nabla\lLH[\Th_j]^\tr\fparen*{\Th_j-\Th}+\frac{1}{2}\fparen*{\Th_j-\Th}^\tr\nabla^2\lLH[\Th_j]\fparen*{\Th_j-\Th}
+	\label{eq:second_order_expansion}
+\end{align}
+and then maximizing the approximation by setting its gradient to zero
+\begin{align}
+	\nabla\lLH[\Th_j]-\nabla^2\lLH[\Th_j]\fparen*{\Th_j-\Th} &= 0\\
+	\Rightarrow \Th_{j+1} &= \Th_j+\nabla^2\lLH[\Th_j]^{-1}\nabla\lLH[\Th_j].
+	\label{eq:newton_gradient}
+\end{align}
+Per proposition~\ref{prop:cond_for_max}, near $\Th_\star$ the Hessian is 
+invertible and so the algorithm is well defined there. It can be shown
+that when initialized sufficiently close to $\Th_\star$, (pure form)
+Newton's method always converges to $\Th_\star$ with order of convergence
+at least \emph{two}.
+ 
+Further away from the maximum, there are various problems with Newton's method as formulated
+in equation~\eqref{eq:newton_gradient}. There are no guarantees for the invertibility
+of the Hessian and higher order terms may cause a step to actually decrease the objective
+function. Thus we turn our attention to algorithms of the general form
+\begin{align}
+	\Th_{j+1} &= \Th_j+\alpha_j\v{D}_j\nabla\lLH[\Th_j],
+	\label{eq:gradient_method_general}
+\end{align}
+where $\v{D}_j$ is a symmetric matrix, the \emph{search direction} is $\v{D}_j\nabla\lLH[\Th_j]$ and
+the step-size is $\alpha_j$. Generally $\v{D}_j$ should also be negative definite, to guarantee
+that the method is an ascent method for small $\alpha_j$ (as in proposition \eqref{prop:cond_for_max}).
+  
+Clearly we get gradient ascent with $\v{D}_j=\v{I}$
+and Newton's method with  $\v{D}_j=\nabla^2\lLH[\Th_j]^{-1}$. 
+Other methods of this form have thus orders of convergence
+between one and two. In practice the step
+size parameter is always determined by a line-search, so that different
+algorithms of the form \eqref{eq:gradient_method_general} differ only in how
+the search direction is computed. Even if we could guarantee the invertability of the Hessian, its computation is
+nevertheless notoriously computationally demanding. 
+
+Thus we will discuss methods derived from Newton's method, but which only require
+gradient information. These are commonly known as \emph{quasi-Newton} methods or 
+sometimes \emph{secant methods} \parencite{Battiti1992}. Given the analytical gradient, 
+the idea is to \emph{iteratively} approximate the analytical inverse Hessian by utilizing
+the information gathered as the ascent method advances. Suppose we are given
+two points $\Th_{j}$ and $\Th_{j+1}$ and that
+\begin{align}
+	\g_j &\equiv \nabla\lLH[\Th_j]\\
+	\q_j &\equiv \g_{j+1}-\g_j\\
+	\p_k &\equiv \Th_{j+1}-\Th_j.
+\end{align}  
+We could then approximate the Hessian with
+\begin{align}
+	\q_j &\approx \nabla^2\lLH[\Th_j] \p_j,
+	\label{eq:secant_approx}
+\end{align}
+which in the one dimensional case is the slope of the secant line drawn 
+through the two points $\theta_1$ and $\theta_2$.
+In case of constant Hessian, equation~\eqref{eq:secant_approx} becomes exact.
+In multiple dimensions equation~\ref{eq:secant_approx} doesn't give a unique solution for
+the approximate Hessian. The Broyden \emph{update} suggests to pick the one
+that deviates the least from the current approximation in the sense of the Frobenius norm.
+Let us suppose that we're searching for a symmetric and negative definite approximate Hessian
+$\widehat{\v{H}}_{j+1}$ based on the current approximation $\widehat{\v{H}}_{j}$.
+Since the Broyden update doesn't guarantee negative definiteness we instead update 
+an \emph{invertible} Cholesky factor, thus guaranteeing the negative-definiteness of $\widehat{\v{H}}_{j+1}$.
+These considerations lead to the widely applied \emph{Broyden-Fletcher-Goldfarb-Shanno} (BFGS) \parencite{BROYDEN01121973,Battiti1992} update
+\begin{align}
+	\widehat{\v{H}}_{j+1}=\widehat{\v{H}}_{j}+\frac{\q_k\q_k^\tr}{\q_k^\tr\p_k}+\frac{\widehat{\v{H}}_{j}\p_k\p_k^\tr\widehat{\v{H}}_{j}}{\p_k^\tr\widehat{\v{H}}_{j}\p_k}.
+\end{align}
+Since we are actually in need for the approximate \emph{inverse} Hessian,
+applying the Sherman-Morrison inversion formula gives
+\begin{align}
+	\widehat{\v{H}}_{j+1}^{-1}=\widehat{\v{H}}_{j}^{-1}+\fparen*{\frac{1+\q_k^\tr\widehat{\v{H}}_{j}^{-1}\q_k}{\q_k^\tr\q_k}}\frac{\p_k\p_k^\tr}{\p_k^\tr\q_k}+
+	\frac{\p_k\q_k^\tr\widehat{\v{H}}^{-1}_{j}+\widehat{\v{H}}^{-1}_{j}\q_k\q_k^\tr}{\q_k^\tr\p_k}.
+\end{align}
+It should be pointed that the commonly used MATLAB unconditional nonlinear
+optimization function \texttt{fminunc} that we referred to earlier, uses 
+the BFGS quasi-Newton method with cubic interpolation line search.
+
+\subsubsection{Linear-Gaussian SSMs}\label{sec:grad_LGSSM}
+
+Let us then focus on computing the gradient of the
+log-likelihood function $\lLH$, also known as the \emph{score function}.
+By marginalizing the joint distribution of equation~\eqref{eq:joint_per_kalmanstep}
+we get 
+\begin{align}
+	\Pdf{\y_k}{\y_{1:k-1},\Th}&=\N[\yk]{\v{H}\m_{k|k-1},\v{S}_k }.
+\end{align}
+Applying equation~\eqref{eq:lh_factorization} and taking the logarithm then gives
+\begin{align}
+	\lLH&=-\frac{1}{2}\sum_{k=1}^T\log\det{\v{S}_k}
+	-\frac{1}{2}\sum_{k=1}^T\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^\tr\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)+C,
+	\label{eq:logLH}
+\end{align}
+where $C$ is a constant that doesn't depend on $\gv{\theta}$ and thus can
+be ignored in the maximization.
+There are exists two seemingly quite different methods for computing
+the gradient of $\lLH$. The first one proceeds straightforwardly by taking the
+partial derivatives of $\lLH$. As will soon be demonstrated, this leads
+to some additional recursive formulas which allow computing
+the gradient in parallel with the Kalman filter. The second method needs
+the smoothing distributions with the cross-timestep covariances
+and it can be easily computed with the expectation maximization machinery
+that will be introduced later. These two methods can be proved to compute
+the exact same quantity. At this point we will focus on the first one. Going further
+it will be assumed that $\lLH$ is continuous and differentiable for all $\Th\in\Theta$.
+
+In order to calculate the score function
+\begin{align}
+	\score[\Th']&=\eval{\dpd{\lLH}{\Th}}_{\Th=\Th'}
+	=\eval{\bm{\dpd{\lLH}{\theta_1} & \dots & \dpd{\lLH}{\theta_{d_\theta}}}^\tr}_{\Th=\Th'},
+	\label{eq:score}
+\end{align}
+we have to compute the partial
+derivatives:
+\begin{align}
+\begin{split}
+	\dpd{\lLH}{\theta_i}
+	=&-\frac{1}{2}\sum_{k=1}^T\mathrm{Tr}\left(\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\right)\\
+	&+\sum_{k=1}^T\left(\v{H}_k\dpd{\v{m}_{k|k-1}}{\theta_i}\right)^\tr\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
+	&+\frac{1}{2}\sum_{k=1}^T\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^\tr\v{S}_{k}^{-1}\left(\dpd{\v{S}_k}{\theta_i}\right)\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
+	\label{eq:dlogLH}
+\end{split}
+\end{align}
+From the Kalman filter recursions \eqref{eq:Kalman_filter} we find out that 
+\begin{align}
+	\dpd{\v{S}_k}{\theta_i}&=\v{H}\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}+\dpd{\v{R}}{\theta_i}
+\end{align}
+so that we're left with the task of determining the partial derivatives for
+$\v{m}_{k|k-1}$ and $\v{P}_{k|k-1}$:
+\begin{align}
+	\dpd{\v{m}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{m}_{k-1|k-1}+\v{A}\dpd{\v{m}_{k-1|k-1}}{\theta_i} \label{eq:m_pred_pd}\\
+	\begin{split}
+	\dpd{\v{P}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{P}_{k-1|k-1}\v{A}^\tr+\v{A}\dpd{\v{P}_{k-1|k-1}}{\theta_i}\v{A}^\tr\\
+	&+\v{A}\v{P}_{k-1|k-1}\left(\dpd{\v{A}}{\theta_i}\right)^\tr+\dpd{\v{Q}}{\theta_i} \label{eq:P_pred_pd}
+	\end{split}
+\end{align}
+as well as for $\v{m}_{k|k}$ and $\v{P}_{k|k}$:
+\begin{align}
+	\dpd{\v{K}_k}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}^\tr\v{S}_{k}^{-1}-\v{P}_{k|k-1}\v{H}^\tr\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\v{S}_{k}^{-1}
+	\label{eq:K_pd}\\
+	\dpd{\v{m}_{k|k}}{\theta_i}&=\dpd{\v{m}_{k|k-1}}{\theta_i}+\dpd{\v{K}_k}{\theta_i}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)-\v{K}_k\v{H}\dpd{\v{m}_{k|k-1}}{\theta_i}
+	\label{eq:m_pd}\\
+	\dpd{\v{P}_{k|k}}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}-\dpd{\v{K}_k}{\theta_i}\v{S}_{k}\v{K}_{k}^\tr-\v{K}_{k}\dpd{\v{S}_k}{\theta_i}\v{K}_{k}^\tr-\v{K}_{k}^\tr\v{S}_{k}\left(\dpd{\v{K}_k}{\theta_i}\right)^\tr
+	\label{eq:P_pd}
+	\end{align}
+Equations \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} together specify
+a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside the Kalman filter recursions.
+As noted in \textcite{Cappe2005}, these equations are sometimes known as the \emph{sensitivity equations}
+and they are derived at least in \textcite{Gupta1974} and \textcite{Mbalawataa}.
+
+\subsubsection{Nonlinear-Gaussian SSMs}
+

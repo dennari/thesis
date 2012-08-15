@@ -1,0 +1,202 @@
+\subsubsection{Ascent methods}
+
+An important theoretical result concerning iterative ascent methods is known
+as the \emph{global convergence theorem} \parencite{luenberger2008}. It states
+the necessary conditions that the estimate produced by an iterative ascent method
+is a local maximum. Suppose then that $\ell:\Theta\to\R$ is the objective function
+and we are trying to solve the \emph{unconstrained} optimization problem
+\begin{align}
+	\Th_\star&=\argmax_{\Th}\lLH,\quad\Th\in\Theta=\R^{d_\theta},
+	\label{eq:optimization_problem}
+\end{align}
+where $\Th_\star$ need not be unique, i.e. there can be a solution set 
+\begin{align}
+	\mathcal{S}=\brac*{\Th_\star\in\Theta : \lLH[\Th_\star]\geq \lLH[\Th] \; \forall \Th\in\Theta}
+\end{align}
+To formulate the conditions under which this problem can be solved by an iterative ascent method,
+we need to define the concept of a closed point-to-set mapping. $T$ is a point-to-set map
+from $X$ to $Y$, if it maps points in $X$ to subsets of $Y$.
+$T$ is said to be \emph{closed} at $\x \in X$ if
+\begin{alignat*}{3}
+	\mathrm{(i)}&\; & \x_j & \to \x,&\;&\x_j \in X,\;j=0,1,2,\dots\\
+	\mathrm{(ii)} && \y_j &\to \y, && \y_j\in\F{T}{\x_j},\;j=0,1,2,\dots\\
+\shortintertext{imply that}
+	&& \y&\in\F{T}{\x}	&&
+\end{alignat*}
+This can be considered a generalization of continuity for point-to-set mappings.
+\begin{theorem}
+Given an initial value $\Th_0$, let the point-to-set map $\EMM*:\Theta\to Y$ construct a sequence
+of estimates $\brac[\big]{\Th_{j+1}\in\Theta : \Th_{j+1}\in\EMM{\Th_j}}$, let $\mathcal{S}\subset\Theta$ denote the solution
+set and let $\ell:\Theta\to\R$ denote the ``ascent'' (or objective) function. 
+Then given the conditions
+\begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
+	\item all $\Th_j$ belong to $\Theta_c$,  a compact subset of $\Theta$
+	\item $\lLH$ is a continuous function in $\Theta$ with
+\begin{eqspace}{5pt}{5pt}{1pt}{5pt}
+\begin{align*}
+	\Th_j \not\in \mathcal{S} \Rightarrow \lLH[\Th_{j+1}] > \lLH[\Th_j]\\  
+	\Th_j \in \mathcal{S} \Rightarrow \lLH[\Th_{j+1}] \geq \lLH[\Th_j]  
+\end{align*}
+\end{eqspace}
+	\item $\EMM*$ is closed at $\Theta\setminus\mathcal{S}$
+\end{enumerate}
+it must follow that the limit of every subsequence of $\brac*{\Th_j}$ is part of $\mathcal{S}$ 
+\end{theorem}
+As pointed out in \textcite{luenberger2008}, it is usually the third condition
+of the above theorem that produces difficulties with actual implementations
+of iterative ascent algorithms. We will discuss this point in further detail in connection
+with the specific methods we're considering.
+
+
+\subsubsection{Properties of the estimators}
+Among different point estimates, the maximum likelihood estimator has good statistical properties.
+Let us denote the true parameter value, the value that the data was generated with, with $\Th_\star$ and 
+let $T$ denote the amount of observations.
+Then provided that some conditions of not very restricting nature hold, we can state the following asymptotic properties 
+for the ML estimate $\Th_{\text{ML}}$:\todo{Modify to reflect p.465 in Cappé}
+\begin{description}
+\addtolength{\leftskip}{1cm}
+\item[Strong consistency]\hfill\\
+An important property for an estimator, which says that
+the estimator tends to the true value as the amount of data tends to infinity:
+\begin{align}
+	%\forall \Th \in \Theta\quad \frac{1}{n}\Pdf[\ell_n]{\Th} \xrightarrow{\mathrm{a.s.}} \lLH, \mathrm{when} n\to\infty
+	\F{\ell_T}{\Th_{\text{ML}}} \xrightarrow{\mathrm{a.s.}} \F{\ell}{\Th_\star},\quad \mathrm{when}\;T\to\infty,
+\end{align}
+where $\ell_T$ is the likelihood function after $T$ measurements and $\ell$ is a continuous
+deterministic function with a unique global maximum at $\Th_\star$.
+%where $\Pdf[\ell_n]{\Th}$ is the log-likelihood given $n$ observations and $\lLH$ is a continuous deterministic
+%function with a unique global maximum at $\Th_\star$.
+\item[Asymptotic normality]\hfill\\
+This property gives us the means to compute asymptotic error bounds for
+the estimate:
+\begin{align}
+	\sqrt{T}\left(\Th_{\text{ML}}-\Th_\star\right) \xrightarrow{D} \N{\v{0}}{\F{\mathcal{I}^{-1}}{\Th_\star}},\quad \mathrm{when}\;T\to\infty,	
+\end{align}
+where $\F{\mathcal{I}}{\Th_\star}$ is the \emph{Fisher information matrix} evaluated at $\Th_\star$ 
+\item[Efficiency]\hfill\\
+When the amount of information tends to infinity, the ML-estimate achieves
+the Cramér-Rao lower bound, i.e. no other consistent estimator has lower asymptotic mean-squared-error.
+\end{description}
+
+
+
+\subsubsection{Identifiability}
+
+Intuitively, any parameters $\Th,\:\Th' \in \Theta,\; \Th \not= \Th'$ cannot be distinguished
+from each other with maximum likelihood estimation if
+\begin{align}
+	\Pdf{\Y}{\Th}&=\Pdf{\Y}{\Th'},
+\end{align}
+i.e., if the same data can arise with two (or more) separate
+parameter values. Let us then go through the second order sufficient conditions
+for a point $\Th_\star$ to be a local maximum. We can define a local maximum
+to be a point $\Th_\star$, for which $\lLH[\Th_\star]-\lLH[\Th_\star+\v{d}] \geq 0$ for small $\v{d}$.
+
+\begin{proposition}\label{prop:cond_for_max}
+Let $\ell:\Theta \to \R$ have continuous second order partial derivatives and let $\Th_\star$
+belong to the interior of $\Theta$. If
+\begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
+  \item $\nabla\lLH[\Th_\star] =0$ 
+  \item $\nabla^2\lLH[\Th_\star]$ is negative definite
+\end{enumerate}
+then $\Th_\star$ is a strict local maximum of $\ell$.
+\end{proposition}
+ \begin{proof}
+ Since \textit{ii)}, there must exist a nonnegative number $a$ for which 
+ $-\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d} \geq a\abs{\v{d}}^2$.
+ Taylor expanding around $\Th_\star$ gives
+ \begin{align*}
+	\lLH[\Th_\star+\v{d}] &= \lLH[\Th_\star]+\nabla\lLH[\Th_\star]^\tr\v{d}+\frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}+\F[\big]{o}{\,\abs{\v{d}}^2}\\
+	\lLH[\Th_\star]-\lLH[\Th_\star+\v{d}] &= -\frac{1}{2}\v{d}^\tr\nabla^2\lLH[\Th_\star]\v{d}-\F[\big]{o}{\,\abs{\v{d}}^2}\\
+	&\geq \frac{1}{2}a\abs{\v{d}^2}-\F[\big]{o}{\,\abs{\v{d}}^2}.
+\end{align*}
+For small enough $\abs{\v{d}}$, the right hand side of the last row must be nonnegative.
+ \end{proof}
+
+\subsubsection{Global convergence}
+
+We would like to demonstrate the applicability of theorem~\ref{th:global_convergence}.
+Let $\EMM*$ then denote the point-to-set map implicitly defined by the EM algorithm.
+From theorem~\ref{th:global_convergence} it can be deduced, that the convergence of all the
+subsequences of $\brac[\big]{\Th_j}$ to some point in $\mathcal{S}$ implies that
+the objective function converges to some value $\ell_\star$, which is the same
+for all $\Th_\star\in\mathcal{S}$.
+
+Suppose now that 
+\begin{enumerate}[i)] \addtolength{\leftskip}{1cm} \itemsep1pt \parskip0pt \parsep0pt
+	\item we are given the initial value $\Th_0$
+	\item the level set $\Theta^0=\brac{\Th\in\Theta : \lLH[\Th]\geq \Th_0}$ 
+is compact and contained in the interior of $\Theta$
+	\item the solution set is $\mathcal{L}^0=\brac*{\Th\in\Theta^0 : \nabla\lLH[\Th]=0}$
+	\item $\EMH$ is continuous in both of its arguments
+	\item $\lLH[\Th]\geq\lLH[\Th']\quad \forall \Th\in\EMM{\Th'}$
+\end{enumerate}
+Then $\lim_{j\to\infty}\Th_j\in\mathcal{L}^0$ and 
+this also applies to every subsequence of $\brac*{\Th_j}$. Additionally
+$\lim_{j\to\infty}\lLH[\Th_j]=\lLH[\Th_\star]$ where $\Th_\star\in\mathcal{L}^0$.
+For the parameter sequence to converge to some 
+$\Th_\star\in\mathcal{L}^0$, we need to assume in addition that $\lim_{j\to\infty}\abs{\Th_{j+1}-\Th_{j}}=0$
+
+We will now assume that $\EMM$ is singular, i.e.
+$\v{M}:\Theta\to\Theta$, and continuous. Then if $\brac[\big]{\Th_0,\EMM{\Th_0},\EMM{\EMM{\Th_0}},\dots }$
+converges to a point $\Th_\star$, we must have $\Th_\star=\EMM{\Th_\star}$ and
+thus around $\Th_\star$ we obtain the first order Taylor series expansion
+\begin{align}
+	\Th_{j+1}-\Th_\star&=\EMM{\Th_j}-\EMM{\Th_\star}\approx\dif\EMM{\Th_\star}\left(\Th_j-\Th_\star\right).
+\end{align} 
+We can then arrive at the following expression for $\dif\EMM{\Th_\star}$ \parencite{Dempster1977,Gibson2005,Lange1995}:
+\begin{align}
+	\dif\EMM{\Th_\star} &= \v{I}-\mathcal{I}_{\X\Y}^{-1}\mathcal{I}_{\Y}\\
+	&=\mathcal{I}_{\X}\mathcal{I}_{\X\Y}^{-1}
+	\label{eq:dM},
+\end{align}
+where
+\begin{align}
+		\mathcal{I}_{\X\Y} = \dQ &= \eval{\E{\prtdd{\log\cLH}{\Th}{\Th}}^{-1}_{\post{\Th_\star}}}_{\Th=\Th_\star}\\
+		\mathcal{I}_{\Y} = \dL &= \eval{\E{\prtdd{\log\LH}{\Th}{\Th}}_{\post{\Th_\star}}}_{\Th=\Th_\star}\\
+		\mathcal{I}_{\X} = \dH &= \eval{-\E{\prtdd{\log\post}{\Th}{\Th}}_{\post{\Th_\star}}}_{\Th=\Th_\star}
+\end{align}
+The latter term in equation~\eqref{eq:dM} is commonly interpreted as the proportion of ``measured'' information compared to
+all information. All the eigenvalues of $\dif\EMM{\Th_\star}$ belong to $[0,1)$ and the \emph{linear} 
+rate of convergence near $\Th_\star$ is the largest of them \parencite{Lange1995}. Then
+clearly the rate of convergence is determined by how closely $\mathcal{I}_{\Y}$ ``resembles''
+$\mathcal{I}_{\X\Y}$, i.e the more information is ``hidden'' in the hidden variables $\X$ the
+slower is the convergence.\todo{Take Salakhutdinov2003 in here}   
+
+There is still the problem that points in $\mathcal{L}^0$ can in addition
+to being local maxima, be also saddle points or even local minima. In order to formulate
+the conditions that guarantee that the stationary point is a local maximum, let us assume
+from now on that the identifiability issues have been solved and $\EMM$ is thus a point-to-point map.
+Then if $\mathcal{I}_{\X\Y}$ and $\mathcal{I}_{\X}$ are positive definite,
+$\dif\EMM{\Th_\star}$ has only positive real eigenvalues and $\Th_\star$ is a
+stable maximizer if and only if $\mathcal{I}_{\Y}$ has only negative eigenvalues.
+
+\todo{What about Petersen2005?}
+In \textcite{Salakhutdinov2004,Salakhutdinov2003} the transformation matrix $\F{\mathcal P}{\Th}$ is defined as
+\begin{align}
+	\Th_{j+1}-\Th_j &= \F{\mathcal P}{\Th_j}\nabla\lLH[\Th_j],
+	\label{eq:EM_P}
+\end{align}
+then near $\Th_\star$ (i.e when $j$ is large)
+we get
+\begin{align}
+		\F{\mathcal P}{\Th_j}&\approx -\left(\v{I}-\dif\EMM{\Th_j}\right)\dL^{-1}.
+		\label{eq:EM_P_approx}
+\end{align}
+What we can infer from \eqref{eq:EM_P} and \eqref{eq:EM_P_approx} is that, near $\Th_\star$, if the dominant eigenvalue
+of $\dif\EMM$ approaches unity, i.e. when the proportion of hidden information approaches zero, the EM algorithm behaves like 
+a true Newton's method. On the other hand when the dominant 
+eigenvalue of $\dif\EMM$ approaches zero, i.e when the proportion of hidden information approaches unity, the convergence 
+of the EM-algorithm becomes slower and stops. 
+
+\todo{Note the fast initial convergence}
+
+\parencite{Wu1983,Sandell1978,Meng1997,Elliott1999,Olsson2007,Paninski2010}
+
+\subsubsection{Local convergence}
+
+\subsubsection{Complexity}
+
+\parencite{Harvey1990,Watson1983,Cappe2005,Saatci2011,Olsson2007}
+

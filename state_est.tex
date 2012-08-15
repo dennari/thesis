@@ -1,3 +1,11 @@
+
+In this section we are concerned with finding, exact if possible and approximate
+otherwise, filtering and smoothing
+distributions of Equations \eqref{eq:filt_bayes} and \eqref{eq:smooth_bayes}.
+In fact we will focus on the somewhat more general problem for deriving
+the cross-timestep joint pdfs. In state estimation it is assumed that the parameter $\Th$ is given.
+Thus throughout this section we will, in general, suppress the dependence on $\Th$ and use the shorthands specified in \eqref{eq:shorthand_theta}. 
+
 \subsection{Linear-Gaussian State Space Models}
 
 A linear map $Q:\mathcal{A}\to\mathcal{B}$ satisfies the equation
@@ -20,11 +28,11 @@ all of the aforementioned distributions stay Gaussian.
 
 \subsubsection{Kalman filter}
 
-Tha Kalman filter is the best known filter, first presented in
+The Kalman filter is the best known filter, first presented in
 the seminal article of \textcite{Kalman1960}. It provides the
 closed form solution to computing the predictive and filtering distributions
-of equations \eqref{eq:pred_bayes} and \eqref{eq:filt_bayes}.
-With the help of lemmas \eqref{lemma:gaussian_joint} and \eqref{lemma:gaussian_cond}
+of Equations \eqref{eq:pred_bayes} and \eqref{eq:filt_bayes}.
+With the help of Lemmas \ref{lemma:gaussian_joint} and \ref{lemma:gaussian_cond},
 deriving the Kalman filter equations is quite straightforward \parencite{Sarkka2006}.
 The resulting recursions are \parencite{jazwinski2007stochastic}:
 \begin{subequations}
@@ -75,7 +83,7 @@ the joint smoothing dustributions \eqref{eq:smooth_joint_bayes} can be computed
 going \emph{backwards} in time. In this computing order sense, the last filtering distribution
 is the first smoothing distribution. In the linear-Guassian case,
 the Rauch-Tung-Striebel (RTS) smoother gives the statistics $\v{m}_{k|T}$ and 
-$\v{P}_{k|T}$ \parencite{jazwinski2007stochastic,Rauch1965} in equation \eqref{eq:smoothing_gaussian}.
+$\v{P}_{k|T}$ \parencite{jazwinski2007stochastic,Rauch1965} in Equation \eqref{eq:smoothing_gaussian}.
 We will use a version that gives the joint distribution of the states across a timestep, since
 the cross-timestep covariance will be needed in the parameter estimation phase.
 Assuming now that all the predictive and filtering distributions, i.e $\N[\x_{k+1}]{\m_{k+1|k}}{\v{P}_{k+1|k}}$ and $\N[\xk]{\m_{k|k}}{\v{P}_{k|k}}$ respectively,
@@ -116,9 +124,9 @@ joint distributions
 In the nonlinear case at least one of the mappings $\v{f}$ and $\v{h}$ in
 \eqref{eq:ssm_general} is nonlinear (in $\x$). Unfortunately in this case computing the filtering
 distributions in closed form becomes intractable and one has to resort to 
-some sort of approximations. Following \textcite{Arasaratnam2009}, we can
+some sort of approximations. We can
 divide these approximate filtering (and smoothing) solutions into two 
-categories: 
+categories \parencite[see, e.g.,][]{Arasaratnam2009}: 
 \begin{enumerate}[i)] \addtolength{\leftskip}{.5cm} \itemsep1pt \parskip0pt \parsep0pt
   \item \emph{Local approaches} assume the parametric form of the posterior
   distributions \eqref{eq:pred_bayes}, \eqref{eq:filt_bayes} and \eqref{eq:smooth_bayes} \emph{a priori}. 
@@ -137,7 +145,7 @@ methods only differ in their chosen numerical integration methods.
 \subsubsection{Gaussian filtering and smoothing}
 
 One approach to forming Gaussian approximations is to assume a Gaussian
-probability distribution a priori \parencite{Ito2000,Wu2006,Sarkka2010}. 
+probability distribution a priori \parencite{Kushner1967,Ito2000,Wu2006,Sarkka2010}. 
 Since a Gaussian distribution is 
 defined by its first two moments, a moment matched approximation
 can be obtained if the first two moments of the actual probability
@@ -149,13 +157,12 @@ of computing multidimensional moment integrals of the form
 We shall next derive 
 the general form of the three moment integrals and then show how they can be applied
 in the specific case of approximating the joint smoothing distribution
-of equation \eqref{eq:smooth_joint_bayes}. Suppose now that  
+of Equation \eqref{eq:smooth_joint_bayes}. Suppose now that  
 \begin{align}
 	\Pdf{\x}&= \N[\x]{\m}{\P} \label{eq:pa}\\
 	\Pdf{\y}{\x}&= \N[\y]{\F*{f}{\x}}{\v{R}}. \label{eq:pb_given_a}
 \end{align}
-Then as in lemma \eqref{lemma:gaussian_joint}, $\Pdf{\x,\y}$ 
-is only Gaussian if $\F*{f}{\x}$ is linear. Assuming that's not the case,
+Then $\Pdf{\x,\y}$ is Gaussian only if $\F*{f}{\x}$ is a linear map (with a possible affine constant). Assuming that's not the case,
 let us denote a Gaussian approximation
 to $\Pdf{\x,\y}$ with
 \begin{align}
@@ -176,8 +183,8 @@ to $\Pdf{\x,\y}$ with
 	\end{bmatrix}
 	}
 \end{align}
-Then according to lemmas \eqref{lemma:gaussian_joint} and \eqref{lemma:gaussian_cond}, 
-for a moment matched approximation we have to have
+Then according to Lemmas \eqref{lemma:gaussian_joint} and \eqref{lemma:gaussian_cond}, 
+for the moment matched approximation we have to have
 \begin{align}
 	\gv{\mu}_x&=\v{m}\\
 	\gv{\Sigma}_{xx}&=\v{P}\\
@@ -210,7 +217,7 @@ Then
 	}
 	\label{eq:joint_predictive_approximation}
 \end{align}
-where by application of equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} 
+where by application of Equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} 
 \begin{align}
 	\begin{split}
 	\v{m}_{k|k-1}&=\defint{}{}{\f_{k-1}\N[\xkk]{\m_{k-1|k-1}}{\P_{k-1|k-1}}}{\xkk}\label{eq:prediction_mean_intergral}
@@ -246,7 +253,7 @@ For the update step we first approximate
 	\label{eq:joint_update_approximation}
 \end{split}
 \end{align}
-Applying equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} again,
+Applying Equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} again,
 we get
 \begin{align}
 	\gv{\mu}_{k}
@@ -257,24 +264,25 @@ we get
 	&=\defint{}{}{\fparen[\big]{\xk-\m_{k|k-1}}\fparen[\big]{\h_k-\gv{\mu}_k}^\tr\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}}{\xk} \label{eq:update_covariance_intergral}.
 \end{align}
 The approximation to the filtering distribution $\Pdf{\xk}{\y_{1:k}}\approx \N[\xk]{\m_{k|k}}{\P_{k|k}}$ 
-is then given by applying Lemma~\ref{lemma:gaussian_cond} to \eqref{eq:joint_update_approximation}:
+is then given by applying Lemma~\ref{lemma:gaussian_cond} to \eqref{eq:joint_update_approximation}.
+Then, analogously to the update equations of the Kalman filter \eqref{eq:Kalman_filter}, we get
 \begin{align}
-	\m_{k|k}
-	&=\m_{k|k-1}+\v{C}_{k}\v{S}_{k}^{-1}\left(\yk-\gv{\mu}_k\right)\label{eq:update_mean}\\
-	\P_{k|k}
-	&=\P_{k|k-1}-\v{C}_{k}\v{S}_{k}^{-1}\v{C}_{k}^\tr. \label{eq:update_variance}
+	\v{v}_k&=\yk-\gv{\mu}_k\\
+	\v{K}_k&=\v{C}_{k}\v{S}_{k}^{-1}\\
+	\v{m}_{k|k}&=\v{m}_{k|k-1}+\v{K}_k\v{v}_k\\
+	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^\tr
 \end{align}
 
 \subsubsection*{Smoothing step}
 
 Let us write down the approximation to a 
-conditional distribution that is easily derived from equation~\eqref{eq:joint_predictive_approximation}, 
+conditional distribution that is easily derived from Equation~\eqref{eq:joint_predictive_approximation}, 
 namely (note the change in indexing):
 \begin{align}
 	\Pdf{\xk}{\x_{k+1},\y_{1:T}}=\Pdf{\xk}{\x_{k+1},\y_{1:k}}&\approx \N[\xk]{\m'_{k}}{\P'_{k}}\\
 	\m'_{k} &= \m_{k|k}+\v{G}_k\fparen*{\x_{k+1}-\m_{k+1|k}}\\
 	\P'_{k} &= \P_{k|k}-\v{G}_k\P_{k+1|k}\v{G}_k^\tr\\
-	\v{G}_k &= \v{C}_{k,k+1}\v{P}_{k+1|k}^{-1}
+	\v{G}_k &= \v{C}_{k,k+1}\v{P}_{k+1|k}^{-1}.
 	\label{eq:middle_conditional}
 \end{align}
 At this point we have derived all the components needed to compute
@@ -284,7 +292,7 @@ then advance backwards in time. Let us then assume that the smoothing
 distribution of the previous step, $\Pdf{\x_{k+1}}{\y_{1:T}}$, is available. Then
 by applying Lemma~\ref{lemma:gaussian_joint}, we have
 \begin{align}
-	\Pdf{\xk,\x_{k+1}}{\y_{1:T}}&=\Pdf{\xk}{\x_{k+1},\y_{1:T}}\Pdf{\x_{k+1}}{\y_{1:T}}\\
+	\Pdf{\xk,\x_{k+1}}{\Y}&=\Pdf{\xk}{\x_{k+1},\y_{1:T}}\Pdf{\x_{k+1}}{\y_{1:T}}\\
 	&\approx
 	\N[\bm{\xk\\\x_{k+1}}]{
 	\begin{bmatrix}
@@ -294,7 +302,7 @@ by applying Lemma~\ref{lemma:gaussian_joint}, we have
 	\begin{bmatrix}
 		\P_{k|T}&\v{D}_{k}\\
 		\v{D}_{k}^\tr&\P_{k+1|T}
-	\end{bmatrix}
+	\end{bmatrix},
 	}\label{eq:joint_smoothing}
 \end{align}
 where
@@ -337,13 +345,14 @@ can be justifiably divided into three categories:
   \item integrand approximations.
 \end{enumerate}
 Recognizing that the chosen numerical integration method is the principal differentiator provides a 
-common framework for analyzing the properties of the numerous Gaussian filters and smoothers \parencite{Sarkka2010, Sarkka2008a}.
+common framework for analyzing the properties of the numerous Gaussian filters and smoothers 
+\parencite{Sarkka2010, Sarkka2008a,Ito2000,Wu2006,julier1997new,Arasaratnam2009,Arasaratnam2011}.
 Furthermore the first two categories differ only in their approach to multidimensional integrals,
 so that main difference between the categories can be described
 as applying an integration formula known to be exact for certain class of integrands
 or approximating the integrand and integrating the approximation exactly.
 Since truncated Taylor series approximations are often used in the latter case, an important distinction
-is that the former doesn't require computation of Jacobians or higher order differentials. 
+is that the former does not require computation of Jacobians or higher order differentials. 
 
 Since there exists many efficient integration rules defined on the unidimensional line,
 a natural idea is to extend these to the hypercube by iterated integrals. This is exactly the 
@@ -356,11 +365,11 @@ quadrature rules. Quadrature is a term referring to unidimensional numerical int
 	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x} \approx \sum_{i=1}^m w_i\F*{l}{\v{u}_i},
 \end{align}
 where the points of evaluation $\brac*{\v{u}_i}_{i=1}^m$ are called the \emph{sigma points}
-(or just points) and $w_i$ are the weights. As is expected from the iterated integration approach,
+(or \emph{abscissas} or just points) and $w_i$ are the weights. As is expected from the iterated integration approach,
 the problem with product rules is the exponential increase in the number of sigma points with
 the number of dimensions, also known as the \emph{curse of dimensionality}. Thus if the unidimensional rule has $m$ sigma points (and thus $m$ integrand evaluations),
 then the $d$ dimensional product rule has $m^d$ sigma points. The Gaussian filter based
-on Gauss-Hermite product rules is know simply as the Gauss-Hermite Kalman filter (GHKF) \parencite{Ito2000}.
+on Gauss-Hermite product rules is known simply as the Gauss-Hermite Kalman filter (GHKF, sometimes shortened also GKF or QKF, for quadrature Kalman filter) \parencite{Ito2000}.
 The number of sigma points in the unidimensional rule is a parameter of GHKF.
 
 More sophisticated cubature methods search for rules
@@ -371,12 +380,12 @@ to degree $p+1$. Naturally since integration is a linear operation, a rule which
 for a monomial up to order $o$ is exact for multidimensional polynomials of order $o$.
 Unfortunately finding efficient rules exact for monomials is something of an art, since
 even the least possible number of points required for given precision and dimension is in many
-instances unknown. Nevertheless in \textcite{Arasaratnam2009,Arasaratnam2011} a filter
-and a corresponding smoother are presented, which are based on a third degree 
+instances unknown. Nevertheless, following the work in \textcite{Wu2006}, in \textcite{Arasaratnam2009,Arasaratnam2011} a filter
+and a corresponding smoother are presented, based on a third degree 
 cubature rule. The theoretical lower bound in points for a third degree rule
-is $2\,d_x$, which is met by the rule used in the \emph{Cubature Kalman Filter} (CKF) and
+is $2\,d_x$, which is met by the rule used in the \emph{Cubature Kalman Filter} (CKF) \todo{present the rule} and
 the \emph{Cubature Kalman Smoother} (CKS). Another notable nonlinear filter in this
-category is the \emph{Unscented Kalman Filter} (UKF) \textcite{julier1997new,Merwe2004}, 
+category is the \emph{Unscented Kalman Filter} (UKF) \parencite{julier1997new,Merwe2004}, 
 also based on a third degree rule. A corresponding smoother is derived in \textcite{Sarkka2008a}.
 
 The oldest and most well known nonlinear filter, belonging to the third category, is

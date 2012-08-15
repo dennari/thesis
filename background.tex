@@ -149,14 +149,17 @@ and the measurement models:
 \end{subequations}
 Going further, for the sake of notational clarity, we will sometimes make
 the dependence on $\Th$ implicit and use the shorthand notation
-\begin{align*}
+\begin{align}
+	\begin{aligned}
 	\f_{k-1} &\equiv \ff &
 	\h_{k} &\equiv \hh\\
 	\QQ* &\equiv \QQ &
 	\RR* &\equiv \RR\\
 	\muu* &\equiv \muu &
 	\Sig* &\equiv \Sig
-\end{align*} 
+	\end{aligned}
+	\label{eq:shorthand_theta}
+\end{align} 
 
 
 \subsection{Bayesian optimal filtering and smoothing}
@@ -248,7 +251,8 @@ we find that the marginal likelihood can be computed from
 	\Pdf{\Y}{\Th}&=\Pdf{\y_1}{\Th}\prod_{k=2}^\tr \Pdf{\y_k}{\y_{1:k-1},\Th}
 	\label{eq:lh_factorization}
 \end{align}
-
+This equation is known as the \emph{prediction error decomposition}
+of the marginal likelihood.
 
 
 
