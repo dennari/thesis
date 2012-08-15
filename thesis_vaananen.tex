@@ -81,6 +81,10 @@ pdfproducer={xetex}
 \NewDocumentCommand\tPX{G{\gv{\psi}}}{\Pdf[\tP]{\X}{#1}}
 \NewDocumentCommand\ff{O{\displaysize} G{\xkk} G{\Th}}{\F[#1]{\f}{#2,#3}}
 \NewDocumentCommand\hh{O{\displaysize} G{\xk} G{\Th}}{\F[#1]{\h}{#2,#3}}
+\NewDocumentCommand\QQ{s G{\Th}}{\IfBooleanTF{#1}{\v{Q}}{\F{\v{Q}}{#2}}}
+\NewDocumentCommand\RR{s G{\Th}}{\IfBooleanTF{#1}{\v{R}}{\F{\v{R}}{#2}}}
+\NewDocumentCommand\muu{s G{\Th}}{\IfBooleanTF{#1}{\gv\mu_0}{\F{\gv\mu_0}{#2}}}
+\NewDocumentCommand\Sig{s G{\Th}}{\IfBooleanTF{#1}{\gv\Sigma_0}{\F{\gv\Sigma_0}{#2}}}
 \NewDocumentCommand\II{O{\displaysize} m}{\F[#1]{\v{I}_{#2}}{\Th,\Th'}}
 \NewDocumentCommand\post{G{\Th}}{\Pdf[p]{\X}{\Y,#1}}
 \NewDocumentCommand\cLH{G{\Th}}{\Pdf{\X,\Y}{#1}}

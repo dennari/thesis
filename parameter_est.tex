@@ -227,7 +227,7 @@ It should be pointed that the commonly used MATLAB unconditional nonlinear
 optimization function \texttt{fminunc} that we referred to earlier, uses 
 the BFGS quasi-Newton method with cubic interpolation line search.
 
-\subsubsection{Linear-Gaussian SSMs}
+\subsubsection{Linear-Gaussian SSMs}\label{sec:grad_LGSSM}
 
 Let us then focus on computing the gradient of the
 log-likelihood function $\lLH$, also known as the \emph{score function}.
@@ -512,6 +512,7 @@ If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we h
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Partial E and M steps}%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:EM_partial}
 As can be seen from equation~\eqref{eq:fundamental_inequality},
 to ensure monotonicity it is enough that $\EMQ{\Th_{j+1}}{\Th_j}\geq \EMQ{\Th_{j}}{\Th_j}$,
 i.e. $\Th_{j+1}$ is not required to be the maximum of $\EMQ{\Th_{j+1}}{\Th_j}$.
@@ -555,13 +556,13 @@ Taking the expectation of \eqref{eq:clLH_LG} with respect to $\Pdf{\X}{\Y,\Th'}$
 applying the identity $\v{a}^\tr\v{C}\v{b}=\Tr{\v{a}^\tr\v{C}\v{b}}=\Tr{\v{C}\v{b}\v{a}^\tr}$, and dropping the constant terms we get
 \begin{align}
 \begin{split}
-	\EMQ{\Th'}{\Th} =&-\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}-\frac{1}{2}\log\detr{\gv{\Sigma}_0}\\
-	&-\frac{1}{2}\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\v{A}\xkk\right)\left(\x_k-\v{A}\xkk\right)^\tr}}-\frac{T}{2}\log\detr{\v{Q}}\\
-	&-\frac{1}{2}\Tr[\bigg]{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\v{H}\xk\right)\left(\y_k-\v{H}\xk\right)^\tr}}-\frac{T}{2}\log\detr{\v{R}}
+	\EMQ{\Th'}{\Th} \approx -\frac{1}{2}\bigg\{&\Tr{\gv{\Sigma}_0^{-1}\E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}}+\log\detr{\gv{\Sigma}_0}\\
+	+\,&\Tr[\bigg]{\v{Q}^{-1}\sum_{k=1}^T\E{\left(\x_k-\v{A}\xkk\right)\left(\x_k-\v{A}\xkk\right)^\tr}}+T\log\detr{\v{Q}}\\
+	+\,&\Tr[\bigg]{\v{R}^{-1}\sum_{k=1}^T\E{\left(\y_k-\v{H}\xk\right)\left(\y_k-\v{H}\xk\right)^\tr}}+T\log\detr{\v{R}}\bigg\}
 \end{split}
 \label{eq:eclLH}
 \end{align} 
-Let us denote the three expectations in equation~\eqref{eq:eclLH} with
+Let us denote the terms inside the traces in equation~\eqref{eq:eclLH} with
 \begin{align}
 	\II{1} &= \E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}\\ 
 	&=\defint{\mathcal{X}\times T}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\X}{\Y,\Th'}}{\X}\nonumber\\
@@ -579,7 +580,7 @@ By applying the identity
 \begin{align}
 	\var{\x}&=\E{\x\x^\tr}-\E{\x}\E{\x}^\tr,
 \end{align} 
-we can already write the first expectation as
+we can write first expectation as
 \begin{align}
 	\II{1}&= \v{P}_{0|T}+(\v{m}_{0|T}-\gv{\mu}_0)(\v{m}_{0|T}-\gv{\mu}_0)^\tr,
 	\label{eq:I1}
@@ -588,16 +589,19 @@ where we denote Gaussian smoothing distributions by $\Pdf{\xk}{\Y}=\N[\xk]{\m_{k
 This was a result of assuming the Gaussian prior distribution of equation~\eqref{eq:prior} and
 it is common for the more specific models we're assessing in the next chapters.
 
-Let us also denote by
+As in \eqref{eq:joint_smoothing}, let us also denote the joint smoothing distribution of $\xk$ and $\xkk$ by
 \begin{align}
-	\Pdf{\xk, \xkk}{\Y,\Th}&=
-	\N[
-	\begin{bmatrix}
-		\xk\\\xkk
-	\end{bmatrix}
-	]{\m_{k,k-1|T}}{\P_{k,k-1|T}} \label{eq:pdf_smooth_joint},
+\Pdf{\xkk,\xk}{\Y}&=\N[\bm{\xkk\\\xk}]{
+	\bm{
+		\m_{k-1|T}\\
+		\m_{k|T}
+	}}{
+	\bm{
+		\P_{k-1|T}&\v{D}_{k-1}\\
+		\v{D}_{k-1}^\tr&\P_{k|T}
+	}}
+	\label{eq:pdf_smooth_joint}.
 \end{align}
-the joint smoothing distribution of $\xk$ and $\xkk$.
 Then by applying the manipulation
 \begin{align}
 \begin{split}
@@ -618,7 +622,16 @@ we get
 \begin{align}
 	\II{2}&=
 \bm{\v{I} \\ -\v{A}^\tr}^\tr	
-\sum_{k=1}^T\left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)
+\sum_{k=1}^T\left(\bm{
+		\P_{k-1|T}&\v{D}_{k-1}\\
+		\v{D}_{k-1}^\tr&\P_{k|T}
+	}+\bm{
+		\m_{k-1|T}\\
+		\m_{k|T}
+	}\bm{
+		\m_{k-1|T}\\
+		\m_{k|T}
+	}^\tr\right)
 \bm{\v{I}\\-\v{A}^\tr} \label{eq:LGSSM_I2}\\
 &=\bm{\v{I} \\ -\v{A}^\tr}^\tr	
 %\bm{\P_{k|T}+\m_{k|T}\m_{k|T}^\tr & \left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)^\tr \\ \P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr & \P_{k-1|T}+\m_{k-1|T}\m_{k-1|T}^\tr }
@@ -736,29 +749,41 @@ Our strategy then will be to apply Gaussian filtering and smoothing
 in the E-step to compute the expectations of the sufficient statistics,
 which is according to section~\ref{sec:EM_exp} what the E step reduces
 to after the Gaussian assumption. In the M-step
-we shall utilize the BFGS nonlinear optimization method to
-maximize the intermediate quantity with respect to $\Th$. This however
-leads to the requirement of being able to compute 
+we shall utilize a gradient based optimization method.
+This naturally leads to the requirement of being able to compute 
 $\nabla_{\Th}\EMQ$, i.e the gradient of the intermediate quantity with respect
-to $\Th$.
-
-
+to $\Th$. It is quite unclear how many iterations of the optimization algorithm should
+be run in the M-step since, as pointed out in section~\ref{sec:EM_partial},
+any new parameter value that increases the log-likehood suffices. In \textcite{Lange1995}
+a heuristic argument was used to only run a single iteration of Newton's method in the M-step.
 
 Denoting $\f_{k-1}\equiv \ff$ and $\h_k\equiv \hh$, we now have
 \begin{align}
 \label{eq:EMQ_approx}
 \begin{split}
-	\EMQ{\Th'}{\Th} \approx& -\frac{1}{2}\Tr{\gv{\Sigma}_0^{-1}\II{1}}-\frac{1}{2}\log\detr{\gv{\Sigma}_0}\\
-	&-\frac{1}{2}\Tr[\bigg]{\v{Q}^{-1}\II{2}}-\frac{T}{2}\log\detr{\v{Q}}\\
-	&-\frac{1}{2}\Tr[\bigg]{\v{R}^{-1}\II{3}}-\frac{T}{2}\log\detr{\v{R}},
+	\EMQ{\Th'}{\Th} \approx -\frac{1}{2}\bigg\{&\Tr{\gv{\Sigma}_0^{-1}\II{1}}+\log\detr{\gv{\Sigma}_0}\\
+	+\,&\Tr[\Big]{\v{Q}^{-1}\II{2}}+T\log\detr{\v{Q}}\\
+	+\,&\Tr[\Big]{\v{R}^{-1}\II{3}}+T\log\detr{\v{R}}\bigg\},
 \end{split}
 \end{align}
 where $\II{1}$ is the same as in \eqref{eq:I1_general} and
+we approximate
 \begin{align}
-\II{2} &= 
-\sum_{k=1}^T\iint_{\mathcal{X}}\left(\xk-\ff\right)\left(\xk-\ff\right)^\tr \nonumber\\
-&\quad\times\Pdf{\xk,\xkk}{\Y,\Th'}\,\dif\xkk\dif\xk \label{eq:I2_general}\\
-&\approx \sum_{k=1}^T\iint_\mathcal{X}\left(\x_k-\f_{k-1}\right)\left(\x_k-\f_{k-1}\right)^\tr \nonumber\\
+	\Pdf{\xk,\xkk}{\Y,\Th'}&\approx \N[\bm{\xkk\\\xk}]{
+	\begin{bmatrix}
+		\m_{k-1|T}\\
+		\m_{k|T}
+	\end{bmatrix}}{
+	\begin{bmatrix}
+		\P_{k-1|T}&\v{D}_{k-1}\\
+		\v{D}_{k-1}^\tr&\P_{k|T}
+	\end{bmatrix}
+	}
+	\label{eq:smooth_approx}
+\end{align}
+giving
+\begin{align}
+\II{2} &= \sum_{k=1}^T\iint_\mathcal{X}\left(\x_k-\ff\right)\left(\x_k-\ff\right)^\tr \nonumber\\
 &\quad \times \N[\bm{\xkk\\\xk}]{
 	\begin{bmatrix}
 		\m_{k-1|T}\\
@@ -776,8 +801,7 @@ where $\II{1}$ is the same as in \eqref{eq:I1_general} and
 \E{\bm{\xk \\ \f_{k-1}}\bm{\xk \\ \f_{k-1}}^\tr} 
 \bm{\v{I}\\-\v{I}}\nonumber\\	
 \shortintertext{and}
-\II{3} &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\yk-\hh\right)\left(\yk-\hh\right)^\tr\Pdf{\xk}{\Y,\Th'}}{\xk}\\
-&\approx \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\y_k-\h_{k}\right)\left(\y_k-\h_{k}\right)^\tr\N[\xk]{\m_{k|T}}{\P_{k|T}}}{\xk} \label{eq:I3_approx}\\
+\II{3} &= \sum_{k=1}^T\defint{\mathcal{X}}{}{\left(\y_k-\hh\right)\left(\y_k-\hh\right)^\tr\N[\xk]{\m_{k|T}}{\P_{k|T}}}{\xk} \label{eq:I3_approx}\\
 &=
 \bm{\v{I} \\ -\v{I}}^\tr	
 \sum_{k=1}^T
@@ -794,16 +818,23 @@ will nevertheless be at least as big as the error incurred by the smoother
 integration rule.
 
 To use BFGS optimization, we will need the analytical gradient of the objective function.
-Let us find out the formal differential of a general log-Gaussian, where
+It is important to highlight at this point that the joint smoothing distribution approximation
+of equation~\eqref{eq:smooth_approx} depends on $\Th'$ (the \emph{current}, e.g. given, parameter value)
+and during the M-step we are searching for the \emph{next} parameter value $\Th^{\prime\prime}=\argmax_{\Th}\EMQ$. In other words
+when differentiating the integrals \eqref{eq:I2_approx} and \eqref{eq:I3_approx} the Gaussian functions
+are independent of $\Th$.
+Let us then find out the formal differential of a general log-Gaussian, where
 both the mean and the variance depend on the scalar parameter $\theta$. We get
 \begin{align}
 	\dpd{}{\theta}&\log\N[\x]{\m}{\P}\\
 	&=-\frac{1}{2}\dpd{}{\theta}\brak*{(\x-\m)^\tr\P^{-1}(\x-\m)}-\frac{1}{2}\dpd{}{\theta}\log\detr\P\\		
 	&=-\frac{1}{2}\dpd{}{\theta}\Tr{\P^{-1}(\x-\m)(\x-\m)^\tr}-\frac{1}{2}\Tr{\P^{-1}\dpd{\P}{\theta}}\\		
-	&=\frac{1}{2}\Tr{\P^{-1}\fparen*{\dpd{\P}{\theta}\P^{-1}(\x-\m)(\x-\m)^\tr+2\dpd{\m}{\theta}(\x-\m)^\tr+\dpd{\P}{\theta}}}\\		
+	&=\frac{1}{2}\Tr{\P^{-1}\fparen*{\dpd{\P}{\theta}\P^{-1}(\x-\m)(\x-\m)^\tr+2\dpd{\m}{\theta}(\x-\m)^\tr+\dpd{\P}{\theta}}}		
 	%&= \fparen*{\fparen*{2\pi}^{d_x}\detr\P}^{-\sfrac{1}{2}}\exp\fparen*{-\frac{1}{2}
 	%\Tr{\P^{-1}\bm{\v{I}\\-\v{I}}^\tr\bm{\x\\\m}\bm{\x\\\m}^\tr\bm{\v{I}\\-\v{I}}}},		
 \end{align}
+
+
 If we then assume
 that $\ff$ , $\v{Q}$, $\hh$, $\v{R}$, $\gv{\mu}_0$ and $\gv{\Sigma}_0$ depend on $\theta_i\in\Th$,
 we can write
@@ -854,6 +885,17 @@ and
 \item compute $\nabla_{\Th}\EMQ$ from equation \eqref{eq:dLB_nonlinear}
 \end{enumerate}
  
+\subsubsection{Score computation}
+
+As can be understood from Fisher's identity \eqref{eq:EM_gradients}
+the gradient of the intermediate quantity $\nabla_{\Th}\EMQ$ is equal to the log-likelihood
+gradient, i.e. the score, at the point $\Th=\Th'$. This leads to an alternative computational
+strategy to the sensitivity equations of section~\ref{sec:grad_LGSSM}, termed
+the \emph{easy gradient recipe} in \textcite{Olsson2007}. Thus to compute the score
+at $\Th'$ one performs the computations detailed in the previous section for evaluating
+$\nabla_{\Th}\EMQ{\Th'}{\Th'}$. Harnessing the EM machinery only for gradient computation and then applying
+gradient based optimization is also the idea in the expectation-conjugate-gradient (ECG) 
+method of \textcite{Salakhutdinov2003a}. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -861,13 +903,18 @@ and
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:litp}
 
+If the dynamic and measurement models are linear-in-the-parameters but nonlinear
+in the states, then only the E-step is approximate and the M-step can be performed
+in closed form. Thus this situation is clearly a combination of the linear-Gaussian
+and the nonlinear cases discussed in the previous sections.
+
 Suppose now that $\f:\mathcal{X}\to\mathcal{X}$ is a linear
 combination of vector valued functions $\gv{\rho}_k:\mathcal{X}\to\R^{d_{\Phi,k}}$,
 so that the parameters of $\f$, $\gv{\Phi}_k$, are matrices of size $d_x\times d_{\Phi,k}$.
 Then $\f$ can be written as 
 \begin{align}
 \begin{split}
-	\ff &=\gv{\Phi}\gv{\rho}_1(\x)+\dots+\gv{\Phi}_m\gv{\rho}_m(\x)\\
+	\ff &=\gv{\Phi}_1(\Th)\gv{\rho}_1(\x)+\dots+\gv{\Phi}(\Th)_m\gv{\rho}_m(\x)\\
 	&=
 	\begin{bmatrix}
 		\gv{\Phi}_1 & \dots & \gv{\Phi}_m
@@ -877,7 +924,7 @@ Then $\f$ can be written as
 		\vdots\\ 
 		\gv{\rho}_m(\x)
 	\end{bmatrix}\\
-	&=\v{A}\v{g}(\x),
+	&=\v{A}(\Th)\v{g}(\x),
 \end{split}
 \end{align}
 so that $\v{A}$ is now a matrix of size ${d_x\times\sum_{k=1}^m d_{\Phi,k}}$ and $\v{g}:\mathcal{X}\to \R^{\sum_{k=1}^m d_{\Phi,k}}$ . 
@@ -901,7 +948,7 @@ Then similarly to \eqref{eq:EM_M_A}
 Applying similar assumptions as for $\f$ to $\h$, we can write
 \begin{align}
 \begin{split}
-	\v{h}(\x)&=\gv{\Upsilon}\gv{\pi}_1(\x)+\dots+\gv{\Upsilon}_m\gv{\pi}_m(\x)\\
+	\hh&=\gv{\Upsilon}_1(\Th)\gv{\pi}_1(\x)+\dots+\gv{\Upsilon}_m(\Th)\gv{\pi}_m(\x)\\
 	&=
 	\begin{bmatrix}
 		\gv{\Upsilon}_1 & \dots & \gv{\Upsilon}_m
@@ -911,7 +958,7 @@ Applying similar assumptions as for $\f$ to $\h$, we can write
 		\vdots\\ 
 		\gv{\pi}_m(\x)
 	\end{bmatrix}\\
-	&=\v{H}\v{l}(\x),
+	&=\v{H}(\Th)\v{l}(\x),
 \end{split}
 \end{align}
 where the size of $\v{H}$ is now ${d_x\times\sum_{k=1}^m d_{\Upsilon,k}}$ and 
@@ -1085,29 +1132,5 @@ of the EM-algorithm becomes slower and stops.
 \subsubsection{Complexity}
 
 \parencite{Harvey1990,Watson1983,Cappe2005,Saatci2011,Olsson2007}
-
-
-\subsection*{Hybrid algorithms}
- 
-Now that the main properties of the two algorithms have been presented,
-at least two ideas of combining the methods come to mind: using gradient based
-optimization by computing the score through the Fisher's identity \eqref{eq:EM_gradients}
-and utilizing gradient based optimization in the M-step of the EM algorithm.
-Both of these ideas have been presented in the literary. 
-
-The first idea is used in the expectation-conjugate-gradient (ECG) 
-method of \textcite{Salakhutdinov2003a}.
-Furthermore, it is termed the ``easy gradient recipe" in \textcite{Olsson2007}. 
-The gradient computations of equations
-\eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} 
-are laborious and computationally more complex than using equation~\eqref{eq:EM_gradients}.
-
-The second idea is analyzed in \parencite{Lange1995},
-where a \emph{single} step of Newton's method is run on every M-step.
-Using only a single step was only a heuristic argument in
-\parencite{Lange1995}, which raises the question of the optimal
-amount of increase that should be achieved in the M-step. 
- 
-
 
 

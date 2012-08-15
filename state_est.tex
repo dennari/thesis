@@ -1,16 +1,21 @@
 \subsection{Linear-Gaussian State Space Models}
 
-Since linear mappings can be described by matrices, stationary linear-Gaussian SSMs 
+A linear map $Q:\mathcal{A}\to\mathcal{B}$ satisfies the equation
+\begin{align}
+	Q(\alpha\v{a}+\beta\v{b}) &= \alpha Q(\v{a})+\beta Q(\v{b}), \quad \forall\;\; \v{a},\v{b}\in\mathcal{A}\;\.\&\;\.\alpha,\beta \in \R.
+\end{align}%
+%
+Since linear maps can be described by matrices, stationary linear-Gaussian SSMs 
 are described by the subset of SSMs of the form \eqref{eq:ssm_general} where  
 \begin{align}
-	\v{f}_{\Th}\left(\x_{k-1}\right)&=\v{A}\x_{k-1}\\
-	\v{h}_{\Th}\left(\xk\right)&=\v{H}\xk.
+	\ff&=\v{A}(\Th)\x_{k-1}\\
+	\hh&=\v{H}(\Th)\xk.
 \end{align}
-The $d_x\times d_x$ matrix $A$ is called the \emph{transition matrix} and
-the $d_y\times d_x$ matrix $H$ the \emph{emission matrix}.
+The $d_x\times d_x$ matrix $\v{A}\equiv\v{A}(\Th)$ is called the \emph{transition matrix} and
+the $d_y\times d_x$ matrix $\v{H}\equiv \v{H}(\Th)$ the \emph{measurement matrix}.
 These linear-Gaussian SSMs, equivalently known as \emph{linear dynamical systems} \parencite{Bishop2006},
 are one of the few cases where computing the predictive, filtering and
-smoothing distributions is tractable \parencite{Sarkka2006}. As can be seen,
+smoothing distributions is tractable \parencite[see, e.g.,][]{Sarkka2006}. As can be seen,
 all of the aforementioned distributions stay Gaussian.
 
 \subsubsection{Kalman filter}
@@ -83,6 +88,8 @@ are available, the RTS recursions can be written as
 	%\v{C}_{k|T}&=\v{P}_{k|k}\v{J}_{k-1}^\tr+\v{J}_k\left(\v{C}_{k+1|T}-\v{A}\v{P}_{k|k}\right)\v{J}_{k-1}^\tr \label{eq:rts_cross_timestep_covariance}
 \end{align}
 \end{subequations}
+This includes the sufficient statistics for the $T$
+joint distributions 
 \begin{align}
 \begin{split} 
 	\Pdf{\v{x}_k, \v{x}_{k-1}}{\v{Y},\Th}&=
@@ -277,7 +284,6 @@ then advance backwards in time. Let us then assume that the smoothing
 distribution of the previous step, $\Pdf{\x_{k+1}}{\y_{1:T}}$, is available. Then
 by applying Lemma~\ref{lemma:gaussian_joint}, we have
 \begin{align}
-\begin{split}
 	\Pdf{\xk,\x_{k+1}}{\y_{1:T}}&=\Pdf{\xk}{\x_{k+1},\y_{1:T}}\Pdf{\x_{k+1}}{\y_{1:T}}\\
 	&\approx
 	\N[\bm{\xk\\\x_{k+1}}]{
@@ -289,8 +295,7 @@ by applying Lemma~\ref{lemma:gaussian_joint}, we have
 		\P_{k|T}&\v{D}_{k}\\
 		\v{D}_{k}^\tr&\P_{k+1|T}
 	\end{bmatrix}
-	}
-\end{split}
+	}\label{eq:joint_smoothing}
 \end{align}
 where
 \begin{align}

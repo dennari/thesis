@@ -1,8 +1,11 @@
 \subsection{State space models}
 
 State space models (SSMs) provide a unified probabilistic methodology for modeling
-sequential data \parencite{ljung1994modeling,durbin2012time,Cappe2005,barber2011bayesian}. Sequential data arise in numerous applications, typically in the form
-of time-series measurements \todo{examples}. However it is not necessary for the sequence index to have
+sequential data \parencite{ljung1994modeling,durbin2012time,Cappe2005,barber2011bayesian}. Sequential data arise in numerous applications, 
+typically in the form of time-series measurements. A classical example in engineering is radar measurements
+of a moving object. Modern time-series data arises often in the context of medical imaging,
+for example in the case of functional magnetic resonanse imaging (fMRI) or magnetoencephalography (MEG).
+However it is not necessary for the sequence index to have
 a temporal meaning. In probabilistic terms a time-series
 can be described by a \emph{stochastic process} $\y = \left\{\y_k:k\in K\right\}$, where $\y_k$ is a random
 variable and $K\subseteq\R$ for continuous time or $K\subseteq\field{N}$ for discrete time sequences. 
@@ -33,7 +36,7 @@ A Bayes network presentation of a discrete-time SSM is given in Figure~\ref{fig:
 	\tikzstyle{param}=[circle, minimum size = 2mm, inner sep=0mm, thick, draw =white!80, fill=black!80, node distance = 18mm]
 	\tikzstyle{ellipsis}=[circle, minimum size = 10mm, thick, draw =black!80, node distance = 18mm]
 	\tikzstyle{connect}=[-latex, semithick]
-	  %\node[main,node distance=50mm] (theta) [label=above:$\theta$] {};
+	\tikzstyle{tconnect}=[-latex, thin, opacity=0.25]
 	  \node[main] (x_1) [label=above:$\v{x}_{k-1}$] {};
 	  \node[main,draw=white!0] (prev) [left of=x_1] {$\dots$};
 	  \node[main] (x) [right of=x_1,label=above:$\v{x}_{k}$] {};
@@ -42,6 +45,7 @@ A Bayes network presentation of a discrete-time SSM is given in Figure~\ref{fig:
 	  \node[main,fill = black!10] (y) [below of=x,label=below:$\v{y}_{k}$] {};
 	  \node[main,fill = black!10] (y__1) [below of=x__1,label=below:$\v{y}_{k+1}$] {};
 	  \node[main,draw=white!0] (next) [right of=x__1] {$\dots$};
+	  \node[main,node distance=7mm] (theta) [right of=x__1,above of=next,label=above:$\Th$] {};
 	  \path
 	    (prev) edge [connect] (x_1)
 	    (x_1) edge [connect] (x) 
@@ -49,14 +53,27 @@ A Bayes network presentation of a discrete-time SSM is given in Figure~\ref{fig:
 	    (x) edge [connect] (y)
 	    	edge [connect] (x__1)
 	    (x__1) edge [connect] (y__1)
-	    	edge [connect] (next);
+	    	edge [connect] (next)
+	    (theta) edge [tconnect] (x__1)
+	    	edge [tconnect] (x)
+	    	edge [tconnect] (x_1)
+	    	edge [tconnect] (y_1)
+	    	edge [tconnect] (y)
+	    	edge [tconnect] (y__1);
 	\end{tikzpicture}
-	\caption{SSM as a graphical model presented with a directed acyclic graph}
+	\caption{SSM as a graphical model presented with a directed acyclic graph. All the other nodes
+	in the graph are conditioned on the parameter $\Th$.}
 	\label{fig:ssm_graphical}
-\end{figure}
+\end{figure}%
 The value $\xk \in \mathcal{X} \subseteq \R^{d_x}$ of the dynamic process at time $k$ is called the
-\emph{state}\todo{Explain state} at time $k$. For the measurements we define $\yk \in \mathcal{Y} \subseteq \R^{d_y}$.  
-Taking into account the Markov property 
+\emph{state}\todo{Explain state} at time $k$. For the measurements we define $\yk \in \mathcal{Y} \subseteq \R^{d_y}$.
+As depicted in Figure~\ref{fig:ssm_graphical}, we assume that the joint probability density function (pdf) of
+$\X$ and $\Y$ is conditional on a set of parameters $\Th \in \Theta \subseteq \R^{d_\theta}$. Then
+the problem of (Bayesian) state estimation can be stated as learning the distribution of
+$\X$ given $\Y$ and the problem of parameter estimation as learning the distribution
+of $\Th$ given $\Y$.
+ 
+Taking into account the Markov property
 \begin{align}
 	\Pdf{\xk}{\x_{1:k-1},\Th}&=\Pdf{\xk}{\x_{k-1},\Th}
 \end{align}
@@ -71,7 +88,7 @@ and measurements factorises as
 	\Pdf{\X,\Y}{\Th}&=\Pdf{\v{x}_0}{\Th}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}\Pdf{\v{y}_k}{\v{x}_{k},\Th}
 	\label{eq:complete_data_likelihood}.
 \end{align}
-Thus in order to describe a SSM one needs to specify three probability distributions:
+Thus in order to describe a SSM one needs to specify three probability density functions:
 \begin{description}
 \addtolength{\leftskip}{1cm}
 	\item[Prior distribution]
@@ -83,12 +100,10 @@ Thus in order to describe a SSM one needs to specify three probability distribut
 	$\Pdf{\v{y}_k}{\v{x}_{k},\Th}$ models how the observations depend on the state and the statistics of the noise
 \end{description}
 In this thesis it is assumed that the parametric form of these distributions is known
-for example by physical modeling \parencite{ljung1994modeling}. However the distributions are dependent on
-the vector parameter $\Th \in \Theta \subseteq \R^{d_\theta}$ whose value (or distribution) we would like to learn from
-the measurements.
+for example by physical modeling \parencite{ljung1994modeling}.
 
-Traditionally SSMs are specified as a pair of equations specifying the dynamic and measurement models. The most general
-presentation of discrete-time SSMs is 
+Traditionally SSMs are specified as a pair of equations specifying the dynamic and measurement models. 
+A very general presentation of discrete-time SSMs is 
 \begin{subequations}
 \label{eq:ssm_too_general}
 \begin{align}
@@ -98,27 +113,28 @@ presentation of discrete-time SSMs is
 \end{subequations}
 Here the stochasticity is separated into the noise processes $\v{q}$ and $\v{r}$ which are usually
 assumed to be zero mean, white and independent of each other. We will restrict ourselves
-to the case of zero mean, white and additive Gaussian noise and in our case the mappings
-$\f_k$ and $\h_k$ and the noise processes $\v{q}$ and $\v{r}$ will be stationary (i.e. independent of
-k). Thus the SSMs considered in this thesis are of the form
+to the case of zero mean, white and additive Gaussian noise. Furthermore, 
+the dynamic, measurement and both noise processes will be assumed \emph{stationary}.
+This means that $\f_k$ and $\h_k$ and the pdfs of $\v{q}_{k-1}$ and $\v{r}_k$ will be independent
+of $k$. Thus the SSMs considered in this thesis are of the form
 \begin{subequations}
 \label{eq:ssm_general}
 \begin{alignat}{2}
-	\xk &= \ff+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0}}{\v{Q}} \label{eq:Q}\\
-	\yk &= \hh+\v{r}_{k} & \v{r}_k&\sim \N{\v{0}}{\v{R}} \label{eq:R}\\
-	\v{x}_{0} &\sim \N{\gv{\mu}_0}{\gv{\Sigma}_0},\label{eq:prior}
+	\xk &= \ff+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0}}{\QQ} \label{eq:Q}\\
+	\yk &= \hh+\v{r}_{k} & \v{r}_k&\sim \N{\v{0}}{\RR} \label{eq:R}\\
+	\v{x}_{0} &\sim \N{\muu}{\Sig},\label{eq:prior}
 \end{alignat}
 \end{subequations}
-We will assume an implicit dependence of the distributional parameters $\v{Q}$,
-$\v{R}$,$\gv{\mu}_0$ and $\gv{\Sigma}_0$ on $\Th$. Regarding the Gaussian distribution,
+Regarding the Gaussian probability distribution,
 suppose $\x\in\R^{d_x}$ is normally distributed with mean $\m$ and covariance matrix $\P$.
 We will then use the notation
 \begin{align}
-	\x &\sim \N{\m}{\P}\\
-\Leftrightarrow \Pdf{\x}&=\N[\x]{\m}{\P}\\
-	&\equiv \fparen*{\fparen*{2\pi}^{d_x}\detr\P}^{-\sfrac{1}{2}}\exp\fparen[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)}\\		
-	&= \fparen*{\fparen*{2\pi}^{d_x}\detr\P}^{-\sfrac{1}{2}}\exp\fparen*{-\frac{1}{2}
-	\Tr{\P^{-1}\bm{\v{I}\\-\v{I}}^\tr\bm{\x\\\m}\bm{\x\\\m}^\tr\bm{\v{I}\\-\v{I}}}},		
+	\x &\sim \N{\m}{\P},
+\shortintertext{whereas the Gaussian pdf is denoted as}
+	\Pdf{\x}&=\N[\x]{\m}{\P}\\
+	&\equiv \detr{2\pi\P}^{-\sfrac{1}{2}}\exp\fparen[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)}		
+	%&= \detr{2\pi\P}^{-\sfrac{1}{2}}\exp\fparen*{-\frac{1}{2}
+	%\Tr{\P^{-1}\bm{\v{I}\\-\v{I}}^\tr\bm{\x\\\m}\bm{\x\\\m}^\tr\bm{\v{I}\\-\v{I}}}},		
 \end{align}
 
 Now clearly the mappings $\f:\mathcal{X}\to\mathcal{X}$ and
@@ -127,10 +143,21 @@ and the measurement models:
 \begin{subequations}
 \label{eq:ssm_distr_general}
 \begin{align}
-	\Pdf{\xk}{\x_{k-1},\Th}&=\N{\ff}{\v{Q}}\label{eq:dynamics_distr_general}\\
-	\Pdf{\yk}{\xk,\Th}&=\N{\hh}{\v{R}}\label{eq:measurement_distr_general}
+	\Pdf{\xk}{\xkk,\Th}&=\N[\xk]{\ff}{\QQ}\label{eq:dynamics_distr_general}\\
+	\Pdf{\yk}{\xk,\Th}&=\N[\yk]{\hh}{\RR}\label{eq:measurement_distr_general}
 \end{align}
 \end{subequations}
+Going further, for the sake of notational clarity, we will sometimes make
+the dependence on $\Th$ implicit and use the shorthand notation
+\begin{align*}
+	\f_{k-1} &\equiv \ff &
+	\h_{k} &\equiv \hh\\
+	\QQ* &\equiv \QQ &
+	\RR* &\equiv \RR\\
+	\muu* &\equiv \muu &
+	\Sig* &\equiv \Sig
+\end{align*} 
+
 
 \subsection{Bayesian optimal filtering and smoothing}
 
