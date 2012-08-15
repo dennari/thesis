@@ -10,8 +10,10 @@ given the measurements, which is given by Bayes' rule as
 	\label{eq:param_post}
 \end{align}
 
-Computing the posterior distribution of the parameters is usually intractable \todo{why? examples?}. A much
-easier problem is finding a suitable \emph{point estimate} $\hat{\gv{\theta}}$.
+Computing the posterior distribution of the parameters is usually intractable \todo{Explain more about bayesian
+methods. This should include mentions about SMC. Then explain the motivations for point estimates: starting point
+for MCMC, complexity\ldots}.
+A much easier problem is finding a suitable \emph{point estimate} $\hat{\gv{\theta}}$.
 This effectively means that we don't need to worry about the normalizing
 term $\Pdf{\Y}$, since it's constant with respect to the parameters. 
 A point estimate that maximizes the posterior distribution
