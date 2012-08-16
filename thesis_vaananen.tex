@@ -25,7 +25,7 @@ textsize=footnotesize,
 textwidth=2.7cm,
 backgroundcolor=orange!40,
 linecolor=orange!40,
-colorinlistoftodos
+colorinlistoftodos,
 ]{todonotes}
 
 % PDF SETUP
@@ -126,7 +126,9 @@ pdfproducer={xetex}
 
 % BIBLIOGRAPHY
 \usepackage[style=authoryear-comp,backend=biber]{biblatex} % TEXLIPSE BUG: backend cannot be first
+%###
 \addbibresource{\bibpath}
+%###
 \ExecuteBibliographyOptions{ % use this to override options set by the style
 uniquename=false,
 uniquelist=minyear,

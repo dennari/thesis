@@ -10,7 +10,7 @@ Thus throughout this section we will, in general, suppress the dependence on $\T
 
 A linear map $Q:\mathcal{A}\to\mathcal{B}$ satisfies the equation
 \begin{align}
-	Q(\alpha\v{a}+\beta\v{b}) &= \alpha Q(\v{a})+\beta Q(\v{b}), \quad \forall\;\; \v{a},\v{b}\in\mathcal{A}\;\.\&\;\.\alpha,\beta \in \R.
+	Q(\alpha\v{a}+\beta\v{b}) &= \alpha Q(\v{a})+\beta Q(\v{b}), \quad \forall\;\; \v{a},\v{b}\in\mathcal{A}\;\;\&\;\;\alpha,\beta \in \R.
 \end{align}%
 %
 Since linear maps can be described by matrices, stationary linear-Gaussian SSMs 
@@ -34,7 +34,7 @@ closed form solution to computing the predictive and filtering distributions
 of Equations \eqref{eq:pred_bayes} and \eqref{eq:filt_bayes}.
 With the help of Lemmas \ref{lemma:gaussian_joint} and \ref{lemma:gaussian_cond},
 deriving the Kalman filter equations is quite straightforward \parencite{Sarkka2006}.
-The resulting recursions are \parencite{jazwinski2007stochastic}:
+The resulting recursions are \parencite{jazwinski1970stochastic}:
 \begin{subequations}
 \label{eq:Kalman_filter}
 \begin{description}
@@ -83,7 +83,7 @@ the joint smoothing dustributions \eqref{eq:smooth_joint_bayes} can be computed
 going \emph{backwards} in time. In this computing order sense, the last filtering distribution
 is the first smoothing distribution. In the linear-Guassian case,
 the Rauch-Tung-Striebel (RTS) smoother gives the statistics $\v{m}_{k|T}$ and 
-$\v{P}_{k|T}$ \parencite{jazwinski2007stochastic,Rauch1965} in Equation \eqref{eq:smoothing_gaussian}.
+$\v{P}_{k|T}$ \parencite{jazwinski1970stochastic,Rauch1965} in Equation \eqref{eq:smoothing_gaussian}.
 We will use a version that gives the joint distribution of the states across a timestep, since
 the cross-timestep covariance will be needed in the parameter estimation phase.
 Assuming now that all the predictive and filtering distributions, i.e $\N[\x_{k+1}]{\m_{k+1|k}}{\v{P}_{k+1|k}}$ and $\N[\xk]{\m_{k|k}}{\v{P}_{k|k}}$ respectively,
@@ -389,7 +389,7 @@ category is the \emph{Unscented Kalman Filter} (UKF) \parencite{julier1997new,Me
 also based on a third degree rule. A corresponding smoother is derived in \textcite{Sarkka2008a}.
 
 The oldest and most well known nonlinear filter, belonging to the third category, is
-the \emph{extended Kalman filter} (EKF) \parencite{jazwinski2007stochastic}. 
+the \emph{extended Kalman filter} (EKF) \parencite{jazwinski1970stochastic}. 
 It is based on forming local linear approximations to the dynamic
 and measurement models so that the standard linear Kalman filter equations can be used.
 An undesirable requirement of the EKF is that it requires computing

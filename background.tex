@@ -243,16 +243,19 @@ In this thesis the smoothing distributions will be Gaussian or approximated with
 An important quantity concerning parameter estimation is the marginal likelihood $\Pdf{\Y}{\Th}$. 
 If we're able to compute the distributions
 \begin{align}
-	\Pdf{\y_k}{\y_{1:k-1},\Th}&=\defint{}{}{\Pdf{\yk}{\xk,\Th}\Pdf{\xk}{\y_{1:k-1},\Th}}{\xk}
+	\Pdf{\y_k}{\y_{1:k-1},\Th}&=\defint{}{}{\Pdf{\yk}{\xk,\Th}\Pdf{\xk}{\y_{1:k-1},\Th}}{\xk},
+	\label{eq:y_pred}
 \end{align}
+which we recognize as the ``normalization constant'' in \eqref{eq:filt_bayes},
 then by repeatedly applying the definition of conditional probability 
 we find that the marginal likelihood can be computed from
 \begin{align}
 	\Pdf{\Y}{\Th}&=\Pdf{\y_1}{\Th}\prod_{k=2}^\tr \Pdf{\y_k}{\y_{1:k-1},\Th}
 	\label{eq:lh_factorization}
 \end{align}
-This equation is known as the \emph{prediction error decomposition}
-of the marginal likelihood.
+Since \eqref{eq:y_pred} is needed for the filtering distributions, the marginal likelihood, or an approximation to it, can be easily
+computed with the chosen filtering algorithm. Equation~\eqref{eq:lh_factorization} is sometimes known 
+as the \emph{prediction error decomposition} \parencite{Harvey1990}.
 
 
 
