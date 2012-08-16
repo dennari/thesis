@@ -30,19 +30,24 @@ Deviation from homeostasis can be observed for instance by observing
 \todo{Role of static parameters}
 \todo{Importance of estimating static parameters}
 \todo{Overview of different approaches}
-\subsubsection*{Example: 1D random walk}
-The simplest example is a one dimensional random-walk observed in Gaussian noise.
-We will assume $\Pdf{\v{x}_0}=\N{0}{P_0}$. In an alternative (but equivalent) notation
-the dynamics model is now
-\begin{align}
-	x_k&=x_{k-1}+q_{k-1},
-\end{align}
-where $q_{k-1}\sim \N{0}{Q}$ and the measurement model is
-\begin{align}
-	y_k&=x_{k}+r_{k},
-\end{align}
-where $r_{k}\sim \N{0}{R}$. A simulation from the model is presented in figure~\ref{fig:rw1d}.
+\subsubsection*{Example: Ballistic object}
+Suppose we are observing an airborne missile in two dimensions.
+We obtain a sequence of measurements with an unspecified instrument,
+reporting the noisy location of the missile. We assume the situation
+is governed by Newton's dynamics and we would like to estimate the weight
+of the missile.
 
+Newton's laws are specified in continous time, so that we use a simple
+Euler integration scheme in order to model the situation with a discrete-time 
+linear-Gaussian SSM. For simplicity, it is assumed that the only force affecting
+the missile is gravitation. Then
+\begin{align}
+	\dpd[2]{\y(t)}{t} &= \frac{\f}{m}\\
+	\y &= \bm{x & y}^\tr\\
+	\f &= \bm{f_x & f_y}^\tr	
+\end{align}
+
+ 
 \begin{figure}[htp]
 \begin{center}
 	\missingfigure{A missing 1D RW simulation}
