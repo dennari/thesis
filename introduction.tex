@@ -1,12 +1,51 @@
 Sequential data and timeseries, causal relations, consequences of actions
 
+Modelling temporal data is of fundamental interest in many branches of science.
+This is understandable, since natural organisms inhabit a dynamic environment and
+it is natural organisms, such as ourselves, that easily draw our attention and raise questions
+deserving a scientific answer. The accuracy of the predictions, based on earlier observations,
+is indeed a property that can easily affect the survival of the forecaster.  
+
+Causality and consequences of actions are concepts tied to the passage of time.
+Thus it is often time, that dictates the natural ordering of the datapoints
+in sequential data. It is however not necessarily so, and any other single
+physical dimension may also be used.
+
+Commonly the sequential data is a result of making \emph{measurements} on a
+\emph{system} of interest. In order to answer questions quantitatively,
+the system and the measurements should be mathematically \emph{modelled}. The class of mathematical
+models for dynamical systems we will be concerned with are called \emph{state space models} (SSMs).
+Intuitively, SSMs make a clear distinction between the system and the measurements. At any instant,
+the system is at a certain \emph{state}. In general, it is this state and its evolution that we are interested in.
+However the state is \emph{hidden} (or \emph{latent}) and the inference on the state has to be made entirely
+based on the measurements.  Often at least part of the state is conceptually part of the measurements,
+but even this part of the state is still latent, since the measurements are always assumed to be \emph{noisy}.
+To give a simple but often used example, let us consider the target tracking problem. In this case the state
+could include the position, velocity and acceleration of the target and our measurements could consists
+of a sequence of noisy angular readings between the line of sight and a reference line. This situation is
+known as \emph{bearings-only target tracking}.
+
+The noisiness forces us to assume a probabilistic framework. In this thesis the viewpoint
+is decidedly \emph{Bayesian}. In Bayesianism, the complete answer
+is always the \emph{posterior probability distribution}. Thus instead of answering
+with a single value or a value with error bounds, the answer is the probability
+density function of the interesting quantity given data.
+
 State and measurement and modeling
+
+Markov chain
 
 Parameters, when and why are they interesting?
 
 Bayesian approach, priors, probability distributions, uncertainty
 
+Linear Gaussian 
+  
 
+
+Nonlinear Gaussian
+  Bearings-only target tracking
+  Stochastic volatility
 
 
 

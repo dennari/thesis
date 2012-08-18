@@ -38,15 +38,21 @@ A Bayes network presentation of a discrete-time SSM is given in Figure~\ref{fig:
 	\tikzstyle{connect}=[-latex, semithick]
 	\tikzstyle{tconnect}=[-latex, thin, opacity=0.25]
 	  \node[main] (x_1) [label=above:$\v{x}_{k-1}$] {};
-	  \node[main,draw=white!0] (prev) [left of=x_1] {$\dots$};
+	  \node[main,draw=black!0] (prev) [left of=x_1] {$\dots$};
+	  \node[main] (x1) [left of=prev,label=above:$\v{x}_{1}$] {};
 	  \node[main] (x) [right of=x_1,label=above:$\v{x}_{k}$] {};
 	  \node[main] (x__1) [right of=x,label=above:$\v{x}_{k+1}$] {};
 	  \node[main,fill = black!10] (y_1) [below of=x_1,label=below:$\v{y}_{k-1}$] {};
 	  \node[main,fill = black!10] (y) [below of=x,label=below:$\v{y}_{k}$] {};
 	  \node[main,fill = black!10] (y__1) [below of=x__1,label=below:$\v{y}_{k+1}$] {};
+	  \node[main,fill = black!10] (y1) [below of=x1,label=below:$\v{y}_{1}$] {};
 	  \node[main,draw=white!0] (next) [right of=x__1] {$\dots$};
-	  \node[main,node distance=7mm] (theta) [right of=x__1,above of=next,label=above:$\Th$] {};
+	  \node[main] (xT) [right of=next,label=above:$\v{x}_{T}$] {};
+	  \node[main,fill = black!10] (yT) [below of=xT,label=below:$\v{y}_{T}$] {};
+	  \node[main,node distance=15mm] (theta) [above of=x,label=above:$\Th$] {};
 	  \path
+	    (x1) edge [connect] (prev)
+	    	  edge [connect] (y1)
 	    (prev) edge [connect] (x_1)
 	    (x_1) edge [connect] (x) 
 	    	  edge [connect] (y_1)
@@ -54,15 +60,23 @@ A Bayes network presentation of a discrete-time SSM is given in Figure~\ref{fig:
 	    	edge [connect] (x__1)
 	    (x__1) edge [connect] (y__1)
 	    	edge [connect] (next)
+	    (next) edge [connect] (xT)
+	    (xT) edge [connect] (yT)
 	    (theta) edge [tconnect] (x__1)
 	    	edge [tconnect] (x)
 	    	edge [tconnect] (x_1)
+	    	edge [tconnect] (x1)
+	    	edge [tconnect] (xT)
+	    	edge [tconnect] (y1)
 	    	edge [tconnect] (y_1)
-	    	edge [tconnect] (y)
-	    	edge [tconnect] (y__1);
+	    	edge [tconnect,bend left=20] (y)
+	    	edge [tconnect] (y__1)
+	    	edge [tconnect] (yT);
 	\end{tikzpicture}
-	\caption{SSM as a graphical model presented with a directed acyclic graph. All the other nodes
-	in the graph are conditioned on the parameter $\Th$.}
+	\caption{A discrete-time state space model as a graphical model presented with a directed acyclic graph.
+	Each node represents a random variable and arrows present dependence. The hidden variables $\xk$, i.e. the states, form
+	a Markov chain and each state has a corresponding measurement $\yk$, which is oberved. Given the states, the measurements
+	are independent. Both the states and the measurements depend on the parameter $\Th$.}
 	\label{fig:ssm_graphical}
 \end{figure}%
 The value $\xk \in \mathcal{X} \subseteq \R^{d_x}$ of the dynamic process at time $k$ is called the
@@ -103,7 +117,7 @@ In this thesis it is assumed that the parametric form of these distributions is 
 for example by physical modeling \parencite{ljung1994modeling}.
 
 Traditionally SSMs are specified as a pair of equations specifying the dynamic and measurement models. 
-A very general presentation of discrete-time SSMs is 
+In great generality, discrete-time SSMs can be described by the following dynamic and measurement equations 
 \begin{subequations}
 \label{eq:ssm_too_general}
 \begin{align}
