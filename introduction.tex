@@ -23,13 +23,75 @@ but even this part of the state is still latent, since the measurements are alwa
 To give a simple but often used example, let us consider the target tracking problem. In this case the state
 could include the position, velocity and acceleration of the target and our measurements could consists
 of a sequence of noisy angular readings between the line of sight and a reference line. This situation is
-known as \emph{bearings-only target tracking}.
+known as \emph{bearings-only target tracking} \parencite{ristic2004beyond}.
 
 The noisiness forces us to assume a probabilistic framework. In this thesis the viewpoint
-is decidedly \emph{Bayesian}. In Bayesianism, the complete answer
+is decidedly \emph{Bayesian}. In Bayesian statistics, ideally, the complete answer
 is always the \emph{posterior probability distribution}. Thus instead of answering
 with a single value or a value with error bounds, the answer is the probability
-density function of the interesting quantity given data.
+density function of the interesting quantity given data. It is important to higlight,
+however, that Bayesian statistics can be used to treat many kinds of uncertainty
+\parencite{Sarkka2012a}. For example, the instruments used to obtain the measurements often incur
+actual physical randomness modeled with Bayesian statistics, whereas the model parameters might in reality have some
+exact ``true'' values, but our uncertainty about those values is still quantified with
+Bayesian statistics. Thus applying statistical methods to a problem does not imply
+that the problem is actually random.
+
+SSMs are a general framework and in any specific situation prior knowledge of the
+system has to be brought in. This prior knowledge doesn't have to very specific,
+for example in ballistic target tracking it might include the assumption that Newton's
+laws are applicable. The mathematical form of the dependence
+between the measurements and the state has to be formulated as well as the dependence
+of the state on its predecessors. Usually one is able only to specify the 
+\emph{parametric} form for these equations. This results in a model with a set
+of unknown parameters, denoted with $\Th$ in this thesis. Then, in order
+to complete the model, these parameters need to be estimated. This is sometimes, at least
+in control engineering, known as \emph{system identification}. In this thesis,
+it is assumed that the parameters are static, i.e. that they stay constant
+as time passes. This is then an important distinction between the states and
+the parameters.
+
+In general, there are two separate but interconnected estimation problems
+in SSMs: that of the states and that of the parameters. The interest might
+lie in either one or both, depending on the model. Traditionally, state
+estimation, given measurements up to the current instant, is known as \emph{filtering}.
+The term can be thought to relate to the idea of filtering the noise out of the measurements
+in order to observe the states. Given all the measurements, including the ones
+\emph{after} the current time point, state estimation is called \emph{smoothing}.
+Clearly, in order to do smoothing, one has to first collect all the measurements
+and then go on with the estimation. Filtering, on the other hand, is an \emph{on-line}
+procedure, i.e. the estimates can be updated every time a new measurement arrives.
+
+A distinction is drawn in this thesis between \emph{linear} and \emph{nonlinear}
+models. The linear model can be thought of as a special case of a nonlinear model,
+so that the linear case would be implicitely covered by only considering nonlinear models.
+Linear models are considered separately for the simple reason, that in their case, closed
+form solutions exist. The Bayesian solution of the filtering problem for a linear system
+with Gaussian noise is given by the celebrated \emph{Kalman filter} \parencite{Kalman1960}.
+
+Our focus in this thesis is in the parameter estimation problem for the nonlinear case.
+Depending on the method, this requires either the filtering or filtering and smoothing
+solutions of the state estimation problem. For reasons of computational complexity, we will not however try to pursue
+the the complete Bayesian solution of finding the posterior distribution. We will settle
+for a point estimate called the \emph{maximum a posteriori} (MAP), which is the mode
+of the posterior distribution. Under an assumed \emph{uniform} prior distribution,
+the MAP estimate becomes equivalent with the \emph{maximum likelihood} (ML) estimate.
+As will be seen, the distinction between these two, from the perspective of the
+estimation equations, is not fundamental.
+
+The structure of the thesis is as follows. We begin with the background, where
+the SSMs are covered in necessary detail, the Bayesian optimal filtering
+and smoothing equations are derived and the role of the static parameters is elaborated
+on. Following the introduction we focus on on state estimation, first for linear
+and then for nonlinear systems. The Kalman filter is introduced here as is the
+concept of Gaussian filtering, a deterministic approximation used for nonlinear systems 
+in this thesis. The third chapter is considered with the two methods
+of parameter estimation we are comparing: the gradient based nonlinear optimization alternative
+and the expectation maximization algorithm. The methods are analyzed in sufficient
+theoretical detail in order to draw conclusions about the behavior of the methods
+in the results section. The results section has three subsection: the analytical 
+comparison of the competing algorithms from the point of view of convergence
+and complexity, application with simulated data and an application with real world data.
 
 State and measurement and modeling
 

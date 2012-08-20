@@ -1,18 +1,44 @@
+
+
+Something should be said about the difference
+of states and parameters.
+This need becomes obvious when noting that the SSM of equation~\eqref{eq:ssm_too_general}
+could be reformulated by concatenating $\Th$ as part of the state. In this
+way a separate parameter estimation problem would not exist. However, the 
+separation becomes important after assuming the parameters static. Instead of 
+approximating a separate ``parameter" distribution for every
+timestep, we then know that by separating the static part into
+$\Th$ we can do with a single parameter distribution for the whole model. 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Bayesian Estimation of Parameters}%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+We now shift the focus on estimating the parameter $\Th$, which was assumed
+given in the case of state estimation. In the Bayesian sense the complete 
+answer would be the \emph{joint} distribution of the states and the parameters given the data. 
+Since $\Pdf{\X,\Th}{\Y}=\Pdf{\X}{\Th,\Y}\Pdf{\Th}{\Y}$, we can clearly 
+divide the solution to the state estimation part $\Pdf{\X}{\Th,\Y}$,
+considered in the previous section, 
+and the parameter estimation part $\Pdf{\Th}{\Y}$. Knowing these
+factors is enough to simulate the joint distribution \parencite{gelman2004}. 
 
-In the Bayesian sense the complete answer to the parameter estimation
-problem is the marginal posterior probability of the parameters
-given the measurements, which is given by Bayes' rule as
+By Bayes' rule we have
 \begin{align}
-	\Pdf{\gv{\theta}}{\Y}&=\frac{\Pdf{\Y}{\gv{\theta}}\Pdf{\gv{\theta}}}{\Pdf{\Y}}.
+	\Pdf{\Th}{\Y}&=\frac{\Pdf{\Y}{\Th}\Pdf{\Th}}{\Pdf{\Y}}\\
+	&=\frac{\Pdf{\Y}{\Th}\Pdf{\Th}}{\defint{\Theta}{}{\Pdf{\Y}{\Th}\Pdf{\Th}}{\Th}}.
 	\label{eq:param_post}
 \end{align}
+By defining the SSM in equation~\eqref{eq:ssm_general}, we have
+implicitely defined the ``complete-data'' likelihood $\Pdf{\X,\Y}{\Th}$
+(see Equation~\eqref{eq:complete_data_likelihood}).
+Computing \eqref{eq:param_post} requires the marginal likelihood
+$\Pdf{\Y}{\Th}=\defint{\mathcal{X}}{}{\Pdf{\X,\Y}{\Th}}{\X}$ which
+was shown to be computed exactly by the Kalman filter in the linear-Gaussian case
+or which can be approximated by a Gaussian filter in the nonlinear-Gaussian case.
 
-Computing the posterior distribution of the parameters is usually intractable \todo{Explain more about bayesian
-methods. This should include mentions about SMC. Then explain the motivations for point estimates: starting point
-for MCMC, complexity\ldots}.
+
+
 A much easier problem is finding a suitable \emph{point estimate} $\hat{\gv{\theta}}$.
 This effectively means that we don't need to worry about the normalizing
 term $\Pdf{\Y}$, since it's constant with respect to the parameters. 

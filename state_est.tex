@@ -395,3 +395,37 @@ and measurement models so that the standard linear Kalman filter equations can b
 An undesirable requirement of the EKF is that it requires computing
 the Jacobian matrices of $\f$ and $\h$.
 
+\subsubsection{Cubature Kalman Filter and Smoother}
+In this subsection we will present the Cubature Kalman Filter (CKF)
+and Cubature Kalman Smoother (CKS) algorithms \parencite{Arasaratnam2011,Arasaratnam2009}.
+We consider these algorithms in more detail than other Gaussian filters and smoothers, since
+they are applied in the Results~section\ref{sec:results}. The CKF results from
+applying a \emph{3rd order spherical cubature approximation} to the integrals 
+in equations \eqref{eq:prediction_mean_intergral}, \eqref{eq:prediction_variance_intergral}, \eqref{eq:prediction_cov_intergral},
+\eqref{eq:update_mean_intergral}, \eqref{eq:update_variance_intergral} and
+\eqref{eq:update_covariance_intergral}.
+
+As stated earlier, the 3rd order spherical cubature approximation uses the minimal amount
+of sigma points for a 3rd order rule, $2\,d_x$. The sigma points are then
+\begin{align}
+	\gv{\varepsilon}^{(i)} &= \sqrt{d_x}\v{e}_i &  i&=1,\dots,d_x\\
+	\gv{\varepsilon}^{(i)} &= -\sqrt{d_x}\v{e}_{i-d_x} & i&=d_x+1,\dots,2\,d_x,
+	\label{eq:ckf_sigma}
+\end{align}
+where $\brac{\gv{\varepsilon}^{(i)}}_{i=1}^{d_x}$ form the canonical basis of $\R^{d_x}$. 
+The approximation is now given by
+\begin{align}
+	\defint{\mathcal{X}}{}{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}{\x} &\approx 
+	\frac{1}{2\,d_x} \sum_{i=1}^{2\,d_x} \F{\gv{\kappa}}{\m+\sqrt{\P}\gv{\varepsilon}^{(i)}},
+	\label{eq:ckf_approx}
+\end{align}%
+where $\P=\sqrt{\P}\sqrt{\P}^\tr$ \parencite{Sarkka2012a,Arasaratnam2009,Wu2006}.
+
+
+
+
+
+
+
+
+
