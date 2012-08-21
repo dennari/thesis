@@ -1,11 +1,22 @@
 
+As mentioned in the introduction, it is often the case that
+after constructing a SSM, the result is actually a family of models,
+indexed by the static parameter $\Th$. Commonly, but not necessarily, the interest
+is in the states and we need to specify some ``good' value for $\Th$ before
+filtering or smoothing. In general, parameter estimation techniques are divided
+into \emph{offline} or \emph{batch} methods and \emph{online} or \emph{recursive} methods
+\parencite{Cappe2007}. 
+This is analogous to the filtering and smoothing problems in state estimation.
+We focus only on offline methods, where some sort of training or calibration data has been
+acquired beforehand.
 
-Something should be said about the difference
-of states and parameters.
-This need becomes obvious when noting that the SSM of equation~\eqref{eq:ssm_too_general}
-could be reformulated by concatenating $\Th$ as part of the state. In this
+Let us then concern ourselves for a moment with the \emph{difference} between the states
+and the parameters in a SSM.
+The need for acknowledging the difference is obvious when noting that the SSM of equation~\eqref{eq:ssm_too_general}
+could be reformulated by augmenting $\Th$ as part of the state and
+modifying $\ff$ and $\hh$ accordingly. In this
 way a separate parameter estimation problem would not exist. However, the 
-separation becomes important after assuming the parameters static. Instead of 
+separation becomes important after assuming the parameters \emph{static}. Instead of 
 approximating a separate ``parameter" distribution for every
 timestep, we then know that by separating the static part into
 $\Th$ we can do with a single parameter distribution for the whole model. 
@@ -16,55 +27,58 @@ $\Th$ we can do with a single parameter distribution for the whole model.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 We now shift the focus on estimating the parameter $\Th$, which was assumed
 given in the case of state estimation. In the Bayesian sense the complete 
-answer would be the \emph{joint} distribution of the states and the parameters given the data. 
-Since $\Pdf{\X,\Th}{\Y}=\Pdf{\X}{\Th,\Y}\Pdf{\Th}{\Y}$, we can clearly 
-divide the solution to the state estimation part $\Pdf{\X}{\Th,\Y}$,
-considered in the previous section, 
-and the parameter estimation part $\Pdf{\Th}{\Y}$. Knowing these
-factors is enough to simulate the joint distribution \parencite{gelman2004}. 
-
-By Bayes' rule we have
+answer would be the \emph{joint} posterior distribution of the states and the parameters given the data 
 \begin{align}
-	\Pdf{\Th}{\Y}&=\frac{\Pdf{\Y}{\Th}\Pdf{\Th}}{\Pdf{\Y}}\\
-	&=\frac{\Pdf{\Y}{\Th}\Pdf{\Th}}{\defint{\Theta}{}{\Pdf{\Y}{\Th}\Pdf{\Th}}{\Th}}.
+	% \Pdf{\X,\Th}{\Y}\propto\frac{\Pdf{\X,\Y}{\Th}}{\Pdf{\Y}{\Th}}\frac{\Pdf{\Y}{\Th}\Pdf{\Th}}{\defint{\Theta}{}{\Pdf{\Y}{\Th}\Pdf{\Th}}{\Th}}
+	\Pdf{\X,\Th}{\Y} &\propto \Pdf{\X,\Y}{\Th}\Pdf{\Th}\\
+	&= \Pdf{\X}{\Y,\Th}\Pdf{\Y}{\Th}\Pdf{\Th}
 	\label{eq:param_post}
 \end{align}
 By defining the SSM in equation~\eqref{eq:ssm_general}, we have
 implicitely defined the ``complete-data'' likelihood $\Pdf{\X,\Y}{\Th}$
 (see Equation~\eqref{eq:complete_data_likelihood}).
-Computing \eqref{eq:param_post} requires the marginal likelihood
-$\Pdf{\Y}{\Th}=\defint{\mathcal{X}}{}{\Pdf{\X,\Y}{\Th}}{\X}$ which
-was shown to be computed exactly by the Kalman filter in the linear-Gaussian case
-or which can be approximated by a Gaussian filter in the nonlinear-Gaussian case.
+By introducing the \emph{prior distribution}, $\Pdf{\Th}$,
+the components of \eqref{eq:param_post} and thus the joint distribution
+of states and parametes is defined. Recently, methods known as
+\emph{Particle Markov chain Monte Carlo} (PMCMC) have emerged,
+which are able to sample from the joint distribution in \eqref{eq:param_post}
+\parencite{Andrieu2010}.
+This is achieved by combining particle filtering approximations to $\Pdf{\X}{\Y,\Th}$ 
+with traditional Gibbs and Metropolis-Hastings sampling in a nontrivial way \parencite{gelman2004}.
 
+\subsubsection{Maximum a posteriori and maximum likelihood}
 
-
-A much easier problem is finding a suitable \emph{point estimate} $\hat{\gv{\theta}}$.
-This effectively means that we don't need to worry about the normalizing
-term $\Pdf{\Y}$, since it's constant with respect to the parameters. 
-A point estimate that maximizes the posterior distribution
-is called a \emph{maximum a posteriori} (MAP) estimate. 
-Since the logarithm is a strictly monotonic function, maximizing a function
-is the same as maximizing its logarithm. Thus the MAP estimate $\Th^*$ is given by 
+In this thesis we would like to avoid Monte Carlo methods altogether. Thus instead
+of considering the problem of finding the posterior distribution of the parameter,
+we will pursue finding the mode of this distribution, i.e. the \emph{maximum a posteriori} (MAP) estimate
+$\Th_{\text{MAP}}$ of $\Th$. The MAP estimate is not necessarily unique. 
+We will consider the uniqueness issue later, but in order
+to not get distracted, let us assume for the moment that the posterior distribution in fact
+has a single maximum. Since the logarithm is a strictly monotonic function, maximizing a function
+is the same as maximizing its logarithm. 
+Since $\Y$ is observed, let us denote $\lLH \equiv \log \Pdf{\Y}{\Th}$.
+The MAP estimate of $\Th$ is then defined as 
 \begin{align}
-	\Th_{\text{MAP}} &= \argmax_{\Th}\brak[\big]{\underbrace{\log \Pdf{\Y}{\gv{\theta}}}_{\Pdf[\ell]{\Th}} + \log\Pdf{\gv{\theta}}}
+	\Th_{\text{MAP}} &= \argmax_{\Th}\brak[\big]{ \log\Pdf{\Th}{\Y}} \nonumber\\ 
+	&=\argmax_{\Th}\brak[\big]{\lLH + \log\Pdf{\Th}}
 	\label{eq:MAP}
 \end{align}
+The MAP estimate might be used as is in order to obtain a state estimates
+with supposedly probable parameter values. It could also be used as the initial
+value for simulation based approaches or to compare results obtained with other
+methods.
 
-In the case of a flat (constant and thus improper)
+In the case of a uniform (constant and thus improper)
 prior distribution, $\Pdf{\Th}$, the MAP estimate reduces to the
 \emph{maximum likelihood} (ML) estimate
 \begin{align}
-	\Th_{\text{ML}} &= \argmax_{\Th}\brak*\lLH
+	\Th_{\text{ML}} &= \argmax_{\Th}\brak[\big]\lLH
 	\label{eq:ML}
 \end{align}
-Going further we we will only be concerned with finding the ML estimate, but it should
-be remembered that both of the methods we consider can be extended
-to the estimation of the MAP estimate in a straightforward fashion.
-\todo{Explain MAP in both cases}
 
-
-\subsubsection{Maximum a posteriori and maximum likelihood}
+With the help of the Gaussian filtering and smoothing methodology introduced in the
+previous section, computing the (approximate) MAP estimate corresponds to maximizing a
+completely known function. Thus the problem is turned into one of nonlinear optimization.
 
 \subsubsection{Ascent methods}
 

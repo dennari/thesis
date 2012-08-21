@@ -132,15 +132,27 @@ categories \parencite[see, e.g.,][]{Arasaratnam2009}:
   distributions \eqref{eq:pred_bayes}, \eqref{eq:filt_bayes} and \eqref{eq:smooth_bayes} \emph{a priori}. 
   These  methods are analytically inexact but less computationally demanding. This is the category that
 we will be concerned with in this thesis. 
-  \item \emph{Global approaches} require the use of particle filtering (or sequential Monte Carlo), 
-  which is asymptotically exact but computationally demanding
+  \item \emph{Global approaches} require the use of particle filtering, also known as sequential Monte Carlo, 
+  methods, which are \emph{simulation} based
 \end{enumerate}%
 %
 The number of different methods in the first category is substantial,
 but a large proportion can be analyzed under the framework of
 \emph{Gaussian filtering} (or assumed density filtering
-with a Gaussian assumption). As will be shown later, the specific Gaussian filtering 
-methods only differ in their chosen numerical integration methods.  
+with a Gaussian assumption). As implied by the name, these
+methods work by restricting the form of the posterior density to be Gaussian
+a priori. This way one is again able to perform (approximate) filtering and smoothing
+by only propagating the first two moments. This makes the local approaches
+computationally efficient.  As will be shown later, the specific Gaussian filtering 
+methods only differ in their chosen numerical integration methods.
+
+The global approaches are certainly appealing in not placing
+a priori restrictions on the posterior distribution. Particle filtering
+has been enjoying widespred interest since the introduction 
+in \textcite{Gordon1993} \parencite[see also][]{Cappe2007,Kantas2009,Cappe2005}. However they
+are Monte Carlo methods, the use of which usually require tuning
+and convergence monitoring. The most obvious donwside compared to
+the local methods is still the computational complexity. 
 
 \subsubsection{Gaussian filtering and smoothing}
 
