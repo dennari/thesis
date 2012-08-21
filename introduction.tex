@@ -38,21 +38,22 @@ Bayesian statistics. Thus applying statistical methods to a problem does not imp
 that the problem is actually random.
 
 SSMs are a general framework and in any specific situation prior knowledge of the
-system has to be brought in. This prior knowledge doesn't have to very specific,
+system has to be brought in. This prior knowledge is not necessarily very specific,
 for example in ballistic target tracking it might include the assumption that Newton's
 laws are applicable. The mathematical form of the dependence
 between the measurements and the state has to be formulated as well as the dependence
 of the state on its predecessors. Usually one is able only to specify the 
 \emph{parametric} form for these equations. This results in a model with a set
-of unknown parameters, denoted with $\Th$ in this thesis. Then, in order
-to complete the model, these parameters need to be estimated. This is sometimes, at least
+of unknown parameters, denoted with $\Th$. Then, in order
+to complete the model, these parameters need to be estimated based on some available
+training data. This is sometimes, at least
 in control engineering, known as \emph{system identification}. In this thesis,
 it is assumed that the parameters are static, i.e. that they stay constant
 as time passes. This is then an important distinction between the states and
-the parameters.
+the parameters, in this thesis.
 
-In general, there are two separate but interconnected estimation problems
-in SSMs: that of the states and that of the parameters. The interest might
+In general, assuming the aforementioned distinction between parameters and states, there are two separate but
+interconnected estimation problems in SSMs: that of the states and that of the parameters. The interest might
 lie in either one or both, depending on the model. Traditionally, state
 estimation, given measurements up to the current instant, is known as \emph{filtering}.
 The term can be thought to relate to the idea of filtering the noise out of the measurements

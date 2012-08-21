@@ -51,17 +51,27 @@ with traditional Gibbs and Metropolis-Hastings sampling in a nontrivial way \par
 In this thesis we would like to avoid Monte Carlo methods altogether. Thus instead
 of considering the problem of finding the posterior distribution of the parameter,
 we will pursue finding the mode of this distribution, i.e. the \emph{maximum a posteriori} (MAP) estimate
-$\Th_{\text{MAP}}$ of $\Th$. The MAP estimate is not necessarily unique. 
-We will consider the uniqueness issue later, but in order
+$\Th_{\text{MAP}}$. The MAP estimate is not necessarily unique. 
+We will consider the uniqueness issue later in more detail, but in order
 to not get distracted, let us assume for the moment that the posterior distribution in fact
-has a single maximum. Since the logarithm is a strictly monotonic function, maximizing a function
+has a unique maximum. Since the logarithm is a strictly monotonic function, maximizing a function
 is the same as maximizing its logarithm. 
-Since $\Y$ is observed, let us denote $\lLH \equiv \log \Pdf{\Y}{\Th}$.
+Since $\Y$ is observed, let us denote 
+the log marginal likelihood with 
+\begin{align*}
+	\lLH \equiv \log \Pdf{\Y}{\Th}.
+\end{align*}
 The MAP estimate of $\Th$ is then defined as 
 \begin{align}
-	\Th_{\text{MAP}} &= \argmax_{\Th}\brak[\big]{ \log\Pdf{\Th}{\Y}} \nonumber\\ 
-	&=\argmax_{\Th}\brak[\big]{\lLH + \log\Pdf{\Th}}
+	\Th_{\text{MAP}} &\equiv \argmax_{\Th}\brak[\big]{ \log\Pdf{\Th}{\Y}} \nonumber\\ 
+	&=\argmax_{\Th}\brak[\big]{\lLH + \log\Pdf{\Th}} \nonumber\\
+	&=\argmin_{\Th}\brak[\big]{\ene},
 	\label{eq:MAP}
+\end{align}
+where we define the \emph{energy function} \parencite{Mbalawataa} 
+\begin{align}
+	\ene \equiv -\lLH - \log\Pdf{\Th}.
+	\label{eq:ene}
 \end{align}
 The MAP estimate might be used as is in order to obtain a state estimates
 with supposedly probable parameter values. It could also be used as the initial
@@ -69,16 +79,23 @@ value for simulation based approaches or to compare results obtained with other
 methods.
 
 In the case of a uniform (constant and thus improper)
-prior distribution, $\Pdf{\Th}$, the MAP estimate reduces to the
+prior distribution, $\Pdf{\Th}=C$, the MAP estimate reduces to the
 \emph{maximum likelihood} (ML) estimate
 \begin{align}
-	\Th_{\text{ML}} &= \argmax_{\Th}\brak[\big]\lLH
+	\Th_{\text{ML}} &\equiv \argmax_{\Th}\brak[\big]\lLH\\
+	&= \argmax_{\Th}\brak[\big]{\lLH+\log C} \nonumber.
 	\label{eq:ML}
 \end{align}
+In the limit of infinite data, the influence of the prior
+disappears. Then if the support of the prior includes the true
+parameter value, the MAP estimator has the same asymptotic properties
+as the ML estimate \parencite{Cappe2005}. These properties will be discussed in more
+detail in the sequel. 
 
 With the help of the Gaussian filtering and smoothing methodology introduced in the
 previous section, computing the (approximate) MAP estimate corresponds to maximizing a
-completely known function. Thus the problem is turned into one of nonlinear optimization.
+completely known function. Thus the problem is turned into one of nonlinear optimization (also called
+nonlinear programming) \parencite{Cappe2005}.
 
 \subsubsection{Ascent methods}
 
@@ -86,9 +103,13 @@ Both of the parameter estimation methods we are going
 discuss, the expectation maximization algorithm and
 the instances of gradient based nonlinear programming dealt with in the
 next chapter, belong to the class of \emph{iterative ascent methods} \parencite{luenberger2008}.
-They are iterative since they produce a series of estimates, where
-always the next estimate is based on the previous estimates and
-the value of the objective function is increased with every new estimate.
+Suppose that $\v{m}:\Theta \to \Theta$ defines an iterative ascent method
+and that we are maximizing the objective function $\varphi:\Theta\to\R$.
+Then given some initial point $\Th_0$, the sequence of estimates
+$\brac{\Th_j \in \Theta: \Th_j=\v{m}(\Th_{j-1})}$ where $j=1,\dots$
+has the property $\varphi(\Th_{j})\geq \varphi(\Th_{j-1})$. This means
+that the objective function is increased at every iteration of
+an iterative ascent method.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Gradient based nonlinear optimization of parameters}\label{sec:grad}%%%

@@ -32,16 +32,17 @@ provable by \emph{Jensen's inequality},
 we see that $\EMB{\gv{\psi}}{\Th}$ is indeed a lower bound on $\lLH$. 
 
 The \emph{sharpest} bound can clearly be found among
-distributions of the form $\post{\Th'}$, since the Kullback-Leibler divergence vanishes with $\tPX=\post$.
+distributions of the form $\post{\Th'}$, since the Kullback-Leibler divergence 
+vanishes with $\tPX= \post$.
 For this reason, we will set
 \begin{align}
-	\tPX &= \post{\Th'}
+	\tPX &\equiv \post{\Th'}
 \end{align} 
 and denote
 \begin{align}
 	\EMQ &\equiv \E{\log\cLH}_{\post{\Th'}} \label{eq:EM_Q}\\
 	\EMH &\equiv \E{\log\post}_{\post{\Th'}} \label{eq:EM_H}\\
-	\EMB &= \EMQ - \EMH{\Th'}{\Th'} \label{eq:EM_B}
+	\EMB &\equiv \EMQ - \EMH{\Th'}{\Th'} \label{eq:EM_B}
 \end{align}
 According to \eqref{eq:lLH_decomp} we now have
 \begin{align}
