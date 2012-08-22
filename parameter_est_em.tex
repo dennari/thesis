@@ -16,7 +16,10 @@ following decomposition on the log likelihood:
 \begin{align}
 	\lLH &= \log\cLH - \log\post \nonumber\\
 	&= \E{\log\cLH}_{\tPX} - \E{\log\post}_{\tPX} \nonumber\\ 
-	&= \underbrace{\E{\log\cLH}_{\tPX} - \E{\tPX}_{\tPX}}_{\displaystyle \EMB{\gv{\psi}}{\Th}}+\KL{\tPX}{\post}. 
+	\begin{split}
+	&=\underbrace{\E{\log\cLH}_{\tPX} - \E{\tPX}_{\tPX}}_{\displaystyle \EMB{\gv{\psi}}{\Th}}\\
+	&\quad+\KL{\tPX}{\post}. 
+	\end{split}
 	\label{eq:lLH_decomp}
 \end{align}
 By invoking the nonnegativeness of
@@ -30,20 +33,35 @@ or equivalently the relation
 \end{align}
 provable by \emph{Jensen's inequality}, 
 we see that $\EMB{\gv{\psi}}{\Th}$ is indeed a lower bound on $\lLH$. 
+These considerations suggest an iterative algorithm
+which produces a series of estimates $\brac{\Th_j}$, where $j=0,\dots$.
+Given the initial guess $\Th_0$, The two alternating
+steps of the algorithm are:
+%
+\begin{description}
+\addtolength{\leftskip}{1cm}
+  \item[E-step]\hfill\\
+  Set $\tPX{\gv{\psi}_{j+1}}$ to the distribution that maximizes $\EMB{\gv{\psi}}{\Th_j}$
+  with respect to $\gv{\psi}$. Here $\Th_j$ is the current estimate of $\Th$.  
+  \item[M-step]\hfill\\ 
+  Set $\Th_{j+1}$ to the estimate that maximizes $\EMB{\gv{\psi}_{j+1}}{\Th}$ with respect to $\Th$.
+\end{description}%
+In some sense then, the algorithm can be viewed as coordinate ascent in $\EMB{\gv{\psi}}{\Th}$ \parencite{Neala1998}. 
 
 The \emph{sharpest} bound can clearly be found among
 distributions of the form $\post{\Th'}$, since the Kullback-Leibler divergence 
 vanishes with $\tPX= \post$.
-For this reason, we will set
-\begin{align}
-	\tPX &\equiv \post{\Th'}
-\end{align} 
-and denote
+Let us now define
 \begin{align}
 	\EMQ &\equiv \E{\log\cLH}_{\post{\Th'}} \label{eq:EM_Q}\\
 	\EMH &\equiv \E{\log\post}_{\post{\Th'}} \label{eq:EM_H}\\
-	\EMB &\equiv \EMQ - \EMH{\Th'}{\Th'} \label{eq:EM_B}
+	\EMB &\equiv \EMQ - \EMH{\Th'}{\Th'} \label{eq:EM_B}.
 \end{align}
+Regarding these functions we will use the convention that denoting for example $\EMB{\gv{\psi}}{\Th}$ means the
+expectation is taken with respect to some \emph{unspecified} distribution $\tPX$, whereas $\EMB$ implies
+that it is taken with respect to the posterior distribution of the states with parameter $\Th'$, i.e. $\post{\Th'}$. 
+
+
 According to \eqref{eq:lLH_decomp} we now have
 \begin{align}
 	\lLH & \geq \EMB \quad \forall \Th,\Th' \in \Theta
@@ -71,27 +89,7 @@ the score evaluated at $\widehat{\Th}$ is given by
 Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005}. It gives
 an alternative route for the score function computation.
 The implications will be discussed in more detail in the sequel.
- 
 
-We are now ready the define the EM algorithm, 
-which produces a series of estimates $\brac{\Th_j}$
-starting from an initial guess $\Th_0$. The two alternating
-steps of the algorithm are:
-
-\begin{description}
-\addtolength{\leftskip}{1cm}
-  \item[E-step]\hfill\\
-  Given the current estimate $\Th_j$ of the parameters, compute	
-  $\post{\Th_j}$, the joint posterior distribution of the states. 
-  As will be seen later, only certain marginals of this distribution
-  are actually needed.  
-  \item[M-step]\hfill\\ 
-  Set
-\todo{Bring in MAP estimation}
-    \begin{align}
-		\Th_{j+1}&=\argmax_{\Th}\EMQ{\Th_j}{\Th} \label{eq:EM_M}
-	\end{align}
-\end{description}
 We are now in a position to formulate the so called \emph{fundamental inequality of EM} \parencite{Cappe2005}.
 From \eqref{eq:EM_LB} we have
 \begin{align*}
@@ -112,7 +110,20 @@ $\EMQ{\Th_l}{\Th}$ must be maximal at $\Th=\Th_l$ and thus its gradient, and
 by \eqref{eq:EM_gradients} that of the likelihood, must be zero at $\Th=\Th_l$. Thus
 $\Th_l$ is a \emph{stationary point} of $\lLH$, i.e a local maximum or a saddle point.
 
-\subsubsection*{EM in exponential families of distributions}\label{sec:EM_exp}
+We have so far formulated the EM algorithm only for ML estimation. In the case
+of MAP estimation, the situation doesn't change much however. Since the prior
+is independent of $\X$, the E-step stays the same. The MAP M-step changes to
+\begin{description}
+\addtolength{\leftskip}{1cm}
+  \item[M-step (MAP)]\hfill\\ 
+  Set $\Th_{j+1}$ to the estimate that maximizes $\EMB{\gv{\psi}_{j+1}}{\Th}+\log\Pdf{\Th}$ with respect to $\Th$.
+\end{description}%
+
+ 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{EM in exponential families of distributions}\label{sec:EM_exp}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Computing the intermediate quantity of EM is especially simple
 if the dynamic model and the measurement model belong to an exponential
@@ -137,11 +148,13 @@ Since the last term is independent of $\Th$ then the maximization in the M-step
 is independent of this last term. Thus the role of the E-step degenerates into computing the
 expectation of the sufficient statistics $\E{\F*{s}{\z}}$.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{EM as a special case of variational Bayes}%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsubsection*{EM as a special case of variational Bayes}
 \todo{Ensure that notation matches prev chapter}
 \todo{Explain why full variational bayes is not a good idea for time-series models -> \textcite{barber2011bayesian}}
-\parencite{barber2012bayesian,jordan1998learning}
+\parencite{barber2012bayesian,Neala1998}
 Variational Bayes (VB) is a fully Bayesian methodology where one seeks
 for an approximation to the parameter posterior
 \begin{align}
@@ -208,21 +221,41 @@ If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we h
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:EM_partial}
 As can be seen from equation~\eqref{eq:fundamental_inequality},
-to ensure monotonicity it is enough that $\EMQ{\Th_{j+1}}{\Th_j}\geq \EMQ{\Th_{j}}{\Th_j}$,
-i.e. $\Th_{j+1}$ is not required to be the maximum of $\EMQ{\Th_{j+1}}{\Th_j}$.
+to ensure monotonicity it is enough that $\EMQ{\Th_j}{\Th_{j+1}}\geq \EMQ{\Th_{j}}{\Th_j}$,
+i.e. $\Th_{j+1}$ is not required to be the maximum of $\EMQ{\Th_j}{\Th}$.
 This was observed already in \textcite{Dempster1977}, where methods
 that only seek an increase in the M-step were termed \emph{generalized} EM
 algorithms. This modification only affects the convergence rate.
 
-Another modification is a partial, or approximate, E-step. Analyzing
-its effects is quite important, since in the nonlinear case we can only
-hope for approximate solutions.  
+Another modification is the partial, or approximate, E-step. It is clear
+that in this case, i.e. when we cannot compute $\post$ exactly, the Kullback-Leibler 
+divergence in decomposition \eqref{eq:lLH_decomp} is strictly positive. This
+means that the lower bound we are optimizing never ``touches'' the log-likelihood
+as in equation \eqref{eq:EM_sharp_bound}. Thus EM with an approximate 
+E step is not an ascent algorithm anymore \parencite{Goodwin2005}. 
 
-\parencite{Lange1995,Goodwin2005,barber2011bayesian,jordan1998learning}
+When we restrict the approximation $\tPX$ to $\post$ to a certain
+family of probability distribution and choose the one which
+minimizes $\KL{\tPX}{\post}$, the resulting algorithm is known
+as \emph{variational Expectation Maximization} (vEM) \parencite{Turner2011}.
+When we restrict $\tPX$ to be Gaussian via moment matching, as is the case
+in Gaussian filtering/smoothing, this KL divergence is in fact minimized.
+Suppose now that $\gv{\psi}\equiv \brac{\m,\P}$, where $\m$ is the mean and
+$\P$ is the covariance matrix. Then
+\begin{align}
+	\dpd{}{\m}\KL{\tPX}{\post} &= \\
+	\dpd{}{\P}\KL{\tPX}{\post} &=.
+\end{align}
+Setting these simultaneously to zero we obtain
+\begin{align}
+	\dpd{\KL{\tPX}{\post}}{\m} &= \\
+	\dpd{\KL{\tPX}{\post}}{\P} &=
+\end{align}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Linear-Gaussian SSMs}%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:EM_SSM}
 
 Let us then turn to applying EM to the case of linear-Gaussian SSMs
@@ -424,7 +457,7 @@ $\II{2}$ from equation~\eqref{eq:LGSSM_I2} and $\II{3}$ from equation~\eqref{eq:
 % \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Nonlinear-Gaussian SSMs}%%%%%
+\subsubsection{Nonlinear-Gaussian SSMs}%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 As explained in section \ref{sec:nonlinear_state}, in then nonlinear case
@@ -578,7 +611,9 @@ and
 \item compute $\nabla_{\Th}\EMQ$ from equation \eqref{eq:dLB_nonlinear}
 \end{enumerate}
  
-\subsubsection{Score computation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Score computation}%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 As can be understood from Fisher's identity \eqref{eq:EM_gradients}
 the gradient of the intermediate quantity $\nabla_{\Th}\EMQ$ is equal to the log-likelihood
