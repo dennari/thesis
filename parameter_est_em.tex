@@ -152,69 +152,69 @@ expectation of the sufficient statistics $\E{\F*{s}{\z}}$.
 \subsubsection*{EM as a special case of variational Bayes}%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\todo{Ensure that notation matches prev chapter}
-\todo{Explain why full variational bayes is not a good idea for time-series models -> \textcite{barber2011bayesian}}
-\parencite{barber2012bayesian,Neala1998}
+
 Variational Bayes (VB) is a fully Bayesian methodology where one seeks
-for an approximation to the parameter posterior
+for an approximation to the parameter posterior \parencite{barber2012bayesian,Bishop2006,Mackay2004,beal2003variational}
 \begin{align}
-	\Pdf{\Th}{\Y}\propto \defint{\mathcal{X}}{}{\Pdf{\X,\Y}{\Th}}{\X}\Pdf{\Th}	
+	\Pdf{\Th}{\Y} &= \frac{1}{Z}\Pdf{\Y}{\Th}\Pdf{\Th} \approx \Pdf[q]{\Th}. 
 \end{align}
-As mentioned earlier, finding this distribution is commonly intractable, so in VB
-we assume a factorized form for the joint posterior of states and parameters
+Let us introduce the following simplifying
+factorization to the joint posterior of states and parameters.
 \begin{align}
 	\Pdf{\X,\Th}{\Y}\approx \Pdf[q]{\X}\Pdf[q]{\Th}
 	\label{eq:VB_factorization}
 \end{align}
-and the task is then to find the best approximation with respect
-to the KL divergence between the true posterior and the approximation
+Noting now that $\Pdf{\X,\Th}{\Y}=\Pdf{\X,\Y,\Th}/\LH$ and that $\lLH\equiv\log\LH$ is independent of $\X$ we can then perform the
+following decomposition on the log likelihood:
 \begin{align}
-	\KL{\Pdf[q]{\X}\Pdf[q]{\Th}}{\Pdf{\X,\Th}{\Y}} &= \E{\Pdf[q]{\X}}{\Pdf[q]{\X}} + \E{\Pdf[q]{\X}}{\Pdf[q]{\X}} -
-	\E{\Pdf{\X,\Th}{\Y}}{\Pdf[q]{\X}\Pdf[q]{\Th}}.
-	\label{eq:KL_VB}
+	\lLH &= \log\Pdf{\X,\Y,\Th} - \log\Pdf{\X,\Th}{\Y} \nonumber\\
+	&= \E{\log\Pdf{\X,\Y,\Th}}_{\Pdf[q]{\X}\Pdf[q]{\Th}} - \E{\Pdf{\X,\Th}{\Y}}_{\Pdf[q]{\X}\Pdf[q]{\Th}} \nonumber\\ 
+	\begin{split}
+	&=\E{\log\Pdf{\X,\Y,\Th}}_{\Pdf[q]{\X}\Pdf[q]{\Th}} -  \E{\Pdf[q]{\X}}_{\Pdf[q]{\X}} - \E{\Pdf[q]{\Th}}_{\Pdf[q]{\Th}}\\
+	&\quad+\KL{\Pdf[q]{\X}\Pdf[q]{\Th}}{\Pdf{\X,\Th}{\Y}}. 
+	\end{split}
+	\label{eq:lLH_decomp_vb}
 \end{align}
-Using ${\Pdf{\X,\Th}{\Y}}=\Pdf{\X,\Th,\Y}/\Pdf{\Y}$ equation \eqref{eq:KL_VB} gives
-\begin{align}
-	\lLH &\geq \E{\Pdf{\X,\Th,\Y}}{\Pdf[q]{\X}\Pdf[q]{\Th}} - \E{\Pdf[q]{\X}}{\Pdf[q]{\X}} -
-	\E{\Pdf[q]{\X}}{\Pdf[q]{\X}}
-	\label{eq:VB_bound}
-\end{align}
-and thus minimizing the KL divergence is equivalent to finding the tightest lower bound to
-the log likelihood. Analogously to EM, minimizing the KL divergence is done iteratively
-keeping $\Pdf[q]{\Th}$ fixed and minimizing w.r.t $\Pdf[q]{\X}$ in the ``E''-step
-and vice versa in the ``M''-step:
+Thus minimizing the KL divergence between the factorized approximation and the true joint posterior is equivalent to finding the tightest lower bound to
+the log likelihood. 
+These considerations suggest an iterative algorithm
+which produces a series of estimates $\Pdf[q_j]{\Th}$, where $j=0,\dots$.
+Given the initial guess $\Pdf[q_0]{\Th}$, the two alternating
+steps of the algorithm are:
 
 \begin{description}
 \addtolength{\leftskip}{1cm}
 \item[E-step]
 \begin{align}
-	\Pdf[q^{\text{new}}]{\X}=\argmax_{\Pdf[q]{\X}}\KL{\Pdf[q]{\X}\Pdf[q^{\text{old}}]{\Th}}{\Pdf{\X,\Th}{\Y}}
+	\Pdf[q_{j+1}]{\X}=\argmin_{\Pdf[q]{\X}}\KL{\Pdf[q]{\X}\Pdf[q_{j}]{\Th}}{\Pdf{\X,\Th}{\Y}}
 	\label{eq:VB_E}
 \end{align}
 \item[M-step]
 \begin{align}
-	\Pdf[q^{\text{new}}]{\Th}=\argmax_{\Pdf[q]{\Th}}\KL{\Pdf[q^{\text{new}}]{\X}\Pdf[q]{\Th}}{\Pdf{\X,\Th}{\Y}}
+	\Pdf[q_{j+1}]{\Th}=\argmin_{\Pdf[q]{\Th}}\KL{\Pdf[q_{j+1}]{\X}\Pdf[q]{\Th}}{\Pdf{\X,\Th}{\Y}}
 	\label{eq:VB_M}
 \end{align}
 \end{description}
 
-
 Let us then suppose that we only wish to find the MAP point estimate $\Th^*$. This can be accomplished
 by assuming a delta function form $\Pdf[q]{\Th}=\delta\left(\Th,\Th^*\right)$ for the parameter factor in the
 joint distribution of states and parameters \eqref{eq:VB_factorization}.
-With this assumption equation \eqref{eq:VB_bound} becomes
+With this assumption equation the bound becomes
 \begin{align}
 	\Pdf{\Y}{\Th^*} &\geq \E{\Pdf{\X,\Th^*,\Y}}{\Pdf[q]{\X}\Pdf[q]{\Th}} - \E{\Pdf[q]{\X}}{\Pdf[q]{\X}} + \mathtt{const}
 	\label{eq:VB_MAP_boundl}
 \end{align}
 and the ``M''-step \eqref{eq:VB_M} can then be written as
 \begin{align}
-	\Th^* &= \argmax_{\Th}\brak*{\E{\log\cLH}{\Pdf[q]{\X}}+\log\Pdf{\Th}}.	
+	\Th_{j+1} &= \argmax_{\Th}\brak*{\E{\log\cLH}{\Pdf[q]{\X}}+\log\Pdf{\Th}}.	
 \end{align}
 If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we have
 \begin{align}
-	\Pdf[q^{\text{new}}]{\X}\propto \Pdf{\X,\Y}{\Th^*} \propto \Pdf{\X}{\Y,\Th^*} 	
+	\Pdf[q_{j+1}]{\X}\propto \Pdf{\X,\Y}{\Th_j} \propto \Pdf{\X}{\Y,\Th_j} 	
 \end{align}
+Thus the EM algorithm can deduced to be a special case of VB with a delta function form
+of $\Pdf[q]{\Th}$.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Partial E and M steps}%%%%%%%%%%
@@ -240,7 +240,7 @@ minimizes $\KL{\tPX}{\post}$, the resulting algorithm is known
 as \emph{variational Expectation Maximization} (vEM) \parencite{Turner2011}.
 When we restrict $\tPX$ to be Gaussian via moment matching, as is the case
 in Gaussian filtering/smoothing, this KL divergence is in fact minimized.
-Suppose now that $\gv{\psi}\equiv \brac{\m,\P}$, where $\m$ is the mean and
+Suppose now that $\gv{\psi}\equiv \brac{\m,\P}$, where $\m$ is the mean and \todo{fill up the moment matching KL equations}
 $\P$ is the covariance matrix. Then
 \begin{align}
 	\dpd{}{\m}\KL{\tPX}{\post} &= \\
