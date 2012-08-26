@@ -13,8 +13,9 @@ axes.edgecolor = 'white'
 axes.linewidth = 1
 axes.grid = True
 axes.titlesize = 'x-large'
-axes.labelsize = 'x-small'
-axes.labelcolor = '#555555'
+axes.labelsize = 'x-large'
+#axes.labelcolor = '#555555'
+axes.labelcolor = '#222222'
 axes.axisbelow = True       # grid/ticks are below elements (eg lines, text)
 axes.formatter.use_mathtext = True
 axes.color_cycle = '#E24A33', '#348ABD', '#988ED5', '#777777', '#FBC15E', '#8EBA42', '#FFB5B8'
@@ -28,12 +29,40 @@ axes.color_cycle = '#E24A33', '#348ABD', '#988ED5', '#777777', '#FBC15E', '#8EBA
 
 xtick.color = '#555555'
 xtick.direction = 'out'
+xtick.labelsize = 'medium'
+xtick.major.size = 2
 
 ytick.color = '#555555'
 ytick.direction = 'out'
+ytick.labelsize = 'medium'
+ytick.major.size = 2
 
 grid.color = 'white'
 grid.linestyle = '-'    # solid line
 
 figure.facecolor = 'white'
 figure.edgecolor = '0.50'
+
+figure.subplot.bottom = 0.
+ # 'figure.subplot.hspace': 0.2,
+figure.subplot.left = 0.
+ # 'figure.subplot.right': 0.9,
+ # 'figure.subplot.top': 0.9,
+ # 'figure.subplot.wspace': 0.2,
+
+ # 'legend.borderaxespad': 0.5,
+ # 'legend.borderpad': 0.4,
+ # 'legend.columnspacing': 2.0,
+ legend.fancybox = False
+ legend.fontsize = 'large'
+ legend.frameon = False
+ # 'legend.handleheight': 0.7,
+ # 'legend.handlelength': 2.0,
+ # 'legend.handletextpad': 0.8,
+ # 'legend.isaxes': True,
+ # 'legend.labelspacing': 0.5,
+ legend.loc = 'best'
+ # 'legend.markerscale': 1.0,
+ # 'legend.numpoints': 2,
+ # 'legend.shadow': False,
+ savefig.pad_inches = 0.08

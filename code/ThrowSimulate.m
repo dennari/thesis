@@ -43,12 +43,15 @@ yI = ~isnan(ys(1,:));
 [mF,PF] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,x0,eye(6));
 
 
-plt.x = [ms(3,:)' mF(3,:)'];
-plt.y = [ms(6,:)' mF(6,:)'];
+plt = struct()
+plt.x = [ms(1,:)' mF(1,:)'];
+plt.y = [ms(4,:)' mF(4,:)'];
+plt.xlabel = '$x$';
+plt.ylabel = '$y$';
 plt.legend = {'filtered' 'smoothed'};
-plt.w = 9;
+plt.w = 4;
 
-pyplot('test.pdf',plt);
+pyplot('../img/test.pdf',plt);
 error('stop');
 
 figure;
