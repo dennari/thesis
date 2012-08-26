@@ -42,6 +42,11 @@ yI = ~isnan(ys(1,:));
 [ms,Ps,ms_,Ps_,Ds] = SigmaFilter({A,Q,H,R},ys,@(x,k,p)p{1}*x,@(x,k,p)p{3}*x,[],[],x0,eye(6));
 [mF,PF] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,x0,eye(6));
 
+plt.x = [ms(1,:)' mF(1,:)'];
+plt.y = [ms(4,:)' mF(4,:)'];
+pyplot('test.pdf',plt.x,plt.y);
+error('stop');
+
 figure;
 plot(xs(1,:),xs(4,:),ys(1,yI),ys(2,yI),'xk');
 figure;
