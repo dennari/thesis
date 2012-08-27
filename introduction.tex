@@ -114,7 +114,8 @@ Nonlinear Gaussian
 
  
 
-\subsubsection*{Example: Endoathmospheric flight of a ballistic object}
+\begin{example}[Endoathmospheric flight of a ballistic object]
+\label{ex:ballistic}
 Let us consider a situation where a ballistic object is launched
 from the ground into the air. We assume that the situation is governed by Newtonian
 mechanics and that the object experiences a constant known gravitational
@@ -209,10 +210,44 @@ We will set
 	\sigma_y&=\SI{0}{m/s^2}.
 \end{align}
  %
- The results of the simulation are presented in figures\ldots
- \show\textwidth
+ The results of the simulation are presented in Figure~\ref{fig:ballistic}
  
-\placefig{img/test}{1.0}{Ballistic object}
+\end{example}
 
-
+\begin{figure}[htb]%
+    \centering%
+    \begin{subfigure}[b]{0.5\textwidth}%
+    	\centering%
+    	\includegraphics[width=\textwidth]{img/ex1_pos_meas}%
+    	\caption{The noisy measurements are plotted with crosses. The initial point is at the origo.}%
+		\label{fig:ballistic_flight}%
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}%
+    	%\captionsetup{margin=0pt}
+    	\centering%
+		\includegraphics[width=\textwidth]{img/ex1_x2}%
+    	\caption{$x$ velocity}%
+		\label{fig:ballistic_x2}%
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.5\textwidth}%
+    	\centering%
+		\includegraphics[width=\textwidth]{img/ex1_x5}%
+    	\caption{$y$ velocity}\label{fig:ballistic_x5}%
+    \end{subfigure}
+	
+    \begin{subfigure}[b]{0.5\textwidth}%
+    	\centering%
+		\includegraphics[width=\textwidth]{img/ex1_x3}%
+    	\caption{$x$ acceleration}\label{fig:ballistic_x3}%
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.5\textwidth}
+    	\centering%
+		\includegraphics[width=\textwidth]{img/ex1_x6}%
+    	\caption{$y$ acceleration}\label{fig:ballistic_x6}%
+    \end{subfigure}%
+	\caption{A simulation of the the ballistic object in 
+	Example~\ref{ex:ballistic}.}
+	\label{fig:ballistic}
+ \end{figure}
+ 
 

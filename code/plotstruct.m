@@ -1,7 +1,7 @@
 function plotstruct(ax,s)
 	for k=1:size(s.data,2)
 		d = s.data{k};
-		if size(d,2) == 3
+		if size(d,2) > 2
 			plot(ax,d{1},d{2},d{3});
 		else
 			plot(ax,d{1},d{2});

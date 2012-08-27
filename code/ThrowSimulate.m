@@ -1,6 +1,6 @@
 syms t ax ay real;
 
-T = 6;
+T = 6.4;
 N = 300;
 t_ = T/N;
 K = (0:N)*t_;
@@ -20,7 +20,7 @@ H = zeros(2,6); H(1,1) = 1; H(2,4) = 1;
 vr = 2.7;
 R = vr*eye(2);
 
-x0 = [0 v0*cos(alpha0) gx 1.5 v0*sin(alpha0) gy]';
+x0 = [0 v0*cos(alpha0) gx 0 v0*sin(alpha0) gy]';
 xs = zeros(6,N+1);
 skipY = 12;
 ys = zeros(2,N+1);
@@ -38,40 +38,43 @@ for k=1:N
 		ys(:,k+1) = mvnrnd(H*x,R)';
 	end
 end
+% the last index where y is still positive
+N = find(xs(4,:)>=0,1,'last');
+K = (0:(N-1))*t_;
+xs = xs(:,1:N);
+ys = ys(:,1:N);
 yI = ~isnan(ys(1,:));
+
+
 
 textwidth = 426.79134/72.27; % latex textwidth in inches
 % plot the true locations and the measurements
-plt = struct(); f=figure(); ax = subplot(1,1,1);
-plt.data = {{xs(1,:) xs(4,:) '-b'},{ys(1,yI),ys(2,yI),'xk'}};
-plt.xlabel = '$x$';
-plt.ylabel = '$y$';
+plt = struct(); ax = subplot(1,1,1);
+plt.data = {{xs(1,:) xs(4,:)},{ys(1,yI),ys(2,yI),'x'}};
+%plt.xlabel = '$x\,\mathrm{[m]}$';
+%plt.ylabel = '$y\,\mathrm{[m]}$';
 plt.legend = {'position' 'measurement'};
-plt.w = textwidth*0.8;
+plt.w = textwidth*0.5;
 %plotstruct(ax,plt);
-pyplot('../img/ex1_pos_meas.pdf',plt)
-
-plt = struct(); f=figure(); ax = subplot(1,1,1);
-plt.data = {{K xs(3,:) '-b'}};
-plt.xlabel = 't';
-plt.ylabel = '\ddot{x}';
-plt.w = textwidth*0.8;
-%plotstruct(ax,plt);
-
-plt = struct(); f=figure(); ax = subplot(1,1,1);
-plt.data = {{K xs(6,:) '-b'}};
-plt.xlabel = 't';
-plt.ylabel = '\ddot{y}';
-plt.w = textwidth*0.8;
-%plotstruct(ax,plt);
-
-
-
+pyplot('../img/ex1_pos_meas.pdf',plt);
+plt = struct(); ax = subplot(1,1,1);
+plt.data = {{K xs(2,:)},{}};
+%plt.xlabel = '$t$';
+%plt.ylabel = '$\dot{x}$';
+plt.w = textwidth*0.5;
+pyplot('../img/ex1_x2.pdf',plt)
+plt.data = {{K xs(3,:)},{}};
+%plt.ylabel = '$\ddot{x}$';
+pyplot('../img/ex1_x3.pdf',plt);
+plt.data = {{K xs(5,:)},{}};
+%plt.ylabel = '$\dot{y}$';
+pyplot('../img/ex1_x5.pdf',plt);
+plt.data = {{K xs(6,:)},{}};
+%plt.ylabel = '$\ddot{y}$';
+pyplot('../img/ex1_x6.pdf',plt);
 
 
-%pyplot('../img/ex1_pos_meas.pdf',plt);
-error('stop');
-
+break
 
 [ms,Ps,ms_,Ps_,Ds] = SigmaFilter({A,Q,H,R},ys,@(x,k,p)p{1}*x,@(x,k,p)p{3}*x,[],[],x0,eye(6));
 [mF,PF] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,x0,eye(6));

@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 from mpltools import style
+import scipy.io
 from scipy.io import loadmat
 
 def plot(argv=None):
@@ -18,7 +19,10 @@ def plot(argv=None):
 	outputFileName = argv[1]
 
 	beta = (np.sqrt(5)+1)/2 # golden ratio
-	inp = loadmat(dataFileName,squeeze_me=True)
+	cycle = plt.rcParams["axes.color_cycle"]
+	defc = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+	
+	inp = loadmat(dataFileName,squeeze_me=True,struct_as_record=False)
 			
 	try:
 		xlabel = inp["xlabel"]
@@ -56,49 +60,15 @@ def plot(argv=None):
 
 	fig = plt.figure(figsize=(w,h),facecolor='w')
 	ax = fig.add_subplot(111)
-	ax.hold()
 	# plot
-	ddim = A([np.nan]*4) 
-	cycle = plt.rcParams["axes.color_cycle"]
 	for k,triplet in enumerate(inp["data"]):
-		try:
-			ax.plot(*triplet[0:3],**triplet[3])
-		except IndexError as e:
-			try:
-				ax.plot(*triplet[0:3])
-			except IndexError as e:
-
-		x = triplet[0]
-		xmin = x.min()
-		xmax = x.max()
-		if np.isnan(ddim[0]) or xmin < ddim[0]:
-			ddim[0] = xmin
-		if np.isnan(ddim[1]) or xmax < ddim[1]:
-			ddim[1] = xmax
-			
-		y = triplet[1]
-		ymin = y.min()
-		ymax = y.max()
-		if np.isnan(ddim[2]) or ymin < ddim[2]:
-			ddim[2] = ymin
-		if np.isnan(ddim[3]) or ymax < ddim[3]:
-			ddim[3] = ymax
-
-		if len(x.shape) == 2:
-			if(x.shape[0] < x.shape[1]):
-				x = x.T
-		if len(y.shape) == 2:
-			if(y.shape[0] < y.shape[1]):
-				y = y.T
-		if len(triplet) > 2:
-			s = triplet[2]
-			if len(triplet) > 3 and type(triplet[3]) is dict:
-				kw = triplet[3]
-				ax.plot(x,y,s,**kw)
-			else:
-				ax.plot(x,y,s)
-		else:
-			ax.plot(x,y)
+		if len(triplet) < 2:
+			continue
+		arg = triplet[0:3]
+		#print(arg)
+		kw = _setcolor(triplet,cycle,defc,k)
+		#print(kw)
+		ax.plot(*arg,**kw)
 		ax.hold(True)
 
 	if title is not None:
@@ -120,10 +90,47 @@ def plot(argv=None):
 	l = ax.axis("tight")
 	# make the transformation (add one to make it relative to current)
 	ax.axis((T+np.eye(4)).dot(l))
-	#l = (T+np.eye(4)).dot(l)
-	#ax.set_xlim(l[:2])
-	#ax.set_ylim(l[2:])
 	fig.savefig(outputFileName)
+
+
+
+def _setcolor(triplet,cycle,defc,k):
+	c = None
+	try:
+		 cc = [a for a in defc if triplet[2].find(a) > -1]
+		 if len(cc):
+		 	c = cc[0]
+	except IndexError:
+		pass
+
+	try:
+		kw = _todict(triplet[3])
+	except IndexError:
+		kw = {}
+	
+	try:
+		c = kw["color"]
+	except KeyError:
+		pass
+
+	if c is None:
+		c = cycle[np.mod(k,len(cycle))]
+	
+	kw["color"] = c
+	return kw
+
+def _todict(matobj):
+    '''
+    A recursive function which constructs from matobjects nested dictionaries
+    '''
+    dict = {}
+    for strg in matobj._fieldnames:
+        elem = matobj.__dict__[strg]
+        if isinstance(elem, scipy.io.matlab.mio5_params.mat_struct):
+            dict[strg] = _todict(elem)
+        else:
+            dict[strg] = elem
+    return dict
 
 if __name__ == '__main__':
 	plot()

@@ -1,5 +1,18 @@
 # from http://www.huyng.com/posts/sane-color-scheme-for-matplotlib/
 
+
+ # 'lines.antialiased': True,
+ # 'lines.color': 'b',
+ # 'lines.dash_capstyle': 'butt',
+ # 'lines.dash_joinstyle': 'round',
+ # 'lines.linestyle': '-',
+lines.linewidth = 1.5
+ # 'lines.marker': 'None',
+ # 'lines.markeredgewidth': 0.5,
+ # 'lines.markersize': 6,
+ # 'lines.solid_capstyle': 'projecting',
+ # 'lines.solid_joinstyle': 'round',
+
 patch.linewidth = 0.5
 patch.facecolor = '#348ABD'  # blue
 patch.edgecolor = '#EEEEEE'
@@ -65,4 +78,4 @@ figure.subplot.left = 0.
  # 'legend.markerscale': 1.0,
  # 'legend.numpoints': 2,
  # 'legend.shadow': False,
- savefig.pad_inches = 0.08
+ savefig.pad_inches = 0.03
