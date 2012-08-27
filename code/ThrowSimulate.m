@@ -3,11 +3,13 @@ syms t ax ay real;
 T = 6;
 N = 300;
 t_ = T/N;
-ax_ = 0.01;
-ay_ = 0.0001;
-v0 = 150/3.6; % magnitude of the initial velocity
-alpha0 = 45/360*2*pi; % initial direction
-g = -9.81;
+K = (0:N)*t_;
+ax_ = (7*t_)^2;
+ay_ = 0;
+v0 = 40;%150/3.6; % magnitude of the initial velocity
+alpha0 = 50/360*2*pi; % initial direction
+gy = -9.81;
+gx = -3;
 
 L = [t^2/2 t 1 0 0 0;0 0 0 t^2/2 t 1]';
 B = diag([ax ay]);
@@ -18,7 +20,7 @@ H = zeros(2,6); H(1,1) = 1; H(2,4) = 1;
 vr = 2.7;
 R = vr*eye(2);
 
-x0 = [0 v0*cos(alpha0) 0 1.5 v0*sin(alpha0) g]';
+x0 = [0 v0*cos(alpha0) gx 1.5 v0*sin(alpha0) gy]';
 xs = zeros(6,N+1);
 skipY = 12;
 ys = zeros(2,N+1);
@@ -26,6 +28,7 @@ xs(:,1) = x0;
 ys(:,1) = H*x0;
 
 
+% simulate
 x = x0;
 for k=1:N
 	x = mvnrnd(A*x,Q)';
@@ -36,7 +39,38 @@ for k=1:N
 	end
 end
 yI = ~isnan(ys(1,:));
-%ys = mvnrnd((H*xs(:,1:skipY:N))',R)';
+
+textwidth = 426.79134/72.27; % latex textwidth in inches
+% plot the true locations and the measurements
+plt = struct(); f=figure(); ax = subplot(1,1,1);
+plt.data = {{xs(1,:) xs(4,:) '-b'},{ys(1,yI),ys(2,yI),'xk'}};
+plt.xlabel = '$x$';
+plt.ylabel = '$y$';
+plt.legend = {'position' 'measurement'};
+plt.w = textwidth*0.8;
+%plotstruct(ax,plt);
+pyplot('../img/ex1_pos_meas.pdf',plt)
+
+plt = struct(); f=figure(); ax = subplot(1,1,1);
+plt.data = {{K xs(3,:) '-b'}};
+plt.xlabel = 't';
+plt.ylabel = '\ddot{x}';
+plt.w = textwidth*0.8;
+%plotstruct(ax,plt);
+
+plt = struct(); f=figure(); ax = subplot(1,1,1);
+plt.data = {{K xs(6,:) '-b'}};
+plt.xlabel = 't';
+plt.ylabel = '\ddot{y}';
+plt.w = textwidth*0.8;
+%plotstruct(ax,plt);
+
+
+
+
+
+%pyplot('../img/ex1_pos_meas.pdf',plt);
+error('stop');
 
 
 [ms,Ps,ms_,Ps_,Ds] = SigmaFilter({A,Q,H,R},ys,@(x,k,p)p{1}*x,@(x,k,p)p{3}*x,[],[],x0,eye(6));
@@ -60,7 +94,7 @@ figure;
 boundedline(ms(1,:),ms(4,:),[1.97*sqrt(squeeze(Ps(1,1,:))) 1.97*sqrt(squeeze(Ps(4,4,:)))])
 figure;
 boundedline(mF(1,:),mF(4,:),[1.97*sqrt(squeeze(PF(1,1,:))) 1.97*sqrt(squeeze(PF(4,4,:)))])
-K = (0:N)*t_;
+
 
 figure;
 subplot(3,2,1);
