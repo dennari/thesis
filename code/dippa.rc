@@ -41,17 +41,19 @@ axes.color_cycle = '#E24A33', '#348ABD', '#988ED5', '#777777', '#FBC15E', '#8EBA
                    # FFB5B8 : pink
 
 xtick.color = '#555555'
-xtick.direction = 'out'
-xtick.labelsize = 'medium'
-xtick.major.size = 2
+#xtick.direction = 'out'
+xtick.labelsize = 'small'
+xtick.major.size = 0
 
 ytick.color = '#555555'
-ytick.direction = 'out'
-ytick.labelsize = 'medium'
-ytick.major.size = 2
+#ytick.direction = 'out'
+ytick.labelsize = 'small'
+ytick.major.size = 0
 
 grid.color = 'white'
+#grid.color = '#CCCCCC'
 grid.linestyle = '-'    # solid line
+
 
 figure.facecolor = 'white'
 figure.edgecolor = '0.50'

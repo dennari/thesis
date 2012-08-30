@@ -26,7 +26,7 @@ are one of the few cases where computing the predictive, filtering and
 smoothing distributions is tractable \parencite[see, e.g.,][]{Sarkka2006}. As can be seen,
 all of the aforementioned distributions stay Gaussian.
 
-\subsubsection{Kalman filter}
+\subsubsection{Kalman filter}\label{sec:kalman_filter}
 
 The Kalman filter is the best known filter, first presented in
 the seminal article of \textcite{Kalman1960}. It provides the
@@ -76,7 +76,7 @@ joint distributions
 	\label{eq:joint_per_kalmanstep}
 \end{align}
 
-\subsubsection{Rauch-Tung-Striebel Smoother}
+\subsubsection{Rauch-Tung-Striebel Smoother}\label{sec:rts_smoother}
 
 Once the filtering distributions are obtained going \emph{forward} in time,
 the joint smoothing dustributions \eqref{eq:smooth_joint_bayes} can be computed
@@ -415,7 +415,7 @@ they are applied in the Results~section\ref{sec:results}. The CKF results from
 applying a \emph{3rd order spherical cubature approximation} to the integrals 
 in equations \eqref{eq:prediction_mean_intergral}, \eqref{eq:prediction_variance_intergral}, \eqref{eq:prediction_cov_intergral},
 \eqref{eq:update_mean_intergral}, \eqref{eq:update_variance_intergral} and
-\eqref{eq:update_covariance_intergral}.
+\eqref{eq:update_covariance_intergral}.\todo{check this section}
 
 As stated earlier, the 3rd order spherical cubature approximation uses the minimal amount
 of sigma points for a 3rd order rule, $2\,d_x$. The sigma points are then

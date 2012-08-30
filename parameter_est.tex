@@ -68,7 +68,8 @@ The MAP estimate of $\Th$ is then defined as
 	&=\argmin_{\Th}\brak[\big]{\ene},
 	\label{eq:MAP}
 \end{align}
-where we define the \emph{energy function} \parencite{Mbalawataa} 
+where we define the \emph{energy function}\todo{should this be introduced?}
+\parencite{Mbalawataa}
 \begin{align}
 	\ene \equiv -\lLH - \log\Pdf{\Th}.
 	\label{eq:ene}
@@ -82,9 +83,8 @@ In the case of a uniform (constant and thus improper)
 prior distribution, $\Pdf{\Th}=C$, the MAP estimate reduces to the
 \emph{maximum likelihood} (ML) estimate
 \begin{align}
-	\Th_{\text{ML}} &\equiv \argmax_{\Th}\brak[\big]\lLH\\
+	\Th_{\text{ML}} &\equiv \argmax_{\Th}\brak[\big]\lLH\label{eq:ML} \\
 	&= \argmax_{\Th}\brak[\big]{\lLH+\log C} \nonumber.
-	\label{eq:ML}
 \end{align}
 In the limit of infinite data, the influence of the prior
 disappears. Then if the support of the prior includes the true

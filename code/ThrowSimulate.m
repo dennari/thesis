@@ -17,8 +17,8 @@ Q = subs(L*B*L',[t ax ay],[t_ ax_ ay_]);
 AA = [1 t t^2/2;0 1 t; 0 0 1]; % for one dimension
 A = subs(blkdiag(AA,AA),t,t_); % for two dimensions
 H = zeros(2,6); H(1,1) = 1; H(2,4) = 1;
-vr = 2.7;
-R = vr*eye(2);
+vr = 3.5;
+R = vr^2*eye(2);
 
 x0 = [0 v0*cos(alpha0) gx 0 v0*sin(alpha0) gy]';
 xs = zeros(6,N+1);
@@ -47,38 +47,51 @@ yI = ~isnan(ys(1,:));
 
 
 
-textwidth = 426.79134/72.27; % latex textwidth in inches
-% plot the true locations and the measurements
-plt = struct(); ax = subplot(1,1,1);
-plt.data = {{xs(1,:) xs(4,:)},{ys(1,yI),ys(2,yI),'x'}};
-%plt.xlabel = '$x\,\mathrm{[m]}$';
-%plt.ylabel = '$y\,\mathrm{[m]}$';
-plt.legend = {'position' 'measurement'};
-plt.w = textwidth*0.5;
-%plotstruct(ax,plt);
-pyplot('../img/ex1_pos_meas.pdf',plt);
-plt = struct(); ax = subplot(1,1,1);
-plt.data = {{K xs(2,:)},{}};
-%plt.xlabel = '$t$';
-%plt.ylabel = '$\dot{x}$';
-plt.w = textwidth*0.5;
-pyplot('../img/ex1_x2.pdf',plt)
-plt.data = {{K xs(3,:)},{}};
-%plt.ylabel = '$\ddot{x}$';
-pyplot('../img/ex1_x3.pdf',plt);
-plt.data = {{K xs(5,:)},{}};
-%plt.ylabel = '$\dot{y}$';
-pyplot('../img/ex1_x5.pdf',plt);
-plt.data = {{K xs(6,:)},{}};
-%plt.ylabel = '$\ddot{y}$';
-pyplot('../img/ex1_x6.pdf',plt);
 
 
-break
 
 [ms,Ps,ms_,Ps_,Ds] = SigmaFilter({A,Q,H,R},ys,@(x,k,p)p{1}*x,@(x,k,p)p{3}*x,[],[],x0,eye(6));
 [mF,PF] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,x0,eye(6));
 
+textwidth = 426.79134/72.27; % latex textwidth in inches
+% plot the true locations and the measurements
+plt = struct();kw=struct();
+kw.alpha = 0.9;
+plt.data = {{xs(1,:) xs(4,:) '' kw},...
+			{ms(1,:) ms(4,:) '' kw},...
+			{mF(1,:) mF(4,:) '' kw},...
+			{ys(1,yI) ys(2,yI) 'x'},...
+			};
+plt.xlabel = '$\mathrm{[m]}$';
+plt.ylabel = '$\mathrm{[m]}$';
+plt.legend = {'true' 'filter' 'smoother' 'measurement'};
+plt.legendkw = struct('loc','lower center');
+plt.w = textwidth*0.5;
+%plotstruct(ax,plt);
+pyplot('../img/ex1_pos_meas.pdf',plt);
+
+plt = struct();
+fmean = xs(2,:)-ms(2,:);
+smean = xs(2,:)-mF(2,:);
+ferr = 2*sqrt(squeeze(Ps(2,2,:)));
+serr = 2*sqrt(squeeze(PF(2,2,:)));
+plt.ylabel = '$\dot{x}_{\mathrm{true}}-\dot{x}_{\mathrm{mean}}\,\mathrm{[m]}$';
+plt.xlabel = '$t\,\mathrm{[s]}$';
+plt.legend = {'$\mathrm{Err}_f$' '$\mathrm{Err}_s$'};
+plt.legendkw = struct('loc','upper right');
+plt.data = {{K fmean '' struct('yerr',ferr)},{K smean '' struct('yerr',serr)}};
+plt.w = textwidth*0.5;
+plotstruct(plt);
+pyplot('../img/ex1_err.pdf',plt)
+
+%plt.data = {{K xs(5,:)},{}};
+%plt.ylabel = '$\dot{y}$';
+%pyplot('../img/ex1_x5.pdf',plt);
+%plt.data = {{K xs(6,:)},{}};
+%plt.ylabel = '$\ddot{y}$';
+%pyplot('../img/ex1_x6.pdf',plt);
+
+break
 
 plt = struct()
 plt.x = [ms(1,:)' mF(1,:)'];

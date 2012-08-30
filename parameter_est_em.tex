@@ -93,9 +93,10 @@ The implications will be discussed in more detail in the sequel.
 We are now in a position to formulate the so called \emph{fundamental inequality of EM} \parencite{Cappe2005}.
 From \eqref{eq:EM_LB} we have
 \begin{align*}
-	\lLH[\Th_{j+1}] & \geq \EMQ{\Th_j}{\Th_{j+1}} - \EMH{\Th_j}{\Th_{j}}
+	\lLH[\Th_{j+1}] & \geq \EMQ{\Th_j}{\Th_{j+1}} - \EMH{\Th_j}{\Th_{j}},
 \end{align*}
-and using \eqref{eq:EM_sharp_bound} and \eqref{eq:EM_M} we can write
+so that using \eqref{eq:EM_sharp_bound} and assuming that the M-step result $\Th_{j+1}$ increases
+the bound we can write
 \begin{align}
 \label{eq:fundamental_inequality}	
 \begin{split}	
@@ -118,6 +119,7 @@ is independent of $\X$, the E-step stays the same. The MAP M-step changes to
   \item[M-step (MAP)]\hfill\\ 
   Set $\Th_{j+1}$ to the estimate that maximizes $\EMB{\gv{\psi}_{j+1}}{\Th}+\log\Pdf{\Th}$ with respect to $\Th$.
 \end{description}%
+
 
  
 
@@ -147,6 +149,16 @@ $\X$ (implicit in the notation) becomes now
 Since the last term is independent of $\Th$ then the maximization in the M-step
 is independent of this last term. Thus the role of the E-step degenerates into computing the
 expectation of the sufficient statistics $\E{\F*{s}{\z}}$.
+
+\begin{example}[Maximum of a mixture of Gaussians with EM]
+\end{example}
+\missingfigure{Show the progress of EM optimization for the local mode of a mixture of
+two dimensional gaussians\label{fig:em_gaussians}}
+\missingfigure{Show the first two iterations of the EM optimization with 
+the objective and the lower bound\label{fig:em_bounds}}
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{EM as a special case of variational Bayes}%%%%%%
@@ -231,7 +243,7 @@ Another modification is the partial, or approximate, E-step. It is clear
 that in this case, i.e. when we cannot compute $\post$ exactly, the Kullback-Leibler 
 divergence in decomposition \eqref{eq:lLH_decomp} is strictly positive. This
 means that the lower bound we are optimizing never ``touches'' the log-likelihood
-as in equation \eqref{eq:EM_sharp_bound}. Thus EM with an approximate 
+as in equation \eqref{eq:EM_sharp_bound} and Figure~\ref{fig:em_bounds}. Thus EM with an approximate 
 E step is not an ascent algorithm anymore \parencite{Goodwin2005}. 
 
 When we restrict the approximation $\tPX$ to $\post$ to a certain

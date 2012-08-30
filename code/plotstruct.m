@@ -1,4 +1,7 @@
-function plotstruct(ax,s)
+function plotstruct(s,ax)
+	if nargin < 2
+		ax = gca();
+	end
 	for k=1:size(s.data,2)
 		d = s.data{k};
 		if size(d,2) > 2

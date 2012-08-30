@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 from mpltools import style
+from mpltools.special import errorfill
 import scipy.io
 from scipy.io import loadmat
 
@@ -43,6 +44,11 @@ def plot(argv=None):
 		legend = None
 
 	try:
+		legendkw = _todict(inp["legendkw"])
+	except KeyError as e:
+		legendkw = {}
+
+	try:
 		w = inp["w"]
 	except KeyError as e:
 		w = 5
@@ -64,12 +70,25 @@ def plot(argv=None):
 	for k,triplet in enumerate(inp["data"]):
 		if len(triplet) < 2:
 			continue
+		if len(triplet) > 2 and type(triplet[2]) is not unicode:
+			triplet[2] = ""
 		arg = triplet[0:3]
 		#print(arg)
 		kw = _setcolor(triplet,cycle,defc,k)
 		#print(kw)
-		ax.plot(*arg,**kw)
+		if kw.has_key("yerr"):
+			kw["ax"] = ax
+			errorfill(arg[0],arg[1],**kw)
+		else:
+			ax.plot(*arg,**kw)
 		ax.hold(True)
+	
+	# stretch both dimensions by alpha
+	T = A([[1,-1,0,0],[-1,1,0,0],[0,0,1,-1],[0,0,-1,1]])*alpha
+	# all dimensions as 1x4 vector
+	l = ax.axis("tight")
+	# make the transformation (add one to make it relative to current)
+	ax.axis((T+np.eye(4)).dot(l))
 
 	if title is not None:
 		ax.set_title(title)
@@ -78,18 +97,11 @@ def plot(argv=None):
 	if ylabel is not None:
 		ylabel = ax.set_ylabel(ylabel)
 	if legend is not None:
-		lg = ax.legend(legend)
+		lg = ax.legend(legend,**legendkw)
 		if xlabel is not None:
 			for text in lg.get_texts():
 				text.set_color(xlabel.get_color())
 
-	
-	# stretch both dimensions by alpha
-	T = A([[1,-1,0,0],[-1,1,0,0],[0,0,1,-1],[0,0,-1,1]])*alpha
-	# all dimensions as 1x4 vector
-	l = ax.axis("tight")
-	# make the transformation (add one to make it relative to current)
-	ax.axis((T+np.eye(4)).dot(l))
 	fig.savefig(outputFileName)
 
 
