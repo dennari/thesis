@@ -1,4 +1,4 @@
-\documentclass[english,12pt]{article}
+\documentclass[english,12pt,a4paper]{article}
 
 % LAYOUT
 \usepackage{mylayout}
@@ -18,8 +18,8 @@
     Mapping={tex-text}
 ]{texgyreheros}
 
-\usepackage{aaltothesis}
 \usepackage{lmodern}% use Latin Modern also for maths
+\usepackage[elec]{aaltothesis}
 \usepackage[
 shadow,
 textsize=footnotesize,
@@ -28,6 +28,7 @@ backgroundcolor=orange!40,
 linecolor=orange!40,
 colorinlistoftodos,
 ]{todonotes}
+
 
 % PDF SETUP
 \usepackage[unicode,bookmarks, colorlinks, breaklinks,
@@ -127,6 +128,7 @@ pdfproducer={xetex}
 \theoremstyle{definition}
 \newtheorem{example}{Example}
 
+
 % BIBLIOGRAPHY
 \usepackage[style=authoryear-comp,backend=biber]{biblatex} % TEXLIPSE BUG: backend cannot be first
 %###
@@ -154,8 +156,6 @@ firstinits=true
 
 \input{coverpage}
 \makecoverpage
-
-
 \input{abstract}
 \mysection{Preface}
 \input{preface}

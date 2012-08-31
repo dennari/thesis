@@ -14,7 +14,7 @@ def plot(argv=None):
 	#p = font_manager.FontProperties("Latin Modern Roman",size=10)
 	#print(fm.findfont(p))
 
-	style.use('dippa')
+	#style.use('dippa')
 	argv = sys.argv[1:] if argv is None else argv
 	dataFileName = argv[0]
 	outputFileName = argv[1]

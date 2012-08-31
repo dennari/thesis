@@ -15,6 +15,6 @@ function tmp=pyplot(o,x,y,s)
 	tmp = [tmp '.mat'];
 	save(tmp,'-struct','pl','-v7');
 	uns = 'unset LD_LIBRARY_PATH && unset DYLD_LIBRARY_PATH && unset DYLD_FRAMEWORK_PATH';
-	pth = '/usr/local/share/python';
-	system(sprintf('%s && %s/pyplot.py %s %s',uns,pth,tmp,o));
+	pth = '/u/vjvaanan/workspace3/dippa/code';
+	system(sprintf('%s && python pyplot.py %s %s',uns,tmp,o));
 end
