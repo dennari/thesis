@@ -361,14 +361,14 @@ we get
 	\II{2}&=
 \bm{\v{I} \\ -\v{A}^\tr}^\tr	
 \sum_{k=1}^T\left(\bm{
-		\P_{k-1|T}&\v{D}_{k-1}\\
-		\v{D}_{k-1}^\tr&\P_{k|T}
+		\P_{k|T}&\v{D}_{k-1}^\tr\\
+		\v{D}_{k-1}&\P_{k-1|T}
 	}+\bm{
-		\m_{k-1|T}\\
-		\m_{k|T}
+		\m_{k|T}\\
+		\m_{k-1|T}
 	}\bm{
-		\m_{k-1|T}\\
-		\m_{k|T}
+		\m_{k|T}\\
+		\m_{k-1|T}
 	}^\tr\right)
 \bm{\v{I}\\-\v{A}^\tr} \label{eq:LGSSM_I2}\\
 &=\bm{\v{I} \\ -\v{A}^\tr}^\tr	
@@ -583,24 +583,25 @@ and
 \begin{align}
 \label{eq:dLB_nonlinear}
 \begin{split}
-	&\dpd{\EMQ}{\theta_i}
-	\approx\frac{1}{2}\mathrm{Tr}\!\Bigg[\\
+	\dpd{\EMQ}{\theta_i}&\approx\\
 %	
-	&\gv{\Sigma}_0^{-1}\bigg(
+	&\frac{1}{2}\mathrm{Tr}\!\bigg[\gv{\Sigma}_0^{-1}\bigg(
 	\dpd{\gv{\Sigma}_0}{\theta_i}\gv{\Sigma}_0^{-1}
 	\II{1}
-	+2\E[\Big]{\dpd{\gv{\mu}_0}{\theta_i}\left(\x_0-\gv{\mu}_0\right)^\tr}
-	-\dpd{\gv{\Sigma}_0}{\theta_i}\bigg)\\
+	+2\dpd{\gv{\mu}_0}{\theta_i}\left(\m_{0|T}-\gv{\mu}_0\right)^\tr
+	+\dpd{\gv{\Sigma}_0}{\theta_i}\bigg)\bigg]\\
 %	
-	+&\v{Q}^{-1}\bigg(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
+	+&\frac{1}{2}\mathrm{Tr}\!\bigg[\v{Q}^{-1}\bigg(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
 	\II{2}
-	+2\sum_{k=1}^T\E[\Big]{\dpd{\ff}{\theta_i}\left(\x_k-\ff\right)^\tr}
-	-T\dpd{\v{Q}}{\theta_i}\bigg)\\
+	+2\sum_{k=1}^T\E[\Big]{\dpd{\ff}{\theta_i}\x_k^\tr}\\%
+	&\qquad-2\sum_{k=1}^T\E[\Big]{\dpd{\ff}{\theta_i}\ff^\tr}
+	+T\dpd{\v{Q}}{\theta_i}\bigg)\bigg]\\
 %	
-	+&\v{R}^{-1}\bigg(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
+	+&\frac{1}{2}\mathrm{Tr}\!\bigg[\v{R}^{-1}\bigg(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
 	\II{3}
-	+2\sum_{k=1}^T\E[\Big]{\dpd{\hh}{\theta_i}\left(\y_k-\hh\right)^\tr}
-	-T\dpd{\v{R}}{\theta_i}\bigg)\Bigg].
+	+2\sum_{k=1}^T\E[\Big]{\dpd{\hh}{\theta_i}}\y_k^\tr\\
+	&\qquad-2\sum_{k=1}^T\E[\Big]{\dpd{\hh}{\theta_i}\hh^\tr}
+	+T\dpd{\v{R}}{\theta_i}\bigg)\bigg].
 \end{split}	
 \end{align}
 In order to gather the computations needed evaluate $\EMQ$ and $\nabla_{\Th}\EMQ$ given the sufficient statistics
