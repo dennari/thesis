@@ -1,4 +1,4 @@
-function [x] = simulate_periodic_data(N,dt,f,Qc,x0,gamma)
+function [x] = simulate_periodic_data(N,dt,f,Qc,x0,gamma,Ff)
 %% simulate_and_estimate - Estimate results for one draw 
 % 
 % Syntax:
@@ -48,15 +48,20 @@ function [x] = simulate_periodic_data(N,dt,f,Qc,x0,gamma)
   if nargin < 6 || isempty(gamma)
     gamma = 0;
   end
+  if nargin < 7
+    Ff =@(f,g) [ 0         2*pi*f; 
+                -2*pi*f   -g];
+  end
   
   % The rest of the states
+  L = [0;1];
+  
   for k=2:N
       
     % Dynamic model
-    F = [ 0          2*pi*f(k);
-         -2*pi*f(k)  -gamma];
 
-    L = [0;1];
+    F = Ff(f(k),gamma);
+
     
     % Discretize
     [A,Q] = splti_disc(F,L,Qc,dt);
