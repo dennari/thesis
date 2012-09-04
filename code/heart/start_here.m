@@ -21,7 +21,7 @@ r = 0.1*2;                % measurement noise
  fr = [L1 L2 L3];
 
  
- %fr = A*sin(2*pi*0.1*T)+1.5*A;
+fr = A*sin(2*pi*0.1*T)+1.5*A;
  
 % simulate data
 [x] = simulate_periodic_data(T,[],fr,Qx,x0,gamma);
@@ -30,8 +30,9 @@ y = x(1,:)+sqrt(r)*randn(1,numel(T));
 
 XD = 3;
 h = @(x,k,p) x(1,:);
-f = @(x,k,p) sinusoid_A(x(3),dt)*x;
-Q = @(m,k,p) sinusoid_Q(m(3),Qx ,Qw,dt);              
+f = @(x,k,p) sinusoid_A(x,dt);
+%Q = @(m,k,p) sinusoid_Q(m(3),Qx ,Qw,dt);              
+Q = sinusoid_Q(Qx,Qw,dt);              
 
 m0 = [0.5 0.5 2*pi*0.4]';
 P0 = eye(XD)*0.1;
