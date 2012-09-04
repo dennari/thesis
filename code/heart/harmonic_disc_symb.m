@@ -1,16 +1,17 @@
 %% Discretize stochastic oscillator in closed form
 
-syms w dt g Qc real;
+syms w dt g Qx real;
 
 g = 0;
+w = 0;
 F = [ 0  1; 
     -w^2  -g];
 L = [0;1];
 A = simple(expm(F*dt));
 n   = size(F,1);
-Phi = simple([F L*Qc*L'; zeros(n,n) -F']);
+Phi = simple([F L*Qx*L'; zeros(n,n) -F']);
 AB  = simple(expm(Phi*dt)*[zeros(n,n);eye(n)]);
-Q   = simple(AB(1:n,:)/AB((n+1):(2*n),:))
+Q   = simple(AB(1:n,:)/AB((n+1):(2*n),:));
 
 %% test
 
