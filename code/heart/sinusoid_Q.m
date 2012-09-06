@@ -1,16 +1,16 @@
-function Q_ = sinusoid_Q(Qx,Qw,dt)
+function Q_ = sinusoid_Q(qw,qx,dt)
 % The signal part of Q is    
-%           +-                                        -+
-%           |                                   2      |
-%           |  dt w   sin(2 dt w)      sin(dt w)       |
-%           |  ---- - -----------,     ----------      |
-%           |   2          4               2           |
-% (Qx/w) *  |                                          |
-%           |               2                          |
-%           |      sin(dt w)       sin(2 dt w)   dt w  |
-%           |      ----------,     ----------- + ----  |
-%           |          2                4         2    |
-%           +-                                        -+    
+%   +-                -+
+%   |       3       2  |
+%   |  Qx dt   Qx dt   |
+%   |  ------, ------  |
+%   |    3       2     |
+%   |                  |
+%   |       2          |
+%   |  Qx dt           |
+%   |  ------,  Qx dt  |
+%   |    2             |
+%   +-                -+ 
         
     %Q11 = (2*dt*w - sin(2*dt*w))/2;
     %Q12 = sin(dt*w)^2;
@@ -19,8 +19,14 @@ function Q_ = sinusoid_Q(Qx,Qw,dt)
     Q11 = dt^2/3;
     Q12 = dt/2;
     Q22 = 1;
+     
+    c = cell(1,numel(qx)+1);
+    c{1} = qw;
+    for k = 1:numel(qx)
+        c{k+1} = qx(k)*dt*[Q11 Q12; Q12 Q22];
+    end
     
-    Q_ = blkdiag(Qx*dt*[Q11 Q12; Q12 Q22],Qw);
+    Q_ = blkdiag(c{:});
    
 end
 
