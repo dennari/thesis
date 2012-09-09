@@ -1,4 +1,4 @@
-function [lb,glb] = em_lb_harmonic(p,vi,Y,JM,JS)
+function [lb,glb] = em_lb_harmonic(p,vi,I1,I2,I3)
 % em_lb_harmonic - lower bound and its gradient 
 %
 % p{1}=qw   angular velocity variance
@@ -27,50 +27,6 @@ end
 Q = sinusoid_Q(qw,qqx,dt);
 
 
-
-[eij,wij] = CKFPoints(2*xDim);
-M = size(eij,2);
-% weight matrix
-wmx = repmat(wij(1,:),xDim,1);
-wmy = repmat(wij(1,:),yDim,1);
-
-I1 = zeros(xDim,xDim);
-I2 = zeros(xDim,xDim);
-I3 = 0;	
-
-%newer = 1:xDim;
-%older = (xDim+1):(2*xDim);
-older = 1:xDim;
-newer = (xDim+1):(2*xDim);
-
-
-%IIx = [eye(xDim);-eye(xDim)];
-%IIy = [eye(yDim);-eye(yDim)];
-
-for k=1:N
-    % compute integrals I_2 and I_3 that are w.r.t N(m3,P3)
-	m = JM(:,k);
-	S = JS(:,:,k);
-    
-    if k == 1
-        % p(x_0|y_1:N)
-        d = m(older)-m0;
-        I1 = S(older,older)+d*d';
-    end
-    
-    % get the sigma points from the joint distribution
-    [xk1,xk] = jsig(m,S);
-    
-	d = xk-sinusoid_f(xk1,dt);
-	I2 = I2 + (wmx.*d)*d';
-	
-    %j = [xk ; model.f(xk1,k,p)];
-	%I2 = I2 + IIx'*(wmx.*j)*j'*IIx;
-	
-	d = repmat(Y(:,k),1,M)-H*xk;
-    I3 = I3 + (wmy.*d)*d';
-
-end
 
 
 % gradient
@@ -134,15 +90,6 @@ I3 = N*log(R)+trace(I3/R);
 
 lb = 0.5*(I1+I2+I3);
 
-
-function [old,new]=jsig(m,S)
-    mr = repmat(m,1,M);
-    xi = mr+chol(S,'lower')*eij;
-	% sigma points for x_k
-    new = xi(newer,:);
-    % sigma points for x_(k-1)
-	old = xi(older,:);
-end
 
 end
 

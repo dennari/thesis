@@ -1,57 +1,150 @@
-syms t ax ay real;
+%% Setup
 
-T = 6.4;
-N = 300;
-t_ = T/N;
-K = (0:N)*t_;
-ax_ = (7*t_)^2;
-ay_ = 0;
-v0 = 40;%150/3.6; % magnitude of the initial velocity
+global dt P0 H A g0x g0y
+
+T = 15;
+N = 1000;
+dt = T/N;
+K = (0:N)*dt;
+
+qx = (7*dt)^2;
+qy = (dt)^2;
+v0 = 40; % magnitude of the initial velocity
 alpha0 = 50/360*2*pi; % initial direction
-gy = -9.81;
-gx = -3;
+v0x = v0*cos(alpha0);
+v0y = v0*sin(alpha0);
+g0y = -9.81; % initial y acceleration
+g0x = 0; % initial x acceleration
 
-L = [t^2/2 t 1 0 0 0;0 0 0 t^2/2 t 1]';
-B = diag([ax ay]);
-Q = subs(L*B*L',[t ax ay],[t_ ax_ ay_]);
-AA = [1 t t^2/2;0 1 t; 0 0 1]; % for one dimension
-A = subs(blkdiag(AA,AA),t,t_); % for two dimensions
+Q = ballisticQ(qx,qy);
+A1 = [1 dt dt^2/2; 0 1 dt; 0 0 1]; % for one dimension
+A = blkdiag(A1,A1); % for two dimensions
 H = zeros(2,6); H(1,1) = 1; H(2,4) = 1;
-vr = 3.5;
-R = vr^2*eye(2);
+r = 2.5;
+R = r^2*eye(2);
 
-x0 = [0 v0*cos(alpha0) gx 0 v0*sin(alpha0) gy]';
+
+m0 = [0 v0x g0x 0 v0y g0y]';
+P0 = diag([1e-6 7^2 1e-6 1e-6 7^2 1e-6]);
+
+%% Simulate
+
 xs = zeros(6,N+1);
-skipY = 12;
+%skipY = 4;
 ys = zeros(2,N+1);
+
+% simulate
+x0 = mvnrnd(m0,P0)';
+norm([x0(5) x0(2)])
+atan(x0(5)/x0(2))*360/(2*pi)
+
+x = x0;
 xs(:,1) = x0;
 ys(:,1) = H*x0;
 
-
-% simulate
-x = x0;
 for k=1:N
 	x = mvnrnd(A*x,Q)';
 	xs(:,k+1) = x;
-	ys(:,k+1) = NaN;
-	if ~mod(k,skipY)
-		ys(:,k+1) = mvnrnd(H*x,R)';
-	end
+	%ys(:,k+1) = NaN;
+	%if ~mod(k,skipY)
+	ys(:,k+1) = mvnrnd(H*x,R)';
+	%end
 end
 % the last index where y is still positive
 N = find(xs(4,:)>=0,1,'last');
-K = (0:(N-1))*t_;
+K = (0:(N-1))*dt;
 xs = xs(:,1:N);
 ys = ys(:,1:N);
-yI = ~isnan(ys(1,:));
+%yI = ~isnan(ys(1,:));
+
+figure(1); clf;
+plot(xs(1,:),xs(4,:),ys(1,:),ys(2,:),'kx');
+figure(2); clf;
+subplot(3,2,1);
+plot(K,xs(1,:)); 
+subplot(3,2,2);
+plot(K,xs(4,:)); 
+subplot(3,2,3);
+plot(K,xs(2,:));
+subplot(3,2,4);
+plot(K,xs(5,:));
+subplot(3,2,5);
+plot(K,xs(3,:));
+subplot(3,2,6);
+plot(K,xs(6,:));
+%p0 = {A,Q,H,R};
+%[ms,Ps,ms_,Ps_,Ds,lh] = SigmaFilter(p0,ys,[],[],[],[],m0,eye(6));
+%[ms,Ss,lh] = SigmaFilterSR(p0,ys,[],[],[],[],m0,eye(6));
+
+
+%% Compute LH and gradient on grid
+
+% parameters are 
+% p{1}=v0x, x component of the mean of the initial velocity
+% p{2}=v0y, y component of the mean of the initial velocity 
+% p{3}=qx, x process variance
+% p{4}=qy, y process variance
+% p{5}=r, measurement variance
+% set up the starting point
+p{1} = v0x;
+p{2} = v0y;
+p{3} = qx;
+p{4} = qy;
+p{5} = r;
+
+h = @(x,k,p) H*x;
+f = @(x,k,p) A*x;
+
+NN = 80;
+as = linspace(2,3,NN);
+lhs = zeros(1,NN);
+lhsSR = lhs;
+glhs = lhs;
+lbs = lhs;
+lbsSR = lhs;
+glbs = lhs;
+glbsSR = lhs;
+p0 = {A,Q,H,R};
+for k=1:NN
+    %k
+    %as(k)
+    %p0{2} = ballisticQ(as(k),qy);
+    p0{4} = as(k)*eye(2);
+    [ms,Ps,ms_,Ps_,Ds,lh] = SigmaFilter(p0,ys,[],[],[],[],m0,P0);
+    [JM,JS] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
+    lhs(k) = lh;
+    
+    p{5} = as(k);
+    [lb,glb] = EM_LB_Ballistic(p,5,ys,JM,JS);
+
+    lbs(k) = lb;
+    glbs(k) = glb;
+end
+
+figure(1); clf;
+subplot(3,1,1); 
+plot(as,lhs); grid ON; title('Likelihood');
+subplot(3,1,2); 
+plot(as,lbs); grid ON; title('Lower bound');
+subplot(3,1,3);
+plot(as,glbs); grid ON; title('d Lower bound');
+figure(2);clf;
+plot(as,lhs-lbs);grid on;
+
+% figure(3); clf;
+% subplot(3,1,1); 
+% plot(as,lhsSR); grid ON; title('LikelihoodSR');
+% subplot(3,1,2); 
+% plot(as,lbsSR); grid ON; title('Lower bound SR');
+% subplot(3,1,3);
+% plot(as,glbsSR); grid ON; title('d Lower bound SR');
+% figure(4);clf;
+% plot(as,lhsSR-lbsSR);grid on;
 
 
 
 
-
-
-[ms,Ps,ms_,Ps_,Ds] = SigmaFilter({A,Q,H,R},ys,@(x,k,p)p{1}*x,@(x,k,p)p{3}*x,[],[],x0,eye(6));
-[mF,PF] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,x0,eye(6));
+%% Plot
 
 textwidth = 426.79134/72.27; % latex textwidth in inches
 % plot the true locations and the measurements

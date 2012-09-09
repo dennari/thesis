@@ -1,61 +1,42 @@
-function [mF,PF] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0)
+function [mm,PP,DD] = SigmaSmoother(mm,PP,mm_,PP_,CC)
 	
-	XD = size(ms,1);
-	N = size(ms,2);
+	XD = size(mm,1);
+	N = size(mm,2)-1; % number of measurements
 	
 	%%%%%%%%%%%%%%%
 	% SMOOTHER %%%%
 	%%%%%%%%%%%%%%%
-	PF = zeros(2*XD,2*XD,N);
-	mF = zeros(2*XD,N);
 	
-	m_s = ms(:,end);
-	P_s = Ps(:,:,end);
-
+	
+    % The cross-timestep covariance matrices
+    DD = zeros(XD,XD,N);
+	
+    m_s = mm(:,end);
+	P_s = PP(:,:,end);
+        
     
-    for k=N-1:-1:0
-	    if k > 0
-	    	m = ms(:,k);
-	    	P = Ps(:,:,k);
-	    else
-	    	m = m0;
-	    	P = P0;
-	    end
+    for k=N:-1:1 % not a typo, last index of mm,PP is N+1
+	    % filtering distribution
+        m = mm(:,k);
+	    P = PP(:,:,k);
 
-	    % prediction
-	    m_ = ms_(:,k+1);
-	    P_ = Ps_(:,:,k+1);
+	    % prediction distribution
+	    m_ = mm_(:,k);
+	    P_ = PP_(:,:,k);
 	    
 	    % the cross-covariance
-	    C = Ds(:,:,k+1);
-	    
+	    C = CC(:,:,k);	    
 
-	    % store the current values
-	    m_s_ = m_s;
-	    P_s_ = P_s;
-	    
-
-	    % update
 	    G = C / P_;
-	    m_s = m + G*(m_s-m_);
+	    D = G*P_s;
+        
+        m_s = m + G*(m_s-m_);
 	    P_s = P +G*(P_s-P_)*G';
-	    D = G*P_s_;
-        
-	    % remember m_s_ and P_s_ have one higher k!
-        % with this order m3(1:xDim,:) gets m_1:T - m_T:T
-        % and m_0:T is m3(xDim+1:end,1)
-        %m3 = [m_s_;m_s];
-	    %P3 = [P_s_ D; D P_s];
-        
-        
-        m3 = [m_s;m_s_];
-        P3 = [P_s G*P_s_; P_s_*G' P_s_];
-        
-        %[I2_,I3_] = LBIntegrals(m3,P3);
-        %I2 = I2+I2_;I3 = I3+I3_;
-        
-	    mF(:,k+1) = m3;
-	    PF(:,:,k+1) = P3;
+	    
+                        
+	    mm(:,k) = m_s;
+	    PP(:,:,k) = P_s;
+        DD(:,:,k) = D;
         
     end
 
