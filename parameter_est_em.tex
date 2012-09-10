@@ -343,49 +343,54 @@ As in \eqref{eq:joint_smoothing}, let us also denote the joint smoothing distrib
 Then by applying the manipulation
 \begin{align}
 \begin{split}
-&\E{\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)\left(\v{x}_k-\v{A}\v{x}_{k-1}\right)^\tr}\\
-=&\bm{\v{I} \\ -\v{A}^\tr}^\tr	
+&\E{\left(\v{A}\v{x}_{k-1}-\v{x}_k\right)\left(\v{A}\v{x}_{k-1}-\v{x}_k\right)^\tr}\\
+=&\bm{\v{A}^\tr \\ -\v{I}}^\tr	
 \E{
 \begin{bmatrix}
-	\xk\\\xkk
+	\xkk\\\xk
 \end{bmatrix}
 \begin{bmatrix}
-	\xk \\ \xkk	
+	\xkk \\ \xk	
 \end{bmatrix}^\tr
 }
-\bm{\v{I}\\-\v{A}^\tr}	
+\bm{\v{A}^\tr\\-\v{I}}	
 \end{split}
 \end{align}
 we get
 \begin{align}
 	\II{2}&=
-\bm{\v{I} \\ -\v{A}^\tr}^\tr	
+\bm{\v{A}^\tr \\ -\v{I}}^\tr	
 \sum_{k=1}^T\left(\bm{
-		\P_{k|T}&\v{D}_{k-1}^\tr\\
-		\v{D}_{k-1}&\P_{k-1|T}
+		\P_{k-1|T}&\v{D}_{k-1}\\
+		\v{D}_{k-1}^\tr&\P_{k|T}
 	}+\bm{
-		\m_{k|T}\\
-		\m_{k-1|T}
+		\m_{k-1|T}\\
+		\m_{k|T}
 	}\bm{
-		\m_{k|T}\\
-		\m_{k-1|T}
+		\m_{k-1|T}\\
+		\m_{k|T}
 	}^\tr\right)
-\bm{\v{I}\\-\v{A}^\tr} \label{eq:LGSSM_I2}\\
-&=\bm{\v{I} \\ -\v{A}^\tr}^\tr	
+\bm{\v{A}^\tr\\-\v{I}}	\label{eq:LGSSM_I2}\\
+&=%
+%
+\bm{\v{A}^\tr \\ -\v{I}}^\tr	
 %\bm{\P_{k|T}+\m_{k|T}\m_{k|T}^\tr & \left(\P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr\right)^\tr \\ \P_{k,k-1|T}+\m_{k,k-1|T}\m_{k,k-1|T}^\tr & \P_{k-1|T}+\m_{k-1|T}\m_{k-1|T}^\tr }
-\bm{\sum_{k=1}^T\E{\xk\xk^\tr} & \sum_{k=1}^T\E{\xk\xkk^\tr} \\ \sum_{k=1}^T\E{\xkk\xk^\tr} & \sum_{k=1}^T\E{\xkk\xkk^\tr} }
-\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
-&=\bm{\v{I} \\ -\v{A}^\tr}^\tr	
-\bm{\XX_{00} & \XX_{01} \\ \XX_{01}^\tr & \XX_{11} }
-\bm{\v{I}\\-\v{A}^\tr}\nonumber\\
-&=\XX_{00}-\v{A}\XX_{01}^\tr-\XX_{01}\v{A}^\tr+\v{A}\XX_{11}\v{A}^\tr\nonumber\\
-&=\left(\v{A}-\XX_{01}\XX_{11}^{-1}\right)\XX_{11}\left(\v{A}-\XX_{01}\XX_{11}^{-1}\right)^\tr+\XX_{00}+\XX_{01}\XX_{11}^{-1}\XX_{01}^\tr.
+\bm{\sum_{k=1}^T\E{\xkk\xkk^\tr} & \sum_{k=1}^T\E{\xkk\xk^\tr} \\ \sum_{k=1}^T\E{\xk\xkk^\tr} &
+\sum_{k=1}^T\E{\xk\xk^\tr} } \bm{\v{A}^\tr\\-\v{I}}	\nonumber\\
+%
+&=%
+\bm{\v{A}^\tr \\ -\v{I}}^\tr	
+\bm{\XX_{11} & \XX_{10} \\ \XX_{10}^\tr & \XX_{00} }
+\bm{\v{A}^\tr\\-\v{I}}	\nonumber\\
+%
+&=\XX_{00}-\v{A}\XX_{10}-\XX_{10}^\tr\v{A}^\tr+\v{A}\XX_{11}\v{A}^\tr\nonumber\\
+&=\left(\v{A}-\XX_{10}^\tr\XX_{11}^{-1}\right)\XX_{11}\left(\v{A}-\XX_{10}^\tr\XX_{11}^{-1}\right)^\tr+\XX_{00}+\XX_{10}^\tr\XX_{11}^{-1}\XX_{10}.
 \label{eq:Amax}
 \end{align}
 It's easy to see that the extremum value of the last line with respect to $\v{A}$
 is obtained by setting
 \begin{align}
-	\v{A}_{j+1}&=\XX_{01}\XX_{11}^{-1} \label{eq:EM_M_A}.	
+	\v{A}_{j+1}&=\XX_{10}^\tr\XX_{11}^{-1} \label{eq:EM_M_A}.	
 \end{align}
 For $\II{3}$ we get
 \begin{align}
@@ -567,7 +572,7 @@ both the mean and the variance depend on the scalar parameter $\theta$. We get
 	\dpd{}{\theta}&\log\N[\x]{\m}{\P}\\
 	&=-\frac{1}{2}\dpd{}{\theta}\brak*{(\x-\m)^\tr\P^{-1}(\x-\m)}-\frac{1}{2}\dpd{}{\theta}\log\detr\P\\		
 	&=-\frac{1}{2}\dpd{}{\theta}\Tr{\P^{-1}(\x-\m)(\x-\m)^\tr}-\frac{1}{2}\Tr{\P^{-1}\dpd{\P}{\theta}}\\		
-	&=\frac{1}{2}\Tr{\P^{-1}\fparen*{\dpd{\P}{\theta}\P^{-1}(\x-\m)(\x-\m)^\tr+2\dpd{\m}{\theta}(\x-\m)^\tr+\dpd{\P}{\theta}}}		
+	&=\frac{1}{2}\Tr{\P^{-1}\fparen*{\dpd{\P}{\theta}\P^{-1}(\x-\m)(\x-\m)^\tr+2\dpd{\m}{\theta}(\x-\m)^\tr-\dpd{\P}{\theta}}}		
 	%&= \fparen*{\fparen*{2\pi}^{d_x}\detr\P}^{-\sfrac{1}{2}}\exp\fparen*{-\frac{1}{2}
 	%\Tr{\P^{-1}\bm{\v{I}\\-\v{I}}^\tr\bm{\x\\\m}\bm{\x\\\m}^\tr\bm{\v{I}\\-\v{I}}}},		
 \end{align}
@@ -589,19 +594,19 @@ and
 	\dpd{\gv{\Sigma}_0}{\theta_i}\gv{\Sigma}_0^{-1}
 	\II{1}
 	+2\dpd{\gv{\mu}_0}{\theta_i}\left(\m_{0|T}-\gv{\mu}_0\right)^\tr
-	+\dpd{\gv{\Sigma}_0}{\theta_i}\bigg)\bigg]\\
+	-\dpd{\gv{\Sigma}_0}{\theta_i}\bigg)\bigg]\\
 %	
 	+&\frac{1}{2}\mathrm{Tr}\!\bigg[\v{Q}^{-1}\bigg(\dpd{\v{Q}}{\theta_i}\v{Q}^{-1}
 	\II{2}
 	+2\sum_{k=1}^T\E[\Big]{\dpd{\ff}{\theta_i}\x_k^\tr}\\%
 	&\qquad-2\sum_{k=1}^T\E[\Big]{\dpd{\ff}{\theta_i}\ff^\tr}
-	+T\dpd{\v{Q}}{\theta_i}\bigg)\bigg]\\
+	-T\dpd{\v{Q}}{\theta_i}\bigg)\bigg]\\
 %	
 	+&\frac{1}{2}\mathrm{Tr}\!\bigg[\v{R}^{-1}\bigg(\dpd{\v{R}}{\theta_i}\v{R}^{-1}
 	\II{3}
 	+2\sum_{k=1}^T\E[\Big]{\dpd{\hh}{\theta_i}}\y_k^\tr\\
 	&\qquad-2\sum_{k=1}^T\E[\Big]{\dpd{\hh}{\theta_i}\hh^\tr}
-	+T\dpd{\v{R}}{\theta_i}\bigg)\bigg].
+	-T\dpd{\v{R}}{\theta_i}\bigg)\bigg].
 \end{split}	
 \end{align}
 In order to gather the computations needed evaluate $\EMQ$ and $\nabla_{\Th}\EMQ$ given the sufficient statistics

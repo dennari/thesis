@@ -22,7 +22,7 @@ m0 = 0;
 P0 = 1;
 p0 = {a,q,1,r,0};
 [ms,Ps,ms_,Ps_,Ds] = SigmaFilter(p0,y,[],[],[],[],m0,P0);
-[JM,JP] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
+[JM,JP] = OldSigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
 
 figure(1); clf;
 subplot(2,1,1);
@@ -41,7 +41,7 @@ model.f = @(x,k,p) p{1}*x;
 model.gradDim = 1;
 model.grad = @AR1Grad;
 
-NN = 250;
+NN = 15;
 as = linspace(0.2,0.8,NN);
 lhs = zeros(1,NN);
 glhs = lhs;
@@ -52,7 +52,7 @@ for k=1:NN
     [ms,Ps,ms_,Ps_,Ds,lh,glh] = SigmaFilter(p0,y,[],[],[],[],m0,P0);
     lhs(k) = lh;
     glhs(k) = glh;
-    [JM,JP] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
+    [JM,JP] = OldSigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
     [lb,glb] = EM_LB_Sigma(model,p0,y,JM,JP);
     lbs(k) = lb;
     glbs(k) = glb;
@@ -60,7 +60,7 @@ end
 
 figure(1); clf;
 subplot(2,1,1); 
-plot(as,lhs,as,lbs+(lhs(2)-lbs(2))); grid ON;
+plot(as,lhs); grid ON;
 subplot(2,1,2);
 plot(as,glhs,as,glbs); grid ON;
 
@@ -74,14 +74,17 @@ model.f = @(x,k,p) p{1}*x;
 model.gradDim = 2;
 model.grad = @AR1Grad;
 
-NN = 100;
-qs = linspace(0.2,0.8,NN);
+NN = 20;
+qs = linspace(0.4,0.6,NN);
+lhs = zeros(1,NN);
 lbs = lhs;
 glbs = lhs;
 for k=1:NN
     p0 = {a,qs(k),1,r,0};
     [ms,Ps,ms_,Ps_,Ds,lh,glh] = SigmaFilter(p0,y,[],[],[],[],m0,P0);
-    [JM,JP] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
+    lhs(k) = lh;
+    glhs(k) = glh;
+    [JM,JP] = OldSigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
     [lb,glb] = EM_LB_Sigma(model,p0,y,JM,JP);
     lbs(k) = lb;
     glbs(k) = glb(2);
@@ -89,9 +92,9 @@ end
 
 figure(1); clf;
 subplot(2,1,1); 
-plot(qs,lbs); grid ON;
+plot(qs,lhs); grid ON;
 subplot(2,1,2);
-plot(qs,glbs); grid ON;
+plot(qs,glhs,qs,glbs); grid ON;
 
 
 %% try maximization with BFGS

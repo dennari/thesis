@@ -63,11 +63,13 @@ if isfield(model,'gradDim') && model.gradDim > 0
     for j=1:model.gradDim
         [dSig,dmu,dQ,df,dR,dh] = model.grad(j,p,JM,JP);
         % x_0
-        glb1 = P0\(dSig/P0*I1+2*dmu*(JM(older,1)-m0)+dSig);
+        glb1 = P0\(dSig/P0*I1+2*dmu*(JM(older,1)-m0)-dSig);
         % x_k|x_(k-1)
-        glb2 = Q\(dQ/Q*I2+2*df+N*dQ);
+        glb2 = Q\(dQ/Q*I2+2*df-N*dQ);
+        %glb2 = I2/Q^2-N/Q;
+        
         % y_k|x_k
-        glb3 = R\(dR/R*I3+2*dh+N*dR);
+        glb3 = R\(dR/R*I3+2*dh-N*dR);
 		
         glb(j) = 0.5*(trace(glb1)+trace(glb2)+trace(glb3));
     end

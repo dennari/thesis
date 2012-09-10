@@ -3,7 +3,7 @@
 global dt P0 H A g0x g0y
 
 T = 15;
-N = 1000;
+N = 350;
 dt = T/N;
 K = (0:N)*dt;
 
@@ -95,41 +95,58 @@ p{5} = r;
 h = @(x,k,p) H*x;
 f = @(x,k,p) A*x;
 
-NN = 80;
-as = linspace(2,3,NN);
+NN = 150;
+as = linspace(0.02,0.05,NN);
 lhs = zeros(1,NN);
-lhsSR = lhs;
 glhs = lhs;
-lbs = lhs;
-lbsSR = lhs;
 glbs = lhs;
-glbsSR = lhs;
-p0 = {A,Q,H,R};
-for k=1:NN
+
+
+MM = zeros(6,N+1); MM_ = MM;
+MM(:,1) = m0;
+PP = zeros(6,6,N+1); PP_ = PP;
+PP(:,:,1) = P0;
+dm0 = zeros(6,1);
+dP0 = zeros(6);
+for j=1:NN
     %k
     %as(k)
-    %p0{2} = ballisticQ(as(k),qy);
-    p0{4} = as(k)*eye(2);
-    [ms,Ps,ms_,Ps_,Ds,lh] = SigmaFilter(p0,ys,[],[],[],[],m0,P0);
-    [JM,JS] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
-    lhs(k) = lh;
+    Q = ballisticQ(as(j),qy);
+    %R = as(j)*eye(2);
+    m = m0; P = P0; lh = 0;glh = 0;dm = dm0; dP = dP0;
+    for k=1:(N+1)
     
-    p{5} = as(k);
-    [lb,glb] = EM_LB_Ballistic(p,5,ys,JM,JS);
+        %[m,P,C] = SigmaKF_Predict(m,P,f,Q,usig,w);
+        [m,P] = kf_predict(m,P,A,Q);
+        MM_(:,k) = m;
+        PP_(:,:,k) = P;
+        %CC(:,:,k) = C;
+    
+        if k==N+1; break; end; 
 
-    lbs(k) = lb;
-    glbs(k) = glb;
+        %[m,P,C,S,d] = SigmaKF_Update(m,P,y(:,k),h,R,usig,w);
+        [m,P,IM,IS] = kf_update(m,P,ys(:,k),H,R);
+        MM(:,k+1) = m;
+        PP(:,:,k+1) = P;
+        lh = lh + likelihood(ys(:,k)-IM,IS);
+    end
+    [MS,PS,D,DD] = rts_smooth(MM,PP,A,Q);
+    lhs(j) = lh;
+    
+    
+    [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD);
+    glb = EM_LB_Ballistic(Q,R,m0,3,N,I1,I2,I3);
+
+    glbs(j) = glb;
 end
 
+n = 2;
 figure(1); clf;
-subplot(3,1,1); 
+subplot(n,1,1); 
 plot(as,lhs); grid ON; title('Likelihood');
-subplot(3,1,2); 
-plot(as,lbs); grid ON; title('Lower bound');
-subplot(3,1,3);
-plot(as,glbs); grid ON; title('d Lower bound');
-figure(2);clf;
-plot(as,lhs-lbs);grid on;
+subplot(n,1,2); 
+plot(as,glbs); grid ON; title('dLH');
+%figure(2);clf;
 
 % figure(3); clf;
 % subplot(3,1,1); 
