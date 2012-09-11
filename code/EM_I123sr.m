@@ -1,5 +1,4 @@
 function [I1,I2,I3] = EM_I123(A,H,m0,Y,MS,PS,DD)
-% DD - smoother gains
 
 N = size(Y,2);
 d = MS(:,1)-m0;
@@ -26,8 +25,8 @@ for k=1:N
     y = Y(:,k);
     
     mj = [MS(:,k);MS(:,k+1)];
-    Pj = [PS(:,:,k)   DD(:,:,k)*PS(:,:,k+1); 
-          PS(:,:,k+1)*DD(:,:,k)'  PS(:,:,k+1)];
+    Pj = [PS(:,:,k)   DD(:,:,k); 
+          DD(:,:,k)'  PS(:,:,k+1)];
 %     
      I2 = I2 + Pj + mj*mj';
      X00 = PS(:,:,k+1)+MS(:,k+1)*MS(:,k+1)';

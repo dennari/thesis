@@ -2,22 +2,24 @@
 
 global dt P0 H A g0x g0y
 
-T = 15;
-N = 350;
+T = 10;
+N = 5000;
 dt = T/N;
 K = (0:N)*dt;
+v0 = 150/3.6; % magnitude of the initial velocity
+qx = (dt*v0)^2;
+qy = qx/1e2;
 
-qx = (7*dt)^2;
-qy = (dt)^2;
-v0 = 40; % magnitude of the initial velocity
-alpha0 = 50/360*2*pi; % initial direction
+alpha0 = (70/180)*pi; % initial direction
 v0x = v0*cos(alpha0);
 v0y = v0*sin(alpha0);
 g0y = -9.81; % initial y acceleration
 g0x = 0; % initial x acceleration
 
 Q = ballisticQ(qx,qy);
-A1 = [1 dt dt^2/2; 0 1 dt; 0 0 1]; % for one dimension
+A1 = [1 dt dt^2/2; 
+      0  1 dt; 
+      0  0 1]; % for one dimension
 A = blkdiag(A1,A1); % for two dimensions
 H = zeros(2,6); H(1,1) = 1; H(2,4) = 1;
 r = 2.5;
@@ -35,8 +37,7 @@ ys = zeros(2,N+1);
 
 % simulate
 x0 = mvnrnd(m0,P0)';
-norm([x0(5) x0(2)])
-atan(x0(5)/x0(2))*360/(2*pi)
+atan(x0(5)/x0(2))*180/pi
 
 x = x0;
 xs(:,1) = x0;
@@ -45,21 +46,20 @@ ys(:,1) = H*x0;
 for k=1:N
 	x = mvnrnd(A*x,Q)';
 	xs(:,k+1) = x;
-	%ys(:,k+1) = NaN;
-	%if ~mod(k,skipY)
 	ys(:,k+1) = mvnrnd(H*x,R)';
-	%end
 end
 % the last index where y is still positive
-N = find(xs(4,:)>=0,1,'last');
-K = (0:(N-1))*dt;
-xs = xs(:,1:N);
-ys = ys(:,1:N);
-%yI = ~isnan(ys(1,:));
+% N = find(xs(4,:)>=0,1,'last')
+% K = (0:(N-1))*dt;
+% xs = xs(:,1:N);
+% ys = ys(:,1:N);
 
-figure(1); clf;
-plot(xs(1,:),xs(4,:),ys(1,:),ys(2,:),'kx');
-figure(2); clf;
+
+
+
+figure(4); clf;
+plot(xs(1,:),xs(4,:),ys(1,:),ys(2,:),'kx');%MM(1,:),MM(4,:),MS(1,:),MS(4,:));
+figure(5); clf;
 subplot(3,2,1);
 plot(K,xs(1,:)); 
 subplot(3,2,2);
@@ -75,6 +75,9 @@ plot(K,xs(6,:));
 %p0 = {A,Q,H,R};
 %[ms,Ps,ms_,Ps_,Ds,lh] = SigmaFilter(p0,ys,[],[],[],[],m0,eye(6));
 %[ms,Ss,lh] = SigmaFilterSR(p0,ys,[],[],[],[],m0,eye(6));
+ 
+
+
 
 
 %% Compute LH and gradient on grid
@@ -82,70 +85,41 @@ plot(K,xs(6,:));
 % parameters are 
 % p{1}=v0x, x component of the mean of the initial velocity
 % p{2}=v0y, y component of the mean of the initial velocity 
-% p{3}=qx, x process variance
-% p{4}=qy, y process variance
-% p{5}=r, measurement variance
+% p{3}=qx,  x process variance
+% p{4}=qy,  y process variance
+% p{5}=r,   measurement variance
 % set up the starting point
-p{1} = v0x;
-p{2} = v0y;
-p{3} = qx;
-p{4} = qy;
-p{5} = r;
-
-h = @(x,k,p) H*x;
-f = @(x,k,p) A*x;
-
-NN = 150;
-as = linspace(0.02,0.05,NN);
-lhs = zeros(1,NN);
-glhs = lhs;
-glbs = lhs;
+p = [v0x v0y qx qy r];
+NN = 25;
+lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
-MM = zeros(6,N+1); MM_ = MM;
-MM(:,1) = m0;
-PP = zeros(6,6,N+1); PP_ = PP;
-PP(:,:,1) = P0;
-dm0 = zeros(6,1);
-dP0 = zeros(6);
+gi = 3;
+
+as = linspace(0.7*qx,1.8*qx,NN);
 for j=1:NN
-    %k
-    %as(k)
-    Q = ballisticQ(as(j),qy);
-    %R = as(j)*eye(2);
-    m = m0; P = P0; lh = 0;glh = 0;dm = dm0; dP = dP0;
-    for k=1:(N+1)
-    
-        %[m,P,C] = SigmaKF_Predict(m,P,f,Q,usig,w);
-        [m,P] = kf_predict(m,P,A,Q);
-        MM_(:,k) = m;
-        PP_(:,:,k) = P;
-        %CC(:,:,k) = C;
-    
-        if k==N+1; break; end; 
+    %Q = ballisticQ(as(j),qy);
+    p(gi) = as(j);
+    lh = Ballistic_LH(p,ys);
 
-        %[m,P,C,S,d] = SigmaKF_Update(m,P,y(:,k),h,R,usig,w);
-        [m,P,IM,IS] = kf_update(m,P,ys(:,k),H,R);
-        MM(:,k+1) = m;
-        PP(:,:,k+1) = P;
-        lh = lh + likelihood(ys(:,k)-IM,IS);
-    end
-    [MS,PS,D,DD] = rts_smooth(MM,PP,A,Q);
+    %[MS,PS,DD] = rts_smooth(MM,PP,A,Q); % D = Smoother Gain
     lhs(j) = lh;
+    %glhs(j) = glh;
     
-    
-    [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD);
-    glb = EM_LB_Ballistic(Q,R,m0,3,N,I1,I2,I3);
+    %[I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD);
+    %glb = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
 
-    glbs(j) = glb;
+    %glbs(j) = glb;
 end
 
-n = 2;
-figure(1); clf;
-subplot(n,1,1); 
+n = 3;
+figure(4); clf;
+%subplot(n,1,1); 
 plot(as,lhs); grid ON; title('Likelihood');
-subplot(n,1,2); 
-plot(as,glbs); grid ON; title('dLH');
+%subplot(n,1,2); 
+%plot(as,glhs); grid ON; title('dLH');
+%subplot(n,1,3); 
+%plot(as,glbs); grid ON; title('dLB');
 %figure(2);clf;
 
 % figure(3); clf;
@@ -157,6 +131,43 @@ plot(as,glbs); grid ON; title('dLH');
 % plot(as,glbsSR); grid ON; title('d Lower bound SR');
 % figure(4);clf;
 % plot(as,lhsSR-lbsSR);grid on;
+%% Test BFGS optimization
+
+gi = 3;
+f = @(x) Ballistic_LH([v0x v0y x qy r],ys,gi,-1);
+opt = optimset(@fminunc);
+opt.GradObj = 'on';
+opt.TolFun = 1e-15;
+opt.TolX = 1e-7;
+%opt.Display = 'off';
+init = 0.7*qx;
+[x,VAL,EF,OP,GRAD] = fminunc(f,init,opt)
+
+%% Test EM optimization
+gi = 3;
+p = [v0x v0y 0.8*qx qy r]; % initial guess
+p_ = p;
+%p = {ballisticQ(0.8*qx,qy),R,v0x,v0y};
+lh_ = 0;
+tol_lh = 1e-6;
+tol_delta = 1e-2;
+for k=1:1000
+  % E-Step
+  p(3)
+  %pause 
+  [lh,~,MM,PP] = Ballistic_LH(p,ys);
+  if( abs(lh_-lh) < tol_lh && mean(abs(p_(gi)-p(gi))) < tol_delta ); break; end; 
+  %lh_-lh
+  lh_ = lh;
+  p_ = p;
+  
+  [MS,PS,DD] = rts_smooth(MM,PP,A,ballisticQ(p(3),p(4)));
+  %[MS,PS,DD] = rts_smooth(MM,PP,A,p{1});
+  [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD);
+  % M-Step
+  p = EM_M_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
+  
+end
 
 
 
