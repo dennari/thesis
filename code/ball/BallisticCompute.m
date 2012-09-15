@@ -41,7 +41,7 @@ min_iter_em =   10;
 max_iter_em =   10;
 min_iter_bfgs = 15;
 max_iter_bfgs = 15;
-NN = 20;
+NN = 200;
 est_em =   zeros(numel(gi),max_iter_em,NN);
 est_bfgs = zeros(numel(gi),max_iter_bfgs,NN);
 
@@ -56,7 +56,7 @@ xs(:,1) = x0;
 ys(:,1) = H*x0;
 
 for k=1:NN
-  
+  k 
   % SIMULATE
   x = x0;
   for j=2:N+1
