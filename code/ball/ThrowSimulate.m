@@ -2,15 +2,15 @@
 
 global dt P0 H A g0x g0y
 
-T = 10;
+T = 7.5;
 N = 5000;
 dt = T/N;
 K = (0:N)*dt;
 v0 = 150/3.6; % magnitude of the initial velocity
-qx = (dt*v0)^2;
-qy = qx/1e2;
+qx = 0.8;
+qy = qx;
 
-alpha0 = (70/180)*pi; % initial direction
+alpha0 = (60/180)*pi; % initial direction
 v0x = v0*cos(alpha0);
 v0y = v0*sin(alpha0);
 g0y = -9.81; % initial y acceleration
@@ -22,12 +22,12 @@ A1 = [1 dt dt^2/2;
       0  0 1]; % for one dimension
 A = blkdiag(A1,A1); % for two dimensions
 H = zeros(2,6); H(1,1) = 1; H(2,4) = 1;
-r = 2.5;
-R = r^2*eye(2);
+r = qx/1000;%2.5;
+R = r*eye(2);
 
 
 m0 = [0 v0x g0x 0 v0y g0y]';
-P0 = diag([1e-6 7^2 1e-6 1e-6 7^2 1e-6]);
+P0 = diag([1e-6 7^-2 1e-6 1e-6 7^-2 1e-6]);
 
 %% Simulate
 
@@ -57,9 +57,10 @@ end
 
 
 
-figure(4); clf;
-plot(xs(1,:),xs(4,:),ys(1,:),ys(2,:),'kx');%MM(1,:),MM(4,:),MS(1,:),MS(4,:));
 figure(5); clf;
+plot(xs(1,:),xs(4,:),ys(1,:),ys(2,:),'kx');%MM(1,:),MM(4,:),MS(1,:),MS(4,:));
+axis equal; grid on;
+figure(7); clf;
 subplot(3,2,1);
 plot(K,xs(1,:)); 
 subplot(3,2,2);
@@ -96,15 +97,15 @@ lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 gi = 3;
 
-as = linspace(0.7*qx,1.8*qx,NN);
+as = linspace(0.8*qx,1.2*qx,NN);
 for j=1:NN
     %Q = ballisticQ(as(j),qy);
-    p(gi) = as(j);
-    lh = Ballistic_LH(p,ys);
+    p(gi) = as(j)
+    [lh,glh] = Ballistic_LH(p,ys,gi);
 
     %[MS,PS,DD] = rts_smooth(MM,PP,A,Q); % D = Smoother Gain
     lhs(j) = lh;
-    %glhs(j) = glh;
+    glhs(j) = glh;
     
     %[I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD);
     %glb = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
@@ -112,12 +113,12 @@ for j=1:NN
     %glbs(j) = glb;
 end
 
-n = 3;
+n = 2;
 figure(4); clf;
-%subplot(n,1,1); 
-plot(as,lhs); grid ON; title('Likelihood');
-%subplot(n,1,2); 
-%plot(as,glhs); grid ON; title('dLH');
+subplot(n,1,1); 
+plot(as,lhs,[qx qx],[min(lhs) max(lhs)],'-r'); grid ON; title('Likelihood');
+subplot(n,1,2); 
+plot(as,glhs,[qx qx],[min(glhs) max(glhs)],'-r'); grid ON; title('dLH');
 %subplot(n,1,3); 
 %plot(as,glbs); grid ON; title('dLB');
 %figure(2);clf;
@@ -132,16 +133,40 @@ plot(as,lhs); grid ON; title('Likelihood');
 % figure(4);clf;
 % plot(as,lhsSR-lbsSR);grid on;
 %% Test BFGS optimization
-
+NN = 10;
 gi = 3;
-f = @(x) Ballistic_LH([v0x v0y x qy r],ys,gi,-1);
 opt = optimset(@fminunc);
 opt.GradObj = 'on';
-opt.TolFun = 1e-15;
+%opt.TolFun = 1e-15;
 opt.TolX = 1e-7;
 %opt.Display = 'off';
 init = 0.7*qx;
-[x,VAL,EF,OP,GRAD] = fminunc(f,init,opt)
+qqxs = zeros(1,NN);
+for j = 1:NN
+
+  xs = zeros(6,N+1);ys = zeros(2,N+1);
+
+  % simulate
+  x0 = mvnrnd(m0,P0)';
+  atan(x0(5)/x0(2))*180/pi
+
+  x = x0;
+  xs(:,1) = x0;
+  ys(:,1) = H*x0;
+
+  for k=1:N
+    x = mvnrnd(A*x,Q)';
+    xs(:,k+1) = x;
+    ys(:,k+1) = mvnrnd(H*x,R)';
+  end
+
+
+  f = @(x) Ballistic_LH([v0x v0y x qy r],ys,gi,-1);
+  [qqx,VAL,EF,OP,GRAD] = fminunc(f,init,opt);
+  qqxs(j) = qqx;
+  %abs(x-qx)/qx
+end
+mean(abs(qqxs-qx)/qx)
 
 %% Test EM optimization
 gi = 3;

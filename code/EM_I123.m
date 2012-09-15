@@ -1,14 +1,14 @@
 function [I1,I2,I3] = EM_I123(A,H,m0,Y,MS,PS,DD)
 % DD - smoother gains
 
-N = size(Y,2);
+N = size(Y,2)-1; % it is assumed that there's a 'measurement' for x0
 d = MS(:,1)-m0;
 I1 = PS(:,:,1)+d*d';
 I2 = 0;
 I3 = 0;	
 
-I2o = 0;
-I3o = 0;	
+% I2o = 0;
+% I3o = 0;	
 
 xDim = size(A,1);
 yDim = size(H,1);
@@ -23,7 +23,7 @@ for k=1:N
     %mj = MS(:,j);
     %Pj = PS(:,:,j);
     %D = DD(:,:,k);
-    y = Y(:,k);
+    y = Y(:,k+1);
     
     mj = [MS(:,k);MS(:,k+1)];
     Pj = [PS(:,:,k)   DD(:,:,k)*PS(:,:,k+1); 
@@ -37,13 +37,13 @@ for k=1:N
     I3 = I3 + xyj;
     
 %     X11 = PS(:,:,k)+MS(:,k)*MS(:,k)';
-%     X10 = DD(:,:,k)+MS(:,k)*MS(:,k+1)';
-%     
+%     X10 = DD(:,:,k)*PS(:,:,k+1)+MS(:,k)*MS(:,k+1)';
+     
 %     YY = y*y';
 %     XY = MS(:,k+1)*y';
 % 
-%     I2o = I2o + X00 - A*X10 - (A*X10)' + A*X11*A';
-%     I3o = I3o + YY - H*XY - (H*XY)' + H*X00*H';
+%      I2o = I2o + X00 - A*X10 - (A*X10)' + A*X11*A';
+%      I3o = I3o + YY - H*XY - (H*XY)' + H*X00*H';
         
 end
 %disp('----I123--------');

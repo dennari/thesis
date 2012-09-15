@@ -20,10 +20,10 @@ for j=1:numel(gi)
         dA(1,2) = 1;
     end
     if(gi(j)==3) % dlh/dqx
-        dQ = ballisticQ(1,0);
+        dQ = ballisticQ2D(1,0);
     end
     if(gi(j)==4) % dlh/dqy
-        dQ = ballisticQ(0,1);
+        dQ = ballisticQ2D(0,1);
     end
     if(gi(j)==5) % dlh/dr
         dR = eye(size(dR,1));

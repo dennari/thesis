@@ -8,7 +8,7 @@ function [new] = EM_M_Ballistic(p,m0T,gi,N,I1,I2,I3)
 % p{5}=r,   measurement variance
 % gi        a vector of indices to p, specifying the ones that are varying
 
-%global P0 g0x g0y
+global dt
     
 %Q = ballisticQ(p(3),p(4));
 %R = p(5)^2*eye(size(I3,1));
@@ -25,18 +25,18 @@ for j=1:numel(gi)
         if iscell(p)
           new{1} = Q;
         else
-          dQ = ballisticQ(1,0); % the multipliers
-          qI = 1/N*I2(1:3,1:3)/dQ(1:3,1:3);
-          diag(qI)
-          new(3) = qI(3,3);
+          I = I2(1:3,1:3);
+          new(3) = (6*I(1,1) - 3*I(1,2)*dt - 3*I(2,1)*dt + 2*I(2,2)*dt^2)/...
+                   (N*dt^3);
         end
     end
     if(gi(j)==4) % dlb/dqy
-          dQ = ballisticQ(0,1); % the multipliers
-          t = 1/N*I2(4:6,4:6)/dQ(4:6,4:6);
-          new = abs(t(3,3));
+          I = I2(3:4,3:4);
+          new(4) = (6*I(1,1) - 3*I(1,2)*dt - 3*I(2,1)*dt + 2*I(2,2)*dt^2)/...
+                   (N*dt^3);
     end
     if(gi(j)==5) % dlb/dr
+      new(5) = (I3(1,1)+I3(2,2))/(2*N);
     end
 end
 
