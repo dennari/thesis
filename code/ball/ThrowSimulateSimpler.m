@@ -1,6 +1,6 @@
 %% Setup
 
-global dt P0 H A g0x g0y u
+global dt m0 P0 H A g0x g0y u
 
 N = 1500;
 T = 14;
@@ -171,47 +171,73 @@ plot(as(2:end),diff(lhs)./diff(as)); grid ON; title('numd');
 % plot(as,glbsSR); grid ON; title('d Lower bound SR');
 % figure(4);clf;
 % plot(as,lhsSR-lbsSR);grid on;
-%% Test BFGS optimization
-NN = 10;
+%% Test optimizations
 gi = 5;
-opt = optimset(@fminunc);
-opt.GradObj = 'on';
-%opt.TolFun = 1e-15;
-opt.TolX = 1e-7;
-%opt.Display = 'off';
-init = 0.7*qx;
-f = @(xx) Ballistic_LH([v0x v0y qx qy xx],ys,gi,-1);
-[qqx,VAL,EF,OP,GRAD] = fminunc(f,init,opt);
+p_true = [v0x v0y qx qy r]; % initial guess
+true = p_true(gi);
+min_iter_em =   10;
+max_iter_em =   10;
+min_iter_bfgs = 15;
+max_iter_bfgs = 15;
+NN = 20;
+est_em =   zeros(numel(gi),max_iter_em,NN);
+est_bfgs = zeros(numel(gi),max_iter_bfgs,NN);
 
+evals_em = zeros(1,NN);
+evals_bfgs = zeros(2,NN);
 
-%% Test EM optimization
-gi = 5;
-p0 = [v0x v0y qx qy 0.1*r]; % initial guess
-p = p0;
-%p = {ballisticQ(0.8*qx,qy),R,v0x,v0y};
-lh_ = 0;
-tol_lh = 1e-6;
-tol_delta = 1e-3;
-for k=1:1000
-  % E-Step
-  %lh
-  p(gi)
-  %pause 
-  [lh,~,MM,PP,MM_,PP_] = Ballistic_LH(p,ys);
-  if( abs(lh_-lh) < tol_lh && mean(abs(p_(gi)-p(gi))) < tol_delta ); break; end; 
-  %lh_-lh
-  lh_ = lh;
-  p_ = p;
+xs = zeros(4,N+1);
+ys = zeros(2,N+1);
+
+% simulate
+x0 = m0;%mvnrnd(m0,P0)';
+xs(:,1) = x0;
+ys(:,1) = H*x0;
+
+for k=1:NN
   
-  [MS,PS,DD] = rts_smooth2(MM,PP,MM_,PP_,A);
-  [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD);
-  % M-Step
-  p = EM_M_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
+  % SIMULATE
+  x = x0;
+  for j=2:N+1
+    x = mvnrnd(A*x,Q)'+u;
+    xs(:,j) = x;
+    ys(:,j) = mvnrnd(H*x,R)';
+  end
   
+  % INITIAL POINT
+  p0 = p_true;
+  p0(gi) = p0(gi)*(rand+0.5);
+  
+  % EM
+  tic;
+  [~,~,vals] = Ballistic_EM(p0,gi,ys,[],[],max_iter_em,min_iter_em);
+  tm = toc;
+  est_em(:,:,k) = vals;
+  evals_em(1,k) = tm;
+  
+  % BFGS
+  tic;
+  [~,~,vals,fcn_evals] = Ballistic_BFGS(p0,gi,ys,[],[],max_iter_bfgs,min_iter_bfgs);
+  tm = toc;
+  num = size(vals,2);
+  est_bfgs(:,1:num,k) = vals;
+  if num < max_iter_bfgs
+    est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
+  end
+  evals_bfgs(:,k) = [tm;fcn_evals];
 end
-p(gi)
 
 
+
+figure(1); clf;
+est_em1 =   reshape(est_em,[max_iter_em NN  1]);
+est_bfgs1 = reshape(est_bfgs,[max_iter_bfgs NN 1]);
+subplot(2,1,1);
+plot(1:max_iter_em,-1*(true-est_em1)./true,'-b');
+ylim([-0.5,0.5]);xlim([1,max_iter_em]);
+subplot(2,1,2);
+plot(1:max_iter_bfgs,(-1*(true-est_bfgs1)./true),'-b');
+ylim([-0.5,0.5]);xlim([1,max_iter_bfgs]);
 
 %% Plot
 
