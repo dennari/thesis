@@ -2,7 +2,7 @@
 
 global dt m0 P0 H A g0x g0y u
 
-N = 1500;
+N = 5000;
 T = 14;
 dt = T/N;
 
