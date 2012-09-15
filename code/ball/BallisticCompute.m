@@ -88,8 +88,8 @@ for k=1:NN
   evals_bfgs(:,k) = [tm;fcn_evals];
 end
 
-save(sprintf('../data/BallisticResults%.0f.mat',NN),...
-     'est_em','evals_em','est_bfgs','evals_bfgs');
+save(sprintf('../data/BallisticResultsR%.0f.mat',NN),...
+     'est_em','evals_em','max_iter_em','p_true','est_bfgs','evals_bfgs','max_iter_bfgs');
 
 
 
