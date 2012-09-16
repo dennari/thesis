@@ -28,7 +28,7 @@ gamma = 0;              % D amping parameter
 A = 0.5; 
 fr = A*sin(2*pi*0.1*T)+1.5*A;
 
-c = 2; % number of harmonics (including the fundamental frequency)
+c = 3; % number of harmonics (including the fundamental frequency)
 XD = 2*c+1;
 H = [0 repmat([1 0],1,c)];
 sim = zeros(2,N,c);

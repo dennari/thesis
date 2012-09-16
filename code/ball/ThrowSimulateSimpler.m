@@ -22,19 +22,24 @@ g0y = -9.81; % initial y acceleration
 g0x = -1; % initial x acceleration
 
 Q = ballisticQ2D(qx,qy);
+SQ = chol(Q,'lower');
 A1 = [1 dt; 
       0 1];  
 A = blkdiag(A1,A1); % for two dimensions
+f = @(x) A*x;
 H = zeros(2,4); H(1,1) = 1; H(2,3) = 1;
 r = (0.9)^2;
+h = @(x) H*x;
 R = r*eye(2);
+SR = sqrt(r)*eye(2);
 u = [0 dt*g0x 0 dt*g0y]';
 
 m0 = [0 v0x 0 v0y]';
 P0 = eye(size(m0,1));%diag([1e-6 7^-2 1e-6 7^-2]);
 
 %% Simulate
-
+[usig,w] = CKFPoints(size(A,1));
+w(:,2) = sqrt(w(:,1)); % add weights for square root filt/smooth
 xs = zeros(4,N+1);
 %skipY = 4;
 ys = zeros(2,N+1);
@@ -52,24 +57,33 @@ for k=2:N+1
 	xs(:,k) = x;
 	ys(:,k) = mvnrnd(H*x,R)';
 end
-% the last index where y is still positive
-% N = find(xs(4,:)>=0,1,'last')
-% K = (0:(N-1))*dt;
-% xs = xs(:,1:N);
-% ys = ys(:,1:N);
+%u = zeros(size(x));
 y = ys;
 xDim = size(A,1);
 MM = zeros(xDim,N+1); MM(:,1) = m0;
 PP = zeros(xDim,xDim,N+1); PP(:,:,1) = P0;
 dm0 = zeros(xDim,1); dP0 = zeros(xDim);
-m = m0; P = P0; lh = 0; 
+m = m0; P = P0; lh = 0; m2 = m0; S = P0;
 dm = dm0; dP = dP0;
 for k=1:(N+1)
-    [m_,P_] = kf_predict(m,P,A,Q,u);
-
+    [m_,P_] = kf_predict(m,P,A,Q,[],u);
+    [m2_,S_] = SigmaKF_Predict(m2,S,f,SQ,u,usig,w);
     if k==N+1; break; end; 
 
     [m,P,~,IM,IS] = kf_update(m_,P_,y(:,k+1),H,R);
+    [m2,S,~,IM,IS] = SigmaKF_Update(m2_,S_,y(:,k+1),h,SR,usig,w);
+    
+    
+    if k < 10
+      P2_ = S_*S_';
+      P2 = S*S';
+      disp([rmse(m_,m2_)
+            rmse(P_(:),P2_(:))
+            rmse(m,m2)
+            rmse(P(:),P2(:))]);
+      
+    end
+    
     MM(:,k+1) = m;
     PP(:,:,k+1) = P;
     %likelihood(y(:,k+1)-IM,IS)
@@ -123,8 +137,8 @@ plot(K,squeeze(PP(3,3,:)));
 % set up the starting point
 p0 = [v0x v0y qx qy r];
 p = p0;
-NN = 250;
-lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
+NN = 100;
+lhs = zeros(2,NN); glhs = lhs; glbs = lhs;
 
 
 gi = 3;
@@ -132,33 +146,53 @@ gi = 3;
 %as = linspace(0.5*qx,1.5*qx,NN);
 as = linspace(0.5*p0(gi),1.5*p0(gi),NN);
 
-for j=1:NN
-    %Q = ballisticQ(as(j),qy);
-    j
-    p(gi) = as(j);
-    %p(gi)
-    [lh,glh,MM,PP,MM_,PP_] = Ballistic_LH(p,ys,gi);
 
-    lhs(j) = lh;
-    glhs(j) = glh;
+for j=1:NN
+  j
+    p(gi) = as(j);
     
+    % Basic filter and smoother
+    [lh,glh,MM,PP,MM_,PP_] = Ballistic_LH(p,ys,gi);
+    lhs(1,j) = lh;
+    glhs(1,j) = glh;
     [MS,PS,DD] = rts_smooth2(MM,PP,MM_,PP_,A); % D = Smoother Gain
     [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD);
-    glb = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
-
-    glbs(j) = glb;
+    glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
+    
+    % Sigma Filter and Smoother
+    [lh,glh,MMM,SSS] = Ballistic_LH_Sigma(p,ys,gi);
+    lhs(2,j) = lh;
+    glhs(2,j) = glh;
+    %SQ = chol(ballisticQ2D(p(3),p(4)),'lower');
+    [MMS,SS,DD] = SigmaSmoothSR(MMM,SSS,f,SQ,u,usig,w); % D = Smoother Gain
+    [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DD);
+    glbs(2,j) = EM_LB_Ballistic(p,MMS(:,1),gi,N,I1,I2,I3);
+    
 end
 
-n = 3;
-figure(4); clf;
-subplot(n,1,1); 
-plot(as,lhs,[p0(gi) p0(gi)],[min(lhs) max(lhs)],'-r'); grid ON; title('Likelihood');
-subplot(n,1,2); 
-plot(as,glhs,as,glbs,[p0(gi) p0(gi)],[min(glhs) max(glhs)],'-r'); grid ON; title('dLH');
+n = 3; m= 2;
+figure(1); clf;
+subplot(n,m,1);
+plot(as,lhs'); grid on;
+subplot(n,m,3);
+plot(as,glhs'); grid on;
+subplot(n,m,5);
+plot(as,glbs'); grid on;
+subplot(n,m,2);
+plot(K,MM(1,:)-MMM(1,:));
+subplot(n,m,4);
+plot(K,squeeze(PP(1,1,:))-squeeze(SSS(1,1,:)).^2);
+subplot(n,m,6);
+plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
+plot(glbs(2,:));
+
+%plot(as,lhs,[p0(gi) p0(gi)],[min(lhs) max(lhs)],'-r'); grid ON; title('Likelihood');
+%subplot(n,1,2); 
+%plot(as,glhs,as,glbs,[p0(gi) p0(gi)],[min(glhs) max(glhs)],'-r'); grid ON; title('dLH');
 %hold on
 %plot(as,glbs,'-g'); grid ON;
-subplot(n,1,3); 
-plot(as(2:end),diff(lhs)./diff(as)); grid ON; title('numd');
+%subplot(n,1,3); 
+%plot(as(2:end),diff(lhs)./diff(as)); grid ON; title('numd');
 
 %figure(2);clf;
 

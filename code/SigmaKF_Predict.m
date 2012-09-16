@@ -1,32 +1,22 @@
-function [m,P,C] = SigmaKF_Predict(m,P,f,Q,usig,w)
+function [m,S] = SigmaKF_Predict(m,S,f,SQ,u,usig,w)
 
-
-
-	% the number of sigma points
+  if nargin < 5 || isempty(u)
+    u = zeros(size(m));
+  end
+  if size(w,2) < 2
+    w(:,2) = w(:,1);
+  end
+  wm = w(:,1);
+  wp = w(:,2);
+  
 	NS = size(usig,2);
+  sig=f(S*usig+repmat(m,1,NS))+repmat(u,1,NS);
+  m = sig*wm;
+  
+  [~,S] = qr([(sig-repmat(m,1,NS))*diag(wp) SQ]',0);
+  S = S'; % we want lower triangular
 
-	
-    % PREDICTION, p(x_k|y_1:k-1)=N(mean_pred,P_)
-
-
-    m_rep = repmat(m,1,NS); 
-
-    sig = m_rep+chol(P,'lower')*usig;
-
-
-    % propagate through the dynamics function
-    sigp=f(sig);
-    % apply the integration formula, wi(1,:) are the weights for mean
-    m = sigp*w;
-    m_pred_rep = repmat(m,1,NS);
-
-    % center
-    d = sigp-m_pred_rep;
-    % weight
-    P = d*diag(w)*d'+Q;
-    % compute the cross covariance E[(x_k-1,k-1 - 1-m_k-1,k-1)(x_k,k-1 - m_k,k-1)]
-    C = (sig-m_rep)*diag(w)*(sigp-m_pred_rep)';
-                  
+   
 end
 
 
