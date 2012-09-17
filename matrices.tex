@@ -1,0 +1,53 @@
+
+\section{Cholesky factorization} \label{app:chol}
+
+The Cholesky factor of the symmetric positive definite matrix $\v{P}$ is
+a lower triangular matrix $\v{A}$ such that
+%
+\begin{equation}
+  \v{P} = \v{A} \, \v{A}^T.
+\end{equation}
+%
+The matrix $\v{A}$ can be computed by the Cholesky factorization
+algorithm \citep[see, e.g., ][]{Golub+vanLoan:1996} presented below.
+
+The Cholesky factor
+  $\v{A}$ of matrix $\v{P}$ can be computed as follows:
+\begin{algorithmic}[1]
+\Procedure{chol}{$\v{P}$}
+  \For{$i\gets 1 \ldots n$}
+     \State $A_{ii} = \sqrt{P_{ii} - \sum_{k<i} A^2_{ik}}$
+     \For{$j\gets i+1 \ldots n$}
+        \State $A_{ji} = \left(P_{ji} - \sum_{k<i} A_{jk} \, A_{ik} \right) / A_{ii}$
+     \EndFor
+  \EndFor
+  \State \Return $\v{A}$
+\EndProcedure
+\end{algorithmic}
+%
+The time derivative of the Cholesky factor $\v{D} = \diff \v{A} /
+\diff t$ can be computed once $\v{P}$ and $\diff \v{P} / \diff t$
+are known. The algorithm can be derived by formally differentiating
+the Cholesky factorization algorithm equations.
+
+The time
+ derivative $\v{D}$ of the Cholesky factor of $\v{P}$ can be
+ computed as follows:
+\label{alg:dchol}
+\begin{algorithmic}[1]
+\Procedure{dchol}{$\v{P},\diff \v{P} / \diff t$}
+ \For{$i\gets 1 \ldots n$}
+    \State $A_{ii} \gets \sqrt{P_{ii} - \sum_{k<i} A^2_{ik}}$
+    \State $D_{ii} \gets (\diff P_{ii} / \diff t -
+                     \sum_{k<i} 2 D_{ik} \, A_{ik}) / A_{ii} / 2$
+    \For{$j\gets i+1 \ldots n$}
+       \State $A_{ji} \gets (P_{ji} - \sum_{k<i} A_{jk} \, A_{ik}) / A_{ii}$
+       \State $\vhrm{temp} \gets \diff P_{ji} / \diff t
+              - \sum_{k<i} (D_{jk} \, A_{ik} + A_{jk} \, D_{ik})$
+       \State $D_{ji} \gets \vhrm{temp} / A_{ii} - (D_{ii} / A_{ii}) \, A_{ji}$
+    \EndFor
+ \EndFor
+ \State \Return $\v{D}$
+\EndProcedure
+\end{algorithmic}
+

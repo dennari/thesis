@@ -1,95 +1,132 @@
 
-%% Simulate data
-
+%% Setup
+global dt H c m0 P0
 N = 500;
-T = linspace(0,25,N);            % Time points
-dt = T(2)-T(1);
+T = 25;
+dt = T/N;
+
+K = (0:N)*dt;
 
 % the parameters of this model
 qx = 0.7;              % Dynamic model noise spectral density
-qw = 0.4;               % angular velocity variance
-r = 0.15;                % measurement noise
-x0 = [1;0];             % Initial state
+qw = 0.1;               % angular velocity variance
+r = 0.02;                % measurement noise
+R = r;
+SR = sqrt(r);
 
-gamma = 0;              % D amping parameter
+c = 2; % number of harmonics (including the fundamental frequency)
+xDim = 2*c+1;
+H = [0 repmat([1 0],1,c)];
+
+h = @(x) H*x;
+f = @(x) sinusoid_f(x);
+Q = sinusoid_Q(qw,repmat(qx,1,c));              
+SQ = chol(Q,'lower');
+
+m0 = [0.5*2*pi zeros(1,xDim-1)]';
+P0 = eye(xDim);
 
 
-
+%% Simulate
 
 
 % artificial frequency trajectory
  cp = floor([1 2]*N/3);
  L1 = 0.5*ones(1,cp(1));
- L3 = 2.5*ones(1,N-cp(2));
- x = T((cp(1)+1):cp(2));
- L2 = ((L3(1)-L1(1))/(T(cp(2))-T(cp(1))))*(x-T(cp(1)))+L1(1);
- fr = [L1 L2 L3];
+ L3 = 2.5*ones(1,N-cp(2)+1);
+ x = K((cp(1)+1):cp(2));
+ L2 = ((L3(1)-L1(1))/(K(cp(2))-K(cp(1))))*(x-K(cp(1)))+L1(1);
+ fr = 2*pi*[L1 L2 L3];
 
-A = 0.5; 
-fr = A*sin(2*pi*0.1*T)+1.5*A;
+%A = 0.5; 
+%fr = A*sin(2*pi*0.1*K)+1.5*A;
+%fr = ones(size(K))*2*pi*0.8;
 
-c = 3; % number of harmonics (including the fundamental frequency)
-XD = 2*c+1;
-H = [0 repmat([1 0],1,c)];
-sim = zeros(2,N,c);
-for k = 1:c
-    % simulate data
-    sim(:,:,k) = simulate_periodic_data(T,[],k*fr,qx,x0,gamma);
+[usig,w] = CKFPoints(xDim);
+w(:,2) = sqrt(w(:,1)); % add weights for square root filt/smooth
+xs = zeros(xDim,N+1);
+ys = zeros(1,N+1);
+
+m0(1) = fr(1); 
+x0 = m0;
+x = x0;
+xs(:,1) = x0;
+ys(:,1) = H*x0;
+
+for k=2:N+1
+	x = mvnrnd(f(x),Q)';
+  x(1) = fr(k);
+  xs(:,k) = x;
+	ys(:,k) = mvnrnd(h(x),R)';
+  
 end
-% measurements with added noise
+%u = zeros(size(x));
+y = ys;
+MM = zeros(xDim,N+1); MM(:,1) = m0;
+SS = zeros(xDim,xDim,N+1); SS(:,:,1) = P0;
+dm0 = zeros(xDim,1); dP0 = zeros(xDim);
+m = m0; lh = 0;  S = P0;
+dm = dm0; dP = dP0;
 
-x1 = sum(sim(1,:,:),3);
-y = x1+sqrt(r)*randn(1,numel(T));
+for k=1:(N+1)
+    [m_,S_] = SigmaKF_Predict(m,S,f,SQ,[],usig,w);
+    if k==N+1; break; end; 
 
+    [m,S,~,IM,IS] = SigmaKF_Update(m_,S_,y(:,k+1),h,SR,usig,w);
+    
+    
+    MM(:,k+1) = m;
+    SS(:,:,k+1) = S;
+    %likelihood(y(:,k+1)-IM,IS)
+    lh = lh + likelihood(y(:,k+1)-IM,IS);
 
-
-h = @(x,k,p) H*x;
-f = @(x,k,p) sinusoid_f(x,dt);
-Q = sinusoid_Q(qw,[qx qx],dt);              
-
-p0 = {eye(XD),Q,H,r};
-m0 = [0.75*2*pi zeros(1,XD-1)]';
-P0 = eye(XD);
-s = rng;
-[ms,Ps,ms_,Ps_,Ds,lh] = SigmaFilter(p0,y,f,h,[],[],m0,P0);
-[JM,JP] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
+end
+[MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); 
 
 
 
 figure(1); clf;
-subplot(3,1,1);
-%plot(T,y,'kx',T,sum(sim(1,:,:),3));
-filt = sum(ms(2:2:XD,:),1);
-smooth = sum(JM(2:2:XD,:),1);
-plot(T,x1,T,filt,T,smooth); xlabel('t'); ylabel('x(1)'); grid on;
-subplot(3,1,2);
-plot(T,fr,T,ms(1,:)/(2*pi),T,JM(1,:)/(2*pi));
-title('Signal'); legend('True','Filtered','Smoothed');
-subplot(3,1,3);
-plot(T,squeeze(Ps(1,1,:)),T,squeeze(JP(6,6,:)));
-title('Frequency variance'); legend('Filte','Smoother');
-
-
-% test square-root filter
-p0 = {eye(XD),chol(Q,'lower'),H,sqrt(r)};
-rng(s);
-[ms,Ss,lh2] = SigmaFilterSR(p0,y,f,h,[],[],m0,P0);
-[JM,JS] = SigmaSmootherSR(f,p0{2},ms,Ss,m0,P0);
-
-disp(sqrt((lh-lh2)^2));
-
+plot(K,H*xs,K,H*MM,K,ys,'kx'); grid on;
 figure(2); clf;
-subplot(3,1,1);
-%plot(T,y,'kx',T,sum(sim(1,:,:),3));
-filt = sum(ms(2:2:XD,:),1);
-smooth = sum(JM(2:2:XD,:),1);
-plot(T,x1,T,filt,T,smooth); xlabel('t'); ylabel('x(1)'); grid on;
-subplot(3,1,2);
-plot(T,fr,T,ms(1,:)/(2*pi),T,JM(1,:)/(2*pi));
-title('Signal'); legend('True','Filtered','Smoothed');
-subplot(3,1,3);
-plot(T,squeeze(Ss(1,1,:)).^2,T,squeeze(JS(6,6,:)));
-title('Frequency variance'); legend('Filter','Smoother');
+m = 3;
+subplot(m,1,1);
+plot(K,sqrt(sum((MM-xs).^2)),K,sqrt(sum((MS-xs).^2))); grid on; title('Err');
+subplot(m,1,2);
+plot(K,xs(1,:),K,MM(1,:),K,MS(1,:)); grid on; title('Freq');
+subplot(m,1,3);
+plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq Std');
+% figure(2); clf;
+% subplot(2,2,1);
+% plot(K,xs(1,:)); 
+% subplot(2,2,2);
+% plot(K,xs(3,:)); 
+% subplot(2,2,3);
+% plot(K,xs(2,:));
+% subplot(2,2,4);
+% plot(K,xs(4,:));
+% 
+% figure(3); clf; n=3;
+% subplot(n,1,1);
+% plot(K,squeeze(PP(1,1,:)));
+% subplot(n,1,2);
+% plot(K,squeeze(PP(2,2,:)));
+% subplot(n,1,3);
+% plot(K,squeeze(PP(3,3,:)));
+
+% figure(1); clf;
+% subplot(3,1,1);
+% %plot(T,y,'kx',T,sum(sim(1,:,:),3));
+% filt = sum(ms(2:2:xDim,:),1);
+% smooth = sum(JM(2:2:xDim,:),1);
+% plot(T,x1,T,filt,T,smooth); xlabel('t'); ylabel('x(1)'); grid on;
+% subplot(3,1,2);
+% plot(T,fr,T,ms(1,:)/(2*pi),T,JM(1,:)/(2*pi));
+% title('Signal'); legend('True','Filtered','Smoothed');
+% subplot(3,1,3);
+% plot(T,squeeze(Ps(1,1,:)),T,squeeze(JP(6,6,:)));
+% title('Frequency variance'); legend('Filte','Smoother');
+
+
 
 %plot(T,squeeze(JS(6,6,:))-squeeze(JP(6,6,:)));
 
@@ -97,79 +134,43 @@ title('Frequency variance'); legend('Filter','Smoother');
 %% Compute LH and gradient on grid
 
 % parameters are 
-% p{1}=qw, angular velocity variance
-% p{2}=qx OR Qx \in 2x2, the signal component variance 
-% p{3}=r, measurement variance
-% p{4}=m0, prior mean
-% p{5}=P0, prior covariance matrix
-% p{6}=H, state-to-measurement matrix, fixed
-% p{7}=dt, not really a parameter
-% set up the starting point
-p{1} = qw;
-p{2} = 0.1;
-p{3} = r;
-p{4} = [0.75*2*pi zeros(1,XD-1)]';
-p{5} = eye(XD);
-p{6} = H;
-p{7} = dt;
+% p(1)=qw,    angular velocity variance
+% p(2)=r,     measurement variance
+% p(3:3+c-1)  the signal component variances
 
-m0 = p{4}; 
-P0 = p{5};
-h = @(x,k,p) H*x;
-f = @(x,k,p) sinusoid_f(x,dt);
 
-NN = 150;
-as = linspace(0.5,0.9,NN);
-lhs = zeros(1,NN);
-lhsSR = lhs;
-glhs = lhs;
-lbs = lhs;
-lbsSR = lhs;
-glbs = lhs;
-glbsSR = lhs;
-p0 = {eye(XD),[],H,p{3}};
-for k=1:NN
-    k
-    as(k)
-    p0{2} = sinusoid_Q(p{1},[as(k) as(k)],dt);
-    [ms,Ss,lhSR] = SigmaFilterSR(p0,y,f,h,[],[],m0,P0);
-    [JMSR,JSSR] = SigmaSmootherSR(f,p0{2},ms,Ss,m0,P0);
-    [ms,Ps,ms_,Ps_,Ds,lh] = SigmaFilter(p0,y,f,h,[],[],m0,P0);
-    [JM,JS] = SigmaSmoother(ms,Ps,ms_,Ps_,Ds,m0,P0);
-    lhs(k) = lh;
-    lhsSR(k) = lhSR;
-    %glhs(k) = glh;
+p0 = [qw r repmat(qx,1,c)];
+p = p0;
+
+NN = 25;
+lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
+
+
+gi = 1;
+
+as = linspace(0.5*p0(gi),1.5*p0(gi),NN);
+
+
+for j=1:NN
+    j
+    p(gi) = as(j);
     
-    %
-    p{2} = as(k);
-    [lb,glb] = em_lb_harmonic(p,2,y,JM,JS);
-    [lbSR,glbSR] = em_lb_harmonic(p,2,y,JMSR,JSSR);
-
-    lbs(k) = lb;
-    glbs(k) = glb;
-    lbsSR(k) = lbSR;
-    glbsSR(k) = glbSR;
+    [lh,glh,MM,SS] = Harmonic_LH(p,ys);
+    lhs(j) = lh;
+    %glhs(j) = glh;
+    [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); % D = Smoother Gain
+    [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MS,SM,DD);
+    glbs(j) = EM_LB_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
 end
 
+n = 2; m= 1;
 figure(1); clf;
-subplot(3,1,1); 
-plot(as,lhs); grid ON; title('Likelihood');
-subplot(3,1,2); 
-plot(as,lbs); grid ON; title('Lower bound');
-subplot(3,1,3);
-plot(as,glbs); grid ON; title('d Lower bound');
-figure(2);clf;
-plot(as,lhs-lbs);grid on;
-
-figure(3); clf;
-subplot(3,1,1); 
-plot(as,lhsSR); grid ON; title('LikelihoodSR');
-subplot(3,1,2); 
-plot(as,lbsSR); grid ON; title('Lower bound SR');
-subplot(3,1,3);
-plot(as,glbsSR); grid ON; title('d Lower bound SR');
-figure(4);clf;
-plot(as,lhsSR-lbsSR);grid on;
+subplot(n,m,1);
+plot(as,lhs'); grid on;
+%subplot(n,m,3);
+%plot(as,glhs'); grid on;
+subplot(n,m,2);
+plot(as,glbs'); grid on;
 
 
 

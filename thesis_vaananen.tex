@@ -49,7 +49,7 @@ pdfproducer={xetex}
 %\usepackage[pass,showframe]{geometry}
 \usepackage{tikz}
 \usetikzlibrary{arrows}
-%\usepackage{showlabels}
+\usepackage{showlabels}
 
 \newcommand{\yk}{\v{y}_{k}}
 \newcommand{\y}{\v{y}}
@@ -66,6 +66,11 @@ pdfproducer={xetex}
 \newcommand{\g}{\v{g}}
 \newcommand{\p}{\v{p}}
 \newcommand{\q}{\v{q}}
+\newcommand{\ym}{\gv{\mu}_k}
+\renewcommand{\S}{\v{S}_k}
+\NewDocumentCommand\sig{G{j}}{\gv{\varsigma}^{(#1)}}
+\NewDocumentCommand\usig{G{j}}{\gv{\varepsilon}^{(#1)}}
+\NewDocumentCommand\jacob{O{\big} m m}{\F[#1]{\v{J}_{#2}}{#3}}
 
 \renewcommand{\P}{\v{P}}
 \renewcommand{\m}{\v{m}}
@@ -85,6 +90,8 @@ pdfproducer={xetex}
 \NewDocumentCommand\tPX{O{\tP} G{\gv{\psi}}}{\Pdf[#1][\big]{\X}{#2}}
 \NewDocumentCommand\ff{O{\displaysize} G{\xkk} G{\Th}}{\F[#1]{\f}{#2,#3}}
 \NewDocumentCommand\hh{O{\displaysize} G{\xk} G{\Th}}{\F[#1]{\h}{#2,#3}}
+\NewDocumentCommand\ffi{O{\displaysize} G{\xkk}}{\F[#1]{\f}{#2}}
+\NewDocumentCommand\hhi{O{\displaysize} G{\xk}}{\F[#1]{\h}{#2}}
 \NewDocumentCommand\QQ{s G{\Th}}{\IfBooleanTF{#1}{\v{Q}}{\F{\v{Q}}{#2}}}
 \NewDocumentCommand\RR{s G{\Th}}{\IfBooleanTF{#1}{\v{R}}{\F{\v{R}}{#2}}}
 \NewDocumentCommand\muu{s G{\Th}}{\IfBooleanTF{#1}{\gv\mu_0}{\F{\gv\mu_0}{#2}}}

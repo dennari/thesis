@@ -206,4 +206,151 @@ As noted in \textcite{Cappe2005}, these equations are sometimes known as the \em
 and they are derived at least in \textcite{Gupta1974}.
 
 \subsubsection{Nonlinear-Gaussian SSMs}
-\todo{Derive the gradient for the nonlinear case}
+Here we will present the derivation of the sensitivity equations for nonlinear SSMs with additive
+Gaussian noise. Since the predictive and filtering distributions have to be approximated in the nonlinear
+case, we will work in the Gaussian filtering framework. The 3rd order spherical cubature approximation
+of Equation~\eqref{eq:spherical} will be applied to integrals intractable in closed form.
+
+By marginalizing the joint distribution of equation~\eqref{eq:joint_update_approximation}
+we get the approximation
+\begin{align}
+	\Pdf{\y_k}{\y_{1:k-1},\Th}&\approx \N[\yk]{\gv{\mu}_k,\v{S}_k} ,
+\end{align}
+so that taking the logarithm of the factorization \eqref{eq:lh_factorization} 
+gives the approximate log marginal likelihood 
+\begin{align}
+	\lLH&\approx
+	-\frac{1}{2}\sum_{k=1}^T\log\det{\S}
+	-\frac{1}{2}\sum_{k=1}^T
+	\left(\yk-\ym\right)^\tr
+	\S^{-1}
+	\left(\yk-\ym\right),
+	\label{eq:nonl_logLH}
+\end{align}
+where terms independent of $\Th$ have been dropped.
+To compute the score function, we need the partial derivatives
+\begin{align}
+\begin{split}
+	\dpd{\lLH}{\theta_i}
+	\approx&-\frac{1}{2}\sum_{k=1}^T
+	\mathrm{Tr}\left(\S^{-1}\dpd{\S}{\theta_i}\right)\\
+	&+\sum_{k=1}^T
+	\left(\dpd{\ym}{\theta_i}\right)^\tr\S^{-1}\left(\yk-\ym\right)\\
+	&+\frac{1}{2}\sum_{k=1}^T
+	\left(\yk-\ym\right)^\tr\S^{-1}\left(\dpd{\S}{\theta_i}\right)\S^{-1}\left(\yk-\ym\right)\\
+	\label{eq:nonl_dlogLH}
+\end{split}
+\end{align}
+Let us denote the sigma points needed in the integral for $\S$ by 
+$\sig_{k|k-1}=\m_{k|k-1}+\sqrt{\P_{k|k-1}}\usig$,
+where $j=1,\dots,2\,d_x$. For unclutteredness, let us also denote the constant
+weight by $w\equiv \sfrac{1}{2d_x}$.
+Then by applying the cubature rule to the integral \eqref{eq:update_variance_intergral}
+we get
+\begin{align}
+	\S \approx  w \sum_{j=1}^{2\,d_x} 
+	\left(\hhi[\big]{\sig_{k|k-1}}-\ym\right)
+	\left(\hhi[\big]{\sig_{k|k-1}}-\ym\right)^\tr+\v{R},
+	\label{eq:S_cubature_approx}
+\end{align} 
+so that 
+\begin{align}
+	\dpd{\S}{\theta_i} \approx \quad{}w \sum_{j=1}^{2\,d_x}\bigg[
+	 &\Big(\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)^\tr+\\
+	 &\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)\Big(\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)^\tr\bigg]
+	+\dpd{\v{R}}{\theta_i}.
+	\label{eq:dS_cubature_approx}
+\end{align}
+%
+The approximate partial derivative of $\ym$ is easily derived from Equation~\eqref{eq:update_mean_intergral}:
+\begin{align}
+	\dpd{\ym}{\theta_i} &\approx{} w\sum_{j=1}^{2\,d_x}\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i}.
+	\label{eq:dmu_cubature_approx}
+\end{align}
+%
+The approximate partial derivative of $\h$ evaluated at the sigma points $\sig_{k|k-1}$ that themselves 
+depend on $\Th$ is given by
+\begin{align}
+	\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i} \approx 
+	\jacob{\h}{\sig_{k|k-1}}\dpd{\sig_{k|k-1}}{\theta_i},
+	\label{eq:dh_cubature_approx}
+\end{align}
+where $\jacob[\displaysize]{\h}{\cdot}$ is the Jacobian of $\h$.
+%
+To find $\pd{\sig_{k|k-1}}{\theta_i}\equiv \pd{\m_{k-1|k-1}}{\theta_i}+\pd{\sqrt{\P_{k-1|k-1}}}{\theta_i}\usig$, let us write the the approximations
+\begin{align}
+	\m_{k|k-1} &\approx{} w \sum_{j=1}^{2\,d_x} \ffi[\big]{\sig_{k-1|k-1}} \\
+	\P_{k|k-1} &\approx{} w \sum_{j=1}^{2\,d_x} \Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k-1|k-1}\Big)\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k-1|k-1}\Big)^\tr,
+	\label{tablelabel}
+\end{align}
+where we have again denoted $\sig_{k-1|k-1}\equiv{}\m_{k-1|k-1}+\sqrt{\P_{k-1|k-1}}\usig$.
+Analogously to Equations \eqref{eq:dmu_cubature_approx} and \eqref{eq:dh_cubature_approx} we can write
+\begin{align}
+	\dpd{\m_{k|k-1}}{\theta_i} &\approx{} w\sum_{j=1}^{2\,d_x}%
+	\jacob{\f}{\sig_{k-1|k-1}}\dpd{\sig_{k-1|k-1}}{\theta_i}.
+	\label{eq:dmpred_cubature_approx}
+\end{align}
+The partial derivative of the Cholesky decomposition of a matrix be obtained for example by differentiating
+an algorithm for computing a the decomposition. The partial derivative of the matrix itself needs to be
+computed separately. Analogously to Equation~\eqref{eq:dS_cubature_approx} we get
+\begin{align}
+	\dpd{\P_{k|k-1}}{\theta_i} \approx{} w\sum_{j=1}^{2\,d_x}\bigg[
+	&\Big(\dpd{\ffi[\big]{\sig_{k-1|k-1}}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)^\tr+\\
+	&\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)\Big(\dpd{\ffi[\big]{\sig_{k-1|k-1}}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)^\tr\bigg]
+	\label{eq:dPpred_cubature_approx}
+\end{align}
+
+\begin{align}
+	\dpd{\m_{k|k}}{\theta_i} &=  \dpd{\m_{k|k-1}}{\theta_i}+\dpd{\v{K}_{k}}{\theta_i}\yk
+	\dpd{\v{K}_{k}}{\theta_i}\ym+\v{K}_{k}\dpd{\ym}{\theta_i}.
+	\label{eq:dm_cubature_approx}
+\end{align}
+
+%
+\begin{align}
+	\dpd{\v{K}_{k}}{\theta_i} &=  \dpd{\v{C}_k}{\theta_i}\S^{-1}+\v{C}_k\S^{-1}\dpd{\S}{\theta_i}\S^{-1}
+	\label{eq:dK_cubature_approx}
+\end{align}
+\begin{align}
+	\v{C}_k \approx  w \sum_{j=1}^{2\,d_x} 
+	\left(\sig_{k|k-1}-\m_{k|k-1}\right)
+	\left(\hhi[\big]{\sig_{k|k-1}}-\ym\right)^\tr,
+	\label{eq:C_cubature_approx}
+\end{align} 
+so that 
+\begin{align}
+	\dpd{\v{C}_k}{\theta_i} \approx{} w\sum_{j=1}^{2\,d_x}\bigg[
+	&\Big(\dpd{\sig_{k|k-1}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)^\tr+\\
+	&\Big(\sig_{k|k-1}-\m_{k|k-1}\Big)\Big(\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)^\tr\bigg]
+	\label{eq:dC_cubature_approx}
+\end{align}
+
+
+
+
+
+
+
+
+% \begin{align}
+% \fparen[\big]{\h_k-\gv{\mu}_k}\fparen[\big]{\h_k-\gv{\mu}_k}^\tr
+% 
+% 	\defint{\mathcal{X}}{}{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}{\x} &\approx 
+% 	\frac{1}{2\,d_x} \sum_{i=1}^{2\,d_x} \F{\gv{\kappa}}{\m+\sqrt{\P}\gv{\varepsilon}^{(i)}},
+% 	\label{eq:ckf_approx}
+% \end{align}%
+% 
+% \begin{align}
+% 	\gv{\varepsilon}^{(i)} &= \sqrt{d_x}\v{e}_i &  i&=1,\dots,d_x\\
+% 	\gv{\varepsilon}^{(i)} &= -\sqrt{d_x}\v{e}_{i-d_x} & i&=d_x+1,\dots,2\,d_x,
+% 	\label{eq:ckf_sigma}
+% \end{align}
+
+
+
+
+
+
+
+
+

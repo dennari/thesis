@@ -1,0 +1,114 @@
+\documentclass[english,12pt,a4paper]{article}
+
+% LAYOUT
+\usepackage{mylayout}
+\setmainlanguage{english}
+
+\usepackage{mymath}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{xfrac}
+
+\newcommand{\yk}{\v{y}_{k}}
+\newcommand{\y}{\v{y}}
+\newcommand{\ykk}{\v{y}_{k-1}}
+\newcommand{\xk}{\v{x}_{k}}
+\newcommand{\x}{\v{x}}
+\newcommand{\X}{\x_{1:T}}
+\newcommand{\XX}{\v{X}}
+\newcommand{\Y}{\y_{1:T}}
+\newcommand{\YY}{\v{Y}}
+\newcommand{\z}{\v{z}}
+\newcommand{\h}{\v{h}}
+\newcommand{\f}{\v{f}}
+\newcommand{\g}{\v{g}}
+\newcommand{\p}{\v{p}}
+\newcommand{\q}{\v{q}}
+
+\renewcommand{\P}{\v{P}}
+\renewcommand{\m}{\v{m}}
+\newcommand{\xkk}{\v{x}_{k-1}}
+\newcommand{\tr}{\mathsf{T}}
+\newcommand{\Th}{\gv{\theta}}
+\NewDocumentCommand\lLH{O{\Th}}{\F[\big]{\ell}{#1}}
+\NewDocumentCommand\score{}{\nabla\lLH}
+\NewDocumentCommand\Hess{}{\nabla^2\lLH}
+\NewDocumentCommand\ene{G{\Th}}{\F[\big]{\varphi}{#1}}
+%\newcommand{\LHf}[1]{\Pdf{\X}{#1}}
+%\newcommand{\LHh}{\Pdf{\X}{\hat{\Th}}}
+%\newcommand{\lLH}{\ell\!\left(\Th\right)}
+%\newcommand{\cLH}{\Pdf{\X,\Y}{\Th}}
+%\newcommand{\lcLH}{\log\cLH}
+\newcommand{\tP}{q}
+\NewDocumentCommand\tPX{O{\tP} G{\gv{\psi}}}{\Pdf[#1][\big]{\X}{#2}}
+\NewDocumentCommand\ff{O{\displaysize} G{\xkk} G{\Th}}{\F[#1]{\f}{#2,#3}}
+\NewDocumentCommand\hh{O{\displaysize} G{\xk} G{\Th}}{\F[#1]{\h}{#2,#3}}
+\NewDocumentCommand\QQ{s G{\Th}}{\IfBooleanTF{#1}{\v{Q}}{\F{\v{Q}}{#2}}}
+\NewDocumentCommand\RR{s G{\Th}}{\IfBooleanTF{#1}{\v{R}}{\F{\v{R}}{#2}}}
+\NewDocumentCommand\muu{s G{\Th}}{\IfBooleanTF{#1}{\gv\mu_0}{\F{\gv\mu_0}{#2}}}
+\NewDocumentCommand\Sig{s G{\Th}}{\IfBooleanTF{#1}{\gv\Sigma_0}{\F{\gv\Sigma_0}{#2}}}
+\NewDocumentCommand\II{O{\displaysize} m}{\F[#1]{\v{I}_{#2}}{\Th,\Th'}}
+\NewDocumentCommand\post{G{\Th}}{\Pdf[p]{\X}{\Y,#1}}
+\NewDocumentCommand\cLH{G{\Th}}{\Pdf{\X,\Y}{#1}}
+\NewDocumentCommand\LH{G{\Th}}{\Pdf{\Y}{#1}}
+%\NewDocumentCommand\lcLH{O{0pt}}{\log\cLH[#1]}
+\NewDocumentCommand\EMQ{o G{\Th'} G{\Th}}{
+	\IfNoValueTF{#1}
+		{\F{\mathcal Q}{#3,#2}}
+		{\F[#1]{\mathcal Q}{#3,#2}}
+}
+\NewDocumentCommand\EMH{G{\Th'} G{\Th}}{\F{\mathcal H}{#2,#1}}
+\NewDocumentCommand\EMB{G{\Th'} G{\Th}}{\F[\big]{\mathcal B}{#2,#1}}
+\NewDocumentCommand\EMM{s O{} G{\Th}}{
+	\IfBooleanTF{#1}
+		{\v{M}}
+		{\F{\v{M}#2}{#3}}
+}
+\newcommand{\KL}[2]{\mathrm{KL}\fparenmid[\big]{#1}{#2}{\Vert}}
+
+\NewDocumentCommand\dQ{O{2} O{0} G{\Th_\star} G{\Th_\star}}{
+	\nabla^#1\EMQ{#4}{#3}
+}
+\NewDocumentCommand\dH{O{2} O{0} G{\Th_\star} G{\Th_\star}}{
+	\nabla^#1\EMH{#4}{#3}
+}
+\NewDocumentCommand\dL{O{2} O{0} G{\Th_\star}}{
+	\nabla^#1\lLH[#3]
+}
+\NewDocumentCommand\prtdd{m G{\Th} g}{
+	\IfNoValueTF{#3}
+		{\dpd[2]{#1}{#2}}
+		{\dmd{#1}{2}{#2}{}{\left.\mkern-2mu #3^\tr \right.}{}}
+}
+
+\NewDocumentCommand\Procedure{m m}{
+	\texttt{Procedure} \textsf{#1}(#2)
+}
+\NewDocumentCommand\For{m}{
+	\texttt{For} #1\\
+}
+\NewDocumentCommand\EndFor{}{
+	\texttt{EndFor}\\
+}
+\NewDocumentCommand\EndProcedure{}{
+	\texttt{EndProcedure}\\
+}
+\NewDocumentCommand\State{m}{
+	#1 \\
+}
+\NewDocumentCommand\Return{m}{
+	\texttt{Return}#1\\
+}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+\newtheorem{algorithmic}{Algorithm}
+
+
+\begin{document}
+\input{matrices}
+\end{document}

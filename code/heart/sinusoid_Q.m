@@ -1,4 +1,6 @@
-function Q_ = sinusoid_Q(qw,qx,dt)
+function Q_ = sinusoid_Q(qw,qx)
+global dt
+
 % The signal part of Q is    
 %   +-                -+
 %   |       3       2  |

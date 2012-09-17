@@ -5,7 +5,7 @@ function [ms,Ss,G] = SigmaSmoothSR(ms,Ss,f,SQ,u,usig,w)
   NS = size(usig,2);
   G = zeros(XD,XD,N);
   if nargin < 5 || isempty(u)
-    u = zeros(size(m));
+    u = zeros(XD,1);
   end
   if size(w,2) < 2
     w(:,2) = w(:,1);

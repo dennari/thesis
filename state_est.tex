@@ -418,13 +418,13 @@ in equations \eqref{eq:prediction_mean_intergral}, \eqref{eq:prediction_variance
 \eqref{eq:update_covariance_intergral}.\todo{check this section}
 
 As stated earlier, the 3rd order spherical cubature approximation uses the minimal amount
-of sigma points for a 3rd order rule, $2\,d_x$. The sigma points are then
+of sigma points for a 3rd order rule, $2\,d_x$. The sigma points for $\m=\v{0}$ and $\P=\v{I}$ are then
 \begin{align}
-	\gv{\varepsilon}^{(i)} &= \sqrt{d_x}\v{e}_i &  i&=1,\dots,d_x\\
-	\gv{\varepsilon}^{(i)} &= -\sqrt{d_x}\v{e}_{i-d_x} & i&=d_x+1,\dots,2\,d_x,
+	\gv{\varepsilon}^{(i)}& = \hphantom{-}\sqrt{d_x}\v{e}_i &  i&=1,\dots,d_x\\
+	\gv{\varepsilon}^{(i)}& = -\sqrt{d_x}\v{e}_{i-d_x} & i&=d_x+1,\dots,2\,d_x,
 	\label{eq:ckf_sigma}
 \end{align}
-where $\brac{\gv{\varepsilon}^{(i)}}_{i=1}^{d_x}$ form the canonical basis of $\R^{d_x}$. 
+where the orthonormal basis vectors $\brac{\v{e}_i}_{i=1}^{d_x}$ form the canonical basis of $\R^{d_x}$. 
 The approximation is now given by
 \begin{align}
 	\defint{\mathcal{X}}{}{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}{\x} &\approx 
