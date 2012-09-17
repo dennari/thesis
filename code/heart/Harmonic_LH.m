@@ -98,19 +98,18 @@ function [dQ,dR]=dQdR(i)
   dR = zeros(size(H,1));
 
   if(i==1) % dlb/dqw
-      dQ = zeros(size(Q));
       dQ(1,1) = 1;
   end
   if(i >= 3) % dlb/dqx(ri)
       %dQ = sinusoid_Q(0,dqxi(ri,:),dt);
       %ri = ri + 1;
-      if sum(gi>=3) > 1
-        wh = zeros(1,c);
-        wh(gi-2) = 1;
-        dQ = sinusoid_Q(0,wh);
-      else  
+      %if sum(gi>=3) > 1
+      %  wh = zeros(1,c);
+      %  wh(gi-2) = 1;
+      %  dQ = sinusoid_Q(0,wh);
+      %else  
         dQ = sinusoid_Q(0,ones(1,c));
-      end
+      %end
   end
   if(i==2) % dlb/dr
       dR = 1;

@@ -18,7 +18,7 @@ global c
   J = zeros(numel(x));
   J(1,1) = 1;
   for j=1:c
-    jj = (j-1)*c;
+    jj = (j-1)*2;
     J(jj+2,[1 jj+2 jj+3]) = grad1(j,x(1),x(jj+2),x(jj+3));
     J(jj+3,[1 jj+2 jj+3]) = grad2(j,x(1),x(jj+2),x(jj+3));
 

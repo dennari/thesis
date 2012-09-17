@@ -1,7 +1,7 @@
 
 %% Setup
 global dt H c m0 P0
-N = 500;
+N = 2500;
 T = 25;
 dt = T/N;
 
@@ -14,7 +14,7 @@ r = 0.02;                % measurement noise
 R = r;
 SR = sqrt(r);
 
-c = 2; % number of harmonics (including the fundamental frequency)
+c = 3; % number of harmonics (including the fundamental frequency)
 xDim = 2*c+1;
 H = [0 repmat([1 0],1,c)];
 
@@ -146,7 +146,7 @@ NN = 25;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
-gi = 2;
+gi = 3;
 
 as = linspace(0.5*p0(gi),1.5*p0(gi),NN);
 
@@ -174,54 +174,4 @@ plot(as,sqrt((glbs-glhs).^2)); grid on;
 
 
 
-
-%% try harmonic stuff
-dt = 1/(9e3); % sample at 20kHz
-T = 0:dt:10;            % Time points
-N = numel(T);
-gamma = 0;
-Qc = 0.07;              % Dynamic model noise spectral density
-qw = 0.3;               % angular velocity variance
-x0 = [1;0];
-
-base = 200/60*200;
-fr = base+0.3*base*sin(2*pi*0.2*T);
-%figure(1);clf;plot(T,fr); grid ON;
-%break
-% simulate data
-s = rng;
-[x1] = simulate_periodic_data(T,[],fr,Qc,x0,gamma);
-disp(1)
-rng(s);
-[x2] = simulate_periodic_data(T,[],2*fr,Qc,x0,gamma);
-rng(s);
-disp(2)
-[x3] = simulate_periodic_data(T,[],3*fr,Qc,x0,gamma);
-disp(3)
-
-figure(1);clf;
-subplot(4,1,1);
-plot(T,x1(1,:)); grid ON;
-subplot(4,1,2);
-plot(T,x2(1,:)); grid ON;
-subplot(4,1,3);
-plot(T,x3(1,:)); grid ON;
-subplot(4,1,4);
-y = 1/3*(x1(1,:)+x2(1,:)+x3(1,:));
-plot(T,y); grid ON;
-%%
-x = [x1(1,:);x2(1,:);x3(1,:)];
-coeff = [2 1 1]; coeff = coeff/sum(coeff);
-soundsc(x'*coeff',1/dt,16);
-
-%% Load physiological reference data
-
-  % Data file
-  %refpath = 'drifter_1206200003.txt';
-  
-  % show the data
-  %loadReference(refpath);
-  
-  % or get the data
-  %[refdata,T] = loadReference(refpath);
     
