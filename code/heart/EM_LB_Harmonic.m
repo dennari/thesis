@@ -1,5 +1,5 @@
 function [glb] = EM_LB_Harmonic(p,m0T,gi,N,I1,I2,I3)
-% em_lb_harmonic - score function evaluation 
+% EM_LB_Harmonic - score function evaluation 
 %
 % parameters are 
 % p(1)=qw,    angular velocity variance
