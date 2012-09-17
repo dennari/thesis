@@ -24,8 +24,10 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi,mult)
   SR = sqrt(p(2));
  
   h = @(x) H*x;
+  Jh = @(x) H;
   f = @(x) sinusoid_f(x);
-
+  Jf = @(x) sinusoid_Jf(x);
+  
   xDim = size(m0,1);
   [usig,w] = CKFPoints(xDim);
   w(:,2) = sqrt(w(:,1)); % add weights for square root filt/smooth
@@ -62,7 +64,7 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi,mult)
       if k==N+1; break; end; 
       
       yy = y(:,k+1);
-      [m,S,K,my,CSy,CC] = SigmaKF_Update(m_,S_,yy,h,SR,usig,w,gi);
+      [m,S,K,my,CSy,CC] = SigmaKF_Update(m_,S_,yy,h,SR,usig,w);
       %%% CSy and CC are Cholesky decompositions _HERE_ %%%
       Sy = CSy*CSy';
       C = CC*CC';
@@ -74,7 +76,7 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi,mult)
       for i=1:numel(gi)
         [dm_,dP_] = dd_{i}{:};
         [~,dR] = dQdR(gi(i));
-        [dm,dP,dmy,dSy] = dSigmaKF_Update(m_,S_,h,dm_,dP_,K,my,Sy,C,yy,dR,Jh,usig,w);
+        [dm,dP,dmy,dSy] = dSigmaKF_Update(m_,S_,h,dm_,dP_,K,my,Sy,yy,dR,Jh,usig,w);
         dd{i} = {dm,dP};
         glh(i) = glh(i) + dlikelihood(Sy,dSy,yy,my,dmy);
       end

@@ -23,3 +23,10 @@ Qc_r = 0.01;
 [Ar,Qr] = splti_disc(subs(F,[w g],[w_r g_r]),L,Qc_r,dt_r)
 subs(A,[w g dt],[w_r g_r dt_r])
 subs(Q,[g dt Qc],[g_r dt_r Qc_r])
+
+%% Jacobian of f
+
+syms x1 x2 x3 dt j real
+
+%diff(cos(dt*j*x1)*x2+(sin(dt*j*x1)/(j*x1))*x3,x1)
+diff(-j*x1*sin(dt*j*x1)*x2+cos(dt*j*x1)*x3,x3)

@@ -1,12 +1,14 @@
-function [dm,dP,dmy,dSy] = dSigmaKF_Update(m_,S_,h,dm_,dP_,K,my,Sy,C,y,dR,Jh,usig,w)
+function [dm,dP,dmy,dSy] = dSigmaKF_Update(m_,S_,h,dm_,dP_,K,my,Sy,y,dR,Jh,usig,w)
     if size(w,2) < 2
       w(:,2) = w(:,1);
     end
     wm = w(:,1);
     NS = numel(wm);
 
+    P_ = S_*S_';
+    S_ = chol(P_,'lower');
     
-    [dS_,~] = dchol(S_*S_',dP_);
+    [dS_,~] = dchol(P_,dP_);
     
     dmy = 0;
     for j=1:NS
@@ -33,10 +35,14 @@ function [dm,dP,dmy,dSy] = dSigmaKF_Update(m_,S_,h,dm_,dP_,K,my,Sy,C,y,dR,Jh,usi
     end
     dC = wm(1)*dC;
     
-    dK = dC/Sy+C*(Sy\dSy/Sy);
+    
+    % this should not need to be computed again
+    C = (S_*usig)*diag(wm)*(h(repmat(m_,1,NS)+S_*usig)-repmat(my,1,NS))';
+    
+    dK = dC/Sy-C*(Sy\dSy/Sy);
     
     dm = dm_+dK*(y-my)-K*dmy;
-    dP = dP_-dK*S*K'-K*dS*K'-K*S*dK';
+    dP = dP_-dK*Sy*K'-K*dSy*K'-K*Sy*dK';
   
    
 end

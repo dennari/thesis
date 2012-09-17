@@ -268,8 +268,8 @@ we get
 \begin{align}
 	\m_{k|k-1} &\approx{} w \sum_{j=1}^{2\,d_x} \ffi[\big]{\sig_{k-1|k-1}} \\
 	\P_{k|k-1} &\approx{} w \sum_{j=1}^{2\,d_x}% 
-	\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k-1|k-1}\Big)%
-	\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k-1|k-1}\Big)^\tr%
+	\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)%
+	\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)^\tr%
 	+\v{Q},
 	\label{tablelabel}
 \end{align}
@@ -326,7 +326,7 @@ The approximate partial derivative of $\ym$ can be derived from Equation~\eqref{
 %
 From Equation~\eqref{eq:kalman_gain_nonl} we get
 \begin{align}
-	\dpd{\v{K}_{k}}{\theta_i} &=  \dpd{\v{C}_k}{\theta_i}\S^{-1}+\v{C}_k\S^{-1}\dpd{\S}{\theta_i}\S^{-1}
+	\dpd{\v{K}_{k}}{\theta_i} &=  \dpd{\v{C}_k}{\theta_i}\S^{-1}-\v{C}_k\S^{-1}\dpd{\S}{\theta_i}\S^{-1}
 	\label{eq:dK_cubature_approx}
 \end{align}
 and Equation~\eqref{eq:update_covariance_intergral} gives

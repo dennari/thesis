@@ -2,7 +2,7 @@
 
 global dt m0 P0 H A g0x g0y u
 
-N = 1500;
+N = 500;
 T = 14;
 dt = T/N;
 
@@ -137,11 +137,11 @@ plot(K,squeeze(PP(3,3,:)));
 % set up the starting point
 p0 = [v0x v0y qx qy r];
 p = p0;
-NN = 100;
+NN = 150;
 lhs = zeros(2,NN); glhs = lhs; glbs = lhs;
 
 
-gi = 3;
+gi = 5;
 
 %as = linspace(0.5*qx,1.5*qx,NN);
 as = linspace(0.5*p0(gi),1.5*p0(gi),NN);
@@ -179,12 +179,15 @@ plot(as,glhs'); grid on;
 subplot(n,m,5);
 plot(as,glbs'); grid on;
 subplot(n,m,2);
-plot(K,MM(1,:)-MMM(1,:));
+%plot(K,MM(1,:)-MMM(1,:));
+plot(as,sqrt((lhs(1,:)-lhs(2,:)).^2));
 subplot(n,m,4);
-plot(K,squeeze(PP(1,1,:))-squeeze(SSS(1,1,:)).^2);
+%plot(K,squeeze(PP(1,1,:))-squeeze(SSS(1,1,:)).^2);
+plot(as,sqrt((glhs(1,:)-glhs(2,:)).^2));
 subplot(n,m,6);
-plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
-plot(glbs(2,:));
+%plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
+plot(as,sqrt((glbs(1,:)-glbs(2,:)).^2));
+%plot(glbs(2,:));
 
 %plot(as,lhs,[p0(gi) p0(gi)],[min(lhs) max(lhs)],'-r'); grid ON; title('Likelihood');
 %subplot(n,1,2); 

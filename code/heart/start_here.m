@@ -146,7 +146,7 @@ NN = 25;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
-gi = 1;
+gi = 2;
 
 as = linspace(0.5*p0(gi),1.5*p0(gi),NN);
 
@@ -155,22 +155,22 @@ for j=1:NN
     j
     p(gi) = as(j);
     
-    [lh,glh,MM,SS] = Harmonic_LH(p,ys);
+    [lh,glh,MM,SS] = Harmonic_LH(p,ys,gi);
     lhs(j) = lh;
-    %glhs(j) = glh;
+    glhs(j) = glh;
     [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); % D = Smoother Gain
     [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MS,SM,DD);
     glbs(j) = EM_LB_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
 end
 
-n = 2; m= 1;
+n = 3; m= 1;
 figure(1); clf;
 subplot(n,m,1);
 plot(as,lhs'); grid on;
-%subplot(n,m,3);
-%plot(as,glhs'); grid on;
 subplot(n,m,2);
-plot(as,glbs'); grid on;
+plot(as,glhs,as,glbs); grid on;
+subplot(n,m,3);
+plot(as,sqrt((glbs-glhs).^2)); grid on;
 
 
 

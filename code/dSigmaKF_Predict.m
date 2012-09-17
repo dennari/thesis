@@ -3,10 +3,13 @@ function [dm_,dP_] = dSigmaKF_Predict(m,m_,S,f,dm,dP,dQ,Jf,usig,w)
       w(:,2) = w(:,1);
     end
     wm = w(:,1);
-
-
+    NS = numel(wm);
     
-    [dS,~] = dchol(S*S',dP);
+    P = S*S';
+    S = chol(P,'lower');
+    
+    
+    [dS,~] = dchol(P,dP);
     
     dm_ = 0;
     for j=1:NS
@@ -20,7 +23,7 @@ function [dm_,dP_] = dSigmaKF_Predict(m,m_,S,f,dm,dP,dQ,Jf,usig,w)
     for j=1:NS
       sigj = m+S*usig(:,j);
       dsigj = dm+dS*usig(:,j);
-      dP1 = (Jf(sigj)*dsigj-dm_) * (f(sigj)-m_)';
+      dP1 = (Jf(sigj)*dsigj-dm_)*(f(sigj)-m_)';
       dP_ = dP_ + dP1 + dP1';
     end
     dP_ = wm(1)*dP_+dQ;
