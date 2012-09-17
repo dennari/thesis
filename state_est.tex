@@ -280,9 +280,9 @@ is then given by applying Lemma~\ref{lemma:gaussian_cond} to \eqref{eq:joint_upd
 Then, analogously to the update equations of the Kalman filter \eqref{eq:Kalman_filter}, we get
 \begin{align}
 	\v{v}_k&=\yk-\gv{\mu}_k\\
-	\v{K}_k&=\v{C}_{k}\v{S}_{k}^{-1}\\
-	\v{m}_{k|k}&=\v{m}_{k|k-1}+\v{K}_k\v{v}_k\\
-	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^\tr
+	\v{K}_k&=\v{C}_{k}\v{S}_{k}^{-1} \label{eq:kalman_gain_nonl}\\
+	\v{m}_{k|k}&=\v{m}_{k|k-1}+\v{K}_k\v{v}_k \label{eq:mean_update_nonl}\\
+	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^\tr \label{eq:variance_update_nonl}
 \end{align}
 
 \subsubsection*{Smoothing step}

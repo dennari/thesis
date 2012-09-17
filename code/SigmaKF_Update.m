@@ -1,4 +1,4 @@
-function [m,S,K,my,Sy] = SigmaKF_Update(m,S,y,h,SR,usig,w)
+function [m,S,K,my,Sy,C] = SigmaKF_Update(m,S,y,h,SR,usig,w)
 
   % the number of sigma points
   NS = size(usig,2);

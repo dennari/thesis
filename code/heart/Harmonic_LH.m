@@ -35,21 +35,50 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi,mult)
   SS = zeros(xDim,xDim,N+1); SS(:,:,1) = P0;
   dm0 = zeros(xDim,1); dP0 = zeros(xDim);
   m = m0; S = P0; lh = 0; 
-  glh = zeros(numel(gi),1); dm = dm0; dP = dP0;
+  glh = zeros(numel(gi),1);
+  
+  
+  % initialize the partial derivative structures
+  if ~isempty(gi)
+    dd = cell(1,numel(gi)); 
+    for i=1:numel(gi)
+      dd{i} = {dm0,dP0};
+    end
+    dd_ = cell(1,numel(gi));
+  end
+  
+  
   for k=1:(N+1)
       [m_,S_] = SigmaKF_Predict(m,S,f,SQ,[],usig,w);
+      
+      % run the partial derivative predictions
+      for i=1:numel(gi)
+        [dm,dP] = dd{i}{:};
+        [dQ,~] = dQdR(gi(i));
+        [dm_,dP_] = dSigmaKF_Predict(m,m_,S,f,dm,dP,dQ,Jf,usig,w);
+        dd_{i} = {dm_,dP_}; 
+      end
+      
       if k==N+1; break; end; 
-
-      [m,S,~,IM,IS] = SigmaKF_Update(m_,S_,y(:,k+1),h,SR,usig,w);
+      
+      yy = y(:,k+1);
+      [m,S,K,my,CSy,CC] = SigmaKF_Update(m_,S_,yy,h,SR,usig,w,gi);
+      %%% CSy and CC are Cholesky decompositions _HERE_ %%%
+      Sy = CSy*CSy';
+      C = CC*CC';
       MM(:,k+1) = m;
       SS(:,:,k+1) = S;
-      lh = lh + likelihood(y(:,k+1)-IM,IS*IS');
-
-      if ~isempty(gi)
-        [dm,dP,GLH] = Harmonic_Sens(dm,dP,A,H,gi,y(:,k+1)-IM,...
-                        IS*IS',S_*S_'*H', MM(:,k),SS(:,:,k)*SS(:,:,k)');
-        glh = glh + GLH;
+      lh = lh + likelihood(yy-my,Sy);
+      
+      % run the partial derivative updates
+      for i=1:numel(gi)
+        [dm_,dP_] = dd_{i}{:};
+        [~,dR] = dQdR(gi(i));
+        [dm,dP,dmy,dSy] = dSigmaKF_Update(m_,S_,h,dm_,dP_,K,my,Sy,C,yy,dR,Jh,usig,w);
+        dd{i} = {dm,dP};
+        glh(i) = glh(i) + dlikelihood(Sy,dSy,yy,my,dmy);
       end
+      
   end
   lh = mult*lh;
   glh = mult*glh;
@@ -57,6 +86,33 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi,mult)
     varargout{1} = MM;
     varargout{2} = SS;
   end
+  
+end
 
+function [dQ,dR]=dQdR(i)
+  global P0 H c
+  
+  dQ = zeros(size(P0));
+  dR = zeros(size(H,1));
+
+  if(i==1) % dlb/dqw
+      dQ = zeros(size(Q));
+      dQ(1,1) = 1;
+  end
+  if(i >= 3) % dlb/dqx(ri)
+      %dQ = sinusoid_Q(0,dqxi(ri,:),dt);
+      %ri = ri + 1;
+      if sum(gi>=3) > 1
+        wh = zeros(1,c);
+        wh(gi-2) = 1;
+        dQ = sinusoid_Q(0,wh);
+      else  
+        dQ = sinusoid_Q(0,ones(1,c));
+      end
+  end
+  if(i==2) % dlb/dr
+      dR = 1;
+  end
+  
 end
 

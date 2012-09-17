@@ -205,11 +205,20 @@ a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside 
 As noted in \textcite{Cappe2005}, these equations are sometimes known as the \emph{sensitivity equations}
 and they are derived at least in \textcite{Gupta1974}.
 
-\subsubsection{Nonlinear-Gaussian SSMs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Nonlinear-Gaussian SSMs}%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 Here we will present the derivation of the sensitivity equations for nonlinear SSMs with additive
 Gaussian noise. Since the predictive and filtering distributions have to be approximated in the nonlinear
 case, we will work in the Gaussian filtering framework. The 3rd order spherical cubature approximation
-of Equation~\eqref{eq:spherical} will be applied to integrals intractable in closed form.
+of Equation~\eqref{eq:ckf_approx} will be applied to integrals intractable in closed form. The result
+is an approximate recursive algorithm for computing $\pd{\m_{k|k}}{\theta_i}$ and $\pd{\P_{k|k}}{\theta_i}$,
+i.e. the partial derivatives of the mean and and variance of the filtering distributions. These enable
+us to compute the partial derivatives of the marginal log-likelihood and by Equation~\eqref{eq:score},
+an approximation to the score function.
 
 By marginalizing the joint distribution of equation~\eqref{eq:joint_update_approximation}
 we get the approximation
@@ -241,10 +250,56 @@ To compute the score function, we need the partial derivatives
 	\label{eq:nonl_dlogLH}
 \end{split}
 \end{align}
-Let us denote the sigma points needed in the integral for $\S$ by 
-$\sig_{k|k-1}=\m_{k|k-1}+\sqrt{\P_{k|k-1}}\usig$,
-where $j=1,\dots,2\,d_x$. For unclutteredness, let us also denote the constant
-weight by $w\equiv \sfrac{1}{2d_x}$.
+%
+%
+Let us denote the predictive distribution sigma points by 
+$\sig_{k|k-1}=\m_{k|k-1}+\sqrt{\P_{k|k-1}}\usig$, where $j=1,\dots,2\,d_x$.
+For unclutteredness, let us also denote the constant
+weight by $w\equiv \sfrac{1}{2d_x}$. Let us first focus on computing
+an approximation to 
+\begin{align}
+	\dpd{\sig_{k|k-1}}{\theta_i}&= \dpd{\m_{k|k-1}}{\theta_i}+ \dpd{\sqrt{\P_{k|k-1}}}{\theta_i}\usig
+	\label{eq:dSig_pred}
+\end{align}
+By applying the cubature rule to the integrals \eqref{eq:prediction_mean_intergral} and 
+\eqref{eq:prediction_variance_intergral} 
+we get   
+%
+\begin{align}
+	\m_{k|k-1} &\approx{} w \sum_{j=1}^{2\,d_x} \ffi[\big]{\sig_{k-1|k-1}} \\
+	\P_{k|k-1} &\approx{} w \sum_{j=1}^{2\,d_x}% 
+	\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k-1|k-1}\Big)%
+	\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k-1|k-1}\Big)^\tr%
+	+\v{Q},
+	\label{tablelabel}
+\end{align}
+so that the partial derivatives of these become
+\begin{align}
+	\dpd{\m_{k|k-1}}{\theta_i} &\approx{} w\sum_{j=1}^{2\,d_x}%
+	\jacob{\f}{\sig_{k-1|k-1}}\dpd{\sig_{k-1|k-1}}{\theta_i}
+	\label{eq:dmpred_cubature_approx}
+\shortintertext{and}
+	\dpd{\P_{k|k-1}}{\theta_i} &\approx{} \\
+	w\sum_{j=1}^{2\,d_x}\bigg[
+	&\Big(\jacob{\f}{\sig_{k-1|k-1}}\dpd{\sig_{k-1|k-1}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)%
+	 \Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)^\tr\\
+   +&\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)%
+	 \Big(\jacob{\f}{\sig_{k-1|k-1}}\dpd{\sig_{k-1|k-1}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)^\tr\bigg]\\%
+   +&\dpd{\v{Q}}{\theta_i}.
+	\label{eq:dPpred_cubature_approx}
+\end{align}
+%
+Here $\jacob[\displaysize]{\f}{\cdot}$ denotes the Jacobian of $\f$.
+We assume that at the current iteration $k$ we have available the approximate mean and variance of the previous 
+filtering distribution, i.e $\m_{k-1|k-1}$ and $\P_{k-1|k-1}$, as well as the  
+partial derivatives $\pd{\m_{k-1|k-1}}{\theta_i}$ and $\pd{\P_{k-1|k-1}}{\theta_i}$.
+This means we can form $\sig_{k-1|k-1}=\m_{k-1|k-1}+\sqrt{\P_{k-1|k-1}}\usig$. 
+ 
+In  $\pd{\sig_{k|k-1}}{\theta_i}$ we clearly need $\pd{\sqrt{\P_{k|k-1}}}{\theta_i}$,
+i.e. the partial derivative of the Cholesky decomposition of $\P_{k|k-1}$. 
+Having $\pd{\P_{k|k-1}}{\theta_i}$ available, this can be obtained for example by differentiating
+an algorithm for computing the Cholesky decomposition.
+
 Then by applying the cubature rule to the integral \eqref{eq:update_variance_intergral}
 we get
 \begin{align}
@@ -255,62 +310,26 @@ we get
 \end{align} 
 so that 
 \begin{align}
-	\dpd{\S}{\theta_i} \approx \quad{}w \sum_{j=1}^{2\,d_x}\bigg[
-	 &\Big(\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)^\tr+\\
-	 &\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)\Big(\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)^\tr\bigg]
-	+\dpd{\v{R}}{\theta_i}.
+	\dpd{\S}{\theta_i} \approx{}w \sum_{j=1}^{2\,d_x}\bigg[
+	 &\Big(\jacob{\h}{\sig_{k|k-1}}\dpd{\sig_{k|k-1}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)^\tr+\\
+	 &\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)\Big(\jacob{\h}{\sig_{k|k-1}}\dpd{\sig_{k|k-1}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)^\tr\bigg]
+	+\dpd{\v{R}}{\theta_i},
 	\label{eq:dS_cubature_approx}
 \end{align}
+where $\jacob[\displaysize]{\h}{\cdot}$ denotes the Jacobian of $\h$.
 %
-The approximate partial derivative of $\ym$ is easily derived from Equation~\eqref{eq:update_mean_intergral}:
+The approximate partial derivative of $\ym$ can be derived from Equation~\eqref{eq:update_mean_intergral}:
 \begin{align}
-	\dpd{\ym}{\theta_i} &\approx{} w\sum_{j=1}^{2\,d_x}\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i}.
+	\dpd{\ym}{\theta_i} &\approx{} w\sum_{j=1}^{2\,d_x}\jacob{\h}{\sig_{k|k-1}}\dpd{\sig_{k|k-1}}{\theta_i}.
 	\label{eq:dmu_cubature_approx}
 \end{align}
 %
-The approximate partial derivative of $\h$ evaluated at the sigma points $\sig_{k|k-1}$ that themselves 
-depend on $\Th$ is given by
-\begin{align}
-	\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i} \approx 
-	\jacob{\h}{\sig_{k|k-1}}\dpd{\sig_{k|k-1}}{\theta_i},
-	\label{eq:dh_cubature_approx}
-\end{align}
-where $\jacob[\displaysize]{\h}{\cdot}$ is the Jacobian of $\h$.
-%
-To find $\pd{\sig_{k|k-1}}{\theta_i}\equiv \pd{\m_{k-1|k-1}}{\theta_i}+\pd{\sqrt{\P_{k-1|k-1}}}{\theta_i}\usig$, let us write the the approximations
-\begin{align}
-	\m_{k|k-1} &\approx{} w \sum_{j=1}^{2\,d_x} \ffi[\big]{\sig_{k-1|k-1}} \\
-	\P_{k|k-1} &\approx{} w \sum_{j=1}^{2\,d_x} \Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k-1|k-1}\Big)\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k-1|k-1}\Big)^\tr,
-	\label{tablelabel}
-\end{align}
-where we have again denoted $\sig_{k-1|k-1}\equiv{}\m_{k-1|k-1}+\sqrt{\P_{k-1|k-1}}\usig$.
-Analogously to Equations \eqref{eq:dmu_cubature_approx} and \eqref{eq:dh_cubature_approx} we can write
-\begin{align}
-	\dpd{\m_{k|k-1}}{\theta_i} &\approx{} w\sum_{j=1}^{2\,d_x}%
-	\jacob{\f}{\sig_{k-1|k-1}}\dpd{\sig_{k-1|k-1}}{\theta_i}.
-	\label{eq:dmpred_cubature_approx}
-\end{align}
-The partial derivative of the Cholesky decomposition of a matrix be obtained for example by differentiating
-an algorithm for computing a the decomposition. The partial derivative of the matrix itself needs to be
-computed separately. Analogously to Equation~\eqref{eq:dS_cubature_approx} we get
-\begin{align}
-	\dpd{\P_{k|k-1}}{\theta_i} \approx{} w\sum_{j=1}^{2\,d_x}\bigg[
-	&\Big(\dpd{\ffi[\big]{\sig_{k-1|k-1}}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)^\tr+\\
-	&\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)\Big(\dpd{\ffi[\big]{\sig_{k-1|k-1}}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)^\tr\bigg]
-	\label{eq:dPpred_cubature_approx}
-\end{align}
-
-\begin{align}
-	\dpd{\m_{k|k}}{\theta_i} &=  \dpd{\m_{k|k-1}}{\theta_i}+\dpd{\v{K}_{k}}{\theta_i}\yk
-	\dpd{\v{K}_{k}}{\theta_i}\ym+\v{K}_{k}\dpd{\ym}{\theta_i}.
-	\label{eq:dm_cubature_approx}
-\end{align}
-
-%
+From Equation~\eqref{eq:kalman_gain_nonl} we get
 \begin{align}
 	\dpd{\v{K}_{k}}{\theta_i} &=  \dpd{\v{C}_k}{\theta_i}\S^{-1}+\v{C}_k\S^{-1}\dpd{\S}{\theta_i}\S^{-1}
 	\label{eq:dK_cubature_approx}
 \end{align}
+and Equation~\eqref{eq:update_covariance_intergral} gives
 \begin{align}
 	\v{C}_k \approx  w \sum_{j=1}^{2\,d_x} 
 	\left(\sig_{k|k-1}-\m_{k|k-1}\right)
@@ -321,10 +340,25 @@ so that
 \begin{align}
 	\dpd{\v{C}_k}{\theta_i} \approx{} w\sum_{j=1}^{2\,d_x}\bigg[
 	&\Big(\dpd{\sig_{k|k-1}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)^\tr+\\
-	&\Big(\sig_{k|k-1}-\m_{k|k-1}\Big)\Big(\dpd{\hhi[\big]{\sig_{k|k-1}}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)^\tr\bigg]
+	&\Big(\sig_{k|k-1}-\m_{k|k-1}\Big)
+	\Big(\jacob{\h}{\sig_{k|k-1}}\dpd{\sig_{k|k-1}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)^\tr\bigg].
 	\label{eq:dC_cubature_approx}
 \end{align}
+Finally, from Equations \eqref{eq:mean_update_nonl} and \eqref{eq:variance_update_nonl}
+we obtain
+\begin{align}
+	\dpd{\m_{k|k}}{\theta_i} &=  \dpd{\m_{k|k-1}}{\theta_i}+\dpd{\v{K}_{k}}{\theta_i}\left(\yk
+	-\ym\right)-\v{K}_{k}\dpd{\ym}{\theta_i}.
+	\label{eq:m_pd_nonl}
+\shortintertext{and}
+	\dpd{\v{P}_{k|k}}{\theta_i} &= \dpd{\v{P}_{k|k-1}}{\theta_i}-
+	\dpd{\v{K}_k}{\theta_i}\S\v{K}_{k}^\tr-\v{K}_{k}\dpd{\S}{\theta_i}\v{K}_{k}^\tr-
+	\v{K}_{k}^\tr\S\left(\dpd{\v{K}_k}{\theta_i}\right)^\tr
+	\label{eq:P_pd_nonl}
+\end{align}
 
+
+%
 
 
 
