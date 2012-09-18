@@ -62,71 +62,6 @@ for k=2:N+1
 end
 %u = zeros(size(x));
 y = ys;
-MM = zeros(xDim,N+1); MM(:,1) = m0;
-SS = zeros(xDim,xDim,N+1); SS(:,:,1) = P0;
-dm0 = zeros(xDim,1); dP0 = zeros(xDim);
-m = m0; lh = 0;  S = P0;
-dm = dm0; dP = dP0;
-
-for k=1:(N+1)
-    [m_,S_] = SigmaKF_Predict(m,S,f,SQ,[],usig,w);
-    if k==N+1; break; end; 
-
-    [m,S,~,IM,IS] = SigmaKF_Update(m_,S_,y(:,k+1),h,SR,usig,w);
-    
-    
-    MM(:,k+1) = m;
-    SS(:,:,k+1) = S;
-    %likelihood(y(:,k+1)-IM,IS)
-    lh = lh + likelihood(y(:,k+1)-IM,IS);
-
-end
-[MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); 
-
-
-
-figure(1); clf;
-plot(K,H*xs,K,H*MM,K,ys,'kx'); grid on;
-figure(2); clf;
-m = 3;
-subplot(m,1,1);
-plot(K,sqrt(sum((MM-xs).^2)),K,sqrt(sum((MS-xs).^2))); grid on; title('Err');
-subplot(m,1,2);
-plot(K,xs(1,:),K,MM(1,:),K,MS(1,:)); grid on; title('Freq');
-subplot(m,1,3);
-plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq Std');
-% figure(2); clf;
-% subplot(2,2,1);
-% plot(K,xs(1,:)); 
-% subplot(2,2,2);
-% plot(K,xs(3,:)); 
-% subplot(2,2,3);
-% plot(K,xs(2,:));
-% subplot(2,2,4);
-% plot(K,xs(4,:));
-% 
-% figure(3); clf; n=3;
-% subplot(n,1,1);
-% plot(K,squeeze(PP(1,1,:)));
-% subplot(n,1,2);
-% plot(K,squeeze(PP(2,2,:)));
-% subplot(n,1,3);
-% plot(K,squeeze(PP(3,3,:)));
-
-% figure(1); clf;
-% subplot(3,1,1);
-% %plot(T,y,'kx',T,sum(sim(1,:,:),3));
-% filt = sum(ms(2:2:xDim,:),1);
-% smooth = sum(JM(2:2:xDim,:),1);
-% plot(T,x1,T,filt,T,smooth); xlabel('t'); ylabel('x(1)'); grid on;
-% subplot(3,1,2);
-% plot(T,fr,T,ms(1,:)/(2*pi),T,JM(1,:)/(2*pi));
-% title('Signal'); legend('True','Filtered','Smoothed');
-% subplot(3,1,3);
-% plot(T,squeeze(Ps(1,1,:)),T,squeeze(JP(6,6,:)));
-% title('Frequency variance'); legend('Filte','Smoother');
-
-
 
 %plot(T,squeeze(JS(6,6,:))-squeeze(JP(6,6,:)));
 
@@ -142,11 +77,11 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 p0 = [qw r repmat(qx,1,c)];
 p = p0;
 
-NN = 25;
+NN = 200;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
-gi = 3;
+gi = 1;
 
 as = linspace(0.5*p0(gi),1.5*p0(gi),NN);
 
@@ -172,6 +107,6 @@ plot(as,glhs,as,glbs); grid on;
 subplot(n,m,3);
 plot(as,sqrt((glbs-glhs).^2)); grid on;
 
-
+save('../../data/simulateHeartR.mat','lhs','glhs','glbs');
 
     
