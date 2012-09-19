@@ -30,8 +30,9 @@ T = K(end);
 
 % the initial parameters
 lqx = log(0.7);           % log Dynamic model noise spectral density
-lqw = log(0.1);           % log angular velocity variance
+lqw = log(0.04);           % log angular velocity variance
 lr =  log(0.02);          % log measurement noise
+
 
 
 c = 3; % number of harmonics (including the fundamental frequency)
@@ -39,6 +40,9 @@ xDim = 2*c+1;
 H = [0 repmat([1 0],1,c)];
 h = @(x) H*x;
 f = @(x) sinusoid_f(x);
+m0 = zeros(xDim,1);
+m0(1) = 1.1*2*pi;
+P0 = eye(xDim);
 
 % adjust K and y to include the zeroth measurement
 K = [0 K+dt];
