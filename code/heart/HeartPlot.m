@@ -1,28 +1,17 @@
 %% r - estimates
 
-load('../data/BallisticResultsR200.mat');
-NN = size(est_em,3);
-true = p_true(5);
-
-% Separate
+load('../data/simulateHeartR.mat');
+NN = length(lhs);
+true = 0.1;
+as = linspace(0.5*true,1.5*true,NN);
+n = 3; m= 1;
 figure(1); clf;
-est_em1 =   reshape(est_em,[max_iter_em NN  1]);
-est_bfgs1 = reshape(est_bfgs,[max_iter_bfgs NN 1]);
-subplot(2,1,1);
-plot(1:max_iter_em,-1*(true-est_em1)./true,'-b');
-ylim([-0.5,0.5]);xlim([1,max_iter_em]);
-subplot(2,1,2);
-plot(1:max_iter_bfgs,(-1*(true-est_bfgs1)./true),'-b');
-ylim([-0.5,0.5]);xlim([1,max_iter_bfgs]);
-
-% RMSE over datasets
-figure(2); clf;
-plot(1:max_iter_em,sqrt(mean((true-est_em1').^2)),'-b',...
-     1:max_iter_em,sqrt(mean((true-est_bfgs1(1:max_iter_em,:)').^2)),'-r');
-
-
-
-
+subplot(n,m,1);
+plot(as,lhs'); grid on;
+subplot(n,m,2);
+plot(as,glhs,as,glbs); grid on;
+subplot(n,m,3);
+plot(as,sqrt((glbs-glhs).^2)); grid on;
 
 %% Export
 

@@ -1,5 +1,9 @@
-function Q_ = sinusoid_Q(qw,qx)
+function Q_ = sinusoid_Q(lqw,lqx)
 global dt
+
+% the parameterization is in logarithms of variance
+qw = exp(lqw);
+qx = exp(lqx);
 
 % The signal part of Q is    
 %   +-                -+

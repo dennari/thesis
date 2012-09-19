@@ -137,7 +137,7 @@ plot(K,squeeze(PP(3,3,:)));
 % set up the starting point
 p0 = [v0x v0y qx qy r];
 p = p0;
-NN = 150;
+NN = 25;
 lhs = zeros(2,NN); glhs = lhs; glbs = lhs;
 
 

@@ -2,9 +2,9 @@ function [glb] = EM_LB_Harmonic(p,m0T,gi,N,I1,I2,I3)
 % EM_LB_Harmonic - score function evaluation 
 %
 % parameters are 
-% p(1)=qw,    angular velocity variance
-% p(2)=r,     measurement variance
-% p(3:3+c-1)  the signal component variances
+% p(1)=lqw,    log angular velocity variance
+% p(2)=lr,     log measurement variance
+% p(3:3+c-1)   log component variances
 global m0 P0 c
 
 qx = p(3:end);
@@ -13,7 +13,7 @@ if numel(p) < c+2
 end
 
 Q = sinusoid_Q(p(1),qx);
-R = p(2);
+R = sinusoid_R(p(2));
 
 
 
@@ -54,7 +54,7 @@ for j=1:numel(gi)
     
     if(gi(j)==1) % dlb/dqw
         dQ = zeros(size(Q));
-        dQ(1,1) = 1;
+        dQ(1,1) = 1*exp(-p(1));
     end
     if(gi(j) >= 3) % dlb/dqx(ri)
         %dQ = sinusoid_Q(0,dqxi(ri,:),dt);
@@ -64,11 +64,11 @@ for j=1:numel(gi)
           wh(gi-2) = 1;
           dQ = sinusoid_Q(0,wh);
         else  
-          dQ = sinusoid_Q(0,ones(1,c));
+          dQ = sinusoid_Q(0,ones(1,c))*exp(-p(3));
         end
     end
     if(gi(j)==2) % dlb/dr
-        dR = 1;
+        dR = 1*exp(-p(2));
     end
     
     % x_0
