@@ -1,4 +1,4 @@
-function [lh,glh,varargout] = Harmonic_LH(p,y,gi,mult)
+function [lh,glh,varargout] = Harmonic_LH(p,y,gi)
 % parameters are 
 % p(1)=lqw,    log angular velocity variance
 % p(2)=lr,     log measurement variance
@@ -6,9 +6,7 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi,mult)
 
   global m0 P0 H c
     
-  if nargin < 4
-    mult = 1;
-  end
+
   if nargin < 3
     gi = [];
   end
@@ -67,7 +65,6 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi,mult)
       [m,S,K,my,CSy,CC] = SigmaKF_Update(m_,S_,yy,h,SR,usig,w);
       %%% CSy and CC are Cholesky decompositions _HERE_ %%%
       Sy = CSy*CSy';
-      C = CC*CC';
       MM(:,k+1) = m;
       SS(:,:,k+1) = S;
       lh = lh + likelihood(yy-my,Sy);
@@ -82,11 +79,12 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi,mult)
       end
       
   end
-  lh = mult*lh;
-  glh = mult*glh;
   if nargout > 2
     varargout{1} = MM;
     varargout{2} = SS;
+  end
+  if nargout > 4
+    varargout{3} = SQ;
   end
   
 end

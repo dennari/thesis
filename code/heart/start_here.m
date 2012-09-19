@@ -1,6 +1,6 @@
 
 %% Setup
-global dt H c m0 P0
+global dt H c m0 P0 h f
 N = 500;
 T = 25;
 dt = T/N;
@@ -141,5 +141,59 @@ subplot(n,m,3);
 plot(as,sqrt((glbs-glhs).^2)); grid on;
 
 %save('../../data/simulateHeartR.mat','lhs','glhs','glbs');
+
+%% Test EM and BFGS
+
+
+% parameters are 
+% p(1)=lqw,    log angular velocity variance
+% p(2)=lr,     log measurement variance
+% p(3:3+c-1)   log signal component variances
+
+
+p00 = [lqw lr repmat(lqx,1,c)];
+gi = 1; % which one we're estimating
+
+
+min_iter_em =   10;
+max_iter_em =   10;
+min_iter_bfgs = 15;
+max_iter_bfgs = 15;
+NN = 1;
+est_em =   zeros(numel(gi),max_iter_em,NN);
+est_bfgs = zeros(numel(gi),max_iter_bfgs,NN);
+
+evals_em = zeros(1,NN);
+evals_bfgs = zeros(2,NN);
+
+Y = ys;
+
+for k=1:NN
+  k 
+ 
+  
+  % INITIAL POINT
+  %p0 = p00;
+  %p0(gi) = p0(gi)*(rand+0.5);
+  
+  % EM
+%   tic;
+%   [~,~,vals] = Harmonic_EM(p0,gi,Y,[],[],max_iter_em,min_iter_em);
+%   tm = toc;
+%   est_em(:,:,k) = vals;
+%   evals_em(1,k) = tm;
+  
+  % BFGS
+  tic;
+  [~,~,vals,fcn_evals] = Harmonic_BFGS(p0,gi,Y,[],[],max_iter_bfgs,min_iter_bfgs);
+  tm = toc;
+  num = size(vals,2);
+  est_bfgs(:,1:num,k) = vals;
+  if num < max_iter_bfgs
+    est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
+  end
+  evals_bfgs(:,k) = [tm;fcn_evals];
+end
+
 
     
