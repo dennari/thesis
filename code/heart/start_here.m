@@ -108,7 +108,7 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 
 p0 = [lqw lr repmat(lqx,1,c)];
 gi = 2; % which one we're estimating
-true = exp(p0(gi));
+true = p0(gi);
 
 NN = 40;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
@@ -133,7 +133,7 @@ for j=1:NN
     glbs(j) = EM_LB_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
 end
 
-n = 4; m= 1;
+n = 4; m= 1; true = exp(true);
 figure(1); clf;
 subplot(n,m,1);
 plot(exp(as),lhs'); grid on; title('likelihood'); hold on;
@@ -148,7 +148,7 @@ subplot(n,m,4);
 plot(exp(as(1:end-1)),diff(lhs)./diff(as)); grid on; title('dNum'); hold on;
 plot([true true],ylim,'-r');
 
-save('../data/simulateHeartR.mat','lhs','glhs','glbs');
+save('../data/simulateHeartR.mat');
 
 %% Test EM and BFGS
 

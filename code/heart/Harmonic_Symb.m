@@ -26,10 +26,35 @@ subs(Q,[g dt Qc],[g_r dt_r Qc_r])
 
 %% Jacobian of f
 
-syms x1 x2 x3 dt j real
+syms dt x_ J real
+
+
 
 %diff(cos(dt*j*x1)*x2+(sin(dt*j*x1)/(j*x1))*x3,x1)
-diff(-j*x1*sin(dt*j*x1)*x2+cos(dt*j*x1)*x3,x3)
+%diff(-j*x1*sin(dt*j*x1)*x2+cos(dt*j*x1)*x3,x3);
+
+c = 3;
+x = sym('x%d',[2*c+1,1]); % in
+A = @(w) [(cos(dt*w)), (sin(dt*w)/w);
+          (-w*sin(dt*w)), (cos(dt*w))];
+As = cell(1,c);
+for j=1:c
+    As{j} = A(j*x(1)); % multiples of fundamental w
+end
+
+% out
+x_(1) = x(1); % noise driven
+x_(2:2*c+1) = blkdiag(As{:})*x(2:end);
+
+
+for i=1:2*c+1
+  for j=1:2*c+1
+    J(i,j) = diff(x_(i),x(j));
+  end
+end
+
+
+
 
 %% M-step equations
 
