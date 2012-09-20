@@ -1,25 +1,22 @@
-function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi,mult)
+function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi)
 % parameters are 
-% p{1}=v0x, x component of the mean of the initial velocity
-% p{2}=v0y, y component of the mean of the initial velocity 
-% p{3}=qx,  x process variance
-% p{4}=qy,  y process variance
-% p{5}=r,   measurement _STD_
+%
+% p{1}=lqx,  x process variance
+% p{2}=lqy,  y process variance
+% p{3}=lr,   measurement variance
 
-    global A H P0 u
-    if nargin < 4
-      mult = 1;
-    end
+    global A H P0 m0 u
+
     if nargin < 3
       gi = [];
     end
     
-
+    Q = ballisticQ2D(p(1),p(2));
+    R = ballisticR(p(3:end));
  
-    SQ = chol(ballisticQ2D(p(3),p(4)),'lower');
-    SR = sqrt(p(5))*eye(size(y,1));
-    %m0 = [0 p(1) g0x 0 p(2) g0y]';
-    m0 = [0 p(1) 0 p(2)]';
+    SQ = chol(Q,'lower');
+    SR = chol(R,'lower');
+
     f = @(x) A*x;
     h = @(x) H*x;
     Jf = @(x) A;
@@ -33,7 +30,7 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi,mult)
     SS = zeros(xDim,xDim,N+1); SS(:,:,1) = P0;
     dm0 = zeros(xDim,1); dP0 = zeros(xDim);
     m = m0; S = P0; lh = 0; 
-    glh = zeros(numel(gi),1); dm_o = dm0; dP_o = dP0;
+    glh = zeros(numel(gi),1);
     
       % initialize the partial derivative structures
     if ~isempty(gi)
@@ -51,7 +48,7 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi,mult)
         % run the partial derivative predictions
         for i=1:numel(gi)
           [dm,dP] = dd{i}{:};
-          [dQ,~] = dQdR(gi(i));
+          [dQ,~] = dQdR(gi(i),p);
           [dm_,dP_] = dSigmaKF_Predict(m,m_,S,f,dm,dP,dQ,Jf,usig,w);
           dd_{i} = {dm_,dP_}; 
         end
@@ -69,7 +66,7 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi,mult)
         % run the partial derivative updates
         for i=1:numel(gi)
           [dm_,dP_] = dd_{i}{:};
-          [~,dR] = dQdR(gi(i));
+          [~,dR] = dQdR(gi(i),p);
           [dm,dP,dmy,dSy] = dSigmaKF_Update(m_,S_,h,dm_,dP_,K,my,Sy,yy,dR,Jh,usig,w);
           dd{i} = {dm,dP};
           glh(i) = glh(i) + dlikelihood(Sy,dSy,yy,my,dmy);
@@ -77,8 +74,6 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi,mult)
 
 
     end
-    lh = mult*lh;
-    glh = mult*glh;
     if nargout > 2
       varargout{1} = MM;
       varargout{2} = SS;
@@ -86,27 +81,21 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi,mult)
 
 end
 
-function [dQ,dR]=dQdR(i)
+function [dQ,dR]=dQdR(i,p)
   global A H
   
-    dA = zeros(size(A));
     dQ = zeros(size(A));
     dR = zeros(size(H,1));
 
-    if(i==1) % dlh/dv0x
-        dA(1,1) = 1;
+
+    if(i==1) % dlh/dqx
+        dQ = ballisticQ2D(1,0)*exp(-p(i));
     end
-    if(i==2) % dlh/dv0y
-        dA(1,2) = 1;
+    if(i==2) % dlh/dqy
+        dQ = ballisticQ2D(0,1)*exp(-p(i));
     end
-    if(i==3) % dlh/dqx
-        dQ = ballisticQ2D(1,0);
-    end
-    if(i==4) % dlh/dqy
-        dQ = ballisticQ2D(0,1);
-    end
-    if(i==5) % dlh/dr
-        dR = eye(size(dR,1));
+    if(i==3) % dlh/dr
+        dR = eye(size(dR,1))*exp(-p(i));
     end
   
 end

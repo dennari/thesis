@@ -2,36 +2,40 @@
 
 global dt m0 P0 H A g0x g0y u
 
+dt = 0.25;
 N = 500;
-T = 14;
-dt = T/N;
+T = dt*N;
 
 
 
+%%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
+lqx = log(0.9);       % parameterization in logarithm of standard deviation
+lqy = lqx-log(3);
+lr =  log(3);
 
 
 K = (0:N)*dt;
-v0 = 300/3.6; % magnitude of the initial velocity
-qx = 0.9^2;
-qy = qx;%0;%qx/10;
+v0 = 1300/3.6; % magnitude of the initial velocity
+
 
 alpha0 = (60/180)*pi; % initial direction
 v0x = v0*cos(alpha0);
 v0y = v0*sin(alpha0);
 g0y = -9.81; % initial y acceleration
 g0x = -1; % initial x acceleration
-
-Q = ballisticQ2D(qx,qy);
-SQ = chol(Q,'lower');
 A1 = [1 dt; 
       0 1];  
 A = blkdiag(A1,A1); % for two dimensions
 f = @(x) A*x;
 H = zeros(2,4); H(1,1) = 1; H(2,3) = 1;
-r = (0.9)^2;
+
+
+
+Q = ballisticQ2D(lqx,lqy);
+SQ = chol(Q,'lower');
 h = @(x) H*x;
-R = r*eye(2);
-SR = sqrt(r)*eye(2);
+R = ballisticR(lr);
+SR = chol(R,'lower');
 u = [0 dt*g0x 0 dt*g0y]';
 
 m0 = [0 v0x 0 v0y]';
@@ -70,8 +74,8 @@ for k=1:(N+1)
     [m2_,S_] = SigmaKF_Predict(m2,S,f,SQ,u,usig,w);
     if k==N+1; break; end; 
 
-    [m,P,~,IM,IS] = kf_update(m_,P_,y(:,k+1),H,R);
-    [m2,S,~,IM,IS] = SigmaKF_Update(m2_,S_,y(:,k+1),h,SR,usig,w);
+    [m,P,~,my,Sy] = kf_update(m_,P_,y(:,k+1),H,R);
+    [m2,S] = SigmaKF_Update(m2_,S_,y(:,k+1),h,SR,usig,w);
     
     
     if k < 10
@@ -87,7 +91,7 @@ for k=1:(N+1)
     MM(:,k+1) = m;
     PP(:,:,k+1) = P;
     %likelihood(y(:,k+1)-IM,IS)
-    lh = lh + likelihood(y(:,k+1)-IM,IS);
+    %lh = lh + likelihood(y(:,k+1)-IM,IS);
 
 end
 
@@ -129,23 +133,21 @@ plot(K,squeeze(PP(3,3,:)));
 %% Compute LH and gradient on grid
 
 % parameters are 
-% p{1}=v0x, x component of the mean of the initial velocity
-% p{2}=v0y, y component of the mean of the initial velocity 
-% p{3}=qx,  x process variance
-% p{4}=qy,  y process variance
-% p{5}=r,   measurement variance
-% set up the starting point
-p0 = [v0x v0y qx qy r];
+%
+% p{1}=lqx,  x process variance
+% p{2}=lqy,  y process variance
+% p{3}=lr,   measurement variance
+p0 = [lqx lqy lr];
 p = p0;
-NN = 25;
-lhs = zeros(2,NN); glhs = lhs; glbs = lhs;
+NN = 50;
+lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
-gi = 5;
+gi = 1;
 
 %as = linspace(0.5*qx,1.5*qx,NN);
-as = linspace(0.5*p0(gi),1.5*p0(gi),NN);
-
+true = p0(gi);
+as = linspace(true+log(0.7),true-log(0.7),NN);
 
 for j=1:NN
   j
@@ -160,33 +162,53 @@ for j=1:NN
     glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
     
     % Sigma Filter and Smoother
-    [lh,glh,MMM,SSS] = Ballistic_LH_Sigma(p,ys,gi);
-    lhs(2,j) = lh;
-    glhs(2,j) = glh;
-    %SQ = chol(ballisticQ2D(p(3),p(4)),'lower');
-    [MMS,SS,DD] = SigmaSmoothSR(MMM,SSS,f,SQ,u,usig,w); % D = Smoother Gain
-    [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DD);
-    glbs(2,j) = EM_LB_Ballistic(p,MMS(:,1),gi,N,I1,I2,I3);
+%     [lh,glh,MMM,SSS] = Ballistic_LH_Sigma(p,ys,gi);
+%     lhs(2,j) = lh;
+%     glhs(2,j) = glh;
+%     %SQ = chol(ballisticQ2D(p(3),p(4)),'lower');
+%     [MMS,SS,DD] = SigmaSmoothSR(MMM,SSS,f,SQ,u,usig,w); % D = Smoother Gain
+%     [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DD);
+%     glbs(2,j) = EM_LB_Ballistic(p,MMS(:,1),gi,N,I1,I2,I3);
     
 end
 
-n = 3; m= 2;
+
+n = 4; m= 1;
 figure(1); clf;
 subplot(n,m,1);
-plot(as,lhs'); grid on;
-subplot(n,m,3);
-plot(as,glhs'); grid on;
-subplot(n,m,5);
-plot(as,glbs'); grid on;
+eas = exp(as);
+plot(eas,lhs'); grid on;
 subplot(n,m,2);
-%plot(K,MM(1,:)-MMM(1,:));
-plot(as,sqrt((lhs(1,:)-lhs(2,:)).^2));
+plot(eas,glhs'); grid on;
+subplot(n,m,3);
+plot(eas,glbs'); grid on;
 subplot(n,m,4);
-%plot(K,squeeze(PP(1,1,:))-squeeze(SSS(1,1,:)).^2);
-plot(as,sqrt((glhs(1,:)-glhs(2,:)).^2));
-subplot(n,m,6);
-%plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
-plot(as,sqrt((glbs(1,:)-glbs(2,:)).^2));
+plot(eas(1:end-1),diff(lhs(1,:))./diff(as)); grid on;
+
+
+% n = 4; m= 2;
+% figure(1); clf;
+% subplot(n,m,1);
+% eas = exp(as);
+% plot(eas,lhs'); grid on;
+% subplot(n,m,3);
+% plot(eas,glhs'); grid on;
+% subplot(n,m,5);
+% plot(eas,glbs'); grid on;
+% subplot(n,m,2);
+% %plot(K,MM(1,:)-MMM(1,:));
+% plot(eas,sqrt((lhs(1,:)-lhs(2,:)).^2));
+% subplot(n,m,4);
+% %plot(K,squeeze(PP(1,1,:))-squeeze(SSS(1,1,:)).^2);
+% plot(eas,sqrt((glhs(1,:)-glhs(2,:)).^2));
+% subplot(n,m,6);
+% %plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
+% plot(eas,sqrt((glbs(1,:)-glbs(2,:)).^2));
+% subplot(n,m,7);
+% %plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
+% plot(eas(1:end-1),diff(lhs(1,:))./diff(as),eas(1:end-1),diff(lhs(2,:))./diff(as)); grid on;
+
+
 %plot(glbs(2,:));
 
 %plot(as,lhs,[p0(gi) p0(gi)],[min(lhs) max(lhs)],'-r'); grid ON; title('Likelihood');
@@ -210,7 +232,7 @@ plot(as,sqrt((glbs(1,:)-glbs(2,:)).^2));
 % plot(as,lhsSR-lbsSR);grid on;
 %% Test optimizations
 gi = 5;
-p_true = [v0x v0y qx qy r]; % initial guess
+p_true = [v0x v0y lqx lqy r]; % initial guess
 true = p_true(gi);
 min_iter_em =   10;
 max_iter_em =   10;

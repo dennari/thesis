@@ -1,12 +1,11 @@
-function [lh,glh,varargout] = Ballistic_LH(p,y,gi,mult)
+function [lh,glh,varargout] = Ballistic_LH(p,y,gi)
 % parameters are 
-% p{1}=v0x, x component of the mean of the initial velocity
-% p{2}=v0y, y component of the mean of the initial velocity 
-% p{3}=qx,  x process variance
-% p{4}=qy,  y process variance
-% p{5}=r,   measurement _STD_
+%
+% p{1}=lqx,  x process variance
+% p{2}=lqy,  y process variance
+% p{3}=lr,   measurement variance
 
-    global A H P0 g0x g0y u
+    global A H P0 u m0
     if nargin < 4
       mult = 1;
     end
@@ -14,17 +13,10 @@ function [lh,glh,varargout] = Ballistic_LH(p,y,gi,mult)
       gi = [];
     end
     
-    if iscell(p)
-      Q = p{1};
-      R = p{2};
-      m0 = [0 p{3} g0x 0 p{4} g0y]';
-    else
-      Q = ballisticQ2D(p(3),p(4));
-      R = p(5)*eye(size(y,1));
-      %m0 = [0 p(1) g0x 0 p(2) g0y]';
-      m0 = [0 p(1) 0 p(2)]';
-    end
-    
+
+    Q = ballisticQ2D(p(1),p(2));
+    R = ballisticR(p(3:end));
+
     
     xDim = size(A,1);
     N = size(y,2)-1; % it is assumed that x0 has y0
@@ -48,12 +40,10 @@ function [lh,glh,varargout] = Ballistic_LH(p,y,gi,mult)
         
         if ~isempty(gi)
           [dm,dP,GLH] = ballistic_sensitivityeq(dm,dP,A,H,gi,y(:,k+1)-IM,...
-                          IS,P_*H', MM(:,k),PP(:,:,k));
+                          IS,P_*H', MM(:,k),PP(:,:,k),p);
           glh = glh + GLH;
         end
     end
-    lh = mult*lh;
-    glh = mult*glh;
     if nargout > 2
       varargout{1} = MM;
       varargout{2} = PP;

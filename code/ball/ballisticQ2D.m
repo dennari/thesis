@@ -1,6 +1,13 @@
-function [ Q ] = ballisticQ2D( qx,qy )
+function [ Q ] = ballisticQ2D( qx,qy,notransform)
 global dt
+if nargin < 3
+   notransform = 0;
+end
 
+if ~notransform % by default it is assumed that input is in log(std)
+  qx = exp(2*qx);
+  qy = exp(2*qy);
+end
 %   +-                -+
 %   |       3       2  |
 %   |  Qx dt   Qx dt   |

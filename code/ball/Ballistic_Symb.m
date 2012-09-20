@@ -29,11 +29,12 @@ R   = r*eye(2);
 %% Compute the LB and M-steps in closed form
 
 I = sym('I%d%d',[2 2]);
+syms lq lr real
 lbq = -0.5*trace(Q\I)-0.5*N*log(det(Q));
-dlbq = diff(lbq,q)
+dlbq_q = simple(2*diff(lbq,q)*q);
 
 lbr = -0.5*trace(R\I)-0.5*N*log(det(R));
-dlbr = diff(lbr,r)
+dlbr_r = simple(2*diff(lbr,r)*r);
 
-solve(dlbq==0,q)
-solve(dlbr==0,r)
+% solve(dlbq==0,q)
+% solve(dlbr==0,r)

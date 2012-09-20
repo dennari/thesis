@@ -134,7 +134,7 @@ for j=1:NN
     glbs(j) = EM_LB_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
 end
 
-n = 4; m= 1; true = exp(true);
+n = 4; m= 1; %true = exp(true);
 figure(1); clf;
 subplot(n,m,1);
 plot(exp(as),lhs'); grid on; title('likelihood'); hold on;
@@ -148,6 +148,25 @@ plot([true true],ylim,'-r');
 subplot(n,m,4);
 plot(exp(as(1:end-1)),diff(lhs)./diff(as)); grid on; title('dNum'); hold on;
 plot([true true],ylim,'-r');
+
+eas = exp(as);
+fr = 25;
+n = 4; m= 1; %true = exp(true);
+figure(1); clf;
+subplot(n,m,1);
+plot(eas(fr:end),lhs(fr:end)); grid on; title('likelihood'); hold on;
+plot([true true],ylim,'-r');
+subplot(n,m,2);
+plot(eas(fr:end),glhs(fr:end)); grid on; title('dSens'); hold on;
+plot([true true],ylim,'-r');
+subplot(n,m,3);
+plot(eas(fr:end),glbs(fr:end)); grid on; title('dEM'); hold on;
+plot([true true],ylim,'-r');
+subplot(n,m,4);
+plot(eas(fr:end-1),diff(lhs(fr:end))./diff(as(fr:end))); grid on; title('dNum'); hold on;
+plot([true true],ylim,'-r');
+
+
 
 save('../data/simulateHeartR.mat');
 

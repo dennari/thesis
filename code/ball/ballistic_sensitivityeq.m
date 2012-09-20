@@ -1,4 +1,4 @@
-function [dm,dP,glh ] = ballistic_sensitivityeq(dm,dP,A,H,gi,d,S,C,m,P)
+function [dm,dP,glh ] = ballistic_sensitivityeq(dm,dP,A,H,gi,d,S,C,m,P,p)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 			% for AR(1) model
@@ -8,25 +8,18 @@ K = C/S;
 glh = zeros(numel(gi),1);            
     
 for j=1:numel(gi)
-
     dA = zeros(size(A));
     dQ = zeros(size(A));
     dR = zeros(size(d,1));
 
-    if(gi(j)==1) % dlh/dv0x
-        dA(1,1) = 1;
+    if(gi(j)==1) % dlh/dqx
+        dQ = ballisticQ2D(1,0,1)*2*exp(2*p(1));
     end
-    if(gi(j)==2) % dlh/dv0y
-        dA(1,2) = 1;
+    if(gi(j)==2) % dlh/dqy
+        dQ = ballisticQ2D(0,1,1)*2*exp(2*p(2));
     end
-    if(gi(j)==3) % dlh/dqx
-        dQ = ballisticQ2D(1,0);
-    end
-    if(gi(j)==4) % dlh/dqy
-        dQ = ballisticQ2D(0,1);
-    end
-    if(gi(j)==5) % dlh/dr
-        dR = eye(size(dR,1));
+    if(gi(j)==3) % dlh/dr
+        dR = eye(size(dR,1))*2*exp(2*p(3));
     end
     
     
