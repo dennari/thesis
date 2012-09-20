@@ -1,18 +1,26 @@
 %% r - estimates
 
-load('../data/simulateHeartR.mat');
-NN = length(lhs);
-true = 0.1;
-as = linspace(0.5*true,1.5*true,NN);
-n = 3; m= 1;
-figure(1); clf;
-subplot(n,m,1);
-plot(as,lhs'); grid on;
-subplot(n,m,2);
-plot(as,glhs,as,glbs); grid on;
-subplot(n,m,3);
-plot(as,sqrt((glbs-glhs).^2)); grid on;
 
+load('../data/CardiacRealQw.mat');
+NN = size(est_em,3);
+%true = p_true(5);
+max_iter_em = 50;
+max_iter_bfgs = 10;
+% Separate
+figure(1); clf;
+est_em1 =   reshape(est_em,[max_iter_em NN  1]);
+est_bfgs1 = reshape(est_bfgs,[max_iter_bfgs NN 1]);
+subplot(2,1,1);
+plot(exp(est_em1),'-b');
+%ylim([-0.5,0.5]);xlim([1,max_iter_em]);
+subplot(2,1,2);
+plot(exp(est_bfgs1),'-b');
+%ylim([-0.5,0.5]);xlim([1,max_iter_bfgs]);
+
+% RMSE over datasets
+%figure(2); clf;
+%plot(1:max_iter_em,sqrt(mean((true-est_em1').^2)),'-b',...
+%     1:max_iter_em,sqrt(mean((true-est_bfgs1(1:max_iter_em,:)').^2)),'-r')
 %% Export
 
 textwidth = 426.79134/72.27; % latex textwidth in inches

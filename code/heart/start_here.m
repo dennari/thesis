@@ -109,7 +109,7 @@ p0 = [lqw lr repmat(lqx,1,c)];
 gi = 1; % which one we're estimating
 true = p0(gi);
 
-NN = 25;
+NN = 50;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
@@ -134,11 +134,12 @@ end
 n = 3; m= 1;
 figure(1); clf;
 subplot(n,m,1);
-plot(as,lhs'); grid on;
+plot(exp(as),lhs'); grid on; title('likelihood');
 subplot(n,m,2);
-plot(as,glhs,as,glbs); grid on;
+plot(exp(as),glhs); grid on; title('dSens');
 subplot(n,m,3);
-plot(as,sqrt((glbs-glhs).^2)); grid on;
+plot(exp(as),glbs); grid on; title('dEM');
+
 
 %save('../../data/simulateHeartR.mat','lhs','glhs','glbs');
 
