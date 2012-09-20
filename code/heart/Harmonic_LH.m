@@ -62,7 +62,7 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi)
       if k==N+1; break; end; 
       
       yy = y(:,k+1);
-      [m,S,K,my,CSy,CC] = SigmaKF_Update(m_,S_,yy,h,SR,usig,w);
+      [m,S,K,my,CSy] = SigmaKF_Update(m_,S_,yy,h,SR,usig,w);
       %%% CSy and CC are Cholesky decompositions _HERE_ %%%
       Sy = CSy*CSy';
       MM(:,k+1) = m;

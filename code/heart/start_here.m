@@ -1,7 +1,7 @@
 
 %% Setup
 global dt H c m0 P0 h f
-N = 500;
+N = 1500;
 T = 25;
 dt = T/N;
 
@@ -9,7 +9,7 @@ K = (0:N)*dt;
 
 % the parameters of this model
 lqx = log(0.7);           % log Dynamic model noise spectral density
-lqw = log(0.1);           % log angular velocity variance
+lqw = log(0.001);           % log angular velocity variance
 lr =  log(0.02);          % log measurement noise
 
 
@@ -76,7 +76,7 @@ for k=1:(N+1)
     
     MM(:,k+1) = m;
     SS(:,:,k+1) = S;
-    %likelihood(y(:,k+1)-IM,IS)
+    likelihood(y(:,k+1)-IM,IS)
     lh = lh + likelihood(y(:,k+1)-IM,IS);
 
 end
@@ -106,17 +106,17 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 
 
 p0 = [lqw lr repmat(lqx,1,c)];
-gi = 1; % which one we're estimating
-true = p0(gi);
+gi = 3; % which one we're estimating
+true = exp(p0(gi));
 
-NN = 50;
+NN = 25;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
 
 
-rnge = true+log(5);
-as = linspace(true-rnge,true+rnge,NN);
+rnge = abs(true)-log(3);
+as = linspace(true-1.8*rnge,true+0.2*rnge,NN);
 
 p = p0;
 for j=1:NN
@@ -124,6 +124,7 @@ for j=1:NN
     p(gi) = as(j);
     
     [lh,glh,MM,SS] = Harmonic_LH(p,ys,gi);
+    %lh = Harmonic_LH(p,ys);
     lhs(j) = lh;
     glhs(j) = glh;
     [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); % D = Smoother Gain
@@ -131,17 +132,22 @@ for j=1:NN
     glbs(j) = EM_LB_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
 end
 
-n = 3; m= 1;
+n = 4; m= 1;
 figure(1); clf;
 subplot(n,m,1);
-plot(exp(as),lhs'); grid on; title('likelihood');
+plot(exp(as),lhs'); grid on; title('likelihood'); hold on;
+plot([true true],ylim,'-r');
 subplot(n,m,2);
-plot(exp(as),glhs); grid on; title('dSens');
+plot(exp(as),glhs); grid on; title('dSens'); hold on;
+plot([true true],ylim,'-r');
 subplot(n,m,3);
-plot(exp(as),glbs); grid on; title('dEM');
+plot(exp(as),glbs); grid on; title('dEM'); hold on;
+plot([true true],ylim,'-r');
+subplot(n,m,4);
+plot(exp(as(1:end-1)),diff(lhs)./diff(as)); grid on; title('dNum'); hold on;
+plot([true true],ylim,'-r');
 
-
-%save('../../data/simulateHeartR.mat','lhs','glhs','glbs');
+save('../data/simulateHeartR.mat','lhs','glhs','glbs');
 
 %% Test EM and BFGS
 
