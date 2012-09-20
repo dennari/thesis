@@ -53,6 +53,8 @@ for i=1:2*c+1
   end
 end
 
+J1 = subs(J,{dt 'x1' 'x2' 'x3' 'x4' 'x5' 'x6' 'x7'},num2cell([0.01 xx']));
+
 
 
 
@@ -107,9 +109,29 @@ end
 
 ans1-ans2/(3*N*dt^3)
 
-%% wq
+%% partial derivatives
+syms qw dt q1 q2 q3 positive;
 
-solve(diff(lbq,qw)==0,qw)
+Q11 = dt^2/3;
+Q12 = dt/2;
+Q22 = 1;
+qx = [q1 q1 q1];
+c = cell(1,3);
+c{1} = qw;
+for k = 1:numel(qx)
+    c{k+1} = exp(qx(k))*dt*[Q11 Q12; Q12 Q22];
+end
+
+Q = blkdiag(c{:});
+diff(Q,q1)*exp(-q1)
+
+
+
+
+
+
+
+
 
 %% r
 

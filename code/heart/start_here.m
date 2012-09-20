@@ -110,14 +110,15 @@ p0 = [lqw lr repmat(lqx,1,c)];
 gi = 2; % which one we're estimating
 true = p0(gi);
 
-NN = 40;
+NN = 50;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
 
 
-rnge = abs(true)-log(3);
-as = linspace(true-1.8*rnge,true+0.2*rnge,NN);
+start = log(exp(true)/10);
+endd = log(5*exp(true));
+as = linspace(start,endd,NN);
 
 p = p0;
 for j=1:NN
