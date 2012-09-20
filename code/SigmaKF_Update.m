@@ -28,6 +28,12 @@ function [m,S,K,my,Sy,C] = SigmaKF_Update(m,S,y,h,SR,usig,w)
   U = U';
 
   Sy = U(1:YD,1:YD);
+  %if Sy < 0
+    %disp('J00');
+    %disp(U);
+  %end
+  
+  
   C = U((YD+1):end,1:YD);
 
   % the gain

@@ -9,7 +9,7 @@ K = (0:N)*dt;
 
 % the parameters of this model
 lqx = log(0.7);           % log Dynamic model noise spectral density
-lqw = log(0.001);           % log angular velocity variance
+lqw = log(0.04);           % log angular velocity variance
 lr =  log(0.02);          % log measurement noise
 
 
@@ -59,6 +59,7 @@ for k=2:N+1
 	ys(:,k) = mvnrnd(h(x),R)';
   
 end
+
 %u = zeros(size(x));
 y = ys;
 MM = zeros(xDim,N+1); MM(:,1) = m0;
@@ -71,13 +72,13 @@ for k=1:(N+1)
     [m_,S_] = SigmaKF_Predict(m,S,f,SQ,[],usig,w);
     if k==N+1; break; end; 
 
-    [m,S,~,IM,IS] = SigmaKF_Update(m_,S_,y(:,k+1),h,SR,usig,w);
+    [m,S,~,my,Sy] = SigmaKF_Update(m_,S_,y(:,k+1),h,SR,usig,w);
     
     
     MM(:,k+1) = m;
     SS(:,:,k+1) = S;
-    likelihood(y(:,k+1)-IM,IS)
-    lh = lh + likelihood(y(:,k+1)-IM,IS);
+    %likelihood(y(:,k+1)-IM,IS)
+    lh = lh + likelihood(y(:,k+1)-my,Sy*Sy');
 
 end
 [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); 
@@ -106,10 +107,10 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 
 
 p0 = [lqw lr repmat(lqx,1,c)];
-gi = 3; % which one we're estimating
+gi = 2; % which one we're estimating
 true = exp(p0(gi));
 
-NN = 25;
+NN = 40;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
@@ -152,55 +153,55 @@ save('../data/simulateHeartR.mat','lhs','glhs','glbs');
 %% Test EM and BFGS
 
 
-% parameters are 
-% p(1)=lqw,    log angular velocity variance
-% p(2)=lr,     log measurement variance
-% p(3:3+c-1)   log signal component variances
-
-
-p00 = [lqw lr repmat(lqx,1,c)];
-gi = 1; % which one we're estimating
-
-
-min_iter_em =   10;
-max_iter_em =   10;
-min_iter_bfgs = 15;
-max_iter_bfgs = 15;
-NN = 1;
-est_em =   zeros(numel(gi),max_iter_em,NN);
-est_bfgs = zeros(numel(gi),max_iter_bfgs,NN);
-
-evals_em = zeros(1,NN);
-evals_bfgs = zeros(2,NN);
-
-Y = ys;
-
-for k=1:NN
-  k 
- 
-  
-  % INITIAL POINT
-  %p0 = p00;
-  %p0(gi) = p0(gi)*(rand+0.5);
-  
-  % EM
+% % parameters are 
+% % p(1)=lqw,    log angular velocity variance
+% % p(2)=lr,     log measurement variance
+% % p(3:3+c-1)   log signal component variances
+% 
+% 
+% p00 = [lqw lr repmat(lqx,1,c)];
+% gi = 1; % which one we're estimating
+% 
+% 
+% min_iter_em =   10;
+% max_iter_em =   10;
+% min_iter_bfgs = 15;
+% max_iter_bfgs = 15;
+% NN = 1;
+% est_em =   zeros(numel(gi),max_iter_em,NN);
+% est_bfgs = zeros(numel(gi),max_iter_bfgs,NN);
+% 
+% evals_em = zeros(1,NN);
+% evals_bfgs = zeros(2,NN);
+% 
+% Y = ys;
+% 
+% for k=1:NN
+%   k 
+%  
+%   
+%   % INITIAL POINT
+%   %p0 = p00;
+%   %p0(gi) = p0(gi)*(rand+0.5);
+%   
+%   % EM
+% %   tic;
+% %   [~,~,vals] = Harmonic_EM(p0,gi,Y,[],[],max_iter_em,min_iter_em);
+% %   tm = toc;
+% %   est_em(:,:,k) = vals;
+% %   evals_em(1,k) = tm;
+%   
+%   % BFGS
 %   tic;
-%   [~,~,vals] = Harmonic_EM(p0,gi,Y,[],[],max_iter_em,min_iter_em);
+%   [~,~,vals,fcn_evals] = Harmonic_BFGS(p0,gi,Y,[],[],max_iter_bfgs,min_iter_bfgs);
 %   tm = toc;
-%   est_em(:,:,k) = vals;
-%   evals_em(1,k) = tm;
-  
-  % BFGS
-  tic;
-  [~,~,vals,fcn_evals] = Harmonic_BFGS(p0,gi,Y,[],[],max_iter_bfgs,min_iter_bfgs);
-  tm = toc;
-  num = size(vals,2);
-  est_bfgs(:,1:num,k) = vals;
-  if num < max_iter_bfgs
-    est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
-  end
-  evals_bfgs(:,k) = [tm;fcn_evals];
-end
+%   num = size(vals,2);
+%   est_bfgs(:,1:num,k) = vals;
+%   if num < max_iter_bfgs
+%     est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
+%   end
+%   evals_bfgs(:,k) = [tm;fcn_evals];
+% end
 
 
     
