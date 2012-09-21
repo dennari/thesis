@@ -2,20 +2,20 @@
 
 global dt m0 P0 H A g0x g0y u
 
-dt = 0.25;
-N = 500;
-T = dt*N;
 
+N = 1800;
+T = 14;
+dt = T/N;
 
 
 %%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
-lqx = log(0.9);       % parameterization in logarithm of standard deviation
+lqx = log(0.8);       % parameterization in logarithm of standard deviation
 lqy = lqx-log(3);
-lr =  log(3);
+lr =  log(2);
 
 
 K = (0:N)*dt;
-v0 = 1300/3.6; % magnitude of the initial velocity
+v0 = 300/3.6; % magnitude of the initial velocity
 
 
 alpha0 = (60/180)*pi; % initial direction
@@ -26,7 +26,6 @@ g0x = -1; % initial x acceleration
 A1 = [1 dt; 
       0 1];  
 A = blkdiag(A1,A1); % for two dimensions
-f = @(x) A*x;
 H = zeros(2,4); H(1,1) = 1; H(2,3) = 1;
 
 
@@ -38,8 +37,13 @@ R = ballisticR(lr);
 SR = chol(R,'lower');
 u = [0 dt*g0x 0 dt*g0y]';
 
+
 m0 = [0 v0x 0 v0y]';
 P0 = eye(size(m0,1));%diag([1e-6 7^-2 1e-6 7^-2]);
+
+%u = zeros(size(m0,1),1);
+f = @(x) A*x+repmat(u,1,size(x,2));
+
 
 %% Simulate
 [usig,w] = CKFPoints(size(A,1));
@@ -50,7 +54,7 @@ ys = zeros(2,N+1);
 
 % simulate
 x0 = m0;%mvnrnd(m0,P0)';
-atan(x0(4)/x0(2))*180/pi
+%atan(x0(4)/x0(2))*180/pi
 
 x = x0;
 xs(:,1) = x0;
@@ -58,7 +62,7 @@ ys(:,1) = H*x0;
 
 for k=2:N+1
 	x = mvnrnd(A*x,Q)'+u;
-	xs(:,k) = x;
+  xs(:,k) = x;
 	ys(:,k) = mvnrnd(H*x,R)';
 end
 %u = zeros(size(x));
@@ -66,12 +70,18 @@ y = ys;
 xDim = size(A,1);
 MM = zeros(xDim,N+1); MM(:,1) = m0;
 PP = zeros(xDim,xDim,N+1); PP(:,:,1) = P0;
+MM_ = zeros(xDim,N+1);
+PP_ = zeros(xDim,xDim,N+1);
+
 dm0 = zeros(xDim,1); dP0 = zeros(xDim);
 m = m0; P = P0; lh = 0; m2 = m0; S = P0;
 dm = dm0; dP = dP0;
 for k=1:(N+1)
     [m_,P_] = kf_predict(m,P,A,Q,[],u);
-    [m2_,S_] = SigmaKF_Predict(m2,S,f,SQ,u,usig,w);
+    [m2_,S_] = SigmaKF_Predict(m2,S,f,SQ,usig,w);
+    MM_(:,k) = m_;
+    PP_(:,:,k) = P_;
+    
     if k==N+1; break; end; 
 
     [m,P,~,my,Sy] = kf_update(m_,P_,y(:,k+1),H,R);
@@ -94,6 +104,7 @@ for k=1:(N+1)
     %lh = lh + likelihood(y(:,k+1)-IM,IS);
 
 end
+[MS,PS,DD] = rts_smooth2(MM,PP,MM_,PP_,A); % D = Smoother Gain
 
 
 
@@ -118,7 +129,8 @@ plot(K,squeeze(PP(2,2,:)));
 subplot(n,1,3);
 plot(K,squeeze(PP(3,3,:)));
 
-
+figure(4); clf;
+plot(K,sqrt(mean((xs-MM).^2)),K,sqrt(mean((xs-MS).^2)));
 
 
 
@@ -134,7 +146,7 @@ plot(K,squeeze(PP(3,3,:)));
 
 % parameters are 
 %
-% p{1}=lqx,  x process variance
+% p{1}=lqx,  x process variance, or shared if gi = 4
 % p{2}=lqy,  y process variance
 % p{3}=lr,   measurement variance
 p0 = [lqx lqy lr];
@@ -146,29 +158,47 @@ lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 gi = 1;
 
 %as = linspace(0.5*qx,1.5*qx,NN);
-true = p0(gi);
-as = linspace(true+log(0.7),true-log(0.7),NN);
+if gi == 4
+  true = p0(1);
+else
+  true = p0(gi);
+end  
+as = linspace(true+log(0.6),true-log(0.6),NN);
 
 for j=1:NN
   j
-    p(gi) = as(j);
+    
+    if gi == 4
+      p(1) = as(j);
+    else
+      p(gi) = as(j);
+    end
     
     % Basic filter and smoother
-    [lh,glh,MM,PP,MM_,PP_] = Ballistic_LH(p,ys,gi);
+%     [lh,glh,MM,PP,MM_,PP_] = Ballistic_LH(p,ys,gi);
+%     lhs(1,j) = lh;
+%     glhs(1,j) = glh;
+%     [MS,PS,DD] = rts_smooth2(MM,PP,MM_,PP_,A); % D = Smoother Gain
+%     [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD,u);
+%     glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
+%     % Sigma Filter and Smoother
+    [lh,glh,MMM,SSS] = Ballistic_LH_Sigma(p,ys,gi);
     lhs(1,j) = lh;
     glhs(1,j) = glh;
-    [MS,PS,DD] = rts_smooth2(MM,PP,MM_,PP_,A); % D = Smoother Gain
-    [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD);
-    glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
-    
+    SQ = chol(ballisticQ2D(p(1),p(2)),'lower');
+    [MMS,SS,DD] = SigmaSmoothSR(MMM,SSS,f,SQ,usig,w); % D = Smoother Gain
+    [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DD);
+    glbs(1,j) = EM_LB_Ballistic(p,MMS(:,1),gi,N,I1,I2,I3);
+
+    % SR filter and RTS smoother
+%     [lh,glh,MM,SS,MM_,SS_] = Ballistic_LH_SR(p,ys,gi);
+%     lhs(1,j) = lh;
+%     glhs(1,j) = glh;
+%     [MS,PS,DD] = rts_smooth_sr(MM,SS,MM_,SS_,A); % D = Smoother Gain
+%     [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD,u);
+%     glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
     % Sigma Filter and Smoother
-%     [lh,glh,MMM,SSS] = Ballistic_LH_Sigma(p,ys,gi);
-%     lhs(2,j) = lh;
-%     glhs(2,j) = glh;
-%     %SQ = chol(ballisticQ2D(p(3),p(4)),'lower');
-%     [MMS,SS,DD] = SigmaSmoothSR(MMM,SSS,f,SQ,u,usig,w); % D = Smoother Gain
-%     [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DD);
-%     glbs(2,j) = EM_LB_Ballistic(p,MMS(:,1),gi,N,I1,I2,I3);
+
     
 end
 
@@ -185,6 +215,8 @@ plot(eas,glbs'); grid on;
 subplot(n,m,4);
 plot(eas(1:end-1),diff(lhs(1,:))./diff(as)); grid on;
 
+% figure(2); clf;
+% plot(eas,glhs-glbs);
 
 % n = 4; m= 2;
 % figure(1); clf;
@@ -205,8 +237,24 @@ plot(eas(1:end-1),diff(lhs(1,:))./diff(as)); grid on;
 % %plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
 % plot(eas,sqrt((glbs(1,:)-glbs(2,:)).^2));
 % subplot(n,m,7);
-% %plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
-% plot(eas(1:end-1),diff(lhs(1,:))./diff(as),eas(1:end-1),diff(lhs(2,:))./diff(as)); grid on;
+%plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
+diff1 = diff(lhs(1,:))./diff(as);
+% diff2 = diff(lhs(2,:))./diff(as);
+% plot(eas(1:end-1),diff1,eas(1:end-1),diff2); grid on;
+% subplot(n,m,8);
+% plot(eas(1:end-1),sqrt((diff2-glhs(2,2:end)).^2),eas(1:end-1),sqrt((diff2-glbs(2,2:end)).^2),...
+%   eas(1:end-1),sqrt((diff1-glhs(1,2:end)).^2),eas(1:end-1),sqrt((diff1-glbs(1,2:end)).^2)); grid on;
+
+
+figure(2); clf;
+subplot(2,1,1);
+plot(eas(1:end-1),sqrt((diff1-glhs(1,2:end)).^2),eas(1:end-1),sqrt((diff1-glbs(1,2:end)).^2)); grid on;
+title('KF/RTS');
+% subplot(2,1,2);
+% plot(eas(1:end-1),sqrt((diff2-glhs(2,2:end)).^2),eas(1:end-1),sqrt((diff2-glbs(2,2:end)).^2)); grid on;
+% title('Sigma');
+
+
 
 
 %plot(glbs(2,:));

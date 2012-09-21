@@ -19,22 +19,30 @@ syms dt q r N positive;
 F = [ 0  1; 
       0  0];
 L = [0;1];
-A = simple(expm(F*dt));
+As = simple(expm(F*dt));
 n   = size(F,1);
 Phi = [F L*q*L'; zeros(n,n) -F'];
 AB  = expm(Phi*dt)*[zeros(n,n);eye(n)];
-Q   = simple(AB(1:n,:)/AB((n+1):(2*n),:));
-R   = r*eye(2);
+Qs   = simple(AB(1:n,:)/AB((n+1):(2*n),:));
+Rs   = r*eye(2);
 
 %% Compute the LB and M-steps in closed form
 
-I = sym('I%d%d',[2 2]);
-syms lq lr real
-lbq = -0.5*trace(Q\I)-0.5*N*log(det(Q));
-dlbq_q = simple(2*diff(lbq,q)*q);
 
 lbr = -0.5*trace(R\I)-0.5*N*log(det(R));
 dlbr_r = simple(2*diff(lbr,r)*r);
 
+
+%% Q
+
+I = sym('I%d%d',[4 4]);
+syms qx qy positive
+Qf = blkdiag(Qs/q*qx,Qs/q*qx);
+lbq = -0.5*trace(I/Qf)-0.5*N*log(det(Qf));
+%simple(diff(lbq,qx))
+dlbq_q = simple(2*diff(lbq,qx)*qx);
+
+
 % solve(dlbq==0,q)
 % solve(dlbr==0,r)
+

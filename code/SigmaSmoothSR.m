@@ -1,12 +1,12 @@
-function [ms,Ss,G] = SigmaSmoothSR(ms,Ss,f,SQ,u,usig,w)
+function [ms,Ss,G] = SigmaSmoothSR(ms,Ss,f,SQ,usig,w)
 	
 	XD = size(ms,1);
 	N = size(ms,2);
   NS = size(usig,2);
   G = zeros(XD,XD,N);
-  if nargin < 5 || isempty(u)
-    u = zeros(XD,1);
-  end
+%   if nargin < 5 || isempty(u)
+%     u = zeros(XD,1);
+%   end
   if size(w,2) < 2
     w(:,2) = w(:,1);
   end
@@ -19,7 +19,7 @@ function [ms,Ss,G] = SigmaSmoothSR(ms,Ss,f,SQ,u,usig,w)
     sig = Ss(:,:,k)*usig;
     CW1 = sig*diag(wp);
 
-    sig = f(sig+repmat(ms(:,k),1,NS))+repmat(u,1,NS);
+    sig = f(sig+repmat(ms(:,k),1,NS));%+repmat(u,1,NS);
     m_ = sig*wm;
     CW2 = (sig-repmat(m_,1,NS))*diag(wp);
 

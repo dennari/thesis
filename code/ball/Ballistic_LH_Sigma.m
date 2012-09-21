@@ -17,7 +17,7 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi)
     SQ = chol(Q,'lower');
     SR = chol(R,'lower');
 
-    f = @(x) A*x;
+    f = @(x) A*x+repmat(u,1,size(x,2));
     h = @(x) H*x;
     Jf = @(x) A;
     Jh = @(x) H;
@@ -43,7 +43,7 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi)
     
     
     for k=1:(N+1)
-        [m_,S_] = SigmaKF_Predict(m,S,f,SQ,u,usig,w);
+        [m_,S_] = SigmaKF_Predict(m,S,f,SQ,usig,w);
         
         % run the partial derivative predictions
         for i=1:numel(gi)
@@ -89,13 +89,16 @@ function [dQ,dR]=dQdR(i,p)
 
 
     if(i==1) % dlh/dqx
-        dQ = ballisticQ2D(1,0)*exp(-p(i));
+        dQ = ballisticQ2D(1,0,1)*2*exp(2*p(i));
     end
     if(i==2) % dlh/dqy
-        dQ = ballisticQ2D(0,1)*exp(-p(i));
+        dQ = ballisticQ2D(0,1,1)*2*exp(2*p(i));
     end
     if(i==3) % dlh/dr
-        dR = eye(size(dR,1))*exp(-p(i));
+        dR = eye(size(dR,1))*2*exp(2*p(i));
+    end
+    if(i==4) % dlh/dq (joint process noise)
+        dQ = ballisticQ2D(1,1,1)*2*exp(2*p(1));
     end
   
 end

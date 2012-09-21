@@ -21,7 +21,9 @@ for j=1:numel(gi)
     if(gi(j)==3) % dlh/dr
         dR = eye(size(dR,1))*2*exp(2*p(3));
     end
-    
+    if(gi(j)==4) % dlh/dq (joint process noise)
+        dQ = ballisticQ2D(1,1,1)*2*exp(2*p(1));
+    end
     
 
     dm_ = dA*m+A*dm;

@@ -6,7 +6,7 @@ end
 
 if ~notransform % by default it is assumed that input is in log(std)
   qx = exp(2*qx);
-  qy = exp(2*qy);
+  qy = exp(2*qy); % NOT CHANGED !!!!!
 end
 %   +-                -+
 %   |       3       2  |

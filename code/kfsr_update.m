@@ -1,4 +1,4 @@
-function [X,P,IM,IS,LH] = kfsr_update(X,P,y,H,R)
+function [X,P,K,IM,IS,LH] = kfsr_update(X,P,y,H,R)
 
   %
   % Check which arguments are there
