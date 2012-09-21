@@ -49,9 +49,9 @@ P0 = eye(size(m0,1));%diag([1e-6 7^-2 1e-6 7^-2]);
 pNames = {'qx' 'qy' 'r'};
 gis = eye(3);
 fn = '../data/Ballistic_%s_%.0f';
-iters = [100 100;
-         10  10;
-         100 100;];
+iters = [5 20;
+         5  10;
+         5 20;];
 NNs = [100 100 100];
 % iters = [10 10;
 %          10  10;
@@ -106,7 +106,11 @@ for k=1:NN
   [~,~,vals] = Ballistic_EM(p0,gi,ys,[],[],max_iter_em,min_iter_em);
   tm = toc;
   fprintf(1,'EM round %.0f time: %.2f s\n',k,tm);
-  est_em(:,:,k) = vals;
+  num = size(vals,2);
+  est_em(:,1:num,k) = vals;
+  if num < max_iter_em
+    est_em(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_em-num);
+  end
   evals_em(1,k) = tm;
   
   % BFGS

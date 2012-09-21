@@ -11,7 +11,7 @@ if nargin < 5 || isempty(tol_delta)
     tol_delta = 1e-2;
 end
 if nargin < 4 || isempty(tol_lh)
-    tol_lh = 1e-6;
+    tol_lh = 1e-4;
 end
 
 
