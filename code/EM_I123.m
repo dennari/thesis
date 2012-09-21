@@ -18,6 +18,9 @@ if nargin < 8
 end
 lr = xDim+1:2*xDim; 
 
+IA = [A -eye(xDim) eye(xDim)]';
+IH = [H -eye(yDim)]';
+
 for k=1:N
 
   y = Y(:,k+1);
@@ -29,7 +32,7 @@ for k=1:N
   XX = [Pj+mj*mj' mj*u'
         u*mj'     u*u'];
   
-  I2 = I2 + XX;  
+  I2 = I2 + IA'*XX*IA;  
   
   YY = [XX(lr,lr)    MS(:,k+1)*y';
          y*MS(:,k+1)' y*y'];
@@ -40,10 +43,7 @@ for k=1:N
 end
 
 
-IA = [A -eye(xDim) eye(xDim)]';
-IH = [H -eye(yDim)]';
-
-I2 = IA'*I2*IA;
+%I2 = IA'*I2*IA;
 I3 = IH'*I3*IH;
 
 

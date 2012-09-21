@@ -163,7 +163,7 @@ if gi == 4
 else
   true = p0(gi);
 end  
-as = linspace(true+log(0.6),true-log(0.6),NN);
+as = linspace(true+log(0.5),true-log(0.5),NN);
 
 for j=1:NN
   j
@@ -175,20 +175,20 @@ for j=1:NN
     end
     
     % Basic filter and smoother
-%     [lh,glh,MM,PP,MM_,PP_] = Ballistic_LH(p,ys,gi);
-%     lhs(1,j) = lh;
-%     glhs(1,j) = glh;
-%     [MS,PS,DD] = rts_smooth2(MM,PP,MM_,PP_,A); % D = Smoother Gain
-%     [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD,u);
-%     glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
-%     % Sigma Filter and Smoother
-    [lh,glh,MMM,SSS] = Ballistic_LH_Sigma(p,ys,gi);
+    [lh,glh,MM,PP,MM_,PP_] = Ballistic_LH(p,ys,gi);
     lhs(1,j) = lh;
     glhs(1,j) = glh;
-    SQ = chol(ballisticQ2D(p(1),p(2)),'lower');
-    [MMS,SS,DD] = SigmaSmoothSR(MMM,SSS,f,SQ,usig,w); % D = Smoother Gain
-    [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DD);
-    glbs(1,j) = EM_LB_Ballistic(p,MMS(:,1),gi,N,I1,I2,I3);
+    [MS,PS,DD] = rts_smooth2(MM,PP,MM_,PP_,A); % D = Smoother Gain
+    [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD,u);
+    glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
+    % Sigma Filter and Smoother
+%     [lh,glh,MMM,SSS] = Ballistic_LH_Sigma(p,ys,gi);
+%     lhs(1,j) = lh;
+%     glhs(1,j) = glh;
+%     SQ = chol(ballisticQ2D(p(1),p(2)),'lower');
+%     [MMS,SS,DD] = SigmaSmoothSR(MMM,SSS,f,SQ,usig,w); % D = Smoother Gain
+%     [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DD);
+%     glbs(1,j) = EM_LB_Ballistic(p,MMS(:,1),gi,N,I1,I2,I3);
 
     % SR filter and RTS smoother
 %     [lh,glh,MM,SS,MM_,SS_] = Ballistic_LH_SR(p,ys,gi);

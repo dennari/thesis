@@ -34,10 +34,14 @@ evals = msg.funcCount;
 function [lh,glh]=bfgs_lh(x)
   p = p0;
   p(gi) = x;
-  [lh,glh] = Ballistic_LH(p,y,gi,-1);
+  [lh,glh] = Ballistic_LH(p,y,gi);
+  fprintf(1,'BFGS %.0f: %.2f %.5f\n',k,lh,exp(x));
   lhs(k) = lh;
   vals(:,k) = x;
   k = k+1;
+  % remember we're minimizing
+  lh = -lh;
+  glh = -glh;
 end
 
 

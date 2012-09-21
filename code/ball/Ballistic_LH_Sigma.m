@@ -78,6 +78,9 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi)
       varargout{1} = MM;
       varargout{2} = SS;
     end
+    if nargout > 4
+      varargout{3} = SQ;
+    end
 
 end
 
