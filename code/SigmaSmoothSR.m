@@ -24,16 +24,13 @@ function [ms,Ss,G] = SigmaSmoothSR(ms,Ss,f,SQ,usig,w)
     CW2 = (sig-repmat(m_,1,NS))*diag(wp);
 
 
-    [~,U] = qr([CW2 SQ; CW1 zeros(XD,XD)]',0);
-    U = U';
+    U = qr_ckf([CW2 SQ; CW1 zeros(XD,XD)]');
     
     
     % smoother gain
     G(:,:,k) = U(XD+1:end,1:XD)/U(1:XD,1:XD);
     ms(:,k) = ms(:,k) + G(:,:,k)*(ms(:,k+1)-m_);
-
-    [~,S] = qr([U(XD+1:end,XD+1:end) G(:,:,k)*Ss(:,:,k+1)]',0);
-    Ss(:,:,k) = S';
+    Ss(:,:,k) = qr_ckf([U(XD+1:end,XD+1:end) G(:,:,k)*Ss(:,:,k+1)]');
 
 
   end
