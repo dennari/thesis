@@ -119,11 +119,11 @@ qx = [q1 q1 q1];
 c = cell(1,3);
 c{1} = qw;
 for k = 1:numel(qx)
-    c{k+1} = exp(qx(k))*dt*[Q11 Q12; Q12 Q22];
+    c{k+1} = qx(k)*dt*[Q11 Q12; Q12 Q22];
 end
 
 Q = blkdiag(c{:});
-diff(Q,q1)*exp(-q1)
+simple(diff(Q,qw)*2*qw)
 
 
 

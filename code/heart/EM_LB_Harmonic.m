@@ -53,32 +53,36 @@ for j=1:numel(gi)
       dmu = zeros(size(Q,1),1);
     
     if(gi(j)==1) % dlb/dqw
-        dQ = zeros(size(Q));
-        dQ(1,1) = 1*exp(-p(1));
+        %dQ(1,1) = 1*2*exp(2*p(gi(j)));
+        qw = exp(2*p(1));
+        glb(j) = I2(1,1)/qw-N;
     end
     if(gi(j) >= 3) % dlb/dqx(ri)
-        %dQ = sinusoid_Q(0,dqxi(ri,:),dt);
+        
         %ri = ri + 1;
-        if sum(gi>=3) > 1
-          wh = zeros(1,c);
-          wh(gi-2) = 1;
-          dQ = sinusoid_Q(0,wh);
-        else  
-          dQ = sinusoid_Q(0,ones(1,c))*exp(-p(3));
-        end
+        %wh = ones(1,c);
+        %if sum(gi>=3) > 1
+        %  wh = zeros(1,c);
+        %  wh(gi-2) = 1;
+        %end 
+        qx = exp(2*p(3));
+        dQ = sinusoid_Q(0,ones(1,c));
+        Q = sinusoid_Q(p(1),p(3:end));
+        glb(j) = trace(Q\(dQ/Q*I2-N*dQ))*qx;
     end
     if(gi(j)==2) % dlb/dr
-        dR = 1*exp(-p(2));
+        r = exp(2*p(2));
+        glb(j) = I3/r-N;
     end
     
     % x_0
-    glb1 = P0\(dSig/P0*I1+2*dmu*(m0T-m0)'-dSig);
+    %glb1 = P0\(dSig/P0*I1+2*dmu*(m0T-m0)'-dSig);
     % x_k|x_(k-1)
-    glb2 = Q\(dQ/Q*I2-N*dQ);
+    %glb2 = Q\(dQ/Q*I2-N*dQ);
     % y_k|x_k
-    glb3 = R\(dR/R*I3-N*dR);
+    %glb3 = R\(dR/R*I3-N*dR);
 
-    glb(j) = 0.5*(trace(glb1)+trace(glb2)+trace(glb3));
+    %glb(j) = 0.5*(trace(glb2)+trace(glb3));
 end
 
 

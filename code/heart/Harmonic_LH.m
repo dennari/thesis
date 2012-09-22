@@ -1,8 +1,8 @@
 function [lh,glh,varargout] = Harmonic_LH(p,y,gi)
 % parameters are 
-% p(1)=lqw,    log angular velocity variance
-% p(2)=lr,     log measurement variance
-% p(3:3+c-1)   log component variances
+% p(1)=lqw,    log(sqrt) angular velocity variance
+% p(2)=lr,     log(sqrt) measurement variance
+% p(3:3+c-1)   log(sqrt) component variances
 
   global m0 P0 H c
     
@@ -10,16 +10,9 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi)
   if nargin < 3
     gi = [];
   end
-    
-  
 
-  lqx = p(3:end);
-  if numel(p) < c+2
-    lqx = [lqx repmat(p(end),1,c+2-numel(p))];
-  end
-
-  SQ = chol(sinusoid_Q(p(1),lqx),'lower');
-  SR = sqrt(sinusoid_R(p(2)));
+  SQ = chol(sinusoid_Q(p(1),p(3:end)),'lower');
+  SR = chol(sinusoid_R(p(2)),'lower');
  
   h = @(x) H*x;
   Jh = @(x) H;
@@ -49,7 +42,7 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi)
   
   
   for k=1:(N+1)
-      [m_,S_] = SigmaKF_Predict(m,S,f,SQ,[],usig,w);
+      [m_,S_] = SigmaKF_Predict(m,S,f,SQ,usig,w);
       
       % run the partial derivative predictions
       for i=1:numel(gi)
@@ -96,7 +89,7 @@ function [dQ,dR]=dQdR(i,p)
   dR = zeros(size(H,1));
 
   if(i==1) % dlh/dlog(qw)
-      dQ(1,1) = 1*exp(-p(1));
+      dQ(1,1) = 1*2*exp(2*p(i));
   end
   if(i >= 3) % dlb/dlog(qx(ri))
       %dQ = sinusoid_Q(0,dqxi(ri,:),dt);
@@ -106,11 +99,11 @@ function [dQ,dR]=dQdR(i,p)
       %  wh(gi-2) = 1;
       %  dQ = sinusoid_Q(0,wh);
       %else  
-        dQ = sinusoid_Q(0,ones(1,c))*exp(-p(i));
+        dQ = sinusoid_Q(0,ones(1,c),1)*2*exp(2*p(i));
       %end
   end
   if(i==2) % dlb/dlog(r)
-      dR = 1*exp(-p(2));
+      dR = 1*2*exp(2*p(i));
   end
   
 end

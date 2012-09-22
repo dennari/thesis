@@ -1,16 +1,16 @@
 
 %% Setup
 global dt H c m0 P0 h f
-N = 1500;
+N = 500;
 T = 25;
 dt = T/N;
 
 K = (0:N)*dt;
 
 % the parameters of this model
-lqx = log(0.7);           % log Dynamic model noise spectral density
-lqw = log(0.04);           % log angular velocity variance
-lr =  log(0.02);          % log measurement noise
+lqx = log(1.2);    % log(sqrt) Dynamic model noise spectral density
+lqw = log(0.12);   % log(sqrt) angular velocity noise variance
+lr =  log(0.1);   % log(sqrt) measurement noise
 
 
 c = 3; % number of harmonics (including the fundamental frequency)
@@ -21,7 +21,7 @@ f = @(x) sinusoid_f(x);
 Q = sinusoid_Q(lqw,repmat(lqx,1,c));              
 SQ = chol(Q,'lower');
 R = sinusoid_R(lr);
-SR = sqrt(R);
+SR = chol(R,'lower');
 m0 = [0.5*2*pi zeros(1,xDim-1)]';
 P0 = eye(xDim);
 
@@ -31,8 +31,8 @@ P0 = eye(xDim);
 
 % artificial frequency trajectory
  cp = floor([1 2]*N/3);
- L1 = 0.5*ones(1,cp(1));
- L3 = 2.5*ones(1,N-cp(2)+1);
+ L1 = 0.1*ones(1,cp(1));
+ L3 = 0.5*ones(1,N-cp(2)+1);
  x = K((cp(1)+1):cp(2));
  L2 = ((L3(1)-L1(1))/(K(cp(2))-K(cp(1))))*(x-K(cp(1)))+L1(1);
  fr = 2*pi*[L1 L2 L3];
@@ -69,7 +69,7 @@ m = m0; lh = 0;  S = P0;
 dm = dm0; dP = dP0;
 
 for k=1:(N+1)
-    [m_,S_] = SigmaKF_Predict(m,S,f,SQ,[],usig,w);
+    [m_,S_] = SigmaKF_Predict(m,S,f,SQ,usig,w);
     if k==N+1; break; end; 
 
     [m,S,~,my,Sy] = SigmaKF_Update(m_,S_,y(:,k+1),h,SR,usig,w);
@@ -81,7 +81,7 @@ for k=1:(N+1)
     lh = lh + likelihood(y(:,k+1)-my,Sy*Sy');
 
 end
-[MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); 
+[MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,usig,w); 
 
 
 
@@ -92,7 +92,7 @@ m = 3;
 subplot(m,1,1);
 plot(K,sqrt(sum((MM-xs).^2)),K,sqrt(sum((MS-xs).^2))); grid on; title('Err');
 subplot(m,1,2);
-plot(K,xs(1,:),K,MM(1,:),K,MS(1,:)); grid on; title('Freq');
+plot(K,xs(1,:)/(2*pi),K,MM(1,:)/(2*pi),K,MS(1,:)/(2*pi)); grid on; title('Freq');
 subplot(m,1,3);
 plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq Std');
 
@@ -101,74 +101,61 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 %% Compute LH and gradient on grid
 
 % parameters are 
-% p(1)=lqw,    log angular velocity variance
-% p(2)=lr,     log measurement variance
-% p(3:3+c-1)   log signal component variances
+% p(1)=lqw,    log sqrt angular velocity variance
+% p(2)=lr,     log sqrt measurement variance
+% p(3:3+c-1)   log sqrt signal component variances
 
 
 p0 = [lqw lr repmat(lqx,1,c)];
 gi = 2; % which one we're estimating
 true = p0(gi);
 
-NN = 50;
+NN = 25;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
 
 
-start = log(exp(true)/10);
-endd = log(5*exp(true));
+start = true + log(0.5);
+endd = true - log(0.5);
 as = linspace(start,endd,NN);
+%as = log(linspace(0.06,0.09,NN));
 
 p = p0;
 for j=1:NN
     j
     p(gi) = as(j);
     
-    [lh,glh,MM,SS] = Harmonic_LH(p,ys,gi);
-    %lh = Harmonic_LH(p,ys);
+    [lh,glh,MM,SS,SQ] = Harmonic_LH(p,ys,gi);
     lhs(j) = lh;
     glhs(j) = glh;
-    [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); % D = Smoother Gain
+    
+    [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,usig,w); % D = Smoother Gain
     [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MS,SM,DD);
     glbs(j) = EM_LB_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
 end
 
+
+%%
+
+load('../data/HarmonicTesting.mat');
+
 n = 4; m= 1; %true = exp(true);
-figure(1); clf;
+figure(1); clf; eas = exp(as); etr = exp(true);
 subplot(n,m,1);
-plot(exp(as),lhs'); grid on; title('likelihood'); hold on;
-plot([true true],ylim,'-r');
+plot(eas,lhs'); grid on; title('likelihood'); hold on;
+plot([etr etr],ylim,'-r');
 subplot(n,m,2);
-plot(exp(as),glhs); grid on; title('dSens'); hold on;
-plot([true true],ylim,'-r');
+plot(eas(2:end),diff(lhs)./diff(as)); grid on; title('dNum'); hold on;
+plot([etr etr],ylim,'-r'); yl = ylim;
 subplot(n,m,3);
-plot(exp(as),glbs); grid on; title('dEM'); hold on;
-plot([true true],ylim,'-r');
+plot(eas,glhs); grid on; title('dSens'); hold on;
+plot([etr etr],ylim,'-r'); ylim(yl);
 subplot(n,m,4);
-plot(exp(as(1:end-1)),diff(lhs)./diff(as)); grid on; title('dNum'); hold on;
-plot([true true],ylim,'-r');
-
-eas = exp(as);
-fr = 25;
-n = 4; m= 1; %true = exp(true);
-figure(1); clf;
-subplot(n,m,1);
-plot(eas(fr:end),lhs(fr:end)); grid on; title('likelihood'); hold on;
-plot([true true],ylim,'-r');
-subplot(n,m,2);
-plot(eas(fr:end),glhs(fr:end)); grid on; title('dSens'); hold on;
-plot([true true],ylim,'-r');
-subplot(n,m,3);
-plot(eas(fr:end),glbs(fr:end)); grid on; title('dEM'); hold on;
-plot([true true],ylim,'-r');
-subplot(n,m,4);
-plot(eas(fr:end-1),diff(lhs(fr:end))./diff(as(fr:end))); grid on; title('dNum'); hold on;
-plot([true true],ylim,'-r');
+plot(eas,glbs); grid on; title('dEM'); hold on;
+plot([etr etr],ylim,'-r'); ylim(yl);
 
 
-
-save('../data/simulateHeartR.mat');
 
 %% Test EM and BFGS
 

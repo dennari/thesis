@@ -1,7 +1,7 @@
-function r = sinusoid_R(lr)
+function r = sinusoid_R(r)
 
-% the parameterization is in logarithms of variance
-r = exp(lr);
+% the parameterization is in log(sqrt(var))
+r = exp(2*r);
    
 end
 
