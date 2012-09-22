@@ -3,7 +3,8 @@ global dt
 if nargin < 3
    notransform = 0;
 end
-
+qx = qx(1);
+qw = qw(1);
 % the parameterization is in log(sqrt(var))
 if ~notransform % by default it is assumed that input is in log(std)
   qw = exp(2*qw);
@@ -31,13 +32,9 @@ end
     Q12 = dt/2;
     Q22 = 1;
      
-    c = cell(1,numel(qx)+1);
-    c{1} = qw;
-    for k = 1:numel(qx)
-        c{k+1} = qx(k)*dt*[Q11 Q12; Q12 Q22];
-    end
-    
-    Q_ = blkdiag(c{:});
+ 
+    Q1 = qx*dt*[Q11 Q12; Q12 Q22];
+    Q_ = blkdiag(qw,Q1,Q1);
    
 end
 
