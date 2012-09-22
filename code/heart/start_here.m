@@ -107,7 +107,7 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 
 
 p0 = [lqw lr repmat(lqx,1,c)];
-gi = 2; % which one we're estimating
+gi = 1; % which one we're estimating
 true = p0(gi);
 
 NN = 25;
@@ -142,19 +142,20 @@ load('../data/HarmonicTesting.mat');
 
 n = 4; m= 1; %true = exp(true);
 figure(1); clf; eas = exp(as); etr = exp(true);
-subplot(n,m,1);
-plot(eas,lhs'); grid on; title('likelihood'); hold on;
-plot([etr etr],ylim,'-r');
-subplot(n,m,2);
-plot(eas(2:end),diff(lhs)./diff(as)); grid on; title('dNum'); hold on;
-plot([etr etr],ylim,'-r'); yl = ylim;
-subplot(n,m,3);
-plot(eas,glhs); grid on; title('dSens'); hold on;
-plot([etr etr],ylim,'-r'); ylim(yl);
-subplot(n,m,4);
-plot(eas,glbs); grid on; title('dEM'); hold on;
-plot([etr etr],ylim,'-r'); ylim(yl);
-
+lhax = subplot(n,m,1);
+plot(eas,lhs'); grid on; title('likelihood'); xl = xlim; 
+%hold on;plot([etr etr],ylim,'-r');  xl = xlim;
+dnumax = subplot(n,m,2);
+plot(eas(2:end),diff(lhs)./diff(as)); grid on; title('dNum'); xlim(xl);
+%hold on;plot([etr etr],ylim,'-r'); 
+dsensax = subplot(n,m,3);
+plot(eas,glhs); grid on; title('dSens'); xlim(xl);
+%hold on;plot([etr etr],ylim,'-r'); 
+demax = subplot(n,m,4);
+plot(eas,glbs); grid on; title('dEM'); xlim(xl);
+%hold on;plot([etr etr],ylim,'-r'); 
+drawnow;
+ylim(dsensax,ylim(dnumax)); ylim(demax,ylim(dnumax));
 
 
 %% Test EM and BFGS

@@ -5,15 +5,9 @@ function [glb] = EM_LB_Harmonic(p,m0T,gi,N,I1,I2,I3)
 % p(1)=lqw,    log angular velocity variance
 % p(2)=lr,     log measurement variance
 % p(3:3+c-1)   log component variances
-global m0 P0 c
+global c
 
-qx = p(3:end);
-if numel(p) < c+2
-  qx = [qx repmat(p(end),1,c+2-numel(p))];
-end
 
-Q = sinusoid_Q(p(1),qx);
-R = sinusoid_R(p(2));
 
 
 
@@ -47,10 +41,7 @@ R = sinusoid_R(p(2));
 %ri = 1; % another counter
 glb = zeros(numel(gi));
 for j=1:numel(gi)
-      % assume all zero
-      dSig = zeros(size(P0)); 
-      dQ = zeros(size(Q));dR = zeros(size(R));
-      dmu = zeros(size(Q,1),1);
+
     
     if(gi(j)==1) % dlb/dqw
         %dQ(1,1) = 1*2*exp(2*p(gi(j)));

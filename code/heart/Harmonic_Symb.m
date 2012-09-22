@@ -87,7 +87,7 @@ solve(diff(lbq,q3)==0,q3)
 sum(sum([1 dt;dt dt^2].*[6 -3; -3 2].*I(jj+2:jj+3,jj+2:jj+3)))/(N*dt^3)
 
 %% shared case
-
+syms qw dt q1 q2 q3 positive;
 qx = [q1 q1 q1];
 c = cell(1,3);
 c{1} = qw;
@@ -99,15 +99,25 @@ Q = blkdiag(c{:});
   
 I = sym('I%d%d',[7 7]);
 lbq = -0.5*trace(Q\I)-0.5*N*log(det(Q));
-ans1 = solve(diff(lbq,q1)==0,q1);
+simple(diff(lbq,q1)*2*q1)
 
-ans2 = 0;
-for c=1:3
-  jj = (c-1)*2;
-  ans2 = ans2 + sum(sum([1 dt;dt dt^2].*[6 -3; -3 2].*I(jj+2:jj+3,jj+2:jj+3)));
-end
 
-ans1-ans2/(3*N*dt^3)
+
+%% R
+syms N R positive
+syms I3
+lbr = -0.5*trace(R\I3)-0.5*N*log(det(R));
+diff(lbr,R)*2*R
+
+%ans1 = solve(diff(lbq,q1)==0,q1);
+
+% ans2 = 0;
+% for c=1:3
+%   jj = (c-1)*2;
+%   ans2 = ans2 + sum(sum([1 dt;dt dt^2].*[6 -3; -3 2].*I(jj+2:jj+3,jj+2:jj+3)));
+% end
+% 
+% ans1-ans2/(3*N*dt^3)
 
 %% partial derivatives
 syms qw dt q1 q2 q3 positive;
