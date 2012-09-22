@@ -3,15 +3,15 @@
 global dt m0 P0 H A g0x g0y u
 
 
-N = 700;
+N = 15000;
 T = 14;
 dt = T/N;
 
 
 %%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
-lqx = log(0.8);       % parameterization in logarithm of standard deviation
-lqy = lqx-log(3);
-lr =  log(3);
+lqx = log(0.2);       % parameterization in logarithm of standard deviation
+lqy = lqx-log(10);
+lr =  log(0.001);
 
 
 K = (0:N)*dt;
@@ -48,11 +48,12 @@ P0 = eye(size(m0,1));%diag([1e-6 7^-2 1e-6 7^-2]);
 % 3=lr,   measurement log(std)
 pNames = {'qx' 'qy' 'r'};
 gis = [1 1 0];
-fn = '../data/BallisticTest_%s_%.0f';
-iters = [5 5;
+
+fn = '../data/Ballistic_%s_%.0f_%.0f';
+iters = [10 10;
          5  10;
          5 20;];
-NNs = [2 100 100];
+NNs = [10 100 100];
 % iters = [10 10;
 %          10  10;
 %          10 10;];
@@ -128,7 +129,7 @@ end
 
 %plot(max_iter_em,est_em')
 
-save(sprintf(fn,pNames{i},NN));
+save(sprintf(fn,pNames{gi},NN,N));
 
 end
 
