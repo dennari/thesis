@@ -14,8 +14,7 @@ function [m_,S_] = SigmaKF_Predict(m,S,f,SQ,usig,w)
   sig=f(S*usig+repmat(m,1,NS));%+repmat(u,1,NS);
   m_ = sig*wm;
   
-  [~,S_] = qr([(sig-repmat(m_,1,NS))*diag(wp) SQ]',0);
-  S_ = S_'; % we want lower triangular
+  S_ = qr_ckf([(sig-repmat(m_,1,NS))*diag(wp) SQ]');
 
  
    

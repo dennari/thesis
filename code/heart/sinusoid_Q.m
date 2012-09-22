@@ -1,14 +1,14 @@
 function Q_ = sinusoid_Q(qw,qx,notransform)
 global dt
+qx = qx(1);
 if nargin < 3
    notransform = 0;
 end
-qx = qx(1);
-qw = qw(1);
+
 % the parameterization is in log(sqrt(var))
 if ~notransform % by default it is assumed that input is in log(std)
+  qx = exp(2*qx);
   qw = exp(2*qw);
-  qx = exp(2*qx); % NOT CHANGED !!!!!
 end
 
 % The signal part of Q is    
@@ -31,8 +31,7 @@ end
     Q11 = dt^2/3;
     Q12 = dt/2;
     Q22 = 1;
-     
- 
+
     Q1 = qx*dt*[Q11 Q12; Q12 Q22];
     Q_ = blkdiag(qw,Q1,Q1);
    

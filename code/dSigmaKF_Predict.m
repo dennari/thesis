@@ -5,11 +5,11 @@ function [dm_,dP_] = dSigmaKF_Predict(m,m_,S,f,dm,dP,dQ,Jf,usig,w)
     wm = w(:,1);
     NS = numel(wm);
     
-    P = S*S';
-    S = chol(P,'lower');
+    %P = S*S';
+    %S = chol(P,'lower');
     
     
-    [dS,~] = dchol(P,dP);
+    [dS,~] = dchol(S*S',dP);
     
     dm_ = 0;
     for j=1:NS

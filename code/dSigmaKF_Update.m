@@ -5,10 +5,10 @@ function [dm,dP,dmy,dSy] = dSigmaKF_Update(m_,S_,h,dm_,dP_,K,my,Sy,y,dR,Jh,usig,
     wm = w(:,1);
     NS = numel(wm);
 
-    P_ = S_*S_';
-    S_ = chol(P_,'lower');
+    %P_ = S_*S_';
+    %S_ = chol(P_,'lower');
     
-    [dS_,~] = dchol(P_,dP_);
+    [dS_,~] = dchol(S_*S_',dP_);
     
     dmy = 0;
     for j=1:NS
