@@ -32,7 +32,9 @@ for k=1:max_iter
   % E-Step
   %[lh,~,MM,PP,MM_,PP_] = Ballistic_LH(p,y);
   [lh,~,MM,SS,SQ] = Ballistic_LH_Sigma(p,y);
-  fprintf(1,'EM %.0f: %.2f %.5f\n',k,lh,exp(p(gi)));
+  fprintf(1,'EM %.0f: %.3f\n',[k,lh]);
+  fprintf(1,'Vals: %.5f\n',exp(p(gi)));
+  
   lhs(k) = lh;
   
   if(k == max_iter); break; end;
@@ -50,7 +52,7 @@ for k=1:max_iter
   [I1,I2,I3] = EM_I123_Sigma(f,h,m0,y,MS,SM,DD);
   % M-Step
   p = EM_M_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
-  vals(k+1) = p(gi)';
+  vals(:,k+1) = p(gi)';
   
   
   

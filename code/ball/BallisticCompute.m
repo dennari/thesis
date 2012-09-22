@@ -47,12 +47,12 @@ P0 = eye(size(m0,1));%diag([1e-6 7^-2 1e-6 7^-2]);
 % 2=lqy,  y process log(std)
 % 3=lr,   measurement log(std)
 pNames = {'qx' 'qy' 'r'};
-gis = eye(3);
-fn = '../data/Ballistic_%s_%.0f';
-iters = [5 20;
+gis = [1 1 0];
+fn = '../data/BallisticTest_%s_%.0f';
+iters = [5 5;
          5  10;
          5 20;];
-NNs = [100 100 100];
+NNs = [2 100 100];
 % iters = [10 10;
 %          10  10;
 %          10 10;];
