@@ -1,10 +1,10 @@
 
 %% Setup
-global dt H c m0 P0 h f
+global dt c m0 P0 h f Jh Jf
 N = 50;
 T = 25;
 dt = T/N;
-
+w = 2*pi*0.1;
 K = (0:N)*dt;
 
 % the parameters of this model
@@ -12,17 +12,24 @@ lqx = log(0.1);    % log(sqrt) Dynamic model noise spectral density
 lqw = log(0.1);   % log(sqrt) angular velocity noise variance
 lr =  log(0.05);   % log(sqrt) measurement noise
 
+  A1 = @(x) [(cos(dt*x)), (sin(dt*x)/x);
+          (-x*sin(dt*x)), (cos(dt*x))];
+   
+  A = blkdiag(A1(w),A1(2*w));
+
 
 c = 2; % number of harmonics (including the fundamental frequency)
-xDim = 2*c+1;
-H = [0 repmat([1 0],1,c)];
+xDim = 2*c;
+H = repmat([1 0],1,c);
 h = @(x) H*x;
-f = @(x) sinusoid_f(x);
-Q = sinusoid_Q(lqw,repmat(lqx,1,c));              
+Jh = @(x) H;
+f = @(x) A*x;
+Jf = @(x) A;
+Q = sinusoid_Q(lqw,lqx);              
 SQ = chol(Q,'lower');
 R = sinusoid_R(lr);
 SR = chol(R,'lower');
-m0 = [0.5*2*pi zeros(1,xDim-1)]';
+m0 = zeros(1,xDim)';
 P0 = eye(xDim);
 
 
@@ -47,15 +54,15 @@ w(:,2) = sqrt(w(:,1)); % add weights for square root filt/smooth
 xs = zeros(xDim,N+1);
 ys = zeros(1,N+1);
 
-m0(1) = fr(1); 
-x0 = m0;
-x = x0;
-xs(:,1) = x0;
-ys(:,1) = H*x0;
+%m0(1) = fr(1); 
+%x0 = m0;
+x = m0;
+xs(:,1) = m0;
+ys(:,1) = H*m0;
 
 for k=2:N+1
 	x = mvnrnd(f(x),Q)';
-  x(1) = fr(k);
+  %x(1) = fr(k);
   xs(:,k) = x;
 	ys(:,k) = mvnrnd(h(x),R)';
   
@@ -87,15 +94,15 @@ end
 
 
 figure(1); clf;
-plot(K,H*xs,K,H*MM,K,ys,'kx'); grid on;
+plot(K,H*xs,K,H*MM,K,H*MS,K,ys,'kx'); grid on;
 figure(2); clf;
-m = 3;
-subplot(m,1,1);
-plot(K,sqrt(sum((MM-xs).^2)),K,sqrt(sum((MS-xs).^2))); grid on; title('Err');
-subplot(m,1,2);
-plot(K,xs(1,:)/(2*pi),K,MM(1,:)/(2*pi),K,MS(1,:)/(2*pi)); grid on; title('Freq');
-subplot(m,1,3);
-plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq Std');
+%m = 3;
+%subplot(m,1,1);
+%plot(K,sqrt(sum((MM-xs).^2)),K,sqrt(sum((MS-xs).^2))); grid on; title('Err');
+%subplot(m,1,2);
+%plot(K,xs(1,:)/(2*pi),K,MM(1,:)/(2*pi),K,MS(1,:)/(2*pi)); grid on; title('Freq');
+%subplot(m,1,3);
+plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Pos Std');
 
 
 
@@ -107,8 +114,8 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 % p(3:3+c-1)   log sqrt signal component variances
 
 
-p0 = [lqw lr repmat(lqx,1,c)];
-gi = 3; % which one we're estimating
+p0 = [lqw lr lqx];
+gi = 2; % which one we're estimating
 true = p0(gi);
 
 NN = 25;

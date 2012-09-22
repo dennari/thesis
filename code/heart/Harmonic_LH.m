@@ -4,20 +4,16 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi)
 % p(2)=lr,     log(sqrt) measurement variance
 % p(3:3+c-1)   log(sqrt) component variances
 
-  global m0 P0 H c
+  global m0 P0 f h Jf Jh
     
 
   if nargin < 3
     gi = [];
   end
 
-  SQ = chol(sinusoid_Q(p(1),p(3:end)),'lower');
+  SQ = chol(sinusoid_Q(p(1),p(3)),'lower');
   SR = chol(sinusoid_R(p(2)),'lower');
  
-  h = @(x) H*x;
-  Jh = @(x) H;
-  f = @(x) sinusoid_f(x);
-  Jf = @(x) sinusoid_Jf(x);
   
   xDim = size(m0,1);
   [usig,w] = CKFPoints(xDim);
@@ -83,13 +79,13 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi)
 end
 
 function [dQ,dR]=dQdR(i,p)
-  global P0 H c
+  global c
   
-  dQ = zeros(size(P0));
-  dR = zeros(size(H,1));
+  dQ = zeros(2*c);
+  dR = 0;
 
   if(i==1) % dlh/dlog(qw)
-      dQ(1,1) = 1*2*exp(2*p(i));
+      dQ(1,1) = 1*2*exp(2*p(1));
   end
   if(i >= 3) % dlb/dlog(qx(ri))
       %dQ = sinusoid_Q(0,dqxi(ri,:),dt);
@@ -99,11 +95,11 @@ function [dQ,dR]=dQdR(i,p)
       %  wh(gi-2) = 1;
       %  dQ = sinusoid_Q(0,wh);
       %else  
-        dQ = sinusoid_Q(0,ones(1,c),1)*2*exp(2*p(i));
+        dQ = sinusoid_Q(0,1,1)*2*exp(2*p(3));
       %end
   end
   if(i==2) % dlb/dlog(r)
-      dR = 1*2*exp(2*p(i));
+      dR = 1*2*exp(2*p(2));
   end
   
 end
