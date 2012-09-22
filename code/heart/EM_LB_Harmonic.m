@@ -47,6 +47,10 @@ for j=1:numel(gi)
         %dQ(1,1) = 1*2*exp(2*p(gi(j)));
         qw = exp(2*p(1));
         glb(j) = I2(1,1)/qw-N;
+        %Q = sinusoid_Q(p(1),p(3:end));
+        %dQ = zeros(size(Q)); dQ(1,1) = 1;
+        
+        %glb2 = 0.5*trace((Q\(dQ/Q*I2-N*dQ)))*2*qw;
     end
     if(gi(j) >= 3) % dlb/dqx(ri)
         
@@ -57,7 +61,7 @@ for j=1:numel(gi)
         %  wh(gi-2) = 1;
         %end 
         qx = exp(2*p(3));
-        dQ = sinusoid_Q(0,ones(1,c));
+        dQ = sinusoid_Q(0,ones(1,c),1);
         Q = sinusoid_Q(p(1),p(3:end));
         glb(j) = trace(Q\(dQ/Q*I2-N*dQ))*qx;
     end

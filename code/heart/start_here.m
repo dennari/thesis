@@ -1,19 +1,19 @@
 
 %% Setup
 global dt H c m0 P0 h f
-N = 500;
+N = 50;
 T = 25;
 dt = T/N;
 
 K = (0:N)*dt;
 
 % the parameters of this model
-lqx = log(1.2);    % log(sqrt) Dynamic model noise spectral density
-lqw = log(0.12);   % log(sqrt) angular velocity noise variance
-lr =  log(0.1);   % log(sqrt) measurement noise
+lqx = log(0.1);    % log(sqrt) Dynamic model noise spectral density
+lqw = log(0.1);   % log(sqrt) angular velocity noise variance
+lr =  log(0.05);   % log(sqrt) measurement noise
 
 
-c = 3; % number of harmonics (including the fundamental frequency)
+c = 2; % number of harmonics (including the fundamental frequency)
 xDim = 2*c+1;
 H = [0 repmat([1 0],1,c)];
 h = @(x) H*x;
@@ -31,11 +31,12 @@ P0 = eye(xDim);
 
 % artificial frequency trajectory
  cp = floor([1 2]*N/3);
- L1 = 0.1*ones(1,cp(1));
- L3 = 0.5*ones(1,N-cp(2)+1);
+ L1 = 0.02*ones(1,cp(1));
+ L3 = 0.3*ones(1,N-cp(2)+1);
  x = K((cp(1)+1):cp(2));
  L2 = ((L3(1)-L1(1))/(K(cp(2))-K(cp(1))))*(x-K(cp(1)))+L1(1);
- fr = 2*pi*[L1 L2 L3];
+ %fr = 2*pi*[L1 L2 L3];
+fr = 2*pi*0.1*ones(1,N+1);
 
 %A = 0.5; 
 %fr = A*sin(2*pi*0.1*K)+1.5*A;
@@ -107,7 +108,7 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 
 
 p0 = [lqw lr repmat(lqx,1,c)];
-gi = 1; % which one we're estimating
+gi = 3; % which one we're estimating
 true = p0(gi);
 
 NN = 25;
@@ -127,18 +128,20 @@ for j=1:NN
     p(gi) = as(j);
     
     [lh,glh,MM,SS,SQ] = Harmonic_LH(p,ys,gi);
+    glh
     lhs(j) = lh;
     glhs(j) = glh;
     
     [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,usig,w); % D = Smoother Gain
-    [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MS,SM,DD);
+    [I1,I2,I3] = EM_I123_Sigma(@sinusoid_f,h,m0,ys,MS,SM,DD);
     glbs(j) = EM_LB_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
 end
 
 
 %%
 
-load('../data/HarmonicTesting.mat');
+%load('../data/HarmonicTesting.mat');
+
 
 n = 4; m= 1; %true = exp(true);
 figure(1); clf; eas = exp(as); etr = exp(true);
@@ -152,7 +155,14 @@ dsensax = subplot(n,m,3);
 plot(eas,glhs); grid on; title('dSens'); xlim(xl);
 %hold on;plot([etr etr],ylim,'-r'); 
 demax = subplot(n,m,4);
-plot(eas,glbs); grid on; title('dEM'); xlim(xl);
+plot(eas,glbs);grid on; title('dEM'); xlim(xl); 
+
+
+figure(2); clf; 
+plot(eas(2:end),diff(lhs)./diff(as),eas,glhs,eas,glbs); grid on;
+
+
+figure(3); clf; plot(eas,glbs);grid on; title('dEM')
 %hold on;plot([etr etr],ylim,'-r'); 
 drawnow;
 ylim(dsensax,ylim(dnumax)); ylim(demax,ylim(dnumax));
