@@ -49,7 +49,7 @@ for k=1:max_iter
   [I1,I2,I3] = EM_I123_Sigma(f,h,m0,y,MS,SM,DD);
   % M-Step
   p = EM_M_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
-  vals(k+1) = p(gi)';
+  vals(:,k+1) = p(gi)';
   
 end
 lhs = lhs(:,1:k);

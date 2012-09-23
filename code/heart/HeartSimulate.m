@@ -1,6 +1,6 @@
 % Setup
 global dt c m0 P0 h f Jh Jf
-N = 700;
+N = 800;
 T = 25;
 dt = T/N;
 K = (0:N)*dt;
@@ -42,12 +42,12 @@ m0(1) = fr(1);
 % p(3)=qx      log sqrt signal component variances
 
 pNames = {'qw' 'r' 'qx'};
-gis = [1 0 0; 0 1 0; 0 0 1];
+gis = [1 0 1;]
 
 
 fn = '../data/Harmonic_%s_%.0f_%.0f';
-iters = ones(3,2)*100;
-NNs = [100 100 100];
+iters = ones(3,2)*30;
+NNs = [30 30 30];
 % iters = [10 10;
 %          10  10;
 %          10 10;];

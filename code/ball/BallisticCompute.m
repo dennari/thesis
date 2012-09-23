@@ -10,7 +10,7 @@ dt = T/N;
 
 %%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
 lqx = log(0.2);       % parameterization in logarithm of standard deviation
-lqy = lqx-log(10);
+lqy = lqx-log(3);
 lr =  log(0.001);
 
 
@@ -83,7 +83,7 @@ x0 = m0;%mvnrnd(m0,P0)';
 xs(:,1) = x0;
 ys(:,1) = H*x0;
 
-fprintf(1,'ESTIMATING %.0f: %.3f\n',gi,exp(p_true(gi)));
+fprintf(1,'ESTIMATING : %.5f\n',exp(p_true(gi)));
 
 for k=1:NN
   % SIMULATE
@@ -101,6 +101,7 @@ for k=1:NN
   % INITIAL POINT
   p0 = p_true;
   p0(gi) = p0(gi)+log(rand+0.5); % 0.5-1.5 * true
+fprintf(1,'p0: %.5f\n',exp(p0(gi)));
   
   % EM
   tic;

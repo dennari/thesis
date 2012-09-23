@@ -8,9 +8,9 @@ dt = T/N;
 K = (0:N)*dt;
 
 % the parameters of this model
-lqx = log(1.2);    % log(sqrt) Dynamic model noise spectral density
-lqw = log(0.12);   % log(sqrt) angular velocity noise variance
-lr =  log(0.1);   % log(sqrt) measurement noise
+lqx = log(0.9);    % log(sqrt) Dynamic model noise spectral density
+lqw = log(0.015);   % log(sqrt) angular velocity noise variance
+lr =  log(0.05);   % log(sqrt) measurement noise
 
 
 c = 3; % number of harmonics (including the fundamental frequency)
@@ -31,8 +31,8 @@ P0 = eye(xDim);
 
 % artificial frequency trajectory
  cp = floor([1 2]*N/3);
- L1 = 0.1*ones(1,cp(1));
- L3 = 0.5*ones(1,N-cp(2)+1);
+ L1 = 0.2*ones(1,cp(1));
+ L3 = 0.3*ones(1,N-cp(2)+1);
  x = K((cp(1)+1):cp(2));
  L2 = ((L3(1)-L1(1))/(K(cp(2))-K(cp(1))))*(x-K(cp(1)))+L1(1);
  fr = 2*pi*[L1 L2 L3];
@@ -69,17 +69,17 @@ end
 
 
 p0 = [lqw lr repmat(lqx,1,c)];
-gi = 2; % which one we're estimating
+gi = 1; % which one we're estimating
 true = p0(gi);
 
-NN = 25;
+NN = 125;
 lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
 
 
-start = true + log(0.5);
-endd = true - log(0.5);
+start = true + log(0.4);
+endd = true - log(0.4);
 as = linspace(start,endd,NN);
 %as = log(linspace(0.06,0.09,NN));
 
