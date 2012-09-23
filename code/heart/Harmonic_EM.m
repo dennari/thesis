@@ -45,7 +45,7 @@ for k=1:max_iter
   lh_ = lh;
   p_ = p;
 
-  [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); % D = Smoother Gain
+  [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,usig,w); % D = Smoother Gain
   [I1,I2,I3] = EM_I123_Sigma(f,h,m0,y,MS,SM,DD);
   % M-Step
   p = EM_M_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);

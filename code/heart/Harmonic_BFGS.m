@@ -20,7 +20,7 @@ opt.LargeScale = 'off'; % use BFGS
 %opt.TolX = 1e-30;
 opt.Display = 'off';
 opt.MaxFunEvals = max_iter;
-%opt.OutputFcn = @output;
+opt.OutputFcn = @ofun;
 
 lhs = zeros(1,max_iter);
 vals = zeros(numel(gi),max_iter);
@@ -36,14 +36,19 @@ function [lh,glh]=bfgs_lh(x)
   p(gi) = x;
   [lh,glh] = Harmonic_LH(p,y,gi);
   fprintf(1,'BFGS %.0f: %.2f %.5f\n',k,lh,exp(x));
-  lhs(k) = lh;
-  vals(:,k) = x;
-  k = k+1;
   % remember we're minimizing
   lh = -lh;
   glh = -glh;
 end
 
+function stop=ofun(x,val,state)
+  fprintf(1,'BFGS %.0f: %.3f\n',[k,-val.fval]);
+  fprintf(1,'Vals: %.5f\n',exp(x));
+  lhs(k) = -val.fval;
+  vals(:,k) = x;
+  k = k+1;
+  stop=0;
+end
 
 end
 

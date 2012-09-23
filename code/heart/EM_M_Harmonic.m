@@ -9,30 +9,20 @@ global dt
 
 new = p;
 for j=1:numel(gi)
-    % assume all zero
-    
     if(gi(j)==1) % dlb/dqw
-        new(1) = log(I2(1,1))-log(N);
+        new(1) = (log(I2(1,1))-log(N))/2;
     end
-    if(gi(j) >= 3) % dlb/dqx
-        I = I2;
-        if sum(gi>=3) > 1 % assume each component has independent variance
-          jj = (gi(j)-3)*2;
-          mat = [1 dt;dt dt^2].*[6 -3; -3 2].*I(jj+2:jj+3,jj+2:jj+3);
-          new(gi(j)) = log(sum(sum(mat)))-3*log(dt)-log(N);%/(N*dt^3);
-        else % assume components have shared variance
-          ans2 = 0;
-          for c=1:3
-            jj = (c-1)*2;
-            ans2 = ans2 + sum(sum([1 dt;dt dt^2].*[6 -3; -3 2].*I(jj+2:jj+3,jj+2:jj+3)));
-          end
-
-          new(gi(j)) = log(ans2)-3*log(dt)-log(3)-log(N);%(3*N*dt^3);
-        end
-        
+    if(gi(j) >= 3) % dlb/dqx(ri)
+      I = I2;
+      c1 = 2*(I(2,2)+I(4,4)+I(6,6))/dt^3;
+      c2 = I(2,3)+I(3,2)+I(4,5)+I(5,4)+I(6,7)+I(7,6);
+      c2 = c2/dt^2;
+      c3 = 2*(I(3,3)+I(5,5)+I(7,7))/(3*dt);
+      new(3) = (log(c1-c2+c3)-log(N))/2;
+      
     end
     if(gi(j)==2) % dlb/dr
-        new(2) = log(I3)-log(N);
+        new(2) = (log(I3(1,1))-log(N))/2;
     end
 end
 

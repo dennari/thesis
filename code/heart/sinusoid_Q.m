@@ -1,5 +1,5 @@
 function Q_ = sinusoid_Q(qw,qx,notransform)
-global dt
+global dt c
 qx = qx(1);
 if nargin < 3
    notransform = 0;
@@ -33,7 +33,12 @@ end
     Q22 = 1;
 
     Q1 = qx*dt*[Q11 Q12; Q12 Q22];
-    Q_ = blkdiag(qw,Q1,Q1);
+    Q_ = zeros(2*c+1);
+    Q_(1,1) = qw;
+    for k=1:c
+      jj = (k-1)*2;
+      Q_(jj+2:jj+3,jj+2:jj+3) = Q1;
+    end
    
 end
 

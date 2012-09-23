@@ -81,7 +81,7 @@ end
 function [dQ,dR]=dQdR(i,p)
   global c
   
-  dQ = zeros(2*c);
+  dQ = zeros(2*c+1);
   dR = 0;
 
   if(i==1) % dlh/dlog(qw)
