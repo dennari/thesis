@@ -42,7 +42,7 @@ m0(1) = fr(1);
 % p(3)=qx      log sqrt signal component variances
 
 pNames = {'qw' 'r' 'qx'};
-gis = [1 0 0; 0 1 0; 0 0 1];
+gis = [1 0 1; 0 1 0; 0 0 1];
 
 
 fn = '../data/Harmonic_%s_%.0f_%.0f';
@@ -57,7 +57,7 @@ NNs = [100 100 100];
 for i=1:size(gis,1)
 
 
-gi = find(gis(i,:)>0);
+gi = find(gis(i,:)>0)
 p_true = [lqw lr lqx]; % initial guess
 true = p_true(gi);
 min_iter_em =   iters(i,1);
@@ -78,7 +78,9 @@ ys = zeros(1,N+1);
 x0 = m0;%mvnrnd(m0,P0)';
 xs(:,1) = x0;
 ys(:,1) = H*x0;
-fprintf(1,'ESTIMATING %.0f: %.3f\n',gi,exp(p_true(gi)));
+valss = pNames(gi);valss(2,:) = num2cell(exp(p_true(gi))');
+valss = sprintf('%s: %.3f ',valss{:});
+fprintf(1,'TRUE: %s\n',valss);
 
 for k=1:NN
   % SIMULATE  

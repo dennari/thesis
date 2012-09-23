@@ -99,8 +99,8 @@ Q = blkdiag(c{:});
   
 I = sym('I%d%d',[7 7]);
 lbq = -0.5*trace(Q\I)-0.5*N*log(det(Q));
-simple(diff(lbq,q1)*2*q1)
-
+dfqx = simple(diff(lbq,q1)*2*q1);
+simple(solve(dfqx==0,q1))
 
 
 %% R
