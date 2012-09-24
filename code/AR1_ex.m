@@ -3,10 +3,10 @@
 
 %% AR(1) model
 
-N = 250;
+N = 150;
 A = 1;
 Q = 1^2;
-R = Q/2^2;
+R = Q;
 H = 1;
 
 K = 0:N;
@@ -82,7 +82,7 @@ textwidth = 426.79134/72.27; % latex textwidth in inches
 
 plt = struct();kw=struct();
 %kw.alpha = 0.2; kw.linewidth = 0.5;
-plt.data = {{K xs},{K ys 'kx'}};
+plt.data = {{K xs},{K ys 'kx'},{as lhs}};
 plt.w = textwidth*0.5;
 plt.A = A;
 pyplot('../img/ar1_ex.mat',plt);
