@@ -28,7 +28,7 @@ def draw():
 	axstretch(ax,alpha)
 	xlabel = ax.set_xlabel(r'$k$')
 	lg = ax.legend((r'$x$',r'$y$'))
-	legendtolabelcolor(lg,xlabel)
+	#legendtolabelcolor(lg,xlabel)
 	ax.set_title(r'AR(1) simulation',family='serif')
 
 	ax = fig.add_subplot(122);

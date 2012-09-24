@@ -69,7 +69,7 @@ figure.subplot.left = 0.
  # 'legend.borderpad': 0.4,
  # 'legend.columnspacing': 2.0,
  legend.fancybox = False
- legend.fontsize = 'large'
+ legend.fontsize = 'small'
  legend.frameon = False
  # 'legend.handleheight': 0.7,
  # 'legend.handlelength': 2.0,
