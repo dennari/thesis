@@ -15,19 +15,20 @@ Commonly the sequential data is a result of making \emph{measurements} on a
 \emph{system} of interest. In order to answer questions quantitatively,
 the system and the measurements should be mathematically \emph{modelled}. The class of mathematical
 models for dynamical systems we will be concerned with are called \emph{state space models} (SSMs).
-Intuitively, SSMs make a clear distinction between the system and the measurements. At any instant,
-the system is at a certain \emph{state}. In general, it is this state and its evolution that we are interested in.
+Intuitively, SSMs make a clear distinction between the system itself and the measurements. At any instant,
+the system is at a certain \emph{state}. In general, it is this state and its time evolution that we are interested in.
 However the state is \emph{hidden} (or \emph{latent}) and the inference on the state has to be made entirely
-based on the measurements.  Often at least part of the state is conceptually part of the measurements,
-but even this part of the state is still latent, since the measurements are always assumed to be \emph{noisy}.
-To give a simple but often used example, let us consider the target tracking problem. In this case the state
-could include the position, velocity and acceleration of the target and our measurements could consists
+based on the measurements.  Often some components of the measurements would otherwise translate directly to corresponding components of the state,
+except that the measurements are always assumed to be \emph{noisy}. So even this part of the state is still latent.
+To give a simple but often used example, consider the target tracking problem. In this case the state
+could include the position and velocity of the target and our measurements could consists
 of a sequence of noisy angular readings between the line of sight and a reference line. This situation is
 known as \emph{bearings-only target tracking} \parencite{ristic2004beyond}.
 
 The noisiness forces us to assume a probabilistic framework. In this thesis the viewpoint
 is decidedly \emph{Bayesian}. In Bayesian statistics, ideally, the complete answer
-is always the \emph{posterior probability distribution}. Thus instead of answering
+is always the \emph{posterior probability distribution}, i.e. the joint probability distribution
+of the random variables of interest given the measurements. Thus instead of answering
 with a single value or a value with error bounds, the answer is the probability
 density function of the interesting quantity given data. It is important to higlight,
 however, that Bayesian statistics can be used to treat many kinds of uncertainty
@@ -48,8 +49,8 @@ of unknown parameters, denoted with $\Th$. Then, in order
 to complete the model, these parameters need to be estimated based on some available
 training data. This is sometimes, at least
 in control engineering, known as \emph{system identification}. In this thesis,
-it is assumed that the parameters are static, i.e. that they stay constant
-as time passes. This is then an important distinction between the states and
+it is assumed that the parameters are static, i.e. independent of time. 
+This is then an important distinction between the states and
 the parameters, in this thesis.
 
 In general, assuming the aforementioned distinction between parameters and states, there are two separate but
@@ -65,10 +66,10 @@ procedure, i.e. the estimates can be updated every time a new measurement arrive
 
 A distinction is drawn in this thesis between \emph{linear} and \emph{nonlinear}
 models. The linear model can be thought of as a special case of a nonlinear model,
-so that the linear case would be implicitely covered by only considering nonlinear models.
-Linear models are considered separately for the simple reason, that in their case, closed
+so that the linear case would be implicitly covered by only considering nonlinear models.
+The distinction is made for the simple reason that in the linear case, closed
 form solutions exist. The Bayesian solution of the filtering problem for a linear system
-with Gaussian noise is given by the celebrated \emph{Kalman filter} \parencite{Kalman1960}.
+with additive Gaussian noise is given by the celebrated \emph{Kalman filter} \parencite{Kalman1960}.
 
 Our focus in this thesis is in the parameter estimation problem for the nonlinear case.
 Depending on the method, this requires either the filtering or filtering and smoothing
@@ -85,9 +86,9 @@ the SSMs are covered in necessary detail, the Bayesian optimal filtering
 and smoothing equations are derived and the role of the static parameters is elaborated
 on. Following the introduction we focus on on state estimation, first for linear
 and then for nonlinear systems. The Kalman filter is introduced here as is the
-concept of Gaussian filtering, a deterministic approximation used for nonlinear systems 
-in this thesis. The third chapter is considered with the two methods
-of parameter estimation we are comparing: the gradient based nonlinear optimization alternative
+concept of Gaussian filtering, a deterministic approximation used for nonlinear systems. 
+The third chapter is concerned with the two methods
+of parameter estimation we are comparing: gradient based nonlinear optimization
 and the expectation maximization algorithm. The methods are analyzed in sufficient
 theoretical detail in order to draw conclusions about the behavior of the methods
 in the results section. The results section has three subsection: the analytical 
