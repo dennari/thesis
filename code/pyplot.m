@@ -9,12 +9,18 @@ function tmp=pyplot(o,x,y,s)
 		pl = x;
 	else
 		error('at least two arguments required')
-	end
+  end
+  
+  if regexp(o,'\.mat$')
+    save(o,'-struct','pl','-v7');
+  else
+    tmp = tempname();
+    tmp = [tmp '.mat'];
 
-	tmp = tempname();
-	tmp = [tmp '.mat'];
-	save(tmp,'-struct','pl','-v7');
-	uns = 'unset LD_LIBRARY_PATH && unset DYLD_LIBRARY_PATH && unset DYLD_FRAMEWORK_PATH';
-	pth = '/u/vjvaanan/workspace3/dippa/code';
-	system(sprintf('%s && python pyplot.py %s %s',uns,tmp,o));
+    save(tmp,'-struct','pl','-v7');
+    uns = 'unset LD_LIBRARY_PATH && unset DYLD_LIBRARY_PATH && unset DYLD_FRAMEWORK_PATH && unset OSG_LD_LIBRARY_PATH';
+    %pth = '/u/vjvaanan/workspace3/dippa/code';
+    python = '/usr/local/bin/python2.7';
+    system(sprintf('%s && %s pyplot.py %s %s',uns,python,tmp,o));
+  end
 end

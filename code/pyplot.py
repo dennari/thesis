@@ -7,6 +7,7 @@ from mpltools.special import errorfill
 import scipy.io
 from scipy.io import loadmat
 
+
 def plot(argv=None):
 	A = np.array # shortcut
 
@@ -14,10 +15,13 @@ def plot(argv=None):
 	#p = font_manager.FontProperties("Latin Modern Roman",size=10)
 	#print(fm.findfont(p))
 
-	#style.use('dippa')
+	style.use('dippa')
 	argv = sys.argv[1:] if argv is None else argv
 	dataFileName = argv[0]
-	outputFileName = argv[1]
+	try:
+		outputFileName = argv[1]
+	except IndexError as e:
+		outputFileName = None
 
 	beta = (np.sqrt(5)+1)/2 # golden ratio
 	cycle = plt.rcParams["axes.color_cycle"]
@@ -102,11 +106,13 @@ def plot(argv=None):
 			for text in lg.get_texts():
 				text.set_color(xlabel.get_color())
 
-	fig.savefig(outputFileName)
+	if outputFileName is not None:
+		fig.savefig(outputFileName)
 
 
 
 def _setcolor(triplet,cycle,defc,k):
+	''' triplet[2] is a matlab '.-b' type string '''
 	c = None
 	try:
 		 cc = [a for a in defc if triplet[2].find(a) > -1]

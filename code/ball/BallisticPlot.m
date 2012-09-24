@@ -1,6 +1,6 @@
 %% r - estimates
 
-load('../data/Ballistic_qx_10_15000.mat');
+load('../data/Harmonic_r_30_500.mat');
 
 % Separate
 figure(1); clf;
@@ -22,7 +22,7 @@ ylim([-0.5,0.5]);xlim([1,max_iter_bfgs]);
 figure(2); clf;
 plot(1:max_iter_em,sqrt(mean((true-est_em1').^2))./true,'-b',...
      1:max_iter_em,sqrt(mean((true-est_bfgs1(1:max_iter_em,:)').^2))./true,'-r');
-ylim([-0.02 0.35]);
+%ylim([-0.02 0.35]);
 
 
 
@@ -32,6 +32,33 @@ ylim([-0.02 0.35]);
 
 textwidth = 426.79134/72.27; % latex textwidth in inches
 % plot the true locations and the measurements
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% r - convergence %%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+load('../data/Ballistic_r_100_1000.mat');
+plt = struct();kw=struct();
+x = 1:max_iter_em;
+y = exp(reshape(est_em,[max_iter_em NN  1]));
+kw.alpha = 0.2; kw.linewidth = 0.5;
+plt.data = {{x y '-b' kw},{''}};
+plt.xlabel = '$\mathrm{iteration}$';
+plt.ylabel = '$\mathrm{r}$';
+plt.w = textwidth*0.5;
+plt.alpha = 0.0;
+%pyplot('../img/testplot.mat',plt);
+pyplot('../img/ballistic_r_convergence.pdf',plt);
+
+
+
+
+
+
+
+%%
+
+
 plt = struct();kw=struct();
 kw.alpha = 0.9;
 plt.data = {{xs(1,:) xs(4,:) '' kw},...
@@ -70,7 +97,7 @@ pyplot('../img/ex1_err.pdf',plt)
 
 break
 
-plt = struct()
+plt = struct();
 plt.x = [ms(1,:)' mF(1,:)'];
 plt.y = [ms(4,:)' mF(4,:)'];
 plt.xlabel = '$x$';
@@ -89,43 +116,6 @@ figure;
 boundedline(mF(1,:),mF(4,:),[1.97*sqrt(squeeze(PF(1,1,:))) 1.97*sqrt(squeeze(PF(4,4,:)))])
 
 
-figure;
-subplot(3,2,1);
-plot(K,xs(1,:)); hold on;
-boundedline(K,ms(1,:),1.97*sqrt(squeeze(Ps(1,1,:))));
-plot(K(yI),ys(1,yI),'kx');
-subplot(3,2,2);
-plot(K,xs(4,:)); hold on;
-boundedline(K,ms(4,:),1.97*sqrt(squeeze(Ps(4,4,:))));
-plot(K(yI),ys(2,yI),'kx');
-subplot(3,2,3);
-plot(K,xs(2,:));
-subplot(3,2,4);
-plot(K,xs(5,:));
-subplot(3,2,5);
-plot(K,xs(3,:));
-subplot(3,2,6);
-plot(K,xs(6,:));
-
-figure;
-subplot(2,2,1);
-plot(K,squeeze(Ps(1,1,:)));
-subplot(2,2,2);
-plot(K,squeeze(Ps(4,4,:)));
-subplot(2,2,3);
-plot(K,squeeze(Ps(2,2,:)));
-subplot(2,2,4);
-plot(K,squeeze(Ps(5,5,:)));
-
-figure;
-subplot(2,2,1);
-plot(K,squeeze(PF(1,1,:)));
-subplot(2,2,2);
-plot(K,squeeze(PF(4,4,:)));
-subplot(2,2,3);
-plot(K,squeeze(PF(2,2,:)));
-subplot(2,2,4);
-plot(K,squeeze(PF(5,5,:)));
 
 
 

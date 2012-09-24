@@ -67,8 +67,11 @@ max_iter_em =   iters(i,2);
 min_iter_bfgs = iters(i,1);
 max_iter_bfgs = iters(i,2);
 NN = NNs(i);
-est_em =   zeros(numel(gi),max_iter_em,NN);
-est_bfgs = zeros(numel(gi),max_iter_bfgs,NN);
+est_em =  zeros(numel(gi),max_iter_em,NN);
+lh_em =   zeros(max_iter_em,NN);
+est_bfgs  = zeros(numel(gi),max_iter_bfgs,NN);
+lh_bfgs =   zeros(max_iter_em,NN);
+
 
 evals_em = zeros(1,NN);
 evals_bfgs = zeros(2,NN);
@@ -103,25 +106,30 @@ for k=1:NN
   
   % EM
   tic;
-  [~,~,vals] = Harmonic_EM(p0,gi,ys,[],[],max_iter_em,min_iter_em);
+  [~,lh,vals] = Harmonic_EM(p0,gi,ys,[],[],max_iter_em,min_iter_em);
   tm = toc;
   fprintf(1,'EM round %.0f time: %.2f s\n',k,tm);
   num = size(vals,2);
   est_em(:,1:num,k) = vals;
+  lh_em(1:num,k) = lh;
+  
   if num < max_iter_em
     est_em(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_em-num);
+    lh_em(num+1:end,k) = repmat(lh(end),1,max_iter_em-num);
   end
   evals_em(1,k) = tm;
   
   % BFGS
   tic;
-  [~,~,vals,fcn_evals] = Harmonic_BFGS(p0,gi,ys,[],[],max_iter_bfgs,min_iter_bfgs);
+  [~,lh,vals,fcn_evals] = Harmonic_BFGS(p0,gi,ys,[],[],max_iter_bfgs,min_iter_bfgs);
   tm = toc;
   fprintf(1,'BFGS round %.0f time: %.2f s\n',k,tm);
   num = size(vals,2);
   est_bfgs(:,1:num,k) = vals;
+  lh_bfgs(1:num,k) = lh;
   if num < max_iter_bfgs
     est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
+    lh_bfgs(num+1:end,k) = repmat(lh(end),1,max_iter_bfgs-num);
   end
   evals_bfgs(:,k) = [tm;fcn_evals];
 end

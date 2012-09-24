@@ -85,88 +85,65 @@ SSM.
 To discretize the dynamics, we will apply a simple integration scheme where 
 $\x(t)=\x(t_k)$ when $t\in\brak{t_k,t_{k+1}}$ \parencite{bar2004estimation}.
 In this model, the state will contain the position and
-its first and second time derivatives, i.e the velocity and the acceleration.
-Without losing generality, we will write the model with unidimensional coordinates:
-\begin{align}
-	\x_k \equiv \x(t_k) &= \bm{x_k & \dot{x}_k & \ddot{x}_k }^\tr,
-\end{align}
-where
-\begin{align}
-	\x_k &= x(t_k)&\dot{x}_k &= \eval{\dod{x(t)}{t}}_{t=t_k}&\ddot{x}_k &= \eval{\dod[2]{x(t)}{t}}_{t=t_k}.
-\end{align}
-Then
-\begin{align*}
-	x_k &= \v{A}^{(1)}\xkk+\v{L}^{(1)}v_{k-1}&v_{k-1}\sim \N{0}{\sigma_x^2}\\
-	y_k &=x_k+r_k & r_k \sim \N{0}{\sigma^2_r},
-\end{align*}
-where
-\begin{align*}
-	\v{A}^{(1)}&=\bm{
-	1&\tau&\sfrac{\tau^2}{2}\\
-	&1&\tau\\
-	&&1
-	}\\
-	\v{L}^{(1)} &= \bm{
-	\sfrac{\tau^2}{2} & \tau & 1\\
-	}^\tr
-\end{align*}
-If we wish to replace $\v{L}^{(1)}v_{k-1}$ with the more familiar $\v{q}_{k-1}$,
-then $\v{q}_{k-1}\sim \N{\v{0}}{\v{Q}^{(1)}}$ where
-\begin{align}
-	\v{Q}^{(1)} &= \sigma_x^2\v{L}^{(1)}(\v{L}^{(1)})^\tr = \sigma_x^2\bm{\frac{\tau^4}{4} & \frac{\tau^3}{2} &
-	\frac{\tau^2}{2}\\
-	\frac{\tau^3}{2} & \tau^2 & \tau\\ \frac{\tau^2}{2} & \tau & 1}
-	\label{eq:ballistic_Q}
-\end{align}
-%
-The generalization to $n$ dimensional coordinates includes $3\,n$
-more states in $\x$ and it can be considered to consist of
-$n$ independent systems with unidimensional coordinates.
+its first derivative, i.e the velocity. We will model the acceleration as a white noise
+process, allowing some flexibility with respect to effects caused by additional forces not explicitly
+included in the model.
 
-We will simulate the situation in two dimensions and denote the components
-of the resulting six dimensional state with
+The system will be modeled in two dimensional Cartesian coordinates so that $d_x=4$, i.e
+two components for position and two for velocity. The state at time $k$ is then
 \begin{align}
 	\xk &=
-	\bm{x^{(1)}_k & \dot{x}^{(1)}_k & \ddot{x}^{(1)}_k 
-	& x^{(2)}_k & \dot{x}^{(2)}_k & \ddot{x}^{(2)}_k }^\tr
+	\bm{x^{(1)}_k & \dot{x}^{(1)}_k  
+	  & x^{(2)}_k & \dot{x}^{(2)}_k }^\tr
 	\label{eq:ballistic2D_state}
 \end{align}
-and the two dimensional measurements with
+where
 \begin{align}
-	\yk &= \bm{y^{(1)}_{k} & y^{(2)}_{k} }^\tr.
+	x_k &= x(t_k)   & \text{and} && \dot{x}_k &= \eval{\dod{x(t)}{t}}_{t=t_k}.
+\end{align}
+The powers in Equation~\eqref{eq:ballistic2D_state} denote the Cartesian components.
+The corresponding measurement without the additive noise is
+\begin{align}
+	\yk-\v{r}_k &= \bm{x^{(1)}_k & x^{(2)}_k }^\tr.
 	\label{eq:ballistic2D_measurementsl}
 \end{align}
-%
-The model is then
+
+The linear-Gaussian SSM can now be written as
+\begin{align*}
+	\x_k &= \v{A}\xkk+\v{u}+\v{L}\v{v}_{k-1}, & \v{v}_{k-1} &\sim \N{\v{0}}{\bm{\sigma_1^{2} & \\ & \sigma_2^{2}}}\\
+	\yk &= \v{H}\xk+\v{r}_k, & 					\v{r}_k 	&\sim \N{\v{0}}{\sigma_r^2\v{I}},
+\end{align*}
+where
+\begin{align*}
+	\v{A}&=\bm{
+	1& \tau & 	& 		\\
+	 &	1	& 	&		\\
+	 &		& 1	& \tau 	\\
+	 &		&	& 1
+	}\\
+	\v{u} &= \bm{ & g_1 &  & g_2}^\tr\\
+	\v{L} &= \bm{\tau & 1 & &\\ & & \tau & 1}^\tr\\
+	\v{H} &= \bm{1 & & &\\ & & 1 &}
+\end{align*}
+If we wish to replace $\v{L}v_{k-1}$ with the more familiar $\v{q}_{k-1}$,
+then $\v{q}_{k-1}\sim \N{\v{0}}{\v{Q}}$ where
 \begin{align}
-\begin{split}	
-	\xk &=
-	\bm{\v{A}^{(1)} & \\ & \v{A}^{(1)}}
-	\xkk +\v{q}_{k-1}\\
-	\yk &= \bm{1&0&0&0&0&0\\0&0&0&1&0&0}
-	\xk+ \v{r}_k,
-\end{split}
-	\label{eq:ballistic2D_model}
-\end{align}
-where $\v{q}_{k-1}\sim \N{\v{0}}{\v{Q}}$ and $\v{r}_{k}\sim \N{\v{0}}{\v{R}}$
-with
-\begin{align}
-	\v{Q} &= \bm{\sigma_1^2\v{L}^{(1)}(\v{L}^{(1)})^\tr & \\ & \sigma_2^2\v{L}^{(1)}(\v{L}^{(1)})^\tr}\\
-	\v{R} &= \sigma_r^2\v{I}.
+	\v{Q} &= \v{L}\bm{\sigma_1^{2} & \\ & \sigma_2^{2}}\v{L}^\tr 
+	%\sigma_1^2\bm{\frac{\tau^4}{4} & \frac{\tau^3}{2} &
+	%\frac{\tau^2}{2}\\
+	%\frac{\tau^3}{2} & \tau^2 & \tau\\ \frac{\tau^2}{2} & \tau & 1}
+	\label{eq:ballistic_Q}
 \end{align}
 Additionally, the initial state $\x_0$ is assumed to be normally
-distributed with $\N{\gv\mu_0}{\gv\Sigma_0}$, where
+distributed with $\N{\gv\mu_0}{\v{I}}$, where
 \begin{align}
-	\gv\mu_0 &= \bm{0 & \cos(\alpha_0)v_0 & 0 & 
-	0  & \sin(\alpha_0)v_0 & -9.81}^\tr\\
-	\gv\Sigma_0 &= \mathrm{diag}\big(\bm{0 & 10^2 & 0 & 0 & 10^2 & 0}\big).
+	\gv\mu_0 &= \bm{0 & \cos(\alpha_0)v_0 & 0 & \sin(\alpha_0)v_0}^\tr\\
+	%\gv\Sigma_0 &= \mathrm{diag}\big(\bm{0 & 10^2 & 0 & 0 & 10^2 & 0}\big).
 	\label{eq:ballistic_prior}
 \end{align}
-In other words, we assume the covariance matrix $\gv\Sigma_0$ diagonal and fully known
-and specify further that the initial location and the initial acceleration
-are deterministic and known. The mean of the initial velocity is parameterized
-with $\alpha_0$ and $v_0$, which remain as parameters to be estimated.
-%
+In other words, we assume the covariance matrix fully known
+and specify further that the initial position and velocity
+are deterministic and known.
 
 Next we will focus on simulating measurements from the model and then estimating
 the model parameters. The parameters of the initial distribution are chosen as
@@ -192,7 +169,7 @@ i.e the angle $\alpha_0\in(0,\sfrac{\pi}{2})$ and the magnitude $v_0$, since it 
 the trajectory to a high degree.
 
  
-Let us collect the parameters in the set $\Th=\brac{v_0,\alpha_0,\sigma_1,\sigma_2,\sigma_r}$.
+Let us collect the parameters in the set $\Th=\brac{\sigma_1,\sigma_2,\sigma_r}$.
 
  %
 % To demonstrate filtering and smoothing, the filtering distributions were
