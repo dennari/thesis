@@ -2,7 +2,7 @@ from mpltools import style
 from scipy.io import loadmat
 import numpy as np
 import matplotlib.pyplot as plt
-from util import *
+import util
 
 def draw():
 	style.use('dippa')
@@ -15,32 +15,48 @@ def draw():
 	K,y = (inp["data"][1][0],inp["data"][1][1])
 	a,lhs = (inp["data"][2][0],inp["data"][2][1])
 
+	# size computations
 	alpha = 0.05;
 	beta = (np.sqrt(5)+1)/2 # golden ratio
-	w = 426.79134/72.27; # textwidth in in inches
-	h = w/(2*beta);
+	multiplier = 1#1.063 # resulting image is smaller than specified
+	tw = 426.79134/72.27*multiplier; # textwidth in in inches
+	figw = tw/2.0 # no scaling in latex
+	leftmargin = 0.35 # inches
+	axwidth = figw-leftmargin # inches
+	axheight = axwidth/beta #inches
+	bottommargin = 0.35 # inches
+	topmargin = 0.22 # inches
+	figh = topmargin+axheight+bottommargin # inches
 
-	fig = plt.figure(figsize=(w,h),facecolor='w')
-
-	ax = fig.add_subplot(121)
+	fig1 = plt.figure(figsize=(figw,figh),facecolor='w')
+	ax = fig1.add_axes((leftmargin/figw,bottommargin/figh,axwidth/figw,axheight/figh))
 	l1,l2 = ax.plot(K,x,K,y,'kx',ms=3,mec='black')
-	l2.set_alpha(0.9);
-	axstretch(ax,alpha)
+	l2.set_alpha(0.8);
+	util.axstretch(ax,alpha)
 	xlabel = ax.set_xlabel(r'$k$')
 	lg = ax.legend((r'$x$',r'$y$'))
 	#legendtolabelcolor(lg,xlabel)
 	ax.set_title(r'AR(1) simulation',family='serif')
+	#fig.savefig('ar1_ex_a.pdf')
 
-	ax = fig.add_subplot(122);
+	fig2 = plt.figure(figsize=(figw,figh),facecolor='w')
+	ax = fig2.add_axes((leftmargin/figw,bottommargin/figh,axwidth/figw,axheight/figh))
 	mi = lhs.argmax();
-	#ax.plot(a,lhs,a[mi],lhs[mi],'o',mec='none',mfc='black')
+	#ax2.plot(a,lhs,a[mi],lhs[mi],'o',mec='none',mfc='black')
 	ax.plot(a,lhs)
-	axstretch(ax,alpha)
+	util.axstretch(ax,alpha)
 	xlabel = ax.set_xlabel(r'$a$')
 	ax.set_title(r'Likelihood of $a$',family='serif')
+	#fig.savefig('ar1_ex_b.pdf')
 	#legendtolabelcolor(lg,xlabel)
 
-	return(fig)
+	return((fig1,fig2))
 
 if __name__ == "__main__":
-	(draw()).savefig('ar1_ex.pdf')
+	fig1,fig2 = draw()
+	#inchs = fig.dpi_scale_trans.inverted()
+	#extent = ax1.get_window_extent().transformed(inchs).expanded(1.2,1.4)
+	fig1.savefig('ar1_ex_a.pdf')	
+	#extent = ax2.get_window_extent().transformed(inchs).expanded(1.2,1.4)
+	fig2.savefig('ar1_ex_b.pdf')
+	#fig.savefig('ar1_ex.pdf')

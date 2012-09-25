@@ -57,7 +57,8 @@ grid.linestyle = '-'    # solid line
 
 figure.facecolor = 'white'
 figure.edgecolor = '0.50'
-
+figure.dpi = 72.27 # same as in latex
+figsize = 5.9055,3.6499
 figure.subplot.bottom = 0.
  # 'figure.subplot.hspace': 0.2,
 figure.subplot.left = 0.
