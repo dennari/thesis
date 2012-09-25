@@ -111,6 +111,17 @@ $\EMQ{\Th_l}{\Th}$ must be maximal at $\Th=\Th_l$ and thus its gradient, and
 by \eqref{eq:EM_gradients} that of the likelihood, must be zero at $\Th=\Th_l$. Thus
 $\Th_l$ is a \emph{stationary point} of $\lLH$, i.e a local maximum or a saddle point.
 
+
+\begin{figure}[htb]%
+    \centering%
+  	\includegraphics{img/ar1_ex_em}%
+	\caption{%
+   	Illustration of two steps of the EM algorithm for estimating $a$
+   	in the AR(1) model.
+   	}
+	\label{fig:ar1_em}
+ \end{figure}
+
 We have so far formulated the EM algorithm only for ML estimation. In the case
 of MAP estimation, the situation doesn't change much however. Since the prior
 is independent of $\X$, the E-step stays the same. The MAP M-step changes to

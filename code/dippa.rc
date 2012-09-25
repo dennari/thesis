@@ -28,10 +28,10 @@ axes.grid = True
 axes.titlesize = 'medium'
 axes.labelsize = 'medium'
 #axes.labelcolor = '#555555'
-axes.labelcolor = '#222222'
+axes.labelcolor = '#111111'
 axes.axisbelow = True       # grid/ticks are below elements (eg lines, text)
 axes.formatter.use_mathtext = True
-axes.color_cycle = '#E24A33', '#348ABD', '#988ED5', '#777777', '#FBC15E', '#8EBA42', '#FFB5B8'
+axes.color_cycle = '#348ABD', '#E24A33', '#988ED5', '#777777', '#FBC15E', '#8EBA42', '#FFB5B8'
                    # E24A33 : red
                    # 348ABD : blue
                    # 988ED5 : purple

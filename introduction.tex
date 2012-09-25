@@ -84,24 +84,26 @@ estimation equations, is not fundamental.
 % 
 \begin{figure}[htb]%
     \centering%
+    %\makebox[\textwidth]{%
     \begin{subfigure}[t]{0.5\textwidth}%
-    	\centering%
+    	\caption{AR(1) simulation}\label{fig:ar1_simulation}%
     	\includegraphics{img/ar1_ex_a}%
-    	\caption{A simulation of the AR(1) model with $a=1$.
-    	The noisy measurements are denoted with crosses.}%
-		\label{fig:ar1_simulation}%
     \end{subfigure}%
-    \begin{subfigure}[t]{0.5\textwidth}%
-    	\centering%
+    \begin{subfigure}[t]{0.5\textwidth}\centering%
+		\caption{Likelihood of $a$}\label{fig:ar1_lh}%
 		\includegraphics{img/ar1_ex_b}%
-    	\caption{A plot of the unnormalized probability distribution of $a$, given the simulated measurements and with a uniform prior.}%
-		\label{fig:ar1_lh}%
     \end{subfigure}%
-	\caption{A simulation of the the ballistic object in }
+    %}
+	\caption{%
+	\subref{fig:ar1_simulation} A simulation of the AR(1) model with $a=1$.%
+   	The noisy measurements are denoted with crosses. %
+   	\subref{fig:ar1_lh} A plot of the unnormalized probability distribution of $a$, given the simulated measurements and with a uniform prior.%
+   	}
 	\label{fig:ar1}
  \end{figure}
-%
-% 
+
+
+
 %\def\mygraphic{\includegraphics{img/ar1_ex_a}} 
 %\newlength\graphicwidth
 %\settowidth\graphicwidth{\mygraphic}

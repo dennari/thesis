@@ -62,6 +62,7 @@ def draw(dataFileName):
 	fig,ax = util.getpadfigure(w,**margins)
 
 	# plot
+	lines = []
 	for k,triplet in enumerate(inp["data"]):
 		if len(triplet) < 2:
 			continue
@@ -70,7 +71,7 @@ def draw(dataFileName):
 		arg = triplet[0:3]
 		#print(arg)
 		kw = _setcolor(triplet,cycle,defc,k)
-		ax.plot(*arg,**kw)
+		lines.append(ax.plot(*arg,**kw)[0])
 
 		#print(kw)
 		#if kw.has_key("yerr"):
@@ -89,7 +90,9 @@ def draw(dataFileName):
 	if ylabel is not None:
 		ylabel = ax.set_ylabel(ylabel,family='serif')
 	if legend is not None:
-		lg = ax.legend(legend,**legendkw)
+		#print(legend)
+		#print(lines)
+		lg = ax.legend(lines,legend.flat,**legendkw)
 		# if xlabel is not None:
 		# 	for text in lg.get_texts():
 		# 		text.set_color(xlabel.get_color())

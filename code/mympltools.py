@@ -15,13 +15,13 @@ def legendtolabelcolor(lg,lb):
 
 def padaxis(ax,alpha):
 	# stretch both dimensions by alpha
-	T = np.array([[1,-1,0,0],[-1,1,0,0],[0,0,1,-1],[0,0,-1,1]])*alpha
+	T = np.array([[1,-1,0,0],[-1,1,0,0],[0,0,1,-1],[0,0,-1,1]]).dot(alpha)
 	# shows all data, centers, returns all dimensions as 1x4 vector
 	l = ax.axis("tight")
 	# make the transformation (add one to make it relative to current)
 	return(ax.axis((T+np.eye(4)).dot(l)))
 
-def getpadfigure(figw,margins=(0.22,0.0,0.35,0.35)):
+def getpadfigure(figw,margins=(0.18,0.0,0.35,0.35)):
 	beta = (np.sqrt(5)+1)/2 # golden ratio
 	leftmargin = margins[3] # inches
 	rightmargin = margins[1];
