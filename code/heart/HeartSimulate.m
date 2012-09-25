@@ -1,6 +1,6 @@
 % Setup
 global dt c m0 P0 h f Jh Jf
-N = 800;
+N = 5000;
 T = 25;
 dt = T/N;
 K = (0:N)*dt;
@@ -43,13 +43,13 @@ m0(1) = fr(1);
 
 pNames = {'qw' 'r' 'qx'};
 
-gis = [1 0 1;]
+gis = eye(3);
 
 
 
 fn = '../data/Harmonic_%s_%.0f_%.0f';
 iters = ones(3,2)*30;
-NNs = [30 30 30];
+NNs = [20 20 20];
 % iters = [10 10;
 %          10  10;
 %          10 10;];
@@ -121,7 +121,7 @@ for k=1:NN
   
   % BFGS
   tic;
-  [~,lh,vals,fcn_evals] = Harmonic_BFGS(p0,gi,ys,[],[],max_iter_bfgs,min_iter_bfgs);
+  [~,lh,vals,fcn_evals] = Harmonic_BFGS(p0,gi,ys,1e-30,1e-30,max_iter_bfgs,min_iter_bfgs);
   tm = toc;
   fprintf(1,'BFGS round %.0f time: %.2f s\n',k,tm);
   num = size(vals,2);

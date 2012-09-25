@@ -2,7 +2,7 @@ function [opt,lhs,vals] = Harmonic_EM(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter
 global f h m0 c
 
 if nargin < 7 || isempty(min_iter)
-    min_iter = 0;
+    min_iter = 1;
 end
 if nargin < 6 || isempty(max_iter)
     max_iter = 1000;
@@ -19,8 +19,14 @@ end
 % p(2)=lr,     log measurement variance
 % p(3:3+c-1)   log component variances
 
+  % Print output header
+
+  fprintf('Iteration  Func-count       f(x)        Step-size\n');
+
+
 
 p = p0;
+p_ = p0;
 lh_ = 0;
 N = size(y,2)-1; % it is assumed that x0 has y0
 lhs = zeros(1,max_iter);
@@ -35,15 +41,22 @@ for k=1:max_iter
   
   [lh,~,MM,SS,SQ] = Harmonic_LH(p,y);
   
-  valss = num2cell(gi);valss(2,:) = num2cell(exp(vals(:,k))');
-  valss = sprintf('%.0f: %.4f ',valss{:});
-  fprintf(1,'EM %.0f: lh: %.2f %s\n',k,lh,valss);
+  %valss = num2cell(gi);valss(2,:) = num2cell(exp(vals(:,k))');
+  %valss = sprintf('%.0f: %.4f ',valss{:});
+  %fprintf(1,'EM %.0f: lh: %.2f %s\n',k,lh,valss);
+  
+
+  lh_delta = lh-lh_;
+  x_delta = sqrt(mean((p_(gi)-p(gi)).^2));
+  % Display iteration quantities
+  fprintf(' %5.0f       %5.0f    %13.6g  %13.6g\n',k,2*k,lh,x_delta);
+   
   lhs(k) = lh;
   
-  if(k == max_iter); break; end;
-  if(min_iter > 0 && k > min_iter)
-    if( abs(lh_-lh)             < tol_lh || ... 
-        mean(abs(p_(gi)-p(gi))) < tol_delta ); break; end; 
+  if(2*k >= max_iter); break; end;
+  if(k > 1 && min_iter > 0 && 2*k > min_iter) % don't stop if min_iter not fulfilled
+    if( abs(lh_delta)             < tol_lh || ... 
+        x_delta                   < tol_delta ); break; end; 
   end
   lh_ = lh;
   p_ = p;

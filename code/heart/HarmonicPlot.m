@@ -1,11 +1,11 @@
 %% r - estimates
 
 
-load('../data/CardiacRealQw.mat');
+load('../data/Harmonic_qw_30_500.mat');
 NN = size(est_em,3);
 %true = p_true(5);
-max_iter_em = 50;
-max_iter_bfgs = 10;
+%max_iter_em = 50;
+%max_iter_bfgs = 10;
 % Separate
 figure(1); clf;
 est_em1 =   reshape(est_em,[max_iter_em NN  1]);
