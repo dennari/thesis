@@ -82,10 +82,21 @@ textwidth = 426.79134/72.27; % latex textwidth in inches
 
 plt = struct();kw=struct();
 %kw.alpha = 0.2; kw.linewidth = 0.5;
-plt.data = {{K xs},{K ys 'kx'},{as lhs}};
-plt.w = textwidth*0.5;
-plt.A = A;
-pyplot('../img/ar1_ex.mat',plt);
+kw.ms = 3; kw.alpha = 0.7; 
+plt.data = {{K xs},{K ys 'kx' kw}};
+plt.w = textwidth/2;
+plt.xlabel = '$t$';
+plt.legend = {'$x$' '$y$'};
+plt.title = 'AR(1) simulation';
+pyplot('../img/ar1_ex_a.pdf',plt,'../img/ar1_ex_a.mat');
+
+plt = struct();kw=struct();
+plt.data = {{as lhs},{''}};
+plt.w = textwidth/2;
+plt.xlabel = '$a$';
+%plt.legend = {'$x$' '$y$'};
+plt.title = 'Likelihood of $a$';
+pyplot('../img/ar1_ex_b.pdf',plt,'../img/ar1_ex_b.mat');
 
 
 

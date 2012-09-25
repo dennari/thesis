@@ -39,6 +39,7 @@ axes.color_cycle = '#E24A33', '#348ABD', '#988ED5', '#777777', '#FBC15E', '#8EBA
                    # FBC15E : yellow
                    # 8EBA42 : green
                    # FFB5B8 : pink
+axes.formatter.limits = -3, 3
 
 xtick.color = '#555555'
 #xtick.direction = 'out'

@@ -1,29 +1,21 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python2.7
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
 from mpltools import style
-from mpltools.special import errorfill
-import scipy.io
+#from mpltools.special import errorfill
 from scipy.io import loadmat
+from scipy.io.matlab.mio5_params import mat_struct
+import mympltools as util
 
 
-def plot(argv=None):
+def draw(dataFileName):
 	A = np.array # shortcut
 
-	#fm = font_manager.FontManager()
-	#p = font_manager.FontProperties("Latin Modern Roman",size=10)
-	#print(fm.findfont(p))
-
 	style.use('dippa')
-	argv = sys.argv[1:] if argv is None else argv
-	dataFileName = argv[0]
-	try:
-		outputFileName = argv[1]
-	except IndexError as e:
-		outputFileName = None
 
-	beta = (np.sqrt(5)+1)/2 # golden ratio
+
+	
 	cycle = plt.rcParams["axes.color_cycle"]
 	defc = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 	
@@ -58,18 +50,17 @@ def plot(argv=None):
 		w = 5
 
 	try:
-		h = inp["h"]
+		margins = {margins: inp["margins"]}
 	except KeyError as e:
-		h = w/beta
+		margins = {}
 	
 	try:
 		alpha = inp["alpha"]
 	except KeyError as e:
-		alpha = 0.03
+		alpha = 0.05
 
+	fig,ax = util.getpadfigure(w,**margins)
 
-	fig = plt.figure(figsize=(w,h),facecolor='w')
-	ax = fig.add_subplot(111)
 	# plot
 	for k,triplet in enumerate(inp["data"]):
 		if len(triplet) < 2:
@@ -79,35 +70,33 @@ def plot(argv=None):
 		arg = triplet[0:3]
 		#print(arg)
 		kw = _setcolor(triplet,cycle,defc,k)
+		ax.plot(*arg,**kw)
+
 		#print(kw)
-		if kw.has_key("yerr"):
-			kw["ax"] = ax
-			errorfill(arg[0],arg[1],**kw)
-		else:
-			ax.plot(*arg,**kw)
+		#if kw.has_key("yerr"):
+		#	kw["ax"] = ax
+		#	errorfill(arg[0],arg[1],**kw)
+		#else:
+		#	ax.plot(*arg,**kw)
 		ax.hold(True)
 	
-	# stretch both dimensions by alpha
-	T = A([[1,-1,0,0],[-1,1,0,0],[0,0,1,-1],[0,0,-1,1]])*alpha
-	# all dimensions as 1x4 vector
-	l = ax.axis("tight")
-	# make the transformation (add one to make it relative to current)
-	ax.axis((T+np.eye(4)).dot(l))
+	util.padaxis(ax,alpha)
 
 	if title is not None:
-		ax.set_title(title)
+		ax.set_title(title,family='serif')
 	if xlabel is not None:
-		xlabel = ax.set_xlabel(xlabel)
+		xlabel = ax.set_xlabel(xlabel,family='serif')
 	if ylabel is not None:
-		ylabel = ax.set_ylabel(ylabel)
+		ylabel = ax.set_ylabel(ylabel,family='serif')
 	if legend is not None:
 		lg = ax.legend(legend,**legendkw)
-		if xlabel is not None:
-			for text in lg.get_texts():
-				text.set_color(xlabel.get_color())
+		# if xlabel is not None:
+		# 	for text in lg.get_texts():
+		# 		text.set_color(xlabel.get_color())
+		for text in lg.get_texts():
+			text.set_family('serif')
 
-	if outputFileName is not None:
-		fig.savefig(outputFileName)
+	return(ax)
 
 
 
@@ -144,11 +133,15 @@ def _todict(matobj):
     dict = {}
     for strg in matobj._fieldnames:
         elem = matobj.__dict__[strg]
-        if isinstance(elem, scipy.io.matlab.mio5_params.mat_struct):
+        if isinstance(elem, mat_struct):
             dict[strg] = _todict(elem)
         else:
             dict[strg] = elem
     return dict
 
 if __name__ == '__main__':
-	plot()
+	argv = sys.argv[1:]
+	dataFileName = argv[0]
+	outputFileName = argv[1]
+	ax = draw(dataFileName)
+	ax.get_figure().savefig(outputFileName)

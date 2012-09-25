@@ -18,8 +18,7 @@ def draw():
 	# size computations
 	alpha = 0.05;
 	beta = (np.sqrt(5)+1)/2 # golden ratio
-	multiplier = 1#1.063 # resulting image is smaller than specified
-	tw = 426.79134/72.27*multiplier; # textwidth in in inches
+	tw = 426.79134/72.27; # latex textwidth in in inches
 	figw = tw/2.0 # no scaling in latex
 	leftmargin = 0.35 # inches
 	axwidth = figw-leftmargin # inches
