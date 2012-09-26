@@ -4,9 +4,11 @@ if nargin < 3
    notransform = 0;
 end
 
-if ~notransform % by default it is assumed that input is in log(std)
-  qx = exp(2*qx);
-  qy = exp(2*qy); % NOT CHANGED !!!!!
+if ~notransform % by default it is assumed that input is in std
+  %qx = exp(2*qx);
+  %qy = exp(2*qy); % NOT CHANGED !!!!!
+  qx = qx^2;
+  qy = qy^2;
 end
 %   +-                -+
 %   |       3       2  |

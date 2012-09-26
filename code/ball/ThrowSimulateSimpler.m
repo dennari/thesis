@@ -1,17 +1,17 @@
 %% Setup
 
-global dt m0 P0 H A g0x g0y u
+global dt m0 P0 H A
 
 
-N = 1800;
+N = 500;
 T = 14;
 dt = T/N;
 
 
 %%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
-lqx = log(0.8);       % parameterization in logarithm of standard deviation
-lqy = lqx-log(3);
-lr =  log(2);
+lqx = 0.8;       % parameterization in logarithm of standard deviation
+lqy = lqx/2;
+lr =  log(2.5);
 
 
 K = (0:N)*dt;
@@ -22,7 +22,7 @@ alpha0 = (60/180)*pi; % initial direction
 v0x = v0*cos(alpha0);
 v0y = v0*sin(alpha0);
 g0y = -9.81; % initial y acceleration
-g0x = -1; % initial x acceleration
+g0x = -1.5; % initial x acceleration
 A1 = [1 dt; 
       0 1];  
 A = blkdiag(A1,A1); % for two dimensions
@@ -35,7 +35,7 @@ SQ = chol(Q,'lower');
 h = @(x) H*x;
 R = ballisticR(lr);
 SR = chol(R,'lower');
-u = [0 dt*g0x 0 dt*g0y]';
+u = ballisticU(g0x,g0y);
 
 
 m0 = [0 v0x 0 v0y]';
@@ -149,46 +149,70 @@ plot(K,sqrt(mean((xs-MM).^2)),K,sqrt(mean((xs-MS).^2)));
 % p{1}=lqx,  x process variance, or shared if gi = 4
 % p{2}=lqy,  y process variance
 % p{3}=lr,   measurement variance
-p0 = [lqx lqy lr];
+% p{4}=lqxqy,   joint process variance
+% p{5}=ux,    constant input x-component
+% p{6}=uy,    constant input y-component 
+p0 = [lqx lqy lr 0 g0x g0y];
 p = p0;
-NN = 50;
-lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
-
-
-gi = 1;
-
+NN = 20;
+gi = [3 6];
+alpha = 0.2;
+as = zeros(numel(gi),NN^(numel(gi)));
 %as = linspace(0.5*qx,1.5*qx,NN);
-if gi == 4
-  true = p0(1);
-else
-  true = p0(gi);
-end  
-as = linspace(true+log(0.5),true-log(0.5),NN);
+for k = 1:numel(gi)
 
-for j=1:NN
-  j
-    
-    if gi == 4
-      p(1) = as(j);
+  true = p0(gi(k));
+  if gi(k) < 5
+    as1 = linspace(true+log(0.5),true-log(0.5),NN);
+  else
+    as1 = linspace((1-alpha)*true,(1+alpha)*true,NN);
+  end
+  if numel(gi) > 1
+    if k == 1
+      as(k,:) = kron(ones(size(as1)),as1);
     else
-      p(gi) = as(j);
+      as(k,:) = kron(as1,ones(size(as1)));
     end
-    
-    % Basic filter and smoother
-    [lh,glh,MM,PP,MM_,PP_] = Ballistic_LH(p,ys,gi);
+  else
+    as = as1;
+  end
+end
+
+lhs = zeros(1,size(as,2)); 
+glhs = zeros(size(as)); 
+glbs = glhs;
+
+
+
+for j=1:size(as,2)
+    j
+    for k=1:numel(gi)
+        p(gi(k)) = as(k,j);
+    end
+
+    [lh,glh,MM,PP,MM_,PP_,Q,u] = Ballistic_LH(p,ys,gi);
     lhs(1,j) = lh;
-    glhs(1,j) = glh;
+    glhs(:,j) = glh;
+    %glh(2)
+    
     [MS,PS,DD] = rts_smooth2(MM,PP,MM_,PP_,A); % D = Smoother Gain
     [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD,u);
-    glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
+    smk = sum(MS(:,2:end),2);
+    smkk = sum(MS(:,1:end-1),2);
+    glb = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3,smk,smkk,Q,u);
+    glb(1)-glh(1)
+    glb(2)-glh(2)
+    glbs(:,j) = glb;
     % Sigma Filter and Smoother
 %     [lh,glh,MMM,SSS] = Ballistic_LH_Sigma(p,ys,gi);
 %     lhs(1,j) = lh;
 %     glhs(1,j) = glh;
-%     SQ = chol(ballisticQ2D(p(1),p(2)),'lower');
+%     SQ = chol(Q,'lower');
 %     [MMS,SS,DD] = SigmaSmoothSR(MMM,SSS,f,SQ,usig,w); % D = Smoother Gain
 %     [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DD);
-%     glbs(1,j) = EM_LB_Ballistic(p,MMS(:,1),gi,N,I1,I2,I3);
+%     smk = sum(MMS(:,2:end),2);
+%     smkk = sum(MMS(:,1:end-1),2);
+%     glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3,smk,smkk,Q);
 
     % SR filter and RTS smoother
 %     [lh,glh,MM,SS,MM_,SS_] = Ballistic_LH_SR(p,ys,gi);
@@ -202,20 +226,44 @@ for j=1:NN
     
 end
 
-
-n = 4; m= 1;
-figure(1); clf;
-subplot(n,m,1);
-eas = exp(as);
-plot(eas,lhs'); grid on;
-subplot(n,m,2);
-plot(eas,glhs'); grid on;
-subplot(n,m,3);
-plot(eas,glbs'); grid on;
-subplot(n,m,4);
-plot(eas(1:end-1),diff(lhs(1,:))./diff(as)); grid on;
-
-% figure(2); clf;
+if numel(gi) == 1
+  n = 2; m= 1;
+  figure(1); clf;
+  subplot(n,m,1);
+  if gi < 5
+    eas = exp(as);
+  else
+    eas = as;
+  end
+  plot(eas,lhs'); grid on;
+  subplot(n,m,2);
+  diff1 = diff(lhs(1,:))./diff(as);
+  plot(eas,glhs,eas,glbs,eas(2:end),diff1); grid on;
+  legend('sens','em','num');
+else
+  X = reshape(as(1,:),NN,NN);
+  Y = reshape(as(2,:),NN,NN);
+  Z = reshape(lhs,NN,NN);
+  dlh1 = reshape(glhs(1,:),NN,NN);
+  dlh2 = reshape(glhs(2,:),NN,NN);
+  dlh = dlh1.*X+dlh2.*Y;
+  
+  dem1 = reshape(glbs(1,:),NN,NN);
+  dem2 = reshape(glbs(2,:),NN,NN);
+  dem = dem1.*X+dem2.*Y;
+  
+  
+  figure(1); clf;
+  plot(exp(X(:,1)),dem1(:,1),exp(X(:,1)),dlh1(:,1))
+  figure(2); clf;
+  plot(Y(1,:),dem1(1,:),Y(1,:),dlh1(1,:))
+  figure(3); clf;
+  plot(exp(X(:,1)),dem2(:,1),exp(X(:,1)),dlh2(:,1))
+  figure(4); clf;
+  plot(Y(1,:),dem2(1,:),Y(1,:),dlh2(1,:))
+  
+end
+%figure(2); clf;
 % plot(eas,glhs-glbs);
 
 % n = 4; m= 2;
@@ -238,7 +286,7 @@ plot(eas(1:end-1),diff(lhs(1,:))./diff(as)); grid on;
 % plot(eas,sqrt((glbs(1,:)-glbs(2,:)).^2));
 % subplot(n,m,7);
 %plot(K,squeeze(PS(1,1,:))-squeeze(SS(1,1,:)).^2,K,MS(1,:)-MMS(1,:));
-diff1 = diff(lhs(1,:))./diff(as);
+%diff1 = diff(lhs(1,:))./diff(as);
 % diff2 = diff(lhs(2,:))./diff(as);
 % plot(eas(1:end-1),diff1,eas(1:end-1),diff2); grid on;
 % subplot(n,m,8);
@@ -246,10 +294,10 @@ diff1 = diff(lhs(1,:))./diff(as);
 %   eas(1:end-1),sqrt((diff1-glhs(1,2:end)).^2),eas(1:end-1),sqrt((diff1-glbs(1,2:end)).^2)); grid on;
 
 
-figure(2); clf;
-subplot(2,1,1);
-plot(eas(1:end-1),sqrt((diff1-glhs(1,2:end)).^2),eas(1:end-1),sqrt((diff1-glbs(1,2:end)).^2)); grid on;
-title('KF/RTS');
+% figure(2); clf;
+% subplot(2,1,1);
+% plot(eas(1:end-1),sqrt((diff1-glhs(1,2:end)).^2),eas(1:end-1),sqrt((diff1-glbs(1,2:end)).^2)); grid on;
+% title('KF/RTS');
 % subplot(2,1,2);
 % plot(eas(1:end-1),sqrt((diff2-glhs(2,2:end)).^2),eas(1:end-1),sqrt((diff2-glbs(2,2:end)).^2)); grid on;
 % title('Sigma');

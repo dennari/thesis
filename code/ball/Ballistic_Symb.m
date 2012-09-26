@@ -41,9 +41,27 @@ syms qx qy positive
 Qf = blkdiag(Qs/q*qx,Qs/q*qy);
 lbq = -0.5*trace(I/Qf)-0.5*N*log(det(Qf));
 %simple(diff(lbq,qx))
-dlbq_q = simple(2*diff(lbq,qx)*qx);
+dlbq_qx = simple(2*diff(lbq,qx)*qx);
+dlbq_qy = simple(2*diff(lbq,qy)*qy);
+
+anss = solve(dlbq_qx==0,dlbq_qy==0,qx,qy)
 
 
-solve(dlbq_q==0,qx)
+%% u
 
+I = sym('I%d%d',[4 4]);
+syms qx qy positive
+syms ux uy real
+mk = sym('mk%d',[4 1]); sym(mk,'real');
+mkk = sym('mkk%d',[4 1]); sym(mkk,'real');
+A = blkdiag(As,As);
 
+Qf = blkdiag(Qs/q*qx,Qs/q*qy);
+u = [0 dt*ux 0 dt*uy]';
+dux = diff(u,ux);
+dQux = trace(Qf\(dux*mk'-dux*mkk'*A'-N*dux*u'));
+duy = diff(u,uy);
+dQuy = trace(Qf\(duy*mk'-duy*mkk'*A'-N*duy*u'));
+%dlbq_q = simple(2*diff(lbq,qx)*qx);
+
+anss = solve(dQux==0,dQuy==0,ux,uy)

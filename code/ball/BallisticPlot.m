@@ -1,6 +1,6 @@
 %% r - estimates
 
-load('../data/Harmonic_r_30_500.mat');
+load('../data/Harmonic_qw_30_500.mat');
 
 % Separate
 figure(1); clf;

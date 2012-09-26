@@ -1,17 +1,16 @@
-function [glb] = EM_LB_Ballistic(p,m0T,gi,N,I1,I2,I3)
+function [glb] = EM_LB_Ballistic(p,m0T,gi,N,I1,I2,I3,smk,smkk,Q,u)
 % parameters are 
 %
 % p{1}=lqx,  x process std
 % p{2}=lqy,  y process std
 % p{3}=lr,   measurement std
 
- global dt
-    
+ global dt A   
 
 
 % gradient
 
-  glb = zeros(numel(gi));
+  glb = zeros(numel(gi),1);
   for j=1:numel(gi)
 
       if(gi(j)==1) % dlb/dqx
@@ -44,7 +43,7 @@ function [glb] = EM_LB_Ballistic(p,m0T,gi,N,I1,I2,I3)
       if(gi(j)==3) % dlb/dr
           lr = p(3);
           r = exp(2*lr);
-          glb(3) = (I3(1,1)/(2*r^2) + I3(2,2)/(2*r^2) - N/r)*r*2;
+          glb(j) = (I3(1,1)/(2*r^2) + I3(2,2)/(2*r^2) - N/r)*r*2;
       end
       if(gi(j)==4) % dlb/dq (joint process noise)
         q = exp(2*p(1));
@@ -57,6 +56,15 @@ function [glb] = EM_LB_Ballistic(p,m0T,gi,N,I1,I2,I3)
         glb(j) = exp(t1-t2)*2*q-4*N;
         
       end
+      if(gi(j)==5 || gi(j)==6) % dlb/du
+        ii = gi(j)-3+(gi(j)-5);
+        e = zeros(4,1);
+        e(ii) = dt;
+        glb(j) = trace(Q\(e*smk'-e*smkk'*A'-N*e*u'));
+        
+      end
+      
+      
 
 
   end

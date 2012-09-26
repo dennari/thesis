@@ -4,16 +4,19 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi)
 % p{1}=lqx,  x process variance
 % p{2}=lqy,  y process variance
 % p{3}=lr,   measurement variance
+% p{5}=ux,    constant input x-component
+% p{6}=uy,    constant input y-component 
 
-    global A H P0 m0 u
+    global A H P0 m0
 
     if nargin < 3
       gi = [];
     end
     
     Q = ballisticQ2D(p(1),p(2));
-    R = ballisticR(p(3:end));
- 
+    R = ballisticR(p(3));
+    u = ballisticU(p(5),p(6));
+    
     SQ = chol(Q,'lower');
     SR = chol(R,'lower');
 
@@ -80,6 +83,7 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi)
     end
     if nargout > 4
       varargout{3} = SQ;
+      varargout{4} = u;
     end
 
 end
