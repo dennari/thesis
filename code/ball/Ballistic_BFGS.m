@@ -1,4 +1,4 @@
-function [opt,lhs,vals,evals] = Ballistic_BFGS(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
+function [opt,lhs,vals,evals,times] = Ballistic_BFGS(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
 
 if nargin < 7 || isempty(min_iter)
     min_iter = 1;
@@ -23,13 +23,15 @@ opt.MaxFunEvals = max_iter;
 opt.OutputFcn = @ofun;
 
 lhs = zeros(1,max_iter);
+times = lhs;
 vals = zeros(numel(gi),max_iter);
 %vals(:,1) = p0(gi)';
 k = 1;
-
+start = tic;
 [opt,~,~,msg] = fminunc(@bfgs_lh,transformTo(p0),opt);
-lhs = lhs(:,1:k-1);
-vals = vals(:,1:k-1);
+
+%lhs = lhs(:,1:k-1);
+%vals = vals(:,1:k-1);
 evals = msg.funcCount; 
 
 function [lh,glh]=bfgs_lh(x)
@@ -59,6 +61,7 @@ function stop=ofun(x,val,state)
   %fprintf(1,'Vals: %.5f\n',exp(x));
   lhs(k) = -val.fval;
   vals(:,k) = x;
+  times(k) = toc(start);
   k = k+1;
   stop=0;
 end

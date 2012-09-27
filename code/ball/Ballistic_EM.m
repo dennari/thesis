@@ -1,4 +1,4 @@
-function [opt,lhs,vals] = Ballistic_EM(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
+function [opt,lhs,vals,times] = Ballistic_EM(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
 global A H m0
 
 if nargin < 7 || isempty(min_iter)
@@ -20,6 +20,7 @@ p_ = p0;
 lh_ = 0;
 N = size(y,2)-1; % it is assumed that x0 has y0
 lhs = zeros(1,max_iter);
+times = lhs;
 vals = zeros(numel(gi),max_iter);
 vals(:,1) = p0(gi)';
 
@@ -28,7 +29,7 @@ vals(:,1) = p0(gi)';
 %h = @(x) H*x;
 %[usig,w] = CKFPoints(size(A,1));
 %w(:,2) = sqrt(w(:,1)); % add weights for square root filt/smooth
-
+start = tic;
 for k=1:max_iter
   % E-Step
   [lh,~,MM,PP,MM_,PP_,Q,u] = Ballistic_LH(p,y);
@@ -59,12 +60,12 @@ for k=1:max_iter
   smk = sum(MS(:,2:end),2); smkk = sum(MS(:,1:end-1),2);
   p = EM_M_Ballistic(p,MS(:,1),gi,N,I1,I2,I3,smk,smkk);
   vals(:,k+1) = p(gi)';
-  
+  times(k) = toc(start);
   
   
 end
-lhs = lhs(:,1:k);
-vals = vals(:,1:k);
+%lhs = lhs(:,1:k);
+%vals = vals(:,1:k);
 opt = p(gi);
 
 

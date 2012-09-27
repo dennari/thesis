@@ -56,13 +56,16 @@ gis = [0 0 1 0 0 1;
        0 0 1 0 1 0;
        0 0 1 0 1 1;
       ];
+    
+    
 logi = [1 1 1 1 0 0]; logi = logi > 0;
 
 fn = '../data/Ballistic_%s%.0f_%.0f';
 iters = [30 100;
          30 100;
+         30 100;
          30 100;];
-NNs = [30 30 30];
+NNs = [30 30 30 30];
 % iters = [10 10;
 %          10  10;
 %          10 10;];
@@ -80,8 +83,11 @@ max_iter_bfgs = iters(i,2);
 NN = NNs(i);
 est_em =   zeros(numel(gi),max_iter_em,NN);
 lh_em =   zeros(max_iter_em,NN);
+times_em = lh_em;
+
 est_bfgs = zeros(numel(gi),max_iter_bfgs,NN);
 lh_bfgs =   zeros(max_iter_em,NN);
+times_bfgs = lh_bfgs;
 
 evals_em = zeros(1,NN);
 evals_bfgs = zeros(2,NN);
@@ -116,8 +122,11 @@ for k=1:NN
   p0(gi) = p0(gi)*(4*rand-2); % 0.5-1.5 * true
   %p0(gis(i,:)&logi) = p0(gis(i,:)&logi) + log(4*rand-2);
   
-  % EM
+  %%%%%%%%%%%%
+  % EM %%%%%%%
+  %%%%%%%%%%%%
   
+  % PRINT
   pt = p_true; pt(logi) = exp(pt(logi));
   cel = pNames(gi);cel(2,:)=num2cell(pt(gi));
   fprintf(1,'TRUE:    %s\n',sprintf('%s: %5.4f ',cel{:}));
@@ -126,24 +135,33 @@ for k=1:NN
   cel = pNames(gi);cel(2,:)=num2cell(p0t(gi));
   fprintf(1,'INITIAL: %s\n',sprintf('%s: %5.4f ',cel{:}));
   
-  tic;
-  [opt,lh,vals] = Ballistic_EM(p0,gi,ys,[],[],max_iter_em,min_iter_em);
-  tm = toc;
+  %tic;
+  % RUN
+  [opt,lh,vals,times] = Ballistic_EM(p0,gi,ys,[],[],max_iter_em,min_iter_em);
+  %tm = toc;
+  % SAVE
+  est_em(:,:,k) = vals;
+  lh_em(:,k) = lh;
+  times_em(:,k) = times;
   
+  
+  %num = size(vals,2);
+  % PRINT
   optt = p0; optt(gi) = opt; optt(logi) = exp(optt(logi));
   cel = pNames(gi);cel(2,:)=num2cell(optt(gi)');
   fprintf(1,'EM %.0f: %s\n\n\n\n',k,sprintf('%s: %5.4f ',cel{:}));
   
-  num = size(vals,2);
-  est_em(:,1:num,k) = vals;
-  lh_em(1:num,k) = lh;
-  if num < max_iter_em
-    est_em(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_em-num);
-    lh_em(num+1:end,k) = repmat(lh(end),1,max_iter_em-num);
-  end
-  evals_em(1,k) = tm;
+  %if num < max_iter_em
+  %  est_em(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_em-num);
+  %  lh_em(num+1:end,k) = repmat(lh(end),1,max_iter_em-num);
+  %end
+  %evals_em(1,k) = tm;
   
-  % BFGS
+  %%%%%%%%%%%%%%
+  % BFGS%%%%%%%%
+  %%%%%%%%%%%%%%
+  
+  %PRINT
   pt = p_true; pt(logi) = exp(pt(logi));
   cel = pNames(gi);cel(2,:)=num2cell(pt(gi));
   fprintf(1,'TRUE:    %s\n',sprintf('%s: %5.4f ',cel{:}));
@@ -152,20 +170,27 @@ for k=1:NN
   cel = pNames(gi);cel(2,:)=num2cell(p0t(gi));
   fprintf(1,'INITIAL: %s\n',sprintf('%s: %5.4f ',cel{:}));
   
-  tic;
-  [opt,lh,vals,fcn_evals] = Ballistic_BFGS(p0,gi,ys,1e-60,1e-60,max_iter_bfgs,min_iter_bfgs);
-  tm = toc;
+  % RUN
+  [opt,lh,vals,fcn_evals,times] = Ballistic_BFGS(p0,gi,ys,1e-60,1e-60,max_iter_bfgs,min_iter_bfgs);
+  %tm = toc;
+  
+  % SAVE
+  %num = size(vals,2);
+  est_bfgs(:,:,k) = vals;
+  lh_bfgs(:,k) = lh;
+  times_bfgs(:,k) = times;
+  %if num < max_iter_bfgs
+  %  est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
+  %  lh_bfgs(num+1:end,k) = repmat(lh(end),1,max_iter_bfgs-num);
+  %end
+  evals_bfgs(1,k) = fcn_evals;
+  
+  % PRINT
   optt = p0; optt(gi) = opt; optt(logi) = exp(optt(logi));
   cel = pNames(gi);cel(2,:)=num2cell(optt(gi)');
   fprintf(1,'BFGS %.0f: %s\n\n\n\n',k,sprintf('%s: %5.4f ',cel{:}));
-  num = size(vals,2);
-  est_bfgs(:,1:num,k) = vals;
-  lh_bfgs(1:num,k) = lh;
-  if num < max_iter_bfgs
-    est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
-    lh_bfgs(num+1:end,k) = repmat(lh(end),1,max_iter_bfgs-num);
-  end
-  evals_bfgs(:,k) = [tm;fcn_evals];
+  
+  
 end
 
 %plot(max_iter_em,est_em')
