@@ -51,7 +51,7 @@ P0 = eye(size(m0,1));%diag([1e-6 7^-2 1e-6 7^-2]);
 % 6=uy,    acceleration y-component 
 pNames = {'qx' 'qy' 'r' 'qxy' 'ux' 'uy'};
 p_true = [qx qy r 0 g0x g0y];
-gis = [0 0 0 0 1 1;
+gis = [0 0 1 0 0 1;
        0 0 1 0 0 1;
        0 0 1 0 1 0;
        0 0 1 0 1 1;
@@ -113,8 +113,8 @@ for k=1:NN
 
   % INITIAL POINT
   p0 = p_true;
-  p0(gis(i,:)&~logi) = p0(gis(i,:)&~logi)*(4*rand-2); % 0.5-1.5 * true
-  p0(gis(i,:)&logi) = p0(gis(i,:)&logi) + log(4*rand-2);
+  p0(gi) = p0(gi)*(4*rand-2); % 0.5-1.5 * true
+  %p0(gis(i,:)&logi) = p0(gis(i,:)&logi) + log(4*rand-2);
   
   % EM
   
