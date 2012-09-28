@@ -155,7 +155,7 @@ plot(K,sqrt(mean((xs-MM).^2)),K,sqrt(mean((xs-MS).^2)));
 p0 = [lqx lqy lr 0 g0x g0y];
 p = p0;
 NN = 20;
-gi = [3 6];
+gi = [3 5];
 alpha = 0.2;
 as = zeros(numel(gi),NN^(numel(gi)));
 %as = linspace(0.5*qx,1.5*qx,NN);

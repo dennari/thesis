@@ -1,4 +1,4 @@
-function [opt,lhs,vals,evals,times] = Ballistic_BFGS(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
+function [opt,lhs,vals,msg,times] = Ballistic_BFGS(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
 
 if nargin < 7 || isempty(min_iter)
     min_iter = 1;
@@ -32,7 +32,7 @@ start = tic;
 
 %lhs = lhs(:,1:k-1);
 %vals = vals(:,1:k-1);
-evals = msg.funcCount; 
+%evals = msg.funcCount; 
 
 function [lh,glh]=bfgs_lh(x)
   %p = p0;

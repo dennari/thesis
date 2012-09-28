@@ -51,7 +51,7 @@ P0 = eye(size(m0,1));%diag([1e-6 7^-2 1e-6 7^-2]);
 % 6=uy,    acceleration y-component 
 pNames = {'qx' 'qy' 'r' 'qxy' 'ux' 'uy'};
 p_true = [qx qy r 0 g0x g0y];
-gis = [0 0 1 0 0 1;
+gis = [0 0 1 0 1 1;
        0 0 1 0 0 1;
        0 0 1 0 1 0;
        0 0 1 0 1 1;
@@ -143,7 +143,7 @@ for k=1:NN
   est_em(:,:,k) = vals;
   lh_em(:,k) = lh;
   times_em(:,k) = times;
-  
+  fprintf('EM time/iter: %.4f\n',sum(times)/sum(times>0));
   
   %num = size(vals,2);
   % PRINT
@@ -171,9 +171,10 @@ for k=1:NN
   fprintf(1,'INITIAL: %s\n',sprintf('%s: %5.4f ',cel{:}));
   
   % RUN
-  [opt,lh,vals,fcn_evals,times] = Ballistic_BFGS(p0,gi,ys,1e-60,1e-60,max_iter_bfgs,min_iter_bfgs);
+  [opt,lh,vals,msg,times] = Ballistic_BFGS(p0,gi,ys,1e-60,1e-60,max_iter_bfgs,min_iter_bfgs);
   %tm = toc;
-  
+  fprintf('BFGS time/funcCount: %.4f\n',sum(times)/msg.funcCount);
+
   % SAVE
   %num = size(vals,2);
   est_bfgs(:,:,k) = vals;
@@ -183,7 +184,8 @@ for k=1:NN
   %  est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
   %  lh_bfgs(num+1:end,k) = repmat(lh(end),1,max_iter_bfgs-num);
   %end
-  evals_bfgs(1,k) = fcn_evals;
+  evals_bfgs(1,k) = msg.funcCount;
+  %msg
   
   % PRINT
   optt = p0; optt(gi) = opt; optt(logi) = exp(optt(logi));
@@ -192,7 +194,7 @@ for k=1:NN
   
   
 end
-
+break
 %plot(max_iter_em,est_em')
 
 cel = pNames(gi);
