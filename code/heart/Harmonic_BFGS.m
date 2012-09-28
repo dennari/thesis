@@ -1,7 +1,7 @@
-function [opt,lhs,vals,evals] = Harmonic_BFGS(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
+function [opt,lhs,vals,funccounts,times] = Harmonic_BFGS(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
 
 if nargin < 7 || isempty(min_iter)
-    min_iter = 0;
+    min_iter = 1;
 end
 if nargin < 6 || isempty(max_iter)
     max_iter = 1000;
@@ -23,13 +23,16 @@ opt.MaxFunEvals = max_iter;
 opt.OutputFcn = @ofun;
 
 lhs = zeros(1,max_iter);
+times = lhs;
+funccounts = lhs;
 vals = zeros(numel(gi),max_iter);
 %vals(:,1) = p0(gi)';
 k = 1;
-[opt,~,~,msg] = fminunc(@bfgs_lh,p0(gi),opt);
-lhs = lhs(:,1:k-1);
-vals = vals(:,1:k-1);
-evals = msg.funcCount; 
+start = tic;
+opt = fminunc(@bfgs_lh,p0(gi),opt);
+%lhs = lhs(:,1:k-1);
+%vals = vals(:,1:k-1);
+%evals = msg.funcCount; 
 
 function [lh,glh]=bfgs_lh(x)
   p = p0;
@@ -45,6 +48,8 @@ function stop=ofun(x,val,state)
   %fprintf(1,'Vals: %.5f\n',exp(x));
   lhs(k) = -val.fval;
   vals(:,k) = x;
+  times(k) = toc(start);
+  funccounts(k) = val.funccount;
   k = k+1;
   stop=0;
 end

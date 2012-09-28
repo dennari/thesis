@@ -1,19 +1,24 @@
 
 %% Setup
-global dt H c m0 P0
+global dt c m0 P0 h f Jh Jf
 
 S = load('../data/dataa_villelle.mat','card_data','data_t');
 y = S.card_data;
 K = S.data_t;
 clear S;
-nm = 1;
-% take first nm minutes
-endi = find(K<nm*60,1,'last');
-y = y(1:endi);
-K = K(1:endi);
+
+offset = 20;
+secs = 87;
+
+starti = find(K<offset,1,'last'); 
+endi = find(K<offset+secs,1,'last');
+y = y(starti:endi);
+K = K(starti:endi);
+K = K-K(1);
 
 
-ds = 10;
+ds = round(10*secs/60);
+%ds = 315;
 % downsample by ds
 y = y(1:ds:end)';
 K = K(1:ds:end);
@@ -22,28 +27,31 @@ dt = K(2)-K(1);
 N = length(K);
 T = K(end);
 
-
 % plot first 60 seconds
-%endi = find(K<60,1,'last');
-%plot(K(1:endi),y(1:endi));
+% endi = find(K,1,'last');
+% plot(K(1:endi),y(1:endi),'*-');
+%break
 
 
 % the parameters of this model
 lqx = log(0.7);           % log Dynamic model noise spectral density
-lqw = log(0.1);           % log angular velocity variance
-lr =  log(0.02);          % log measurement noise
+lqw = log(0.3);           % log angular velocity variance
+lr =  log(0.003);          % log measurement noise
 
 
 c = 3; % number of harmonics (including the fundamental frequency)
 xDim = 2*c+1;
 H = [0 repmat([1 0],1,c)];
 h = @(x) H*x;
+Jh = @(x) H;
 f = @(x) sinusoid_f(x);
-Q = sinusoid_Q(lqw,repmat(lqx,1,c));              
+Jf = @(x) sinusoid_Jf(x);
+Q = sinusoid_Q(lqw,lqx);              
+
 SQ = chol(Q,'lower');
 R = sinusoid_R(lr);
-SR = sqrt(R);
-m0 = [0.5*2*pi zeros(1,xDim-1)]';
+SR = chol(R,'lower');
+m0 = [exp(lqw) zeros(1,xDim-1)]';
 P0 = eye(xDim);
 
 
@@ -51,106 +59,141 @@ P0 = eye(xDim);
 K = [0 K+dt];
 Y = [H*m0 y];
 
-%% Plot DRIFTER frequency estimate
 
-S = load('../data/dataa_villelle.mat','card_freq','freq_t');
-
-endi = find(S.freq_t<nm*60,1,'last');
-DRIFTER_f = S.card_freq(1:endi);
-DRIFTER_ft = S.freq_t(1:endi);
-plot(DRIFTER_ft,DRIFTER_f);
-
-
-
-%% Test
-
-[usig,w] = CKFPoints(xDim);
-w(:,2) = sqrt(w(:,1)); % add weights for square root filt/smooth
-
-% add the zeroth measurement
-
-
-MM = zeros(xDim,N+1); MM(:,1) = m0;
-SS = zeros(xDim,xDim,N+1); SS(:,:,1) = P0;
-m = m0; lh = 0;  S = P0;
-
-for k=1:(N+1)
-    [m_,S_] = SigmaKF_Predict(m,S,f,SQ,[],usig,w);
-    
-    if k==N+1; break; end; 
-    
-    y = Y(:,k+1); % notice indexing!!!
-    [m,S,~,IM,IS] = SigmaKF_Update(m_,S_,y,h,SR,usig,w);
-    
-    
-    MM(:,k+1) = m;
-    SS(:,:,k+1) = S;
-    %likelihood(y(:,k+1)-IM,IS)
-    lh = lh + likelihood(y-IM,IS);
-
-end
-[MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); 
-
-
-
-figure(1); clf;
-plot(K,Y,K,H*MM,K,H*MS); grid on;
-figure(2); clf;
-m = 3;
-subplot(m,1,1);
-plot(K,sqrt(sum((H*MM-Y).^2,1)),K,sqrt(sum((H*MS-Y).^2,1))); grid on; title('Err');
-subplot(m,1,2);
-plot(K,MS(1,:)/2/pi,DRIFTER_ft,DRIFTER_f); grid on; title('Base Freq');
-subplot(m,1,3);
-plot(K,squeeze(abs(SM(1,1,:)))/2/pi); grid on; title('Freq Std');
-
-
-
-%% Compute LH and gradient on grid
 
 % parameters are 
-% p(1)=lqw,    log angular velocity variance
-% p(2)=lr,     log measurement variance
-% p(3:3+c-1)   log signal component variances
+% p(1)=lqw,    log angular velocity std
+% p(2)=lr,     log measurement std
+% p(3)=lqx     log component std
 
-
-p0 = [lqw lr repmat(lqx,1,c)];
-gi = 1; % which one we're estimating
-true = p0(gi);
-
-NN = 25;
-lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
-
-
-
-
-rnge = true+log(5);
-as = linspace(true-rnge,true+rnge,NN);
-
-p = p0;
-for j=1:NN
-    j
-    p(gi) = as(j);
+pNames = {'lqw' 'lr' 'lqx'};
+p_true = [lqw lr lqx];
+gis = [1 1 0;
+       1 1 1;];
     
-    [lh,glh,MM,SS] = Harmonic_LH(p,ys,gi);
-    lhs(j) = lh;
-    glhs(j) = glh;
-    [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,[],usig,w); % D = Smoother Gain
-    [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MS,SM,DD);
-    glbs(j) = EM_LB_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
+    
+logi = [1 1 1]; logi = logi > 0;
+
+fn = '../data/Harmonic_%s%.0f_%.0f';
+iters = ones(2,2)*75;
+
+NNs = [5 5];
+
+
+for i=1:size(gis,1)
+
+
+gi = find(gis(i,:)>0);
+
+min_iter_em =   iters(i,1);
+max_iter_em =   iters(i,2);
+min_iter_bfgs = iters(i,1);
+max_iter_bfgs = iters(i,2);
+NN = NNs(i);
+est_em =   zeros(numel(gi),max_iter_em,NN);
+lh_em =   zeros(max_iter_em,NN);
+times_em = lh_em;
+
+est_bfgs = zeros(numel(gi),max_iter_bfgs,NN);
+lh_bfgs =   zeros(max_iter_em,NN);
+times_bfgs = lh_bfgs;
+
+evals_em = zeros(1,NN);
+evals_bfgs = zeros(max_iter_em,NN);
+
+
+
+for k=1:NN
+ 
+
+  % INITIAL POINT
+  p0 = p_true;
+  p0(gi) = p0(gi)*(0.9+0.2*rand); % 0.8-1.2 * true
+  %p0(gis(i,:)&logi) = p0(gis(i,:)&logi) + log(4*rand-2);
+  
+  %%%%%%%%%%%%
+  % EM %%%%%%%
+  %%%%%%%%%%%%
+  
+  % PRINT
+  pt = p_true; pt(logi) = exp(pt(logi));
+  cel = pNames(gi);cel(2,:)=num2cell(pt(gi));
+  fprintf(1,'TRUE:    %s\n',sprintf('%s: %5.4f ',cel{:}));
+  
+  p0t = exp(p0);
+  cel = pNames(gi);cel(2,:)=num2cell(p0t(gi));
+  fprintf(1,'INITIAL: %s\n',sprintf('%s: %5.4f ',cel{:}));
+  
+  tic;
+  % RUN
+  [opt,lh,vals,times] = Harmonic_EM(p0,gi,Y,[],[],max_iter_em,min_iter_em);
+  tm = toc;
+  % SAVE
+  est_em(:,:,k) = vals;
+  lh_em(:,k) = lh;
+  times_em(:,k) = times;
+  fprintf('EM time/iter: %.4f\n',sum(times)/sum(times>0));
+  
+  %num = size(vals,2);
+  % PRINT
+ 
+  %optt = p0; optt(gi) = opt; optt=exp(optt);
+  %cel = pNames(gi);cel(2,:)=num2cell(optt(gi)');
+  %fprintf(1,'EM %.0f: %s\n\n\n\n',k,sprintf('%s: %5.4f ',cel{:}));
+  
+  
+  %%%%%%%%%%%%%%
+  % BFGS%%%%%%%%
+  %%%%%%%%%%%%%%
+  
+  %PRINT
+  pt = p_true; pt(logi) = exp(pt(logi));
+  cel = pNames(gi);cel(2,:)=num2cell(pt(gi));
+  fprintf(1,'TRUE:    %s\n',sprintf('%s: %5.4f ',cel{:}));
+  
+  p0t = p0; p0t(logi) = exp(p0t(logi));
+  cel = pNames(gi);cel(2,:)=num2cell(p0t(gi));
+  fprintf(1,'INITIAL: %s\n',sprintf('%s: %5.4f ',cel{:}));
+  
+  % RUN
+  [opt,lh,vals,funccount,times] = Harmonic_BFGS(p0,gi,Y,[],[],max_iter_bfgs,min_iter_bfgs);
+  %tm = toc;
+  %fprintf('BFGS time/funcCount: %.4f\n',sum(times)/msg.funcCount);
+
+  % SAVE
+  %num = size(vals,2);
+  est_bfgs(:,:,k) = vals;
+  lh_bfgs(:,k) = lh;
+  times_bfgs(:,k) = times;
+
+  evals_bfgs(:,k) = funccount;
+  %msg
+  
+  % PRINT
+  optt = p0; optt(gi) = opt; optt(logi) = exp(optt(logi));
+  cel = pNames(gi);cel(2,:)=num2cell(optt(gi)');
+  fprintf(1,'BFGS %.0f: %s\n\n\n\n',k,sprintf('%s: %5.4f ',cel{:}));
+  
+  
+end
+%break
+%plot(max_iter_em,est_em')
+
+cel = pNames(gi);
+save(sprintf(fn,sprintf('%s_',pNames{gi}),NN,N));
+
 end
 
-n = 3; m= 1;
-figure(1); clf;
-subplot(n,m,1);
-plot(as,lhs'); grid on;
-subplot(n,m,2);
-plot(as,glhs,as,glbs); grid on;
-subplot(n,m,3);
-plot(as,sqrt((glbs-glhs).^2)); grid on;
 
-%save('../../data/simulateHeartR.mat','lhs','glhs','glbs');
-%% Try optimization
+%% Plot DRIFTER frequency estimate
+
+% S = load('../data/dataa_villelle.mat','card_freq','freq_t');
+% 
+% endi = find(S.freq_t<nm*60,1,'last');
+% DRIFTER_f = S.card_freq(1:endi);
+% DRIFTER_ft = S.freq_t(1:endi);
+% plot(DRIFTER_ft,DRIFTER_f);
+
 
 
 

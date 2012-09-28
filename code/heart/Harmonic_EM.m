@@ -1,4 +1,4 @@
-function [opt,lhs,vals] = Harmonic_EM(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
+function [opt,lhs,vals,times] = Harmonic_EM(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
 global f h m0 c
 
 if nargin < 7 || isempty(min_iter)
@@ -21,8 +21,14 @@ end
 
   % Print output header
 
-  fprintf('Iteration  Func-count       f(x)        Step-size\n');
-
+pNames = {'lqw' 'lr' 'lqx'}; pNames = pNames(gi);
+    
+fprintf('Iteration    f(x)        Step-size     %s\n',sprintf('%s      ',pNames{:}));
+tmplt = '%5.0f    %13.6g  %13.6g';
+for k=1:numel(gi)
+  tmplt = [tmplt '  %13.6g'];
+end
+tmplt = [tmplt '\n'];
 
 
 p = p0;
@@ -30,12 +36,13 @@ p_ = p0;
 lh_ = 0;
 N = size(y,2)-1; % it is assumed that x0 has y0
 lhs = zeros(1,max_iter);
+times = lhs;
 vals = zeros(numel(gi),max_iter);
 vals(:,1) = p0(gi)';
 
 [usig,w] = CKFPoints(2*c+1);
 w(:,2) = sqrt(w(:,1)); % add weights for square root filt/smooth
-
+start = tic;
 for k=1:max_iter
   % E-Step
   
@@ -49,12 +56,15 @@ for k=1:max_iter
   lh_delta = lh-lh_;
   x_delta = sqrt(mean((p_(gi)-p(gi)).^2));
   % Display iteration quantities
-  fprintf(' %5.0f       %5.0f    %13.6g  %13.6g\n',k,2*k,lh,x_delta);
+  
+  v = {k,lh,x_delta};
+  v(4:4+numel(gi)-1) = num2cell(exp(p(gi)));
+  fprintf(tmplt,v{:});
    
   lhs(k) = lh;
   
-  if(2*k >= max_iter); break; end;
-  if(k > 1 && min_iter > 0 && 2*k > min_iter) % don't stop if min_iter not fulfilled
+  if(k >= max_iter); break; end;
+  if(k > 1 && min_iter > 0 && k > min_iter) % don't stop if min_iter not fulfilled
     if( abs(lh_delta)             < tol_lh || ... 
         x_delta                   < tol_delta ); break; end; 
   end
@@ -66,10 +76,11 @@ for k=1:max_iter
   % M-Step
   p = EM_M_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
   vals(:,k+1) = p(gi)';
+  times(k) = toc(start);
   
 end
-lhs = lhs(:,1:k);
-vals = vals(:,1:k);
+%lhs = lhs(:,1:k);
+%vals = vals(:,1:k);
 opt = p(gi);
 
 

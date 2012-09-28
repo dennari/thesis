@@ -1,20 +1,20 @@
 %% r - estimates
 
 
-load('../data/Harmonic_qw_30_500.mat');
+load('../data/Harmonic_qw_r_30_800.mat');
 NN = size(est_em,3);
 %true = p_true(5);
 %max_iter_em = 50;
 %max_iter_bfgs = 10;
 % Separate
 figure(1); clf;
-est_em1 =   reshape(est_em,[max_iter_em NN  1]);
-est_bfgs1 = reshape(est_bfgs,[max_iter_bfgs NN 1]);
+est_em1 =   reshape(est_em(2,:,:),[max_iter_em NN  1]);
+est_bfgs1 = reshape(est_bfgs(2,:,:),[max_iter_bfgs NN 1]);
 subplot(2,1,1);
-plot(exp(est_em1),'-b');
+plot(est_em1,'-b');
 %ylim([-0.5,0.5]);xlim([1,max_iter_em]);
 subplot(2,1,2);
-plot(exp(est_bfgs1),'-b');
+plot(est_bfgs1,'-b');
 %ylim([-0.5,0.5]);xlim([1,max_iter_bfgs]);
 
 % RMSE over datasets

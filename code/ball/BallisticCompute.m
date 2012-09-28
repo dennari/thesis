@@ -90,7 +90,7 @@ lh_bfgs =   zeros(max_iter_em,NN);
 times_bfgs = lh_bfgs;
 
 evals_em = zeros(1,NN);
-evals_bfgs = zeros(2,NN);
+evals_bfgs = zeros(:,NN);
 
 xs = zeros(4,N+1);
 ys = zeros(2,N+1);
@@ -171,7 +171,7 @@ for k=1:NN
   fprintf(1,'INITIAL: %s\n',sprintf('%s: %5.4f ',cel{:}));
   
   % RUN
-  [opt,lh,vals,msg,times] = Ballistic_BFGS(p0,gi,ys,1e-60,1e-60,max_iter_bfgs,min_iter_bfgs);
+  [opt,lh,vals,msg,funccount] = Ballistic_BFGS(p0,gi,ys,1e-60,1e-60,max_iter_bfgs,min_iter_bfgs);
   %tm = toc;
   fprintf('BFGS time/funcCount: %.4f\n',sum(times)/msg.funcCount);
 
@@ -184,7 +184,7 @@ for k=1:NN
   %  est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
   %  lh_bfgs(num+1:end,k) = repmat(lh(end),1,max_iter_bfgs-num);
   %end
-  evals_bfgs(1,k) = msg.funcCount;
+  evals_bfgs(:,k) = funccount;
   %msg
   
   % PRINT
