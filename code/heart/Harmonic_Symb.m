@@ -87,17 +87,17 @@ solve(diff(lbq,q3)==0,q3)
 sum(sum([1 dt;dt dt^2].*[6 -3; -3 2].*I(jj+2:jj+3,jj+2:jj+3)))/(N*dt^3)
 
 %% shared case
-syms qw dt q1 q2 q3 positive;
-qx = [q1 q1 q1];
+syms qw dt q1 a N positive;
+I = sym('I%d%d',[7 7]); sym(I,'real');
 c = cell(1,3);
 c{1} = qw;
-for k = 1:numel(qx)
-    c{k+1} = qx(k)*dt*[Q11 Q12; Q12 Q22];
+for k = 1:numel(c)
+    c{k+1} = [a 0; 0 q1*dt];
 end
 
 Q = blkdiag(c{:});
   
-I = sym('I%d%d',[7 7]);
+
 lbq = -0.5*trace(Q\I)-0.5*N*log(det(Q));
 dfqx = simple(diff(lbq,q1)*2*q1);
 simple(solve(dfqx==0,q1))

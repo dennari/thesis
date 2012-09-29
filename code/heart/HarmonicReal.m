@@ -63,8 +63,8 @@ Y = [H*m0 y];
 
 pNames = {'lqw' 'lr' 'lqx'};
 p_true = [lqw lr lqx];
-gis = [1 1 0;
-       1 1 1;];
+gis = [1 1 1;];
+%       1 1 1;];
     
     
 logi = [1 1 1]; logi = logi > 0;
