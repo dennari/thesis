@@ -30,13 +30,13 @@ end
 
 function g=grad1(j,x1,x2,x3)
   global dt
-  g(1) = (dt*x3*cos(j*dt*x1))/x1 - (x3*sin(j*dt*x1))/(j*x1^2) - j*dt*x2*sin(j*dt*x1);
+  g(1) = j*dt*x3*cos(dt*j*x1) - j*dt*x2*sin(dt*j*x1);
   g(2) = cos(j*dt*x1);
-  g(3) = sin(j*dt*x1)/(j*x1);
+  g(3) = sin(j*dt*x1);
 end
 function g=grad2(j,x1,x2,x3)
   global dt;
-  g(1) = -j*x2*sin(dt*j*x1) - dt*j*x3*sin(dt*j*x1) - dt*j^2*x1*x2*cos(dt*j*x1);
-  g(2) = -j*x1*sin(dt*j*x1);
+  g(1) = -j*dt*x2*cos(dt*j*x1) - dt*j*x3*sin(dt*j*x1);
+  g(2) = -sin(dt*j*x1);
   g(3) = cos(dt*j*x1);
 end   

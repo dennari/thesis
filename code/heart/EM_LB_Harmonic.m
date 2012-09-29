@@ -62,6 +62,7 @@ for j=1:numel(gi)
         qx = exp(2*p(3));
         dQ = sinusoid_Q(0,1,1);
         Q = sinusoid_Q(p(1),p(3));
+        Q(2,2) = 1; Q(4,4) = 1; Q(6,6) = 1;
         glb(j) = trace(Q\(dQ/Q*I2-N*dQ))*qx;
     end
     if(gi(j)==2) % dlb/dr

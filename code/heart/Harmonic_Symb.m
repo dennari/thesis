@@ -35,8 +35,8 @@ syms dt x_ J real
 
 c = 3;
 x = sym('x%d',[2*c+1,1]); % in
-A = @(w) [(cos(dt*w)), (sin(dt*w)/w);
-          (-w*sin(dt*w)), (cos(dt*w))];
+A = @(w) [(cos(dt*w)), (sin(dt*w));
+          (-sin(dt*w)), (cos(dt*w))];
 As = cell(1,c);
 for j=1:c
     As{j} = A(j*x(1)); % multiples of fundamental w

@@ -1,8 +1,8 @@
 
 %% Setup
 global dt c m0 P0 h f Jh Jf
-N = 700;
-T = 25;
+N = 500;
+T = 15;
 dt = T/N;
 K = (0:N)*dt;
 
@@ -13,7 +13,7 @@ lr =  log(0.01);   % log(sqrt) measurement noise
 
 
 
-c = 2; % number of harmonics (including the fundamental frequency)
+c = 3; % number of harmonics (including the fundamental frequency)
 xDim = 2*c+1;
 H = [0 repmat([1 0],1,c)];
 h = @(x) H*x;
@@ -22,7 +22,11 @@ f = @(x) sinusoid_f(x);
 Jf = @(x) sinusoid_Jf(x);
 Q = sinusoid_Q(lqw,lqx);              
 
-SQ = chol(Q,'lower');
+if Q == diag(diag(Q))
+  SQ = sqrt(Q);
+else
+  SQ = chol(Q,'lower');
+end
 R = sinusoid_R(lr);
 SR = chol(R,'lower');
 m0 = [exp(2*lqw) zeros(1,xDim-1)]';
@@ -35,7 +39,7 @@ P0 = eye(xDim);
 % artificial frequency trajectory
  cp = floor([1 2]*N/3);
  L1 = 0.8*ones(1,cp(1));
- L3 = 1.2*ones(1,N-cp(2)+1);
+ L3 = 1.0*ones(1,N-cp(2)+1);
  x = K((cp(1)+1):cp(2));
  L2 = ((L3(1)-L1(1))/(K(cp(2))-K(cp(1))))*(x-K(cp(1)))+L1(1);
  fr = 2*pi*[L1 L2 L3];
@@ -111,7 +115,7 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 
 
 p0 = [lqw lr lqx];
-gi = 3; % which one we're estimating
+gi = 1; % which one we're estimating
 true = p0(gi);
 
 NN = 25;
@@ -120,8 +124,8 @@ lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
 
-start = true + log(0.5);
-endd = true - log(0.5);
+start = true + log(0.65);
+endd = true - log(0.65);
 as = linspace(start,endd,NN);
 %as = log(linspace(0.06,0.09,NN));
 

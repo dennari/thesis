@@ -10,9 +10,15 @@ function [lh,glh,varargout] = Harmonic_LH(p,y,gi)
   if nargin < 3
     gi = [];
   end
-
-  SQ = chol(sinusoid_Q(p(1),p(3)),'lower');
-  SR = chol(sinusoid_R(p(2)),'lower');
+  
+  Q = sinusoid_Q(p(1),p(3));
+  if Q == diag(diag(Q))
+    SQ = sqrt(Q);
+  else
+    SQ = chol(Q,'lower');
+  end
+  
+  SR = sqrt(sinusoid_R(p(2)));
  
   
   xDim = size(m0,1);
