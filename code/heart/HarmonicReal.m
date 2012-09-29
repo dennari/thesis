@@ -46,11 +46,6 @@ h = @(x) H*x;
 Jh = @(x) H;
 f = @(x) sinusoid_f(x);
 Jf = @(x) sinusoid_Jf(x);
-Q = sinusoid_Q(lqw,lqx);              
-
-SQ = chol(Q,'lower');
-R = sinusoid_R(lr);
-SR = chol(R,'lower');
 m0 = [exp(lqw) zeros(1,xDim-1)]';
 P0 = eye(xDim);
 
