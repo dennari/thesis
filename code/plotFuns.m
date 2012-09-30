@@ -2,16 +2,16 @@ function [ funs ] = plotFuns()
   funs.normalizeBFGS = @normalizeBFGS;
 end
 
-function [lh,estn] = normalizeBFGS(time,lh,est,avgt)
+function [lh,estn] = normalizeBFGS(ev,lh,est,avgt)
   %time = time(2:end,:); %remove the initial
   %lh = lh(2:end,:); %remove the initial
   estn = est;
-  for j=1:size(time,2)
+  for j=1:size(lh,2)
     l = lh(:,j);
     ii = 1;
-    df = diff(time(time(:,j)>0,j));
+    df = diff(ev(ev(:,j)>0,j));
     for i=1:numel(df)-1 % discard last one
-      num = round(df(i)/avgt);
+      num = df(i);
       if num < 1
         error('num < 1');
       end

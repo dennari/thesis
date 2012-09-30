@@ -45,8 +45,8 @@ w(:,2) = sqrt(w(:,1)); % add weights for square root filt/smooth
 start = tic;
 for k=1:max_iter
   % E-Step
-  
-  [lh,~,MM,SS,SQ] = Harmonic_LH(p,y);
+   [lh,~,MM,SS,SQ] = Harmonic_LH(p,y);
+
   
   %valss = num2cell(gi);valss(2,:) = num2cell(exp(vals(:,k))');
   %valss = sprintf('%.0f: %.4f ',valss{:});
@@ -72,7 +72,11 @@ for k=1:max_iter
   p_ = p;
 
   [MS,SM,DD] = SigmaSmoothSR(MM,SS,f,SQ,usig,w); % D = Smoother Gain
-  [I1,I2,I3] = EM_I123_Sigma(f,h,m0,y,MS,SM,DD);
+  try
+    [I1,I2,I3] = EM_I123_Sigma(f,h,m0,y,MS,SM,DD);
+  catch err
+    break;
+  end
   % M-Step
   p = EM_M_Harmonic(p,MS(:,1),gi,N,I1,I2,I3);
   vals(:,k+1) = p(gi)';

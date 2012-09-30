@@ -63,7 +63,7 @@ function stop=ofun(x,val,state)
   lhs(k) = -val.fval;
   vals(:,k) = x;
   times(k) = toc(start);
-  funccounts(k) = val.funcCount;
+  funccounts(k) = val.funccount;
   k = k+1;
   stop=0;
 end
