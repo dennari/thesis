@@ -2,31 +2,32 @@ function [ funs ] = plotFuns()
   funs.normalizeBFGS = @normalizeBFGS;
 end
 
-function [lh,estn] = normalizeBFGS(ev,lh,est,avgt)
+function [lhn,estn] = normalizeBFGS(ev,lh,est)
   %time = time(2:end,:); %remove the initial
   %lh = lh(2:end,:); %remove the initial
   estn = est;
+  lhn = lh;
   for j=1:size(lh,2)
-    l = lh(:,j);
     ii = 1;
     df = diff(ev(ev(:,j)>0,j));
-    for i=1:numel(df)-1 % discard last one
+    for i=1:numel(df)
       num = df(i);
-      if num < 1
-        error('num < 1');
-      end
-      for k=1:num
-        l(ii) = lh(i,j); % duplicate lower value num times
+      if num > 0
+        lhn(ii:ii+num-1,j) = interp(lh(i,j),lh(i+1,j),num);
         for kk = 1:size(est,1)
-          estn(kk,ii,j) = est(kk,i,j); 
+          estn(kk,ii:ii+num-1,j) = interp(est(kk,i,j),est(kk,i+1,j),num); 
         end
-        ii = ii + 1;
+        ii = ii + num;
       end
     end
-    l(ii:end) = lh(i+1,j); % copy the last one
+    lhn(ii:end,j) = lh(i+1,j); % copy the last one
     for kk = 1:size(est,1)
         estn(kk,ii:end,j) = est(kk,i+1,j); 
     end
-    lh(:,j) = l;
   end
+end
+
+function l=interp(s,e,kn)
+  k=(e-s)/kn;
+  l = k*(0:kn-1)+s;
 end

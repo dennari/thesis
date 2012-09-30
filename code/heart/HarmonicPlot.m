@@ -1,63 +1,99 @@
 %% r - estimates
 funs = plotFuns();
-load('../data/Ballistic_r_ux_uy_30_1500.mat');
-
-itr = max_iter_em/2-1;
-times_em = times_em(1:itr,:);
+load('../data/Harmonic_lqw_lr_lqx_5_5801.mat');
+NN = 2;
+itr = max_iter_em;
+times_em = times_em(1:itr,1:NN);
+zerse = times_em <= 0;
 % start from zero
-times_em = times_em-repmat(times_em(1,:),itr,1);
-lh_em = lh_em(1:itr,:);
-est_em = est_em(:,1:itr,:);
+times_em = times_em(1:itr,1:NN)-repmat(times_em(1,1:NN),itr,1);
+lh_em = lh_em(1:itr,1:NN);
+est_em = est_em(:,1:itr,1:NN);
 
-times_bfgs = times_bfgs(2:itr+1,:);
+times_bfgs = times_bfgs(2:itr,1:NN);
 zers = times_bfgs <= 0;
-times_bfgs = times_bfgs-repmat(times_bfgs(1,:),itr,1);
-lh_bfgs = lh_bfgs(2:itr+1,:);
-est_bfgs = est_bfgs(:,2:itr+1,:);
+times_bfgs = times_bfgs-repmat(times_bfgs(1,:),itr-1,1);
+lh_bfgs = lh_bfgs(2:itr,1:NN);
+est_bfgs = est_bfgs(:,2:itr,1:NN);
+evals_bfgs = evals_bfgs(2:itr,1:NN);
 
-
-nonnan = 1:(max_iter_em/2-1);
-avg_time_em = mean(mean(diff(times_em(nonnan,:),1,1)));
-df=diff(times_bfgs,1,1);
-avg_time_bfgs = mean(df(df>1.1&df<1.2)); % choose a good interval
-
-[lh_bfgs_n,est_bfgs_n] = funs.normalizeBFGS(times_bfgs,lh_bfgs,est_bfgs,avg_time_bfgs);
+[lh_bfgs_n,est_bfgs_n] = funs.normalizeBFGS(evals_bfgs,lh_bfgs,est_bfgs);
 
 % LH
 figure(1); clf;
 % normalized
-subplot(3,1,1);
-plot((0:itr-1)*avg_time_em,lh_em,'-b',(0:itr-1)*avg_time_bfgs,lh_bfgs_n,'-r');
-xlim([0 50]); ylim([-1e5 8000]);
+subplot(2,1,1);
+plot((0:itr-1),lh_em,'-b',(0:itr-2)*2,lh_bfgs_n,'-r');
+xlim([0 30]); ylim([18000 24500]);
+%xlim([0 50]); ylim([-1e5 8000]);
 
 % original
-subplot(3,1,2);
+subplot(2,1,2);
 times_bfgs(zers) = nan; lh_bfgs(zers) = nan;
+times_em(zerse) = nan; lh_em(zerse) = nan;
 plot(times_em,lh_em,'-b',times_bfgs,lh_bfgs,'-r');
-xlim([0 50]); ylim([-1e5 8000]);
+%plot(times_bfgs/3600,lh_bfgs,'-r');
 
+xlim([0 3000]); ylim([22000 24500]);
+%break
 % mean over runs
-subplot(3,1,3);
-plot((0:itr-1)*avg_time_em,mean(lh_em,2),'-b',(0:itr-1)*avg_time_bfgs,mean(lh_bfgs_n,2),'-r');
-xlim([0 50]); ylim([-1e5 8000]);
+%subplot(3,1,3);
+%plot((0:itr-1)*avg_time_em,mean(lh_em,2),'-b',(0:itr-1)*avg_time_bfgs,mean(lh_bfgs_n,2),'-r');
+%xlim([0 50]); ylim([-1e5 8000]);
 
 % EST
 figure(2); clf;
 % original
-subplot(2,1,1);
-est1 = squeeze(est_em(1,:,:));
-est2 = squeeze(est_bfgs(1,:,:));
-est2n = squeeze(est_bfgs_n(1,:,:));
-%est1 = exp(est1);est2 = exp(est2);
+subplot(3,1,1);
+x = 5:30;
+y = exp(squeeze(est_em(1,x,:)));
+plot(x,y); grid on;
 
-times_bfgs(zers) = nan; est2(zers) = nan;
-plot(times_em,est1,'-b',times_bfgs,est2,'-r');
-xlim([0 50]);
+subplot(3,1,2);
+y = exp(squeeze(est_em(2,x,:)));
+plot(x,y); grid on;
+
+subplot(3,1,3);
+y = exp(squeeze(est_em(3,x,:)));
+plot(x,y); grid on;
+
+figure(3); clf;
+% original
+subplot(3,1,1);
+x = 5:30;
+y = exp(squeeze(est_bfgs_n(1,x,:)));
+plot(x,y); grid on;
+
+subplot(3,1,2);
+y = exp(squeeze(est_bfgs_n(2,x,:)));
+plot(x,y); grid on;
+
+subplot(3,1,3);
+y = exp(squeeze(est_bfgs_n(3,x,:)));
+plot(x,y); grid on;
+
+figure(4); clf;
+% original
+subplot(3,1,1);
+x = 3:30;
+y1 = exp(squeeze(est_em(1,x,:))/log(10));
+y2 = exp(squeeze(est_bfgs_n(1,x,:))/log(10));
+semilogy(x,y1,'b',x,y2,'-r'); grid off;
+
+subplot(3,1,2);
+y1 = exp(squeeze(est_em(2,x,:))/log(10));
+y2 = exp(squeeze(est_bfgs_n(2,x,:))/log(10));
+semilogy(x,y1,'b',x,y2,'-r'); grid off;
+
+subplot(3,1,3);
+y1 = exp(squeeze(est_em(3,x,:))/log(10));
+y2 = exp(squeeze(est_bfgs_n(3,x,:))/log(10));
+semilogy(x,y1,'b',x,y2,'-r'); grid off;
 
 % mean over runs
-subplot(2,1,2);
-plot((0:itr-1)*avg_time_em,mean(est1,2),'-b',(0:itr-1)*avg_time_bfgs,mean(est2n,2),'-r');
-xlim([0 50]);
+%subplot(2,1,2);
+%plot((0:itr-1)*avg_time_em,mean(est1,2),'-b',(0:itr-1)*avg_time_bfgs,mean(est2n,2),'-r');
+%xlim([0 50]);
 
 
 

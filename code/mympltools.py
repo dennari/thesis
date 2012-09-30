@@ -13,11 +13,12 @@ def legendtolabelcolor(lg,lb):
 	for text in lg.get_texts():
 		text.set_color(lb.get_color())
 
-def padaxis(ax,alpha):
+def padaxis(ax,alpha,l=None):
 	# stretch both dimensions by alpha
 	T = np.array([[1,-1,0,0],[-1,1,0,0],[0,0,1,-1],[0,0,-1,1]]).dot(alpha)
 	# shows all data, centers, returns all dimensions as 1x4 vector
-	l = ax.axis("tight")
+	if l is None:
+		l = ax.axis("tight")
 	# make the transformation (add one to make it relative to current)
 	return(ax.axis((T+np.eye(4)).dot(l)))
 

@@ -50,7 +50,7 @@ def draw(dataFileName):
 		w = 5
 
 	try:
-		margins = {margins: inp["margins"]}
+		margins = {'margins': inp["margins"]}
 	except KeyError as e:
 		margins = {}
 	
@@ -58,6 +58,16 @@ def draw(dataFileName):
 		alpha = inp["alpha"]
 	except KeyError as e:
 		alpha = 0.05
+
+	try:
+		axlim = inp["axis"]
+	except KeyError as e:
+		axlim = None
+
+	try:
+		ticklabels = inp["ticklabels"]
+	except KeyError as e:
+		ticklabels = None
 
 	fig,ax = util.getpadfigure(w,**margins)
 
@@ -81,7 +91,7 @@ def draw(dataFileName):
 		#	ax.plot(*arg,**kw)
 		ax.hold(True)
 	
-	util.padaxis(ax,alpha)
+	util.padaxis(ax,alpha,l=axlim)
 
 	if title is not None:
 		ax.set_title(title,family='serif')
@@ -98,7 +108,12 @@ def draw(dataFileName):
 		# 		text.set_color(xlabel.get_color())
 		for text in lg.get_texts():
 			text.set_family('serif')
-
+	if ticklabels is not None:
+		if not ticklabels[0]:
+			ax.set_xticklabels([])
+		if not ticklabels[1]:
+			ax.set_yticklabels([])
+			
 	return(ax)
 
 

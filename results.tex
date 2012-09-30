@@ -171,6 +171,7 @@ the trajectory to a high degree.
  
 Let us collect the parameters in the set $\Th=\brac{\sigma_1,\sigma_2,\sigma_r}$.
 
+\parencite{ristic2004beyond,Ratna2008,Lindsten2010}
  %
 % To demonstrate filtering and smoothing, the filtering distributions were
 % computed with the Kalman filter of section~\ref{sec:kalman_filter} and the smoothing distributions with
@@ -180,39 +181,79 @@ Let us collect the parameters in the set $\Th=\brac{\sigma_1,\sigma_2,\sigma_r}$
 % include the information of the ``future'' measurements in addition to the past and the current ones.
 % \todo{analyze the figure a bit more} 
 
-\begin{figure}[htb]%
-    \centering%
-    %\includegraphics[width=0.6\textwidth]{img/ex1_pos_meas}%
-    \missingfigure{Ballistic stuff}
-	\caption{A simulation of the trajectory of a ballistic projectile with noisy measurements.}
-	\label{fig:ballistic2D_simulation}
- \end{figure}
 % \begin{figure}[htb]%
 %     \centering%
-%     \begin{subfigure}[b]{0.5\textwidth}%
+%     \begin{subfigure}[t]{0.5\textwidth}%
 %     	\centering%
-%     	\includegraphics[width=\textwidth]{img/ex1_pos_meas}%
-%     	%\missingfigure{Plot}
-%     	\caption{The noisy measurements are plotted with crosses. The initial point is at the origo.}%
-% 		\label{fig:ballistic_flight}%
+%     	\caption{EM}\label{fig:ballistic_lh_em}%
+%     	\includegraphics[width=\textwidth]{img/ballistic_lh_em}%
 %     \end{subfigure}%
-%     \begin{subfigure}[b]{0.5\textwidth}%
+%     \begin{subfigure}[t]{0.5\textwidth}%
 %     	\centering%
-% 		\includegraphics[width=\textwidth]{img/ex1_err}%
-%     	%\missingfigure{Plot}
-%     	\caption{Error mean with $\pm 2$ standard deviations in $\dot{x}$ for the filter and the smoother}%
-% 		\label{fig:ballistic_err}%
+%     	\caption{BFGS}\label{fig:ballistic_lh_bf}%
+% 		\includegraphics[width=\textwidth]{img/ballistic_lh_bf}%
 %     \end{subfigure}%
-% 	\caption{A simulation of the the ballistic object in 
-% 	Example~\ref{ex:ballistic}.}
-% 	\label{fig:ballistic}
+% 	\caption{Convergence of the likelihood with EM and BFGS}
+% 	\label{fig:ballistic_lh}
 %  \end{figure}
+ 
 
+ \begin{figure}[htb]%
+    \centering%
+    \begin{subfigure}[t]{0.5\textwidth}%
+    	\centering%
+    	\includegraphics[width=\textwidth]{img/ballistic_lh_em}%
+    	%\caption{Convergence of the likelihood with EM}%
+		%\label{fig:ballistic_lh_em}%
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.5\textwidth}%
+    	\centering%
+		\includegraphics[width=\textwidth]{img/ballistic_lh_bf}%
+    	%\caption{Convergence of the likelihood with BFGS}%
+		%\label{fig:ballistic_lh_bf}%
+    \end{subfigure}\\%
+    \begin{subfigure}[t]{0.5\textwidth}%
+    	\centering%
+    	\includegraphics[width=\textwidth]{img/ballistic_em_uy}%
+    	%\caption{Convergence of the likelihood with EM}%
+		%\label{fig:ballistic_lh_em}%
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.5\textwidth}%
+    	\centering%
+		\includegraphics[width=\textwidth]{img/ballistic_bf_uy}%
+    	%\caption{Convergence of the likelihood with BFGS}%
+		%\label{fig:ballistic_lh_bf}%
+    \end{subfigure}\\%
+    \begin{subfigure}[t]{0.5\textwidth}%
+    	\centering%
+    	\includegraphics[width=\textwidth]{img/ballistic_em_ux}%
+    	%\caption{Convergence of the likelihood with EM}%
+		%\label{fig:ballistic_lh_em}%
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.5\textwidth}%
+    	\centering%
+		\includegraphics[width=\textwidth]{img/ballistic_bf_ux}%
+    	%\caption{Convergence of the likelihood with BFGS}%
+		%\label{fig:ballistic_lh_bf}%
+    \end{subfigure}\\%
+	\begin{subfigure}[b]{0.5\textwidth}%
+    	\centering%
+    	\includegraphics[width=\textwidth]{img/ballistic_em_r}%
+    	%\caption{Convergence of the likelihood with EM}%
+		%\label{fig:ballistic_lh_em}%
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.5\textwidth}%
+    	\centering%
+		\includegraphics[width=\textwidth]{img/ballistic_bf_r}%
+    	%\caption{Convergence of the likelihood with BFGS}%
+		%\label{fig:ballistic_lh_bf}%
+    \end{subfigure}%
+    \caption{Convergence of the likelihood with EM and BFGS}\label{fig:ballistic_est}
+ \end{figure}
+ 
 
-\missingfigure{Error as a function of iterations for $100$ independent simulations for BFGS}
-\missingfigure{Error as a function of iterations for $100$ independent simulations for EM}
+\clearpage
 
-\parencite{ristic2004beyond,Ratna2008,Lindsten2010}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%% HEART %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
