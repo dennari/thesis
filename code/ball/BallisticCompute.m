@@ -51,21 +51,14 @@ P0 = eye(size(m0,1));%diag([1e-6 7^-2 1e-6 7^-2]);
 % 6=uy,    acceleration y-component 
 pNames = {'qx' 'qy' 'r' 'qxy' 'ux' 'uy'};
 p_true = [qx qy r 0 g0x g0y];
-gis = [0 0 1 0 1 1;
-       0 0 1 0 0 1;
-       0 0 1 0 1 0;
-       0 0 1 0 1 1;
-      ];
+gis = [0 0 1 0 1 1];
     
     
 logi = [1 1 1 1 0 0]; logi = logi > 0;
 
 fn = '../data/Ballistic_%s%.0f_%.0f';
-iters = [30 100;
-         30 100;
-         30 100;
-         30 100;];
-NNs = [30 30 30 30];
+iters = [50 50];
+NNs = 20;
 % iters = [10 10;
 %          10  10;
 %          10 10;];
