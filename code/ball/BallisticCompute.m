@@ -187,8 +187,7 @@ for k=1:NN
   
   
 end
-break
-%plot(max_iter_em,est_em')
+
 
 cel = pNames(gi);
 save(sprintf(fn,sprintf('%s_',pNames{gi}),NN,N));
