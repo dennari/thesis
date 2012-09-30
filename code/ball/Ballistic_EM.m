@@ -43,8 +43,8 @@ for k=1:max_iter
   % Display iteration quantities
   fprintf(' %5.0f       %5.0f    %13.6g  %13.6g\n',k,2*k,lh,x_delta);
   
-  if(2*k >= max_iter); break; end;
-  if(k > 1 && min_iter > 0 && 2*k > min_iter) % don't stop if min_iter not fulfilled
+  if(k >= max_iter); break; end;
+  if(k > 1 && min_iter > 0 && k > min_iter) % don't stop if min_iter not fulfilled
     if( abs(lh_delta)             < tol_lh || ... 
         x_delta                   < tol_delta ); break; end; 
   end

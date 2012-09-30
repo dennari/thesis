@@ -173,7 +173,7 @@ for k=1:NN
   % RUN
   [opt,lh,vals,funccount,times] = Ballistic_BFGS(p0,gi,ys,1e-60,1e-60,max_iter_bfgs,min_iter_bfgs);
   %tm = toc;
-  fprintf('BFGS time/funcCount: %.4f\n',sum(times)/msg.funcCount);
+  %fprintf('BFGS time/funcCount: %.4f\n',sum(times)/msg.funcCount);
 
   % SAVE
   %num = size(vals,2);
