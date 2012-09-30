@@ -70,7 +70,7 @@ gis = [1 1 1;];
 logi = [1 1 1]; logi = logi > 0;
 
 fn = '../data/Harmonic_%s%.0f_%.0f';
-iters = ones(2,2)*75;
+iters = ones(2,2)*50;
 
 NNs = [5 5];
 

@@ -29,7 +29,11 @@ vals = zeros(numel(gi),max_iter);
 %vals(:,1) = p0(gi)';
 k = 1;
 start = tic;
-opt = fminunc(@bfgs_lh,p0(gi),opt);
+try
+  opt = fminunc(@bfgs_lh,p0(gi),opt);
+catch err
+  opt = zeros(numel(gi),1);
+end
 %lhs = lhs(:,1:k-1);
 %vals = vals(:,1:k-1);
 %evals = msg.funcCount; 
