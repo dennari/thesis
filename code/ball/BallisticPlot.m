@@ -68,6 +68,42 @@ subplot(3,1,3);
 y1 = squeeze(est_bfgs_n(3,:,:));
 plot(x,y1,'-b'); grid on;
 
+%% trajectory
+
+%figure(1); clf;
+%plot(xs(1,:),xs(3,:),ys(1,1:30:end),ys(2,1:30:end),'kx');
+%break;
+
+plt = struct();kw1 = struct(); kw = struct();
+kw.alpha = 1.0; kw.ms = 4; kw.mfc = 'black';
+kw1.lw = 0.9; kw1.alpha = 0.8;
+plt.data = {{xs(1,:) xs(3,:) '' kw1},...
+            {ys(1,1:30:end) ys(2,1:30:end) '*' kw},...
+           };
+plt.xlabel = '$x^{(1)}$';
+plt.ylabel = '$x^{(3)}$';
+plt.legend = {'true' 'measurement'};
+plt.legendkw = struct('loc','lower center');
+plt.w = textwidth*0.7;
+plt.margins = [0.0 0.1 0.4 0.55];
+
+%plotstruct(ax,plt);
+pyplot('../img/ballistic_trajectory.pdf',plt);
+
+% plt = struct();
+% fmean = xs(2,:)-ms(2,:);
+% smean = xs(2,:)-mF(2,:);
+% ferr = 2*sqrt(squeeze(Ps(2,2,:)));
+% serr = 2*sqrt(squeeze(PF(2,2,:)));
+% plt.ylabel = '$\dot{x}_{\mathrm{true}}-\dot{x}_{\mathrm{mean}}\,\mathrm{[m]}$';
+% plt.xlabel = '$t\,\mathrm{[s]}$';
+% plt.legend = {'$\mathrm{Err}_f$' '$\mathrm{Err}_s$'};
+% plt.legendkw = struct('loc','upper right');
+% plt.data = {{K fmean '' struct('yerr',ferr)},{K smean '' struct('yerr',serr)}};
+% plt.w = textwidth*0.5;
+% plotstruct(plt);
+% pyplot('../img/ex1_err.pdf',plt)
+
 
 
 %% Export
@@ -81,10 +117,11 @@ kw1.color = '#348ABD'; kw1.alpha=0.8; kw1.lw = 1.2;
 x = (0:itr-1)*avg_time_em;
 y = lh_em;
 plt.data = {{x y '' kw1},{' '}};
-plt.w = textwidth*0.5;%/1.8;
-plt.ticklabels = [0 0];
-plt.margins = [0.0 0.0 0.1 0.1];
-%plt.xlabel = '$k$'; plt.ylabel = '$\mathcal{L}$';
+plt.w = textwidth*0.5+0.4;%/1.8;
+plt.ticklabels = [0 1];
+plt.margins = [0.0 0.0 0.1 0.5];
+%plt.xlabel = '$k$'; 
+plt.ylabel = '$\ell$';
 %plt.alpha = 0.1;
 yl = [-0.5e5 0.2e5];
 plt.axis = [min(x) max(x) yl];
@@ -98,7 +135,8 @@ plt.data = {{x y '' kw1},{' '}};
 plt.w = textwidth*0.5;
 plt.ticklabels = [0 0];
 plt.margins = [0.0 0.0 0.1 0.1];
-%plt.xlabel = '$k$'; plt.ylabel = '$\mathcal{L}$';
+%plt.xlabel = '$k$'; 
+plt.ylabel = '$\ell$';
 %plt.alpha = 0.1;
 plt.axis = [min(x) max(x) yl];
 pyplot('../img/ballistic_lh_bf.pdf',plt,'../img/ballistic_lh_bf.mat');
@@ -108,16 +146,29 @@ pyplot('../img/ballistic_lh_bf.pdf',plt,'../img/ballistic_lh_bf.mat');
 plt = struct();kw1=struct();
 kw1.color = '#348ABD'; kw1.alpha=0.8; kw1.lw = 1.2;
 %plt.xlabel = '$k$'; 
-plt.w = textwidth*0.5;
+plt.w = textwidth*0.5+0.4;
 plt.ticklabels = [0 0];
-plt.margins = [0.0 0.0 0.1 0.1];
+plt.margins = [0.0 0.0 0.1 0.50];
 x = (0:itr-1)*avg_time_em; 
-labelNames = {'\log(\sigma_r)','u_x','u_y'};
+labelNames = {'', '', '\log(\sigma_r)', '','u_x','u_y'};
+yl = [0 0 0 0;0 0 0 0;
+      min(x) max(x) -5 8;
+      0 0 0 0;
+      min(x) max(x) -2 2;
+      min(x) max(x) -20 20];
 for k = 1:3
   y1 = squeeze(est_em(k,:,:));
   plt.data = {{x y1 '' kw1},{' '}};
   var = pNames{gi(k)};
-  %plt.ylabel = sprintf('$%s$',labelNames{k});
+  plt.ylabel = sprintf('$%s$',labelNames{gi(k)});
+  plt.axis = yl(gi(k),:);
+  if gi(k) == 3 % r is last
+    plt.margins(3) = 0.2;
+    plt.ticklabels = [1 1];
+  else
+    plt.margins(3) = 0.1;
+    plt.ticklabels = [0 1];
+  end
   pyplot(sprintf('../img/ballistic_em_%s.pdf',var),plt,...
          sprintf('../img/ballistic_em_%s.mat',var));
 end
@@ -129,10 +180,23 @@ plt.w = textwidth*0.5;
 plt.ticklabels = [0 0];
 plt.margins = [0.0 0.0 0.1 0.1];
 x = (0:itr-1)*avg_time_em; 
+yl = [0 0 0 0;0 0 0 0;
+      min(x) max(x) -5 8;
+      0 0 0 0;
+      min(x) max(x) -2 2;
+      min(x) max(x) -20 20];
 for k = 1:3
   y1 = squeeze(est_bfgs_n(k,:,:));
   plt.data = {{x y1 '' kw1},{' '}};
   var = pNames{gi(k)};
+  plt.axis = yl(gi(k),:);
+  if gi(k) == 3 % r is last
+    plt.margins(3) = 0.2;
+    plt.ticklabels = [1 0];
+  else
+    plt.margins(3) = 0.1;
+    plt.ticklabels = [0 0];
+  end
   %plt.ylabel = sprintf('$%s$',labelNames{k});
   pyplot(sprintf('../img/ballistic_bf_%s.pdf',var),plt,...
          sprintf('../img/ballistic_bf_%s.mat',var));

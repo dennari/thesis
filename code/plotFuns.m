@@ -20,9 +20,14 @@ function [lhn,estn] = normalizeBFGS(ev,lh,est)
         ii = ii + num;
       end
     end
-    lhn(ii:end,j) = lh(i+1,j); % copy the last one
-    for kk = 1:size(est,1)
-        estn(kk,ii:end,j) = est(kk,i+1,j); 
+    if ii < size(lh,1)
+      if isempty(i)
+        i = 0;
+      end
+      lhn(ii:end,j) = lh(i+1,j); % copy the last one
+      for kk = 1:size(est,1)
+          estn(kk,ii:end,j) = est(kk,i+1,j); 
+      end
     end
   end
 end
