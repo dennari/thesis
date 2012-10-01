@@ -28,8 +28,8 @@ T = K(end);
 
 % the parameters of this model
 r = 0.0001;          % log measurement noise
-Nqx = 3;
-Nqw = 2;
+Nqx = 100;
+Nqw = 100;
 qx_range = linspace(0.04,0.08,Nqx);
 qw_range = linspace(0.2,0.35,Nqw);
 
