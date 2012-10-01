@@ -116,9 +116,10 @@ endi = find(K<7,1,'last');
 % ylim([-0.5 0.5]);
 % break;
 
-plt = struct();kw=struct();
-kw.alpha = 1.0; kw.ms = 4;
-plt.data = {{K(1:endi) Y(1:endi) '*-'},{' '}};
+plt = struct();kw=struct(); kw1 = struct();
+kw.alpha = 1.0; kw.ms = 4; kw.mfc = 'black';
+kw1.lw = 0.9; kw1.alpha = 0.8;
+plt.data = {{K(1:endi) Y(1:endi) '' kw1},{{K(1:endi) Y(1:endi) '*' kw}}};
 plt.xlabel = '$t$';
 %plt.legend = {'ECG' ''};
 %plt.legendkw = struct('loc','lower center');
@@ -127,21 +128,6 @@ plt.margins = [0.0 0.1 0.4 0.35];
 
 %plotstruct(ax,plt);
 pyplot('../img/harmonic_trajectory.pdf',plt);
-
-% plt = struct();
-% fmean = xs(2,:)-ms(2,:);
-% smean = xs(2,:)-mF(2,:);
-% ferr = 2*sqrt(squeeze(Ps(2,2,:)));
-% serr = 2*sqrt(squeeze(PF(2,2,:)));
-% plt.ylabel = '$\dot{x}_{\mathrm{true}}-\dot{x}_{\mathrm{mean}}\,\mathrm{[m]}$';
-% plt.xlabel = '$t\,\mathrm{[s]}$';
-% plt.legend = {'$\mathrm{Err}_f$' '$\mathrm{Err}_s$'};
-% plt.legendkw = struct('loc','upper right');
-% plt.data = {{K fmean '' struct('yerr',ferr)},{K smean '' struct('yerr',serr)}};
-% plt.w = textwidth*0.5;
-% plotstruct(plt);
-% pyplot('../img/ex1_err.pdf',plt)
-
 
 
 %% Export
@@ -182,7 +168,7 @@ pyplot('../img/harmonic_bf_lh.pdf',plt,'../img/harmonic_bf_lh.mat');
 
 %% Estimates
 plt = struct();kw1=struct();
-kw1.color = '#348ABD'; kw1.alpha=0.8; kw1.lw = 1.2;
+kw1.color = '#348ABD'; kw1.alpha=0.9; kw1.lw = 1.0;
 %plt.xlabel = '$k$'; 
 plt.w = textwidth*0.5+0.4;
 plt.ticklabels = [0 0];
@@ -195,7 +181,7 @@ yl = [min(x) max(x) -4 2;
 for k = 1:3
   y1 = squeeze(est_em(k,:,:));
   plt.data = {{x y1 '' kw1},{' '}};
-  var = pNames{gi(k)};
+  var = pNames{gi(k)}; 
   plt.ylabel = sprintf('$%s$',labelNames{gi(k)});
   plt.axis = yl(gi(k),:);
   if gi(k) == 2 % r is last
@@ -224,7 +210,7 @@ for k = 1:3
   plt.data = {{x y1 '' kw1},{' '}};
   var = pNames{gi(k)};
   plt.axis = yl(gi(k),:);
-  if gi(k) == 3 % r is last
+  if gi(k) == 2 % r is last
     plt.margins(3) = 0.2;
     plt.ticklabels = [1 0];
   else

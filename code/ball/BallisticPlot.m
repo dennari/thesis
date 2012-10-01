@@ -74,10 +74,11 @@ plot(x,y1,'-b'); grid on;
 %plot(xs(1,:),xs(3,:),ys(1,1:30:end),ys(2,1:30:end),'kx');
 %break;
 
-plt = struct();kw=struct();
-kw.alpha = 0.9; kw.ms = 3;
-plt.data = {{xs(1,:) xs(3,:)},...
-            {ys(1,1:30:end) ys(2,1:30:end) 'kx' kw},...
+plt = struct();kw1 = struct(); kw = struct();
+kw.alpha = 1.0; kw.ms = 4; kw.mfc = 'black';
+kw1.lw = 0.9; kw1.alpha = 0.8;
+plt.data = {{xs(1,:) xs(3,:) '' kw1},...
+            {ys(1,1:30:end) ys(2,1:30:end) '*' kw},...
            };
 plt.xlabel = '$x^{(1)}$';
 plt.ylabel = '$x^{(3)}$';
