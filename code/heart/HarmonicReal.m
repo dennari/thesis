@@ -8,8 +8,8 @@ K = S.data_t;
 clear S;
 warning off;
 offset = 20;
-secs = 87;
-
+secs = 57;
+%secs = 1;
 starti = find(K<offset,1,'last'); 
 endi = find(K<offset+secs,1,'last');
 y = y(starti:endi);
@@ -17,7 +17,7 @@ K = K(starti:endi);
 K = K-K(1);
 
 
-ds = round(10*secs/60);
+ds = round(40*secs/60);
 %ds = 15;
 % downsample by ds
 y = y(1:ds:end)';
@@ -28,7 +28,8 @@ N = length(K);
 T = K(end);
 
 % plot first 60 seconds
-% endi = find(K,1,'last');
+% endi = find(K<5,1,'last');
+% figure(1); clf;
 % plot(K(1:endi),y(1:endi),'*-');
 %break
 
@@ -124,9 +125,10 @@ for k=1:NN
   [opt,lh,vals,times] = Harmonic_EM(p0,gi,Y,[],[],max_iter_em,min_iter_em);
   tm = toc;
   % SAVE
-  est_em(:,:,k) = vals;
-  lh_em(:,k) = lh;
-  times_em(:,k) = times;
+  nn = numel(lh);
+  est_em(:,1:nn,k) = vals;
+  lh_em(1:nn,k) = lh;
+  times_em(1:nn,k) = times;
   fprintf('EM time/iter: %.4f\n',sum(times)/sum(times>0));
   
   %num = size(vals,2);
@@ -157,11 +159,12 @@ for k=1:NN
 
   % SAVE
   %num = size(vals,2);
-  est_bfgs(:,:,k) = vals;
-  lh_bfgs(:,k) = lh;
-  times_bfgs(:,k) = times;
+  nn = numel(lh);
+  est_bfgs(:,1:nn,k) = vals;
+  lh_bfgs(1:nn,k) = lh;
+  times_bfgs(1:nn,k) = times;
 
-  evals_bfgs(:,k) = funccount;
+  evals_bfgs(1:nn,k) = funccount;
   %msg
   
   % PRINT

@@ -56,11 +56,11 @@ function [old,new]=jsig(m,S,D)
         
         xi = repmat(m(:),1,M)+S*eij;
     catch err
-        disp(k);
+        %disp(k);
         %SC = P2-P2*D'/P1*D*P2;
-        disp(P1);
-        disp(P2);
-        disp(D);
+        %disp(P1);
+        %disp(P2);
+        %disp(D);
         rethrow(err);
     end
     % sigma points for x_k
