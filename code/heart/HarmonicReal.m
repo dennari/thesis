@@ -36,7 +36,7 @@ T = K(end);
 
 % the parameters of this model
 lqx = log(0.7);           % log Dynamic model noise spectral density
-lqw = log(0.3);           % log angular velocity variance
+lqw = log(0.4);           % log angular velocity variance
 lr =  log(0.003);          % log measurement noise
 
 
@@ -73,7 +73,7 @@ logi = [1 1 1]; logi = logi > 0;
 fn = '../data/Harmonic_%s%.0f_%.0f';
 iters = ones(2,2)*100;
 
-NNs = [5 5];
+NNs = [20 5];
 
 
 for i=1:size(gis,1)
@@ -83,8 +83,8 @@ gi = find(gis(i,:)>0);
 
 min_iter_em =   iters(i,1);
 max_iter_em =   iters(i,2);
-min_iter_bfgs = round(iters(i,1)/3);
-max_iter_bfgs = round(iters(i,2)/3);
+min_iter_bfgs = round(iters(i,1)/2);
+max_iter_bfgs = round(iters(i,2)/2);
 NN = NNs(i);
 est_em =   zeros(numel(gi),max_iter_em,NN);
 lh_em =   zeros(max_iter_em,NN);
