@@ -11,29 +11,31 @@ function [dm,dP,dmy,dSy] = dSigmaKF_Update(m_,S_,h,dm_,dP_,K,my,Sy,y,dR,Jh,usig,
     [dS_,~] = dchol(S_*S_',dP_);
     
     dmy = 0;
+    Jhh = zeros([size(my,1) NS]);
     for j=1:NS
       sigj = m_+S_*usig(:,j);
       dsigj = dm_+dS_*usig(:,j);
-      dmy = dmy + Jh(sigj)*dsigj;
+      Jhh(:,j) = Jh(sigj)*dsigj;
+      dmy = dmy + Jhh(:,j);
     end
     dmy = wm(1)*dmy; % weights assumed equal
     
     dSy = 0;
-    for j=1:NS
-      sigj = m_+S_*usig(:,j);
-      dsigj = dm_+dS_*usig(:,j);
-      dP1 = (Jh(sigj)*dsigj-dmy) * (h(sigj)-my)';
-      dSy = dSy + dP1 + dP1';
-    end
-    dSy = wm(1)*dSy+dR;
-    
     dC = 0;
     for j=1:NS
       sigj = m_+S_*usig(:,j);
       dsigj = dm_+dS_*usig(:,j);
-      dC = dC + (dsigj-dm_)*(h(sigj)-my)'+(sigj-m_)*(Jh(sigj)*dsigj-dmy)';
+      d1 = (Jhh(:,j)-dmy);
+      d2 = (h(sigj)-my);
+      dP1 = d1 * d2';
+      dSy = dSy + dP1 + dP1';
+      dC = dC + (dsigj-dm_)*d2'+(sigj-m_)*d1';
+      
     end
+    dSy = wm(1)*dSy+dR;
     dC = wm(1)*dC;
+    
+    
     
     
     % this should not need to be computed again

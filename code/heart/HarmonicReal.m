@@ -6,7 +6,7 @@ S = load('../data/dataa_villelle.mat','card_data','data_t');
 y = S.card_data;
 K = S.data_t;
 clear S;
-
+warning off;
 offset = 20;
 secs = 87;
 
@@ -18,7 +18,7 @@ K = K-K(1);
 
 
 ds = round(10*secs/60);
-%ds = 315;
+%ds = 15;
 % downsample by ds
 y = y(1:ds:end)';
 K = K(1:ds:end);
@@ -70,7 +70,7 @@ gis = [1 1 1;];
 logi = [1 1 1]; logi = logi > 0;
 
 fn = '../data/Harmonic_%s%.0f_%.0f';
-iters = ones(2,2)*50;
+iters = ones(2,2)*100;
 
 NNs = [5 5];
 
@@ -82,8 +82,8 @@ gi = find(gis(i,:)>0);
 
 min_iter_em =   iters(i,1);
 max_iter_em =   iters(i,2);
-min_iter_bfgs = iters(i,1);
-max_iter_bfgs = iters(i,2);
+min_iter_bfgs = round(iters(i,1)/3);
+max_iter_bfgs = round(iters(i,2)/3);
 NN = NNs(i);
 est_em =   zeros(numel(gi),max_iter_em,NN);
 lh_em =   zeros(max_iter_em,NN);
@@ -153,7 +153,7 @@ for k=1:NN
   % RUN
   [opt,lh,vals,funccount,times] = Harmonic_BFGS(p0,gi,Y,[],[],max_iter_bfgs,min_iter_bfgs);
   %tm = toc;
-  %fprintf('BFGS time/funcCount: %.4f\n',sum(times)/msg.funcCount);
+  fprintf('BFGS time/funcCount: %.4f\n',sum(times)/sum(funccount));
 
   % SAVE
   %num = size(vals,2);

@@ -34,8 +34,11 @@ try
 catch err
   opt = zeros(numel(gi),1);
 end
-%lhs = lhs(:,1:k-1);
-%vals = vals(:,1:k-1);
+lhs = lhs(2:k-2);
+vals = vals(:,2:k-2);
+times = times(2:k-2);
+funccounts = funccounts(2:k-2);
+
 %evals = msg.funcCount; 
 
 function [lh,glh]=bfgs_lh(x)

@@ -12,22 +12,26 @@ function x_ = sinusoid_f(x)
 %   |                           |
 %   |  -w sin(dt w), cos(dt w)  |
 %   +-                         -+
-global dt c
+global dt
 % c is the number of components
 
 
-  A = @(w) [(cos(dt*w)), (sin(dt*w));
-          -(sin(dt*w)), (cos(dt*w))];
+  %A = @(w) [(cos(dt*w)), (sin(dt*w));
+  %        -(sin(dt*w)), (cos(dt*w))];
+        
+A = @(x1)  [  cos(dt*x1), sin(dt*x1),             0,            0,             0,            0;
+             -sin(dt*x1), cos(dt*x1),             0,            0,             0,            0;
+                       0,          0,  cos(2*dt*x1), sin(2*dt*x1),             0,            0;
+                       0,          0, -sin(2*dt*x1), cos(2*dt*x1),             0,            0;
+                       0,          0,             0,            0,  cos(3*dt*x1), sin(3*dt*x1);
+                       0,          0,             0,            0, -sin(3*dt*x1), cos(3*dt*x1)];
+ 
+      
+        
    
-    x_ = zeros(size(x));
-    
+    x_ = x;
     for k=1:size(x,2)
-       w = x(1,k);
-       x_(1,k) = w;%x(1,k); % noise driven
-       for kk=1:c
-         jj = (kk-1)*2; 
-         x_(jj+2:jj+3,k) = A(kk*w)*x(jj+2:jj+3,k);
-       end
+      x_(2:end,k) = A(x(1,k))*x(2:end,k);
     end
  
 end

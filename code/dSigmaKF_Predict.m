@@ -12,10 +12,12 @@ function [dm_,dP_] = dSigmaKF_Predict(m,m_,S,f,dm,dP,dQ,Jf,usig,w)
     [dS,~] = dchol(S*S',dP);
     
     dm_ = 0;
+    Jff = zeros([size(usig,1) size(usig,1) size(usig,2)]);
     for j=1:NS
       sigj = m+S*usig(:,j);
       dsigj = dm+dS*usig(:,j);
-      dm_ = dm_ + Jf(sigj)*dsigj;
+      Jff(:,:,j) = Jf(sigj); 
+      dm_ = dm_ + Jff(:,:,j)*dsigj;
     end
     dm_ = wm(1)*dm_; % weights assumed equal
     
@@ -23,7 +25,10 @@ function [dm_,dP_] = dSigmaKF_Predict(m,m_,S,f,dm,dP,dQ,Jf,usig,w)
     for j=1:NS
       sigj = m+S*usig(:,j);
       dsigj = dm+dS*usig(:,j);
-      dP1 = (Jf(sigj)*dsigj-dm_)*(f(sigj)-m_)';
+      ff = [sigj(1);
+            Jff(2:end,2:end,j)*sigj(2:end,:)];
+            
+      dP1 = (Jff(:,:,j)*dsigj-dm_)*(ff-m_)';
       dP_ = dP_ + dP1 + dP1';
     end
     dP_ = wm(1)*dP_+dQ;

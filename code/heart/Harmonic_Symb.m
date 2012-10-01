@@ -53,7 +53,7 @@ for i=1:2*c+1
   end
 end
 
-J1 = subs(J,{dt 'x1' 'x2' 'x3' 'x4' 'x5' 'x6' 'x7'},num2cell([0.01 xx']));
+%J1 = subs(J,{dt 'x1' 'x2' 'x3' 'x4' 'x5' 'x6' 'x7'},num2cell([0.01 xx']));
 
 
 
