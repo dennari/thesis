@@ -109,10 +109,12 @@ The corresponding measurement without the additive noise is
 \end{align}
 
 The linear-Gaussian SSM can now be written as
-\begin{align*}
+\begin{align}
+	\begin{aligned}
 	\x_k &= \v{A}\xkk+\v{u}+\v{L}\v{v}_{k-1}, & \v{v}_{k-1} &\sim \N{\v{0}}{\bm{\sigma_1^{2} & \\ & \sigma_2^{2}}}\\
 	\yk &= \v{H}\xk+\v{r}_k, & 					\v{r}_k 	&\sim \N{\v{0}}{\sigma_r^2\v{I}},
-\end{align*}
+	\end{aligned}\label{eq:ballistic_model}
+\end{align}
 where
 \begin{align*}
 	\v{A}&=\bm{
@@ -162,6 +164,17 @@ Figure~\ref{fig:ballistic2D_simulation} presents  a simulated dataset,
 which is drawn from the two dimensional ballistic model with the aforementioned parameter
 values.
 
+\begin{figure}[htb]%
+    \centering%
+    \includegraphics{img/ballistic_trajectory}%
+	\caption{%
+	A simulation of the trajectory
+	of the projectile in model~\eqref{eq:ballistic_model}.
+   	The measurements are denoted with crosses. %
+   	}
+	\label{fig:ballistic2D_simulation}
+ \end{figure}
+
 Let us then proceed to maximum likelihood static parameter estimation. The training
 data will be the simulated data, so that the true parameter values are the ones presented
 earlier. In this case the most interesting parameter is probably the initial velocity,
@@ -197,57 +210,54 @@ Let us collect the parameters in the set $\Th=\brac{\sigma_1,\sigma_2,\sigma_r}$
 % 	\label{fig:ballistic_lh}
 %  \end{figure}
  
-
  \begin{figure}[htb]%
     \centering%
-    \begin{subfigure}[t]{0.5\textwidth}%
-    	\centering%
-    	\includegraphics[width=\textwidth]{img/ballistic_lh_em}%
+    \makebox[\textwidth]{%
+    \begin{subfigure}[t]{0.5\textwidth+0.4in}%
+    	\caption{EM}
+    	\includegraphics{img/ballistic_lh_em}%
     	%\caption{Convergence of the likelihood with EM}%
 		%\label{fig:ballistic_lh_em}%
     \end{subfigure}%
-    \begin{subfigure}[t]{0.5\textwidth}%
-    	\centering%
-		\includegraphics[width=\textwidth]{img/ballistic_lh_bf}%
+    \begin{subfigure}[t]{0.5\textwidth+0.4in}%
+		\caption{BFGS}
+		\includegraphics{img/ballistic_lh_bf}%
     	%\caption{Convergence of the likelihood with BFGS}%
 		%\label{fig:ballistic_lh_bf}%
-    \end{subfigure}\\%
-    \begin{subfigure}[t]{0.5\textwidth}%
-    	\centering%
-    	\includegraphics[width=\textwidth]{img/ballistic_em_uy}%
+    \end{subfigure}}\\%
+    \makebox[\textwidth]{%
+    \begin{subfigure}[t]{0.5\textwidth+0.4in}%
+    	\includegraphics{img/ballistic_em_uy}%
     	%\caption{Convergence of the likelihood with EM}%
 		%\label{fig:ballistic_lh_em}%
     \end{subfigure}%
-    \begin{subfigure}[t]{0.5\textwidth}%
-    	\centering%
-		\includegraphics[width=\textwidth]{img/ballistic_bf_uy}%
+    \begin{subfigure}[t]{0.5\textwidth+0.4in}%
+		\includegraphics{img/ballistic_bf_uy}%
     	%\caption{Convergence of the likelihood with BFGS}%
 		%\label{fig:ballistic_lh_bf}%
-    \end{subfigure}\\%
-    \begin{subfigure}[t]{0.5\textwidth}%
-    	\centering%
-    	\includegraphics[width=\textwidth]{img/ballistic_em_ux}%
+    \end{subfigure}}\\%
+    \makebox[\textwidth]{%
+    \begin{subfigure}[t]{0.5\textwidth+0.4in}%
+    	\includegraphics{img/ballistic_em_ux}%
     	%\caption{Convergence of the likelihood with EM}%
 		%\label{fig:ballistic_lh_em}%
     \end{subfigure}%
-    \begin{subfigure}[t]{0.5\textwidth}%
-    	\centering%
-		\includegraphics[width=\textwidth]{img/ballistic_bf_ux}%
+    \begin{subfigure}[t]{0.5\textwidth+0.4in}%
+		\includegraphics{img/ballistic_bf_ux}%
     	%\caption{Convergence of the likelihood with BFGS}%
 		%\label{fig:ballistic_lh_bf}%
-    \end{subfigure}\\%
-	\begin{subfigure}[b]{0.5\textwidth}%
-    	\centering%
-    	\includegraphics[width=\textwidth]{img/ballistic_em_r}%
+    \end{subfigure}}\\%
+    \makebox[\textwidth]{%
+	\begin{subfigure}[b]{0.5\textwidth+0.4in}%
+    	\includegraphics{img/ballistic_em_r}%
     	%\caption{Convergence of the likelihood with EM}%
 		%\label{fig:ballistic_lh_em}%
     \end{subfigure}%
-    \begin{subfigure}[b]{0.5\textwidth}%
-    	\centering%
-		\includegraphics[width=\textwidth]{img/ballistic_bf_r}%
+    \begin{subfigure}[b]{0.5\textwidth+0.4in}%
+		\includegraphics{img/ballistic_bf_r}%
     	%\caption{Convergence of the likelihood with BFGS}%
 		%\label{fig:ballistic_lh_bf}%
-    \end{subfigure}%
+    \end{subfigure}}%
     \caption{Convergence of the likelihood with EM and BFGS}\label{fig:ballistic_est}
  \end{figure}
  
