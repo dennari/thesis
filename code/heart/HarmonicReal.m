@@ -8,7 +8,7 @@ K = S.data_t;
 clear S;
 warning off;
 offset = 20;
-secs = 57;
+secs = 30;
 %secs = 1;
 starti = find(K<offset,1,'last'); 
 endi = find(K<offset+secs,1,'last');
@@ -17,7 +17,7 @@ K = K(starti:endi);
 K = K-K(1);
 
 
-ds = round(40*secs/60);
+ds = round(60*secs/60);
 %ds = 15;
 % downsample by ds
 y = y(1:ds:end)';
@@ -31,13 +31,13 @@ T = K(end);
 % endi = find(K<5,1,'last');
 % figure(1); clf;
 % plot(K(1:endi),y(1:endi),'*-');
-%break
+% break
 
 
 % the parameters of this model
 lqx = log(0.7);           % log Dynamic model noise spectral density
-lqw = log(0.3);           % log angular velocity variance
-lr =  log(0.003);          % log measurement noise
+lqw = log(0.5);           % log angular velocity variance
+lr =  log(0.0001);          % log measurement noise
 
 
 c = 3; % number of harmonics (including the fundamental frequency)
@@ -47,7 +47,7 @@ h = @(x) H*x;
 Jh = @(x) H;
 f = @(x) sinusoid_f(x);
 Jf = @(x) sinusoid_Jf(x);
-m0 = [exp(lqw) zeros(1,xDim-1)]';
+m0 = [2*pi*1.1 zeros(1,xDim-1)]';
 P0 = eye(xDim);
 
 
@@ -64,14 +64,14 @@ Y = [H*m0 y];
 
 pNames = {'lqw' 'lr' 'lqx'};
 p_true = [lqw lr lqx];
-gis = [1 1 1;];
-%       1 1 1;];
+gis = [1 0 1;
+       1 1 1;];
     
     
 logi = [1 1 1]; logi = logi > 0;
 
 fn = '../data/Harmonic_%s%.0f_%.0f';
-iters = ones(2,2)*100;
+iters = ones(2,2)*50;
 
 NNs = [5 5];
 
@@ -83,8 +83,8 @@ gi = find(gis(i,:)>0);
 
 min_iter_em =   iters(i,1);
 max_iter_em =   iters(i,2);
-min_iter_bfgs = round(iters(i,1)/3);
-max_iter_bfgs = round(iters(i,2)/3);
+min_iter_bfgs = round(iters(i,1)/2);
+max_iter_bfgs = round(iters(i,2)/2);
 NN = NNs(i);
 est_em =   zeros(numel(gi),max_iter_em,NN);
 lh_em =   zeros(max_iter_em,NN);
