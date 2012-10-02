@@ -24,9 +24,9 @@ end
 %   |    2             |
 %   +-                -+ 
         
-    %Q11 = (2*dt*w - sin(2*dt*w))/2;
-    %Q12 = sin(dt*w)^2;
-    %Q22 = (2*dt*w + sin(2*dt*w))/2;
+%     Q11 = dt^2/3;
+%     Q12 = dt/2;
+%     Q22 = 1;
 
     Q11 = 0;
     Q12 = 0;
@@ -34,7 +34,7 @@ end
 
     Q1 = qx*dt*[Q11 Q12; Q12 Q22];
     Q_ = zeros(2*c+1);
-    Q_(1,1) = qw;
+    Q_(1,1) = dt*qw;
     for k=1:c
       jj = (k-1)*2;
       Q_(jj+2:jj+3,jj+2:jj+3) = Q1;
