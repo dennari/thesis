@@ -8,8 +8,8 @@ K = (0:N)*dt;
 
 % the parameters of this model
 lqx = log(0.6);    % log(sqrt) Dynamic model noise spectral density
-lqw = log(0.04);   % log(sqrt) angular velocity noise variance
-lr =  log(0.01);   % log(sqrt) measurement noise
+lqw = log(0.5);   % log(sqrt) angular velocity noise variance
+lr =  log(0.05);   % log(sqrt) measurement noise
 
 
 
@@ -29,7 +29,7 @@ else
 end
 R = sinusoid_R(lr);
 SR = chol(R,'lower');
-m0 = [exp(2*lqw) zeros(1,xDim-1)]';
+m0 = [0.5*2*pi zeros(1,xDim-1)]';
 P0 = eye(xDim);
 
 
@@ -54,15 +54,14 @@ w(:,2) = sqrt(w(:,1)); % add weights for square root filt/smooth
 xs = zeros(xDim,N+1);
 ys = zeros(1,N+1);
 
-m0(1) = fr(1); 
-%x0 = m0;
 x = m0;
-xs(:,1) = m0;
-ys(:,1) = h(m0);
+x(1) = 0.5*2*pi;
+xs(:,1) = x;
+ys(:,1) = h(x);
 
 for k=2:N+1
 	x = mvnrnd(f(x),Q)';
-  x(1) = fr(k);
+  %x(1) = fr(k);
   xs(:,k) = x;
 	ys(:,k) = mvnrnd(h(x),R)';
   
@@ -115,7 +114,7 @@ plot(K,squeeze(abs(SS(1,1,:))),K,squeeze(abs(SM(1,1,:)))); grid on; title('Freq 
 
 
 p0 = [lqw lr lqx];
-gi = 1; % which one we're estimating
+gi = 3; % which one we're estimating
 true = p0(gi);
 
 NN = 25;
@@ -124,8 +123,8 @@ lhs = zeros(1,NN); glhs = lhs; glbs = lhs;
 
 
 
-start = true + log(0.65);
-endd = true - log(0.65);
+start = true + log(0.8);
+endd = true - log(0.8);
 as = linspace(start,endd,NN);
 %as = log(linspace(0.06,0.09,NN));
 
@@ -145,7 +144,7 @@ for j=1:NN
 end
 
 
-%%
+
 
 %load('../data/HarmonicTesting.mat');
 
@@ -175,58 +174,11 @@ plot(eas(2:end),diff(lhs)./diff(as),eas,glhs,eas,glbs); grid on;
 % ylim(dsensax,ylim(dnumax)); ylim(demax,ylim(dnumax));
 
 
-%% Test EM and BFGS
+%% Joint LH
 
 
-% % parameters are 
-% % p(1)=lqw,    log angular velocity variance
-% % p(2)=lr,     log measurement variance
-% % p(3:3+c-1)   log signal component variances
-% 
-% 
-% p00 = [lqw lr repmat(lqx,1,c)];
-% gi = 1; % which one we're estimating
-% 
-% 
-% min_iter_em =   10;
-% max_iter_em =   10;
-% min_iter_bfgs = 15;
-% max_iter_bfgs = 15;
-% NN = 1;
-% est_em =   zeros(numel(gi),max_iter_em,NN);
-% est_bfgs = zeros(numel(gi),max_iter_bfgs,NN);
-% 
-% evals_em = zeros(1,NN);
-% evals_bfgs = zeros(2,NN);
-% 
-% Y = ys;
-% 
-% for k=1:NN
-%   k 
-%  
-%   
-%   % INITIAL POINT
-%   %p0 = p00;
-%   %p0(gi) = p0(gi)*(rand+0.5);
-%   
-%   % EM
-% %   tic;
-% %   [~,~,vals] = Harmonic_EM(p0,gi,Y,[],[],max_iter_em,min_iter_em);
-% %   tm = toc;
-% %   est_em(:,:,k) = vals;
-% %   evals_em(1,k) = tm;
-%   
-%   % BFGS
-%   tic;
-%   [~,~,vals,fcn_evals] = Harmonic_BFGS(p0,gi,Y,[],[],max_iter_bfgs,min_iter_bfgs);
-%   tm = toc;
-%   num = size(vals,2);
-%   est_bfgs(:,1:num,k) = vals;
-%   if num < max_iter_bfgs
-%     est_bfgs(:,num+1:end,k) = repmat(vals(:,end),1,max_iter_bfgs-num);
-%   end
-%   evals_bfgs(:,k) = [tm;fcn_evals];
-% end
+
+
 
 
     

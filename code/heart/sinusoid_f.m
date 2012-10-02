@@ -26,7 +26,16 @@ A = @(x1)  [  cos(dt*x1), sin(dt*x1),             0,            0,             0
                        0,          0,             0,            0,  cos(3*dt*x1), sin(3*dt*x1);
                        0,          0,             0,            0, -sin(3*dt*x1), cos(3*dt*x1)];
  
-      
+
+% A = @(x1)  [  cos(dt*x1), sin(dt*x1)/x1,             0,            0,             0,            0;
+%              -x1*sin(dt*x1), cos(dt*x1),             0,            0,             0,            0;
+%                        0,          0,  cos(2*dt*x1), sin(2*dt*x1)/(2*x1),         0,            0;
+%                        0,          0, -2*x1*sin(2*dt*x1), cos(2*dt*x1),           0,            0;
+%                        0,          0,             0,            0,  cos(3*dt*x1), sin(3*dt*x1)/(3*x1);
+%                        0,          0,             0,            0, -3*x1*sin(3*dt*x1), cos(3*dt*x1)];
+ 
+                           
+                     
         
    
     x_ = x;

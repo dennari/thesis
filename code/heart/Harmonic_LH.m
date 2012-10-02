@@ -91,7 +91,8 @@ function [dQ,dR]=dQdR(i,p)
   dR = 0;
 
   if(i==1) % dlh/dlog(qw)
-      dQ(1,1) = 1*2*exp(2*p(1));
+      %dQ(1,1) = 1*2*exp(2*p(1));
+      dQ = sinusoid_Q(1,0,1)*2*exp(2*p(1));
   end
   if(i >= 3) % dlb/dlog(qx(ri))
       %dQ = sinusoid_Q(0,dqxi(ri,:),dt);
