@@ -10,7 +10,7 @@ global dt
 new = p;
 for j=1:numel(gi)
     if(gi(j)==1) % dlb/dqw
-      new(1) = trans(I2(1,1)/N);
+      new(1) = trans(I2(1,1)/(dt*N));
     end
     if(gi(j)== 3) % dlb/dqx
       c3 = (I2(3,3)+I2(5,5)+I2(7,7))/(3*dt*N);

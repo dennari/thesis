@@ -1,5 +1,6 @@
 function Q_ = sinusoid_Q(qw,qx,notransform)
 global dt c
+
 qx = qx(1);
 if nargin < 3
    notransform = 0;

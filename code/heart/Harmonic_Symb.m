@@ -90,7 +90,7 @@ sum(sum([1 dt;dt dt^2].*[6 -3; -3 2].*I(jj+2:jj+3,jj+2:jj+3)))/(N*dt^3)
 syms qw dt q1 a N positive;
 I = sym('I%d%d',[7 7]); sym(I,'real');
 c = cell(1,3);
-c{1} = qw;
+c{1} = dt*qw;
 for k = 1:numel(c)
     c{k+1} = [a 0; 0 q1*dt];
 end
@@ -100,7 +100,9 @@ Q = blkdiag(c{:});
 
 lbq = -0.5*trace(Q\I)-0.5*N*log(det(Q));
 dfqx = simple(diff(lbq,q1)*2*q1);
-simple(solve(dfqx==0,q1))
+ansqx = simple(solve(dfqx==0,q1));
+dfqw = simple(diff(lbq,qw)*2*qw);
+ansqw = simple(solve(dfqw==0,qw));
 
 
 %% R
