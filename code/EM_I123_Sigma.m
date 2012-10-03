@@ -45,9 +45,9 @@ function [old,new]=jsig(m,S,D)
         % Schur complement
         SC = P2-P2*D'/P1*D*P2;
         % force positive definiteness
-        SC(2,2) = 1; SC(4,4) = 1; SC(6,6) = 1;
+        %SC(2,2) = 1; SC(4,4) = 1; SC(6,6) = 1;
         CSC = chol(SC,'lower');
-        CSC(2,2) = 0; CSC(4,4) = 0; CSC(6,6) = 0;
+        %CSC(2,2) = 0; CSC(4,4) = 0; CSC(6,6) = 0;
         
         S = [S(:,:,1)         zeros(size(S(:,:,1)));
              P2*D'/S(:,:,1)'  CSC];

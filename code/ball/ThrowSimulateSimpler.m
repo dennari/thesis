@@ -154,10 +154,10 @@ plot(K,sqrt(mean((xs-MM).^2)),K,sqrt(mean((xs-MS).^2)));
 % p{6}=uy,    constant input y-component 
 p0 = [lqx lqy lr 0 g0x g0y];
 p = p0;
-NN = 20;
-gi = [3 5];
-alpha = 0.2;
-as = zeros(numel(gi),NN^(numel(gi)));
+NN = 40;
+gi = [5 6];
+alpha = 0.4;
+as = zeros(numel(gi),NN);
 %as = linspace(0.5*qx,1.5*qx,NN);
 for k = 1:numel(gi)
 
@@ -167,32 +167,37 @@ for k = 1:numel(gi)
   else
     as1 = linspace((1-alpha)*true,(1+alpha)*true,NN);
   end
-  if numel(gi) > 1
-    if k == 1
-      as(k,:) = kron(ones(size(as1)),as1);
-    else
-      as(k,:) = kron(as1,ones(size(as1)));
-    end
-  else
-    as = as1;
-  end
+  as(k,:) = as1;
 end
 
-lhs = zeros(1,size(as,2)); 
-glhs = zeros(size(as)); 
+
+
+if numel(gi) < 2
+  inum = 1;
+  lhs = zeros(2,size(as,2)); 
+  glhs = zeros(2*size(as,1),size(as,2)); 
+else
+  inum = size(as,2);
+  lhs = zeros(2,inum,inum); 
+  glhs = zeros(2*numel(gi),inum,inum); 
+end
 glbs = glhs;
 
-
-
+for i=1:inum
 for j=1:size(as,2)
-    j
-    for k=1:numel(gi)
-        p(gi(k)) = as(k,j);
+    if inum == 1
+      p(gi(1)) = as(1,j);
+    else
+      p(gi(1)) = as(1,i);
+      p(gi(2)) = as(2,j);
     end
+    
+    %%%%%%%%%%%%%%%%
+    % NORMAL %%%%%%%
+    %%%%%%%%%%%%%%%%
 
     [lh,glh,MM,PP,MM_,PP_,Q,u] = Ballistic_LH(p,ys,gi);
-    lhs(1,j) = lh;
-    glhs(:,j) = glh;
+
     %glh(2)
     
     [MS,PS,DD] = rts_smooth2(MM,PP,MM_,PP_,A); % D = Smoother Gain
@@ -200,31 +205,56 @@ for j=1:size(as,2)
     smk = sum(MS(:,2:end),2);
     smkk = sum(MS(:,1:end-1),2);
     glb = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3,smk,smkk,Q,u);
-    glb(1)-glh(1)
-    glb(2)-glh(2)
-    glbs(:,j) = glb;
-    % Sigma Filter and Smoother
-%     [lh,glh,MMM,SSS] = Ballistic_LH_Sigma(p,ys,gi);
-%     lhs(1,j) = lh;
-%     glhs(1,j) = glh;
-%     SQ = chol(Q,'lower');
-%     [MMS,SS,DD] = SigmaSmoothSR(MMM,SSS,f,SQ,usig,w); % D = Smoother Gain
-%     [I1,I2,I3] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DD);
-%     smk = sum(MMS(:,2:end),2);
-%     smkk = sum(MMS(:,1:end-1),2);
-%     glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3,smk,smkk,Q);
-
-    % SR filter and RTS smoother
-%     [lh,glh,MM,SS,MM_,SS_] = Ballistic_LH_SR(p,ys,gi);
-%     lhs(1,j) = lh;
-%     glhs(1,j) = glh;
-%     [MS,PS,DD] = rts_smooth_sr(MM,SS,MM_,SS_,A); % D = Smoother Gain
-%     [I1,I2,I3] = EM_I123(A,H,m0,ys,MS,PS,DD,u);
-%     glbs(1,j) = EM_LB_Ballistic(p,MS(:,1),gi,N,I1,I2,I3);
-    % Sigma Filter and Smoother
+    %glb(1)-glh(1)
+    %glb(2)-glh(2)
+    if inum == 1
+      lhs(1,j) = lh;
+      glhs(1:numel(gi),j) = glh;
+      glbs(1:numel(gi),j) = glb;
+    else
+      lhs(1,i,j) = lh;
+      glhs(1:numel(gi),i,j) = glh;
+      glbs(1:numel(gi),i,j) = glb;
+    end
+    
+    %%%%%%%%%%
+    % SIGMA %%
+    %%%%%%%%%%
+    
+    [lh,glh,MMM,SSS,SQ,u,f] = Ballistic_LH_Sigma(p,ys,gi);
+    %mean(sqrt((MMM(:)-MM(:)).^2))
+    %vardiff(PP,SSS)
 
     
+    %sqrt((glhs(2,j)-glhs(1,j))^2)
+    %SQ = chol(Q,'lower');
+    [MMS,SS,DDS] = SigmaSmoothSR(MMM,SSS,f,SQ,usig,w); % D = Smoother Gain
+    %mean(sqrt((MMS(:)-MS(:)).^2))
+    %vardiff(PS,SS)
+    %vardiff(DD,DDS)
+    [I1S,I2S,I3S] = EM_I123_Sigma(f,h,m0,ys,MMS,SS,DDS);
+    %mean(sqrt((I1S(:)-I1(:)).^2))
+    %mean(sqrt((I2S(:)-I2(:)).^2))
+    %mean(sqrt((I3S(:)-I3(:)).^2))
+    
+    smk = sum(MMS(:,2:end),2);
+    smkk = sum(MMS(:,1:end-1),2);
+    glb = EM_LB_Ballistic(p,MMS(:,1),gi,N,I1S,I2S,I3S,smk,smkk,SQ*SQ',u);
+
+    if inum == 1
+      lhs(2,j) = lh;
+      glhs(numel(gi)+1:end,j) = glh;
+      glbs(numel(gi)+1:end,j) = glb;
+    else
+      lhs(2,i,j) = lh;
+      glhs(numel(gi)+1:end,i,j) = glh;
+      glbs(numel(gi)+1:end,i,j) = glb;
+    end
+    
 end
+i
+end
+%% plot
 
 if numel(gi) == 1
   n = 2; m= 1;
@@ -238,29 +268,44 @@ if numel(gi) == 1
   plot(eas,lhs'); grid on;
   subplot(n,m,2);
   diff1 = diff(lhs(1,:))./diff(as);
-  plot(eas,glhs,eas,glbs,eas(2:end),diff1); grid on;
+  plot(eas,glhs',eas,glbs',eas(2:end),diff1); grid on;
   legend('sens','em','num');
-else
-  X = reshape(as(1,:),NN,NN);
-  Y = reshape(as(2,:),NN,NN);
-  Z = reshape(lhs,NN,NN);
-  dlh1 = reshape(glhs(1,:),NN,NN);
-  dlh2 = reshape(glhs(2,:),NN,NN);
-  dlh = dlh1.*X+dlh2.*Y;
   
-  dem1 = reshape(glbs(1,:),NN,NN);
-  dem2 = reshape(glbs(2,:),NN,NN);
-  dem = dem1.*X+dem2.*Y;
-  
-  
-  figure(1); clf;
-  plot(exp(X(:,1)),dem1(:,1),exp(X(:,1)),dlh1(:,1))
+  n = 3; m= 1;
   figure(2); clf;
-  plot(Y(1,:),dem1(1,:),Y(1,:),dlh1(1,:))
-  figure(3); clf;
-  plot(exp(X(:,1)),dem2(:,1),exp(X(:,1)),dlh2(:,1))
-  figure(4); clf;
-  plot(Y(1,:),dem2(1,:),Y(1,:),dlh2(1,:))
+  subplot(n,m,1);
+  plot(eas,lhs'); grid on; title('lh');
+  subplot(n,m,2);
+  plot(eas,glhs',eas(2:end),diff1,'-r'); grid on; title('sens');
+  legend('norm','sigma','num');
+  subplot(n,m,3);
+  plot(eas,glbs',eas(2:end),diff1,'-r'); grid on; title('em');
+  legend('norm','sigma','num');
+else
+  figure(1); clf;
+  surf(as(1,:),as(2,:),squeeze(lhs(1,:,:)));
+  figure(2); clf;
+  surf(as(1,:),as(2,:),squeeze(lhs(2,:,:)));
+%   X = reshape(as(1,:),NN,NN);
+%   Y = reshape(as(2,:),NN,NN);
+%   Z = reshape(lhs,NN,NN);
+%   dlh1 = reshape(glhs(1,:),NN,NN);
+%   dlh2 = reshape(glhs(2,:),NN,NN);
+%   dlh = dlh1.*X+dlh2.*Y;
+%   
+%   dem1 = reshape(glbs(1,:),NN,NN);
+%   dem2 = reshape(glbs(2,:),NN,NN);
+%   dem = dem1.*X+dem2.*Y;
+%   
+%   
+%   figure(1); clf;
+%   plot(exp(X(:,1)),dem1(:,1),exp(X(:,1)),dlh1(:,1))
+%   figure(2); clf;
+%   plot(Y(1,:),dem1(1,:),Y(1,:),dlh1(1,:))
+%   figure(3); clf;
+%   plot(exp(X(:,1)),dem2(:,1),exp(X(:,1)),dlh2(:,1))
+%   figure(4); clf;
+%   plot(Y(1,:),dem2(1,:),Y(1,:),dlh2(1,:))
   
 end
 %figure(2); clf;

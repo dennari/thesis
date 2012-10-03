@@ -8,7 +8,7 @@ K = (0:N)*dt;
 
 % the parameters of this model
 qx = 0.6;    % log(sqrt) Dynamic model noise spectral density
-qw = 0.5;   % log(sqrt) angular velocity noise variance
+qw = 0.6;   % log(sqrt) angular velocity noise variance
 r =  log(0.001);   % log(sqrt) measurement noise
 
 
@@ -34,33 +34,33 @@ P0 = eye(xDim);
 %% Simulate
 
 
-% X = zeros(xDim,N+1);
-% Y = zeros(1,N+1);
-% 
-% x = m0;
-% X(:,1) = x;
-% Y(:,1) = h(x);
-% 
-% for k=2:N+1
-% 	x = mvnrnd(f(x),Q)';
-%   %x(1) = fr(k);
-%   X(:,k) = x;
-% 	Y(:,k) = mvnrnd(h(x),R)';
-%   
-% end
-% 
-% figure(1); clf;
-% plot(K,H*X,K,Y,'kx'); grid on;
+X = zeros(xDim,N+1);
+Y = zeros(1,N+1);
+
+x = m0;
+X(:,1) = x;
+Y(:,1) = h(x);
+
+for k=2:N+1
+	x = mvnrnd(f(x),Q)';
+  %x(1) = fr(k);
+  X(:,k) = x;
+	Y(:,k) = mvnrnd(h(x),R)';
+  
+end
+
+%figure(1); clf;
+%plot(K,H*X,K,Y,'kx'); grid on;
 
 %% Compute
 Nqx = 100;
 Nqw = 100;
-alpha = 0.6;
+alpha = 0.3;
 qx_range = linspace(qx*alpha,qx/alpha,Nqx);
 qw_range = linspace(qw*alpha,qw/alpha,Nqw);
 
 if matlabpool('size') == 0 % checking to see if my pool is already open
-    matlabpool open 2
+    matlabpool open 30
 end
 
 
@@ -97,8 +97,9 @@ parfor i=1:Nqx
     end
     tmp(j) = lh;
     
-    fprintf('%.2f\n',100*((i-1)*Nqw+j)/(Nqx*Nqw));
+    %fprintf('%.2f\n',100*((i-1)*Nqw+j)/(Nqx*Nqw));
   end
+  i
   Z(:,i) = tmp;
   
 end
@@ -106,7 +107,7 @@ end
 save(sprintf(fn,Nqx,Nqw));
 
 %%
-
+load('tritonwrk/HarmonicSimLH_100_100.mat');
 surf(QX,QW,Z); hold on;
 plot3([qx qx],[qw qw],[min(min(Z)) max(max(Z))]);
 xlabel('qx');

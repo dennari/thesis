@@ -51,8 +51,8 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi)
         % run the partial derivative predictions
         for i=1:numel(gi)
           [dm,dP] = dd{i}{:};
-          [dQ,~] = dQdR(gi(i),p);
-          [dm_,dP_] = dSigmaKF_Predict(m,m_,S,f,dm,dP,dQ,Jf,usig,w);
+          [dQ,~,du] = dQdR(gi(i),p);
+          [dm_,dP_] = dSigmaKF_Predict(m,m_,S,f,dm,dP,dQ,Jf,usig,w,du);
           dd_{i} = {dm_,dP_}; 
         end
         if k==N+1; break; end; 
@@ -84,16 +84,17 @@ function [lh,glh,varargout] = Ballistic_LH_Sigma(p,y,gi)
     if nargout > 4
       varargout{3} = SQ;
       varargout{4} = u;
+      varargout{5} = f;
     end
 
 end
 
-function [dQ,dR]=dQdR(i,p)
-  global A H
+function [dQ,dR,du]=dQdR(i,p)
+  global A H dt
   
     dQ = zeros(size(A));
     dR = zeros(size(H,1));
-
+    du = zeros(size(A,1),1);
 
     if(i==1) % dlh/dqx
         dQ = ballisticQ2D(1,0,1)*2*exp(2*p(i));
@@ -106,6 +107,9 @@ function [dQ,dR]=dQdR(i,p)
     end
     if(i==4) % dlh/dq (joint process noise)
         dQ = ballisticQ2D(1,1,1)*2*exp(2*p(1));
+    end
+    if(i==5 || i==6) % dlb/du
+        du(2*i-8) = dt;        
     end
   
 end
