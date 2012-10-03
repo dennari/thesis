@@ -1,4 +1,4 @@
-function x_ = sinusoid_f(x)
+function x_ = sinusoid_f(x,dt)
 %sinusoid_f the f(x_(k-1)) function of the hoscillator SSM
 % x - the evaluation points as [XD,n] matrix
 % dt - the discretization delta t
@@ -12,7 +12,9 @@ function x_ = sinusoid_f(x)
 %   |                           |
 %   |  -w sin(dt w), cos(dt w)  |
 %   +-                         -+
-global dt
+if nargin < 2
+  global dt
+end
 % c is the number of components
 
 

@@ -1,6 +1,6 @@
 %% r - estimates
 funs = plotFuns();
-load('../data/Harmonic_lqw_lqx_5_1001.mat');
+load('../data/Harmonic_lqw_lr_lqx_10_3751.mat');
 %NN = 5;
 itr = max_iter_em;
 times_em = times_em(1:itr,1:NN);
@@ -29,12 +29,12 @@ figure(1); clf;
 % normalized
 subplot(2,1,1);
 y = lh_em_n;
-plot(y);
+plot(y,'b-');
 %xlim([0 30]); ylim([18000 24500]);
 
 subplot(2,1,2);
 y = lh_bfgs_n;
-plot(y);
+plot(y,'r');
 %break;
 
 %xlim([0 50]); ylim([-1e5 8000]);
@@ -60,6 +60,7 @@ for k=1:numel(gi)
   x = 1:max_iter_em;
   y = squeeze(est_em_n(k,x,:));
   plot(x,y,'-b'); grid on;
+  title(pNames{gi(k)});
 end
 
 figure(3); clf;
@@ -68,6 +69,7 @@ for k=1:numel(gi)
   x = 1:max_iter_bfgs;
   y = squeeze(est_bfgs_n(k,x,:));
   plot(x,y,'-r'); grid on;
+  title(pNames{gi(k)});
 end
 
 

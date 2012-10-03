@@ -1,0 +1,1 @@
+biber --output_directory=tmp thesis_vaananen
