@@ -17,7 +17,7 @@ K = K(starti:endi);
 K = K-K(1);
 
 
-ds = round(60*secs/60);
+ds = round(15*secs/60);
 %ds = 15;
 % downsample by ds
 y = y(1:ds:end)';
@@ -31,13 +31,13 @@ T = K(end);
 % endi = find(K<5,1,'last');
 % figure(1); clf;
 % plot(K(1:endi),y(1:endi),'*-');
-% break
+ %break
 
 
 % the parameters of this model
-lqx = log(0.7);           % log Dynamic model noise spectral density
-lqw = log(0.5);           % log angular velocity variance
-lr =  log(0.0001);          % log measurement noise
+lqx = log(0.2);           % log Dynamic model noise spectral density
+lqw = log(0.2);           % log angular velocity variance
+lr =  log(0.001);          % log measurement noise
 
 
 c = 3; % number of harmonics (including the fundamental frequency)
@@ -73,7 +73,7 @@ logi = [1 1 1]; logi = logi > 0;
 fn = '../data/Harmonic_%s%.0f_%.0f';
 iters = ones(2,2)*50;
 
-NNs = [5 5];
+NNs = [10 10];
 
 
 for i=1:size(gis,1)
@@ -104,7 +104,7 @@ for k=1:NN
 
   % INITIAL POINT
   p0 = p_true;
-  p0(gi) = p0(gi)*(0.9+0.2*rand); % 0.8-1.2 * true
+  p0(gi) = p0(gi)*(0.7+0.6*rand); % 0.8-1.2 * true
   %p0(gis(i,:)&logi) = p0(gis(i,:)&logi) + log(4*rand-2);
   
   %%%%%%%%%%%%
