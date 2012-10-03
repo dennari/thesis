@@ -268,8 +268,88 @@ Let us collect the parameters in the set $\Th=\brac{\sigma_1,\sigma_2,\sigma_r}$
 %%%%%%%%%%%%%%%%%%%% HEART %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Decomposing an electrocardiograph with frequency tracking}
-\parencite{Sarkka2012}
+\subsection{Electrocardiograph analysis}
+
+The second demonstration is concerned with a nonlinear model for
+electrocardiograph (ECG) data, a short sequence of which is presented
+in Figure~\ref{fig:ecg_data}. A realistic model for this data 
+should take into account the quasi-periodic nature of ECG data,
+i.e. the frequency must be allowed to vary with time.
+Following the ideas in \textcite{Sarkka2012}, one possibility
+is to write the model as a superposition of noisy resonators
+with time-varying frequencies.
+
+In continous time we can write a stochastic differential equation
+for the $n$:th harmonic as
+\begin{align}
+	 \ddot{c}_n(t)&= -\omega(t)^2c_n(t)+\varepsilon_n(t),
+	 %\dod[2]{c_n(t)}{t}
+	\label{eq:noisy_resonator}
+\end{align}
+where $c_n(t)$ is the displacement from equilibrium at time $t$.
+The angular velocity $\omega$ is related to the frequency $f$
+by $\omega(t)=2\pi f(t)$ and  $\varepsilon_n(t)$ is additive
+white noise with spectral density $q_n$. For constant frequency and
+zero spectral density, the solution of Equation~\eqref{eq:noisy_resonator}
+is well known to be $c_n(t)=\exp(i n \omega t+\phi_n)$, where $\phi_n\in\field{C}$ depends on 
+the initial conditions.
+
+Writing Equation~\eqref{eq:noisy_resonator} as a vector valued first order differential equation
+and dividing the noise and the signal derivative by $n\omega(t)$, we get
+\begin{align}
+	\dod{}{t}\bm{c_n(t) \\ \widehat{\dot{c}}_n(t)} &= \bm{0 & \omega(t)^2 \\ -\omega(t) 0}\bm{c_n(t) \\
+	\widehat{\dot{c}}_n(t)}+\bm{0\\1}
+	\widehat{\varepsilon}_n(t).
+	\label{eq:noisy_resonator_vec}
+\end{align}
+As explained in \textcite{Sarkka2012}, even if Equation~\eqref{eq:noisy_resonator_vec} is not an exact
+representation of Equation~\eqref{eq:noisy_resonator}, its discretized version has more appealing
+properties than that of the exact version. Furthermore, the process noise can account for some
+modeling errors. 
+
+Discretizing Equation~\eqref{eq:noisy_resonator_vec} at equispaced points $\brac{t_k}_{k=1}^T$
+with interval $\tau$ and assuming $\omega(t)=\omega(t_k)\equiv \omega_k$ when $t\in\brak{t_k,t_{k+1}}$,
+we get the following dynamic model for displacement $x^{(n)}$:
+\begin{align}
+	\bm{x_k^{(n)} \\ \dot{x}_k^{(n)}} &\sim 
+	\N{\bm{\cos(n\omega_k) & \sin(n\omega_k) \\% 
+	   -\sin(n\omega_k) & \cos(n\omega_k)}
+	   \bm{x_{k-1}^{(n)} \\ \dot{x}_{k-1}^{(n)}}}
+	  {\bm{0 & 0 \\ 0 & \tau q_x}}.
+	\label{eq:dynamic_displacement}
+\end{align}
+We assume that $\omega_k$ is part of the state and assume its dynamics obey the previously introduced first order
+random walk model (with $a=1$):
+\begin{align}
+	\omega_k \sim \N{\omega_{k-1}}{\tau q_\omega}.
+	\label{eq:omega_ar}
+\end{align}
+The joint dynamic model of $m$ harmonics and $\omega_k$ is then
+\begin{align}
+	\underbrace{\bm{\omega_k \\ x_k^{(1)} \\ \dot{x}_k^{(1)} \\ \vdots \\  x_k^{(m)} \\ \dot{x}_k^{(m)} }}_{\xk} 
+	=
+	%\N{
+	\underbrace{\bm{1&&&&&\\
+		& \cos(\omega_k) & \sin(\omega_k) &&&\\% 
+	    &-\sin(\omega_k) & \cos(\omega_k) &&&\\
+	    &				  &					& \ddots & &\\
+	 &&&& \cos(m\omega_k) & \sin(m\omega_k) \\% 
+	 &&&&-\sin(m\omega_k) & \cos(m\omega_k) \\
+	}
+	\bm{\omega_k \\ x_{k-1}^{(1)} \\ \dot{x}_{k-1}^{(1)} \\ \vdots \\  x_{k-1}^{(m)} \\ \dot{x}_{k-1}^{(m)} }}_{\ffi}
+	%}{
+	%\v{Q}
+	%},
+	+ \v{q}_{k-1}
+	\label{eq:harmonic_joint}
+\end{align}
+where
+\begin{align}
+	\q_{k-1}\sim\N{\v{0}}{\tau\bm{q_\omega&&&&&\\ & 0 &&&& \\ && q_x &&& \\ &&& \ddots && \\ &&&& 0 & \\ &&&&& q_x}}
+	\label{tablelabel}
+\end{align}
+
+
  
  \begin{figure}[htb]%
     \centering%
@@ -279,7 +359,6 @@ Let us collect the parameters in the set $\Th=\brac{\sigma_1,\sigma_2,\sigma_r}$
    	}
 	\label{fig:ecg_data}
  \end{figure}
- 
  
  \begin{figure}[htb]%
     \centering%
@@ -317,17 +396,17 @@ Let us collect the parameters in the set $\Th=\brac{\sigma_1,\sigma_2,\sigma_r}$
 		\includegraphics{img/harmonic_bf_lqx}%
     	%\caption{Convergence of the likelihood with BFGS}%
 		%\label{fig:harmonic_lh_bf}%
-    \end{subfigure}}\\%
-    \makebox[\textwidth]{%
-	\begin{subfigure}[b]{0.5\textwidth+0.4in}%
-    	\includegraphics{img/harmonic_em_lr}%
-    	%\caption{Convergence of the likelihood with EM}%
-		%\label{fig:harmonic_lh_em}%
-    \end{subfigure}%
-    \begin{subfigure}[b]{0.5\textwidth+0.4in}%
-		\includegraphics{img/harmonic_bf_lr}%
-    	%\caption{Convergence of the likelihood with BFGS}%
-		%\label{fig:harmonic_lh_bf}%
-    \end{subfigure}}%
+    \end{subfigure}}%\\%
+%     \makebox[\textwidth]{%
+% 	\begin{subfigure}[b]{0.5\textwidth+0.4in}%
+%     	\includegraphics{img/harmonic_em_lr}%
+%     	%\caption{Convergence of the likelihood with EM}%
+% 		%\label{fig:harmonic_lh_em}%
+%     \end{subfigure}%
+%     \begin{subfigure}[b]{0.5\textwidth+0.4in}%
+% 		\includegraphics{img/harmonic_bf_lr}%
+%     	%\caption{Convergence of the likelihood with BFGS}%
+% 		%\label{fig:harmonic_lh_bf}%
+%     \end{subfigure}}%
     \caption{Convergence of the likelihood and estimates with EM and BFGS}\label{fig:harmonic_est}
  \end{figure}

@@ -1,7 +1,7 @@
 %% r - estimates
 funs = plotFuns();
-load('../data/Harmonic_lqw_lr_lqx_5_1501.mat');
-NN = 5;
+load('../data/Harmonic_lqw_lqx_5_1001.mat');
+%NN = 5;
 itr = max_iter_em;
 times_em = times_em(1:itr,1:NN);
 zerse = times_em <= 0;
@@ -55,56 +55,50 @@ plot(y);
 
 % EST
 figure(2); clf;
-subplot(3,1,1);
-x = 1:max_iter_em;
-y = squeeze(est_em_n(1,x,:));
-plot(x,y,'-b'); grid on;
-
-subplot(3,1,2);
-y = squeeze(est_em_n(2,x,:));
-plot(x,y,'-b'); grid on;
-
-subplot(3,1,3);
-y = squeeze(est_em_n(3,x,:));
-plot(x,y,'-b'); grid on;
+for k=1:numel(gi)
+  subplot(numel(gi),1,k);
+  x = 1:max_iter_em;
+  y = squeeze(est_em_n(k,x,:));
+  plot(x,y,'-b'); grid on;
+end
 
 figure(3); clf;
-% original
-subplot(3,1,1);
-x = 1:max_iter_bfgs;
-y = squeeze(est_bfgs_n(1,x,:));
-plot(x,y,'-r'); grid on;
+for k=1:numel(gi)
+  subplot(numel(gi),1,k);
+  x = 1:max_iter_bfgs;
+  y = squeeze(est_bfgs_n(k,x,:));
+  plot(x,y,'-r'); grid on;
+end
 
-subplot(3,1,2);
-y = squeeze(est_bfgs_n(2,x,:));
-plot(x,y,'-r'); grid on;
 
-subplot(3,1,3);
-y = squeeze(est_bfgs_n(3,x,:));
-plot(x,y,'-r'); grid on;
+%% simulate
 
-% figure(4); clf;
-% % original
-% subplot(3,1,1);
-% x = 3:30;
-% y1 = exp(squeeze(est_em(1,x,:))/log(10));
-% y2 = exp(squeeze(est_bfgs_n(1,x,:))/log(10));
-% semilogy(x,y1,'b',x,y2,'-r'); grid off;
-% 
-% subplot(3,1,2);
-% y1 = exp(squeeze(est_em(2,x,:))/log(10));
-% y2 = exp(squeeze(est_bfgs_n(2,x,:))/log(10));
-% semilogy(x,y1,'b',x,y2,'-r'); grid off;
-% 
-% subplot(3,1,3);
-% y1 = exp(squeeze(est_em(3,x,:))/log(10));
-% y2 = exp(squeeze(est_bfgs_n(3,x,:))/log(10));
-% semilogy(x,y1,'b',x,y2,'-r'); grid off;
+xs = zeros(xDim,N+1);
 
-% mean over runs
-%subplot(2,1,2);
-%plot((0:itr-1)*avg_time_em,mean(est1,2),'-b',(0:itr-1)*avg_time_bfgs,mean(est2n,2),'-r');
-%xlim([0 50])
+x = m0;
+xs(:,1) = x;
+mqw = mean(squeeze(est_bfgs_n(1,end,:)));
+mqx = mean(squeeze(est_bfgs_n(2,end,:)));
+
+
+Q = sinusoid_Q(mqw,mqx);   
+
+for k=2:N+1
+	x = mvnrnd(f(x),Q)';
+  xs(:,k) = x;
+end
+endi = find(K<8,1,'last');
+figure(1); clf;
+subplot(2,1,1);
+plot(K(1:endi),H*xs(:,1:endi)); grid on;
+subplot(2,1,2);
+plot(K(1:endi),Y(:,1:endi)); grid on;
+
+figure(2); clf;
+
+plot(K(1:endi),xs(1,1:endi)/(2*pi)); grid on; title('Freq');
+
+
 
 %% Export
 
@@ -130,6 +124,8 @@ plt.margins = [0.0 0.1 0.4 0.35];
 pyplot('../img/harmonic_trajectory.pdf',plt);
 
 
+
+
 %% Export
 
 textwidth = 426.79134/72.27; % latex textwidth in inches
@@ -143,11 +139,11 @@ y = lh_em_n;
 plt.data = {{x y '' kw1},{' '}};
 plt.w = textwidth*0.5+0.4;%/1.8;
 plt.ticklabels = [0 1];
-plt.margins = [0.0 0.0 0.1 0.5];
+plt.margins = [0.3 0.0 0.1 0.5];
 %plt.xlabel = '$k$'; 
 plt.ylabel = '$\ell$';
 %plt.alpha = 0.1;
-yl = [1500 4500];
+yl = [1500 3500];
 plt.axis = [min(x) max(x) yl];
 pyplot('../img/harmonic_em_lh.pdf',plt,'../img/harmonic_em_lh.mat');
 
@@ -158,7 +154,7 @@ y = lh_bfgs_n;
 plt.data = {{x y '' kw1},{' '}};
 plt.w = textwidth*0.5;
 plt.ticklabels = [0 0];
-plt.margins = [0.0 0.0 0.1 0.1];
+plt.margins = [0.3 0.0 0.1 0.1];
 %plt.xlabel = '$k$'; 
 plt.ylabel = '$\ell$';
 %plt.alpha = 0.1;
@@ -167,6 +163,8 @@ pyplot('../img/harmonic_bf_lh.pdf',plt,'../img/harmonic_bf_lh.mat');
 
 
 %% Estimates
+
+
 plt = struct();kw1=struct();
 kw1.color = '#348ABD'; kw1.alpha=0.9; kw1.lw = 1.0;
 %plt.xlabel = '$k$'; 
@@ -175,10 +173,10 @@ plt.ticklabels = [0 0];
 plt.margins = [0.0 0.0 0.1 0.50];
 x = 1:max_iter_em;
 labelNames = {'\log(\sigma_\omega)', '\log(\sigma_r)','\log(\sigma_x)'};
-yl = [min(x) max(x) -4 2;
+yl = [min(x) max(x) -4.5 -1.5;
       min(x) max(x) -25 -5;
-      min(x) max(x) 0 -20];
-for k = 1:3
+      min(x) max(x) 0 -3.5];
+for k = 1:numel(gi)
   y1 = squeeze(est_em(k,:,:));
   plt.data = {{x y1 '' kw1},{' '}};
   var = pNames{gi(k)}; 
@@ -202,10 +200,10 @@ plt.w = textwidth*0.5;
 plt.ticklabels = [0 0];
 plt.margins = [0.0 0.0 0.1 0.1];
 x = 1:max_iter_bfgs;
-yl = [min(x) max(x) -4 2;
+yl = [min(x) max(x) -4.5 -1.5;
       min(x) max(x) -25 -5;
-      min(x) max(x) 0 -20];
-for k = 1:3
+      min(x) max(x) 0 -3.5];
+for k = 1:numel(gi)
   y1 = squeeze(est_bfgs_n(k,:,:));
   plt.data = {{x y1 '' kw1},{' '}};
   var = pNames{gi(k)};
@@ -221,6 +219,9 @@ for k = 1:3
   pyplot(sprintf('../img/harmonic_bf_%s.pdf',var),plt,...
          sprintf('../img/harmonic_bf_%s.mat',var));
 end
+
+
+
 
 
 
