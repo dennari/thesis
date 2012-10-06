@@ -1,6 +1,6 @@
 %% r - estimates
 funs = plotFuns();
-load('../data/Harmonic_lqw_lr_lqx_10_3751.mat');
+load('../data/Harmonic_lqw_lqx_10_3751.mat');
 %NN = 5;
 itr = max_iter_em;
 times_em = times_em(1:itr,1:NN);
@@ -72,6 +72,29 @@ for k=1:numel(gi)
   title(pNames{gi(k)});
 end
 
+%% Plot3
+figure(1); clf;
+load('../data/HarmonicLH_60_60.mat');
+mesh(QX,QW,Z); hold on;
+
+
+plot3(squeeze(est_em_n(2,:,:)),squeeze(est_em_n(1,:,:)),...
+      lh_em_n(:,:),'b*-'); grid on;
+plot3(squeeze(est_bfgs_n(2,:,:)),squeeze(est_bfgs_n(1,:,:)),...
+      lh_bfgs_n(:,:),'r*-'); grid on;    
+xlabel(pNames{gi(2)});ylabel(pNames{gi(1)});zlabel('lh');
+xlim([-3.75 -1.5]);
+ylim([-2.25 -0.1]);
+zlim([1.6e4 2.0e4]);
+% est_em_n(:,10,6)
+
+%figure(2); clf;
+%plot3(squeeze(est_bfgs_n(1,:,:)),squeeze(est_bfgs_n(2,:,:)),...
+%      lh_bfgs_n(:,:),'r*-'); grid on;
+%xlabel(pNames{gi(1)});ylabel(pNames{gi(2)}); zlabel('lh');
+%zlim([1.85e4 2.0e4]);
+
+%save('../data/Harmonic_qx_qw_python.mat','est_em_n','lh_em_n','est_bfgs_n','lh_bfgs_n','-v7');
 
 %% simulate
 
