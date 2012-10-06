@@ -7,9 +7,9 @@ dt = T/N;
 K = (0:N)*dt;
 
 % the parameters of this model
-qx = 0.6;    % log(sqrt) Dynamic model noise spectral density
-qw = 0.6;   % log(sqrt) angular velocity noise variance
-r =  log(0.001);   % log(sqrt) measurement noise
+qx = 0.4;    % log(sqrt) Dynamic model noise spectral density
+qw = 0.2;   % log(sqrt) angular velocity noise variance
+lr =  log(0.001);   % log(sqrt) measurement noise
 
 
 
@@ -23,8 +23,8 @@ Jf = @(x) sinusoid_Jf(x);
 
 Qf = @(qw,qx) diag([qw^2, 0, qx^2, 0, qx^2, 0, qx^2]);
 
-
-SQ = sqrt(Qf(qw,qx));
+Q = Qf(qw,qx);
+SQ = sqrt(Q);
 R = sinusoid_R(lr);
 SR = chol(R,'lower');
 m0 = [0.5*2*pi zeros(1,xDim-1)]';
@@ -55,7 +55,7 @@ end
 %% Compute
 Nqx = 100;
 Nqw = 100;
-alpha = 0.3;
+alpha = 0.4;
 qx_range = linspace(qx*alpha,qx/alpha,Nqx);
 qw_range = linspace(qw*alpha,qw/alpha,Nqw);
 
