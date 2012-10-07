@@ -1,0 +1,87 @@
+# from http://www.huyng.com/posts/sane-color-scheme-for-matplotlib/
+
+
+ # 'lines.antialiased': True,
+ # 'lines.color': 'b',
+ # 'lines.dash_capstyle': 'butt',
+ # 'lines.dash_joinstyle': 'round',
+ # 'lines.linestyle': '-',
+lines.linewidth = 2.0
+ # 'lines.marker': 'None',
+ # 'lines.markeredgewidth': 0.5,
+ # 'lines.markersize': 6,
+ lines.solid_capstyle = 'butt'
+ lines.solid_joinstyle = 'miter'
+
+patch.linewidth = 0.5
+patch.facecolor = '#348ABD'  # blue
+patch.edgecolor = '#EEEEEE'
+patch.antialiased = True
+
+font.serif = 'Latin Modern Roman','Bitstream Vera Serif','New Century Schoolbook','serif'
+font.size = 12.0
+
+#axes.facecolor = '#E5E5E5'
+#axes.edgecolor = 'white'
+axes.linewidth = 1
+axes.grid = True
+axes.titlesize = 'medium'
+axes.labelsize = 'medium'
+#axes.labelcolor = '#555555'
+axes.labelcolor = '#111111'
+axes.axisbelow = True       # grid/ticks are below elements (eg lines, text)
+axes.formatter.use_mathtext = True
+axes.color_cycle = '#348ABD', '#E24A33', '#988ED5', '#777777', '#FBC15E', '#8EBA42', '#FFB5B8'
+                   # E24A33 : red
+                   # 348ABD : blue
+                   # 988ED5 : purple
+                   # 777777 : gray
+                   # FBC15E : yellow
+                   # 8EBA42 : green
+                   # FFB5B8 : pink
+axes.formatter.limits = -3, 3
+
+xtick.color = '#555555'
+#xtick.direction = 'out'
+xtick.labelsize = 'xx-small'
+xtick.major.size = 0
+
+ytick.color = '#555555'
+#ytick.direction = 'out'
+ytick.labelsize = 'xx-small'
+ytick.major.size = 0
+
+grid.color = 'white'
+#grid.color = '#CCCCCC'
+grid.linestyle = '-'    # solid line
+
+
+figure.facecolor = 'white'
+figure.edgecolor = '0.50'
+figure.dpi = 72.27 # same as in latex
+figsize = 5.9055,3.6499
+figure.subplot.bottom = 0.
+ # 'figure.subplot.hspace': 0.2,
+figure.subplot.left = 0.
+ # 'figure.subplot.right': 0.9,
+ # 'figure.subplot.top': 0.9,
+ # 'figure.subplot.wspace': 0.2,
+
+ # 'legend.borderaxespad': 0.5,
+ # 'legend.borderpad': 0.4,
+ # 'legend.columnspacing': 2.0,
+ legend.fancybox = False
+ legend.fontsize = 'small'
+ legend.frameon = False
+ # 'legend.handleheight': 0.7,
+ # 'legend.handlelength': 2.0,
+ # 'legend.handletextpad': 0.8,
+ # 'legend.isaxes': True,
+ # 'legend.labelspacing': 0.5,
+ legend.loc = 'best'
+ # 'legend.markerscale': 1.0,
+ # 'legend.numpoints': 2,
+ # 'legend.shadow': False,
+ savefig.pad_inches = 0.03
+ pdf.fonttype  = 3         # Output Type 3 (Type3) or Type 42 (TrueType)
+

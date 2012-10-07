@@ -76,16 +76,36 @@ end
 figure(1); clf;
 load('../data/HarmonicLH_60_60.mat');
 mesh(QX,QW,Z); hold on;
+% QX(1,48)
+% QW(29,1)
+Z1=Z;
+QX1 = QX;
+QW1 = QW;
 
+%figure(2); clf;
+load('../data/HarmonicLB_171_95.mat');
+% QW(45,1)
+% QX(1,58)
+mesh(QX,QW,Z-(Z(50,50)-Z1(29,48))-0.03e4); hold on;
 
+load('../data/HarmonicLB_116_95.mat');
+% QW(45,1)
+% QX(1,58)
+mesh(QX,QW,Z-(Z(50,50)-Z1(29,48))+0.06e4); hold on;
+
+xlim([-3.9  -1.5]);
+ylim([-2.25 -0.1]);
+zlim([1.6e4 2.0e4]);
+break
 plot3(squeeze(est_em_n(2,:,:)),squeeze(est_em_n(1,:,:)),...
       lh_em_n(:,:),'b*-'); grid on;
 plot3(squeeze(est_bfgs_n(2,:,:)),squeeze(est_bfgs_n(1,:,:)),...
       lh_bfgs_n(:,:),'r*-'); grid on;    
 xlabel(pNames{gi(2)});ylabel(pNames{gi(1)});zlabel('lh');
-xlim([-3.75 -1.5]);
-ylim([-2.25 -0.1]);
-zlim([1.6e4 2.0e4]);
+
+
+
+
 % est_em_n(:,10,6)
 
 %figure(2); clf;
