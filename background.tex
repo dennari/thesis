@@ -2,22 +2,21 @@
 
 State space models (SSMs) provide a unified probabilistic methodology for modeling
 sequential data \parencite{ljung1994modeling,durbin2012time,Cappe2005,barber2011bayesian}. Sequential data arise in numerous applications, 
-typically in the form of time-series measurements. A classical example in engineering is radar measurements
-of a moving object. Modern time-series data arises often in the context of medical imaging,
+typically in the form of time-series measurements. Modern time-series data arises often in the context of medical imaging,
 for example in the case of functional magnetic resonanse imaging (fMRI) or magnetoencephalography (MEG).
 However it is not necessary for the sequence index to have
 a temporal meaning. In probabilistic terms a time-series
-can be described by a \emph{stochastic process} $\y = \left\{\y_k:k\in K\right\}$, where $\y_k$ is a random
-variable and $K\subseteq\R$ for continuous time or $K\subseteq\field{N}$ for discrete time sequences. 
-In this thesis we will only be concerned with discerete time processes and the sample space of $\y_k$ will be
-a subset of $\R^{d_y}$.
-The shorthand $\y_{1:k}$ will be used to mean the subset $\{\y_1,\dots,\y_k\}$. 
+can be described by a \emph{stochastic process} $\y = \left\{\y(t): t\in \mathcal{T}\right\}$, 
+where $\y(t)$ is a random variable and $\mathcal{T}\subseteq\R$ for continuous time or 
+$\mathcal{T}\subseteq\field{N}$ for discrete time sequences.
+In this thesis we will only be concerned with discerete time processes 
+and we write $\y_{1:k}\equiv\{\y_1,\dots,\y_k\}\equiv\{\y(t_1),\dots,\y(t_k)\}$.
 
 A fundamental question in probabilistic models for sequential data is how 
 to model the dependence between variables. It is infeasible to assume
 that every random variable in the process depends on all the others.
 Thus it is common to assume a \emph{Markov chain}, where the distribution of
-the process at the current timestep depends only on the distribution in the previous timestep.
+the process at the current timestep depends only on the probability distribution in the previous timestep.
 A further assumption in SSMs is that the process of interest, the dynamic process $\x$, is not directly observed
 but only through another stochastic process, the \emph{measurement process} $\y$. Since
 $\x$ is not observed, SSMs belong to the class of \emph{latent variable models}. Sometimes, as in
@@ -79,13 +78,16 @@ A Bayes network presentation of a discrete-time SSM is given in Figure~\ref{fig:
 	are independent. Both the states and the measurements depend on the parameter $\Th$.}
 	\label{fig:ssm_graphical}
 \end{figure}%
-The value $\xk \in \mathcal{X} \subseteq \R^{d_x}$ of the dynamic process at time $k$ is called the
-\emph{state}\todo{Explain state} at time $k$. For the measurements we define $\yk \in \mathcal{Y} \subseteq \R^{d_y}$.
-As depicted in Figure~\ref{fig:ssm_graphical}, we assume that the joint probability density function (pdf) of
-$\X$ and $\Y$ is conditional on a set of parameters $\Th \in \Theta \subseteq \R^{d_\theta}$. Then
-the problem of (Bayesian) state estimation can be stated as learning the distribution of
-$\X$ given $\Y$ and the problem of parameter estimation as learning the distribution
-of $\Th$ given $\Y$.
+The value $\xk \in \mathcal{X} \equiv \R^{d_x}$ of the dynamic process at time $t_k$ is called the
+\emph{state} at time $t_k$. As explained in the introduction, the state summarizes as much information
+about the dynamic process as is needed to formulate the dynamic model introduced below. 
+For the measurements we define $\yk \in \mathcal{Y} \equiv \R^{d_y}$.
+As depicted in Figure~\ref{fig:ssm_graphical}, we assume that the joint \emph{probability density function} 
+(pdf, will be used interchangeably with \emph{density} and \emph{distribution}) of
+$\X$ and $\Y$ is conditional on a set of parameters $\Th \in \Theta \subseteq \R^{d_\theta}$. 
+%Then the problem of (Bayesian) state estimation can be stated as learning the distribution of
+%$\X$ given $\Y$ and the problem of parameter estimation as learning the distribution
+%of $\Th$ given $\Y$.
  
 Taking into account the Markov property
 \begin{align}
@@ -96,13 +98,15 @@ independence property
 \begin{align}
 	\Pdf{\yk}{\x_{1:k},\y_{1:k-1},\Th}&=\Pdf{\yk}{\xk,\Th}
 \end{align}
-of the measurement process, the joint distribution of states
+of the measurement process, the joint density of states
 and measurements factorises as
 \begin{align}
-	\Pdf{\X,\Y}{\Th}&=\Pdf{\v{x}_0}{\Th}\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}\Pdf{\v{y}_k}{\v{x}_{k},\Th}
+	\Pdf{\X,\Y}{\Th}&=\Pdf{\v{x}_0}{\Th}
+	\prod_{k=1}^T\Pdf{\v{x}_k}{\v{x}_{k-1},\Th}
+	\prod_{k=0}^T\Pdf{\v{y}_k}{\v{x}_{k},\Th}
 	\label{eq:complete_data_likelihood}.
 \end{align}
-Thus in order to describe a SSM one needs to specify three probability density functions:
+Thus in order to describe a SSM one needs to specify three distributions:
 \begin{description}
 \addtolength{\leftskip}{1cm}
 	\item[Prior distribution]
@@ -114,14 +118,16 @@ Thus in order to describe a SSM one needs to specify three probability density f
 	$\Pdf{\v{y}_k}{\v{x}_{k},\Th}$ models how the observations depend on the state and the statistics of the noise
 \end{description}
 In this thesis it is assumed that the parametric form of these distributions is known
-for example by physical modeling \parencite{ljung1994modeling}.
+for example by physical modeling \parencite{ljung1994modeling}. Regarding the notation,
+we will overload $\Pdf{\cdot}{\cdot}$ as a generic density specified by its arguments and
+the difference between random variables and their realizations is suppressed.
 
 Traditionally SSMs are specified as a pair of equations specifying the dynamic and measurement models. 
 In great generality, discrete-time SSMs can be described by the following dynamic and measurement equations 
 \begin{subequations}
 \label{eq:ssm_too_general}
 \begin{align}
-	\xk &= \F{\v{f}_{k}}{\x_{k-1},\v{q}_{k-1},\Th}\\
+	\xk &= \F{\v{f}_{k}}{\x_{k-1},\v{q}_{k-1},\Th},\\
 	\yk &= \F{\v{h}_{k}}{\xk,\v{r}_{k},\Th}.
 \end{align}
 \end{subequations}
@@ -134,43 +140,41 @@ of $k$. Thus the SSMs considered in this thesis are of the form
 \begin{subequations}
 \label{eq:ssm_general}
 \begin{alignat}{2}
-	\xk &= \ff+\v{q}_{k-1} \qquad& \v{q}_{k-1}&\sim \N{\v{0}}{\QQ} \label{eq:Q}\\
-	\yk &= \hh+\v{r}_{k} & \v{r}_k&\sim \N{\v{0}}{\RR} \label{eq:R}\\
-	\v{x}_{0} &\sim \N{\muu}{\Sig},\label{eq:prior}
+	\xk &= \ff+\v{q}_{k-1}, \qquad& \v{q}_{k-1}&\sim \N{\v{0}}{\QQ}{\big}, \label{eq:Q}\\
+	\yk &= \hh+\v{r}_{k}, & \v{r}_k&\sim \N{\v{0}}{\RR}{\big}, \label{eq:R}\\
+	\v{x}_{0} &\sim \N{\muu}{\Sig}{\big}\label{eq:prior}.
 \end{alignat}
 \end{subequations}
 Regarding the Gaussian probability distribution,
 suppose $\x\in\R^{d_x}$ is normally distributed with mean $\m$ and covariance matrix $\P$.
-We will then use the notation
+We will then use the notation $\x \sim \N{\m}{\P}$ for ``distributed as'', 
+whereas ``distribution of'' is denoted as $\Pdf{\x}=\N[\x]{\m}{\P}$, where
+the Gaussian probability density function is
 \begin{align}
-	\x &\sim \N{\m}{\P},
-\shortintertext{whereas the Gaussian pdf is denoted as}
-	\Pdf{\x}&=\N[\x]{\m}{\P}\\
-	&\equiv \detr{2\pi\P}^{-\sfrac{1}{2}}\exp\fparen[\big]{-\frac{1}{2}(\x-\m)^\tr\P^{-1}(\x-\m)}		
-	%&= \detr{2\pi\P}^{-\sfrac{1}{2}}\exp\fparen*{-\frac{1}{2}
-	%\Tr{\P^{-1}\bm{\v{I}\\-\v{I}}^\tr\bm{\x\\\m}\bm{\x\\\m}^\tr\bm{\v{I}\\-\v{I}}}},		
+	\N[\x]{\m}{\P}&\equiv \detr{2\pi\P}^{-\sfrac{1}{2}}
+	\exp\fparen[\big]{-\sfrac{1}{2}\,(\x-\m)^\tr\P^{-1}(\x-\m)}.		
 \end{align}
-
-Now clearly the mappings $\f:\mathcal{X}\to\mathcal{X}$ and
-$\h:\mathcal{X}\to\mathcal{Y}$ specify the means of the dynamic
-and the measurement models:
+%
+Clearly the mappings $\f:\mathcal{X}\to\mathcal{X}$ and
+$\h:\mathcal{X}\to\mathcal{Y}$ in Equation~\eqref{eq:ssm_general} 
+specify the means of the dynamic and the measurement models:
 \begin{subequations}
 \label{eq:ssm_distr_general}
 \begin{align}
-	\Pdf{\xk}{\xkk,\Th}&=\N[\xk]{\ff}{\QQ}\label{eq:dynamics_distr_general}\\
-	\Pdf{\yk}{\xk,\Th}&=\N[\yk]{\hh}{\RR}\label{eq:measurement_distr_general}
+	\Pdf{\xk}{\xkk,\Th}&=\N[\xk][\big]{\ff}{\QQ}\label{eq:dynamics_distr_general}\\
+	\Pdf{\yk}{\xk,\Th}&=\N[\yk][\big]{\hh}{\RR}\label{eq:measurement_distr_general}
 \end{align}
 \end{subequations}
 Going further, for the sake of notational clarity, we will sometimes make
 the dependence on $\Th$ implicit and use the shorthand notation
 \begin{align}
 	\begin{aligned}
-	\f_{k-1} &\equiv \ff &
-	\h_{k} &\equiv \hh\\
-	\QQ* &\equiv \QQ &
-	\RR* &\equiv \RR\\
-	\muu* &\equiv \muu &
-	\Sig* &\equiv \Sig
+	\f_{k-1} &\equiv \ff, &
+	\h_{k} &\equiv \hh,\\
+	\QQ* &\equiv \QQ, &
+	\RR* &\equiv \RR,\\
+	\muu* &\equiv \muu, &
+	\Sig* &\equiv \Sig.
 	\end{aligned}
 	\label{eq:shorthand_theta}
 \end{align} 
@@ -180,17 +184,17 @@ the dependence on $\Th$ implicit and use the shorthand notation
 
 State inference
 can be divided into subcategories based on the temporal relationship between the state
-and the observations \parencite{Sarkka2006}:
+and the observations \parencite{Sarkka2006}.
 \begin{description}
 \addtolength{\leftskip}{1cm}
 	\item[Predictive distribution]
-	$\Pdf{\v{x}_{k}}{\v{y}_{1:k-1},\Th}$ is the predicted distribution of the state in the next timestep (or more generally at timestep $k+h$, where $h>0$) 
-	given the previous measurements
-	\item[Filtering distribution] $\Pdf{\v{x}_k}{\v{y}_{1:k},\Th}$ is the marginal posterior distribution
-	of any state $\xk$ given the measurements up to and including $\yk$
+	$\Pdf{\v{x}_{k}}{\y_{0:k-1},\Th}$ is the predicted distribution of the state in the next timestep (or more generally at
+	timestep $k+h$, where $h>0$) given the previous measurements.
+	\item[Filtering distribution] $\Pdf{\v{x}_k}{\y_{0:k},\Th}$ is the marginal posterior distribution
+	of any state $\xk$ given the measurements up to and including $\yk$.
 	\item[Smoothing distribution]
-	$\Pdf{\v{x}_k}{\v{y}_{1:T},\Th}$ is the marginal posterior distribution
-	of any state $\xk$ given the measurements up to and including $\y_T$ where $k<T$
+	$\Pdf{\v{x}_k}{\y_{0:T},\Th}$ is the marginal posterior distribution
+	of any state $\xk$, $k=1,\dots,T$, given the measurements up to and including $\y_T$.
 \end{description} 
 
 
@@ -198,55 +202,55 @@ and the observations \parencite{Sarkka2006}:
 Let us now derive a recursive formulation for computing the filtering distribution at time $k$. Let $\Pdf{\xkk}{\y_{1:k-1}}$
 be the filtering distribution of the previous step. Then 
 \begin{align}
-	\Pdf{\xk}{\y_{1:k-1},\Th}&=\defint{}{}{\Pdf{\xk,\xkk}{\y_{1:k-1},\Th}}{\xkk} \nonumber\\
-	&=\defint{}{}{\Pdf{\xk}{\xkk}\Pdf{\xkk}{\y_{1:k-1},\Th}}{\xkk},
+	\Pdf{\xk}{\y_{0:k-1},\Th}&=\defint{}{}{\Pdf{\xk,\xkk}{\y_{0:k-1},\Th}}{\xkk} \nonumber\\
+	&=\defint{}{}{\Pdf{\xk}{\xkk}\Pdf{\xkk}{\y_{0:k-1},\Th}}{\xkk},
 	\label{eq:pred_bayes}
 \end{align}
 which is known as the \emph{Chapman-Kolmogorov equation} \parencite{Sarkka2006}.
 In this thesis the predictive distributions will be Gaussian or approximated with a Gaussian
 \begin{align}
-	\Pdf{\xk}{\y_{1:k-1},\Th}&=\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}
+	\Pdf{\xk}{\y_{0:k-1},\Th}&=\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}
 \end{align}
 
 \subsubsection*{Filtering distribution}
 Incorporating the newest measurement can be achieved with the Bayes'
 rule (see for example \cite{gelman2004})
 \begin{align}
-	\underbrace{\Pdf{\xk}{\y_{1:k},\Th}}_\text{posterior}&=\frac{\overbrace{\Pdf{\yk}{\xk,\Th}}^\text{likelihood}\overbrace{\Pdf{\xk}{\y_{1:k-1},\Th}}^\text{prior}}{\underbrace{\Pdf{\y_{k}}{\y_{1:k-1},\Th}}_\text{normalization
+	\underbrace{\Pdf{\xk}{\y_{0:k},\Th}}_\text{posterior}&=\frac{\overbrace{\Pdf{\yk}{\xk,\Th}}^\text{likelihood}\overbrace{\Pdf{\xk}{\y_{0:k-1},\Th}}^\text{prior}}{\underbrace{\Pdf{\y_{k}}{\y_{0:k-1},\Th}}_\text{normalization
 	constant}}\nonumber\\
-	&=\frac{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\defint{}{}{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}}{\xk}}
+	&=\frac{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{0:k-1}}}{\defint{}{}{\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{0:k-1}}}{\xk}}
 	\label{eq:filt_bayes}
 \end{align}
 which is called the measurement update equation.
 In this thesis the filtering distributions will be Gaussian or approximated with a Gaussian
 \begin{align}
-	\Pdf{\xk}{\y_{1:k},\Th}&=\N[\xk]{\m_{k|k}}{\P_{k|k}}
+	\Pdf{\xk}{\y_{0:k},\Th}&=\N[\xk]{\m_{k|k}}{\P_{k|k}}
 \end{align}
 
 
 \subsubsection*{Smoothing distribution}
 The smoothing distributions can also be computed recursively by assuming that the filtering distributions
-and the smoothing distribution $\Pdf{\x_{k+1}}{\y_{1:T}}$ of the ``previous'' step are available.
+and the smoothing distribution $\Pdf{\x_{k+1}}{\Y}$ of the ``previous'' step are available.
 Since
 \begin{align*}
-	\Pdf{\xk}{\x_{k+1},\y_{1:T},\Th}&=\Pdf{\xk}{\x_{k+1},\y_{1:k},\Th}\\
-	&=\frac{\Pdf{\xk,\x_{k+1}}{\y_{1:k},\Th}}{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}\\
-	&=\frac{\Pdf{\x_{k+1}}{\xk,\Th}\Pdf{\xk}{\y_{1:k},\Th}}{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}
+	\Pdf{\xk}{\x_{k+1},\Y,\Th}&=\Pdf{\xk}{\x_{k+1},\y_{0:k},\Th}\\
+	&=\frac{\Pdf{\xk,\x_{k+1}}{\y_{0:k},\Th}}{\Pdf{\x_{k+1}}{\y_{0:k},\Th}}\\
+	&=\frac{\Pdf{\x_{k+1}}{\xk,\Th}\Pdf{\xk}{\y_{0:k},\Th}}{\Pdf{\x_{k+1}}{\y_{0:k},\Th}}
 \end{align*}
 we get
 \begin{align}
-	\Pdf{\xk,\x_{k+1}}{\y_{1:T},\Th}&=\overbrace{\Pdf{\xk}{\y_{1:k},\Th}}^\text{filtering}\frac{\overbrace{\Pdf{\x_{k+1}}{\xk,\Th}}^\text{dynamic}\Pdf{\x_{k+1}}{\y_{1:T},\Th}}{\underbrace{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}_\text{predictive}},
+	\Pdf{\xk,\x_{k+1}}{\Y,\Th}&=\overbrace{\Pdf{\xk}{\y_{0:k},\Th}}^\text{filtering}\frac{\overbrace{\Pdf{\x_{k+1}}{\xk,\Th}}^\text{dynamic}\Pdf{\x_{k+1}}{\y_{0:T},\Th}}{\underbrace{\Pdf{\x_{k+1}}{\y_{0:k},\Th}}_\text{predictive}},
 	\label{eq:smooth_joint_bayes}
 \end{align}
 so that the marginal is given by
 \begin{align}
-	\Pdf{\xk}{\y_{1:T},\Th}&=\Pdf{\xk}{\y_{1:k},\Th}\defint{}{}{\left[\frac{\Pdf{\x_{k+1}}{\xk,\Th}\Pdf{\x_{k+1}}{\y_{1:T},\Th}}{\Pdf{\x_{k+1}}{\y_{1:k},\Th}}\right]}{\x_{k+1}},
+	\Pdf{\xk}{\Y,\Th}&=\Pdf{\xk}{\y_{0:k},\Th}\defint{}{}{\left[\frac{\Pdf{\x_{k+1}}{\xk,\Th}\Pdf{\x_{k+1}}{\Y,\Th}}{\Pdf{\x_{k+1}}{\y_{0:k},\Th}}\right]}{\x_{k+1}},
 	\label{eq:smooth_bayes}
 \end{align}
-where $\Pdf{\x_{k+1}}{\y_{1:k}}$ can be computed by equation \eqref{eq:pred_bayes}.
+where $\Pdf{\x_{k+1}}{\y_{0:k}}$ can be computed by equation \eqref{eq:pred_bayes}.
 In this thesis the smoothing distributions will be Gaussian or approximated with a Gaussian
 \begin{align}
-	\Pdf{\xk}{\y_{1:T}}&=\N[\xk]{\m_{k|T}}{\P_{k|T}}
+	\Pdf{\xk}{\Y}&=\N[\xk]{\m_{k|T}}{\P_{k|T}}
 	\label{eq:smoothing_gaussian}
 \end{align}
 
@@ -255,14 +259,14 @@ In this thesis the smoothing distributions will be Gaussian or approximated with
 An important quantity concerning parameter estimation is the marginal likelihood $\Pdf{\Y}{\Th}$. 
 If we're able to compute the distributions
 \begin{align}
-	\Pdf{\y_k}{\y_{1:k-1},\Th}&=\defint{}{}{\Pdf{\yk}{\xk,\Th}\Pdf{\xk}{\y_{1:k-1},\Th}}{\xk},
+	\Pdf{\y_k}{\y_{0:k-1},\Th}&=\defint{}{}{\Pdf{\yk}{\xk,\Th}\Pdf{\xk}{\y_{0:k-1},\Th}}{\xk},
 	\label{eq:y_pred}
 \end{align}
 which we recognize as the ``normalization constant'' in \eqref{eq:filt_bayes},
 then by repeatedly applying the definition of conditional probability 
 we find that the marginal likelihood can be computed from
 \begin{align}
-	\Pdf{\Y}{\Th}&=\Pdf{\y_1}{\Th}\prod_{k=2}^\tr \Pdf{\y_k}{\y_{1:k-1},\Th}
+	\Pdf{\Y}{\Th}&=\Pdf{\y_0}{\Th}\prod_{k=1}^\tr \Pdf{\y_k}{\y_{0:k-1},\Th}
 	\label{eq:lh_factorization}
 \end{align}
 Since \eqref{eq:y_pred} is needed for the filtering distributions, the marginal likelihood, or an approximation to it, can be easily

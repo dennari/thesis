@@ -1,33 +1,53 @@
 
-As mentioned in the introduction, it is often the case that
-after constructing a SSM, the result is actually a family of models,
-indexed by the static parameter $\Th$. Commonly, but not necessarily, the interest
-is in the states and we need to specify some ``good' value for $\Th$ before
-filtering or smoothing. In general, parameter estimation techniques are divided
-into \emph{offline} or \emph{batch} methods and \emph{online} or \emph{recursive} methods
-\parencite{Cappe2007}. 
-This is analogous to the filtering and smoothing problems in state estimation.
-We focus only on offline methods, where some sort of training or calibration data has been
-acquired beforehand.
+As mentioned in the introduction, it is usually the case that
+after constructing a SSM, the result is a family of models
+indexed by the static parameter $\Th$. The ultimate interest might lie in estimating
+the states or the parameter or both. Be as it may, the two inference problems are intimately
+coupled and interest in the other requires the resolution of the other.
 
-Let us then concern ourselves for a moment with the \emph{difference} between the states
-and the parameters in a SSM.
-The need for acknowledging the difference is obvious when noting that the SSM of equation~\eqref{eq:ssm_too_general}
-could be reformulated by augmenting $\Th$ as part of the state and
-modifying $\ff$ and $\hh$ accordingly. In this
-way a separate parameter estimation problem would not exist. However, the 
-separation becomes important after assuming the parameters \emph{static}. Instead of 
-approximating a separate ``parameter" distribution for every
-timestep, we then know that by separating the static part into
-$\Th$ we can do with a single parameter distribution for the whole model. 
+In general, parameter estimation techniques are divided
+into offline or \emph{batch} methods and online or \emph{recursive} methods
+\parencite{Cappe2007,Kantas2009}. This is analogous to the difference between the filtering and 
+smoothing problems in state estimation. We focus only on offline methods, where some 
+sort of training or calibration data has been acquired beforehand.
+
+A classic solution to the parameter estimation problem is to introduce
+an augmented and necessarily nonlinear SSM, where the parameters have been concatenated as part of the
+state. For static parameters, the part of the dynamic model corresponding to the parameters is
+set to identity. Classically an extended Kalman filter is 
+then applied to approximate the probability distribution of the augmented state
+vector in the joint space of parameters and states. This approach is known
+as \emph{joint EKF} and it has the virtue of being an online procedure \parencite{Wan2001}.
+It appears that the method has problems with convergence in some situations.
+A more recent method utilizing another form of augmented SSM is known as \emph{iterated filtering}
+\parencite{Ionides2011}. It is an offline method, but only requires being able
+to sample from the dynamic model given the parameter and no gradient computations
+are required. The algorithm however introduces multiple parameters of its own
+and so might require some tuning \parencite{Kantas2009}. Furthermore, it is designed
+to utilize the simulation based SMC methods mentioned briefly in Section~\ref{sec:nonlinear_state}.
+In the sequel, these kinds of filtering based parameter estimation methods 
+will not be further considered. 
+
+
+% Let us then concern ourselves for a moment with the difference between the states
+% and the parameters in a SSM. In the introduction it was stated that in this
+% thesis the distinction is that the states are dynamic and the parameters are
+% static. But this is only true in the sense that for the states a probability
+% distribution is computed for every timestep. The marginal distribution
+% of the static components could still be static.
+% Thus the SSM of equation~\eqref{eq:ssm_too_general}
+% could be reformulated by augmenting $\Th$ as part of the state and
+% modifying $\ff$ and $\hh$ accordingly. In this
+% way a separate parameter estimation problem would not exist.
+% Parameter estimation by state augmentation is known as  
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Bayesian Estimation of Parameters}%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-We now shift the focus on estimating the parameter $\Th$, which was assumed
-given in the case of state estimation. In the Bayesian sense the complete 
-answer would be the \emph{joint} posterior distribution of the states and the parameters given the data 
+In the Bayesian sense the complete 
+answer to the filtering and parameter estimation problems would be the \emph{joint} posterior distribution of the states
+and the parameters given the data
 \begin{align}
 	% \Pdf{\X,\Th}{\Y}\propto\frac{\Pdf{\X,\Y}{\Th}}{\Pdf{\Y}{\Th}}\frac{\Pdf{\Y}{\Th}\Pdf{\Th}}{\defint{\Theta}{}{\Pdf{\Y}{\Th}\Pdf{\Th}}{\Th}}
 	\Pdf{\X,\Th}{\Y} &\propto \Pdf{\X,\Y}{\Th}\Pdf{\Th}\\
@@ -35,16 +55,17 @@ answer would be the \emph{joint} posterior distribution of the states and the pa
 	\label{eq:param_post}
 \end{align}
 By defining the SSM in equation~\eqref{eq:ssm_general}, we have
-implicitely defined the ``complete-data'' likelihood $\Pdf{\X,\Y}{\Th}$
+implicitly defined the ``complete-data'' likelihood $\Pdf{\X,\Y}{\Th}$
 (see Equation~\eqref{eq:complete_data_likelihood}).
 By introducing the \emph{prior distribution}, $\Pdf{\Th}$,
-the components of \eqref{eq:param_post} and thus the joint distribution
+the components of \eqref{eq:param_post} and thus the joint distribution posterior
 of states and parametes is defined. Recently, methods known as
 \emph{Particle Markov chain Monte Carlo} (PMCMC) have emerged,
 which are able to sample from the joint distribution in \eqref{eq:param_post}
-\parencite{Andrieu2010}.
+without knowledge of the normalization constant \parencite{Andrieu2010}.
 This is achieved by combining particle filtering approximations to $\Pdf{\X}{\Y,\Th}$ 
-with traditional Gibbs and Metropolis-Hastings sampling in a nontrivial way \parencite{gelman2004}.
+with traditional Gibbs and Metropolis-Hastings sampling in a nontrivial way 
+\parencite{Andrieu2010,gelman2004}.
 
 \subsubsection{Maximum a posteriori and maximum likelihood}
 
@@ -64,38 +85,38 @@ the log marginal likelihood with
 The MAP estimate of $\Th$ is then defined as 
 \begin{align}
 	\Th_{\text{MAP}} &\equiv \argmax_{\Th}\brak[\big]{ \log\Pdf{\Th}{\Y}} \nonumber\\ 
-	&=\argmax_{\Th}\brak[\big]{\lLH + \log\Pdf{\Th}} \nonumber\\
-	&=\argmin_{\Th}\brak[\big]{\ene},
+	&=\argmax_{\Th}\brak[\big]{\lLH + \log\Pdf{\Th}+C}, && \text{($C$ is independent of $\Th$)} \nonumber\\
+	&=\argmax_{\Th}\brak[\big]{\lLH + \log\Pdf{\Th}}\\
+	%&=\argmin_{\Th}\brak[\big]{\ene},
 	\label{eq:MAP}
 \end{align}
-where we define the \emph{energy function}\todo{should this be introduced?}
-\parencite{Mbalawataa}
-\begin{align}
-	\ene \equiv -\lLH - \log\Pdf{\Th}.
-	\label{eq:ene}
-\end{align}
-The MAP estimate might be used as is in order to obtain a state estimates
-with supposedly probable parameter values. It could also be used as the initial
-value for simulation based approaches or to compare results obtained with other
-methods.
+\todo{explain the uses of the MAP estimate from Gelman}
+%The MAP estimate might be used as is in order to obtain a state estimates
+%with supposedly probable parameter values. It could also be used as the initial
+%value for simulation based approaches or to compare results obtained with other
+%methods.
 
 In the case of a uniform (constant and thus improper)
 prior distribution, $\Pdf{\Th}=C$, the MAP estimate reduces to the
 \emph{maximum likelihood} (ML) estimate
 \begin{align}
-	\Th_{\text{ML}} &\equiv \argmax_{\Th}\brak[\big]\lLH\label{eq:ML} \\
-	&= \argmax_{\Th}\brak[\big]{\lLH+\log C} \nonumber.
+	\Th_{\text{ML}} &\equiv \argmax_{\Th}\brak[\big]\lLH\label{eq:ML}
 \end{align}
 In the limit of infinite data, the influence of the prior
 disappears. Then if the support of the prior includes the true
-parameter value, the MAP estimator has the same asymptotic properties
+parameter value, the MAP estimate has the same asymptotic properties
 as the ML estimate \parencite{Cappe2005}. These properties will be discussed in more
-detail in the sequel. 
+detail in Section~\ref{sec:theory}. Since the mathematical difference
+between the MAP and ML estimates depends only on the model dependent prior distribution
+assigned to $\Th$, we will mainly focus on computing the ML estimate.
+Some steps where the prior plays an important role will be separately
+highlighted. 
 
-With the help of the Gaussian filtering and smoothing methodology introduced in the
-previous section, computing the (approximate) MAP estimate corresponds to maximizing a
-completely known function. Thus the problem is turned into one of nonlinear optimization (also called
-nonlinear programming) \parencite{Cappe2005}.
+With the help of the Gaussian filtering and smoothing methodology introduced in 
+Section~\ref{sec:nonlinear_state}, computing the (approximate) MAP estimate 
+corresponds to maximizing a completely known function.
+Thus the problem is turned into one of nonlinear optimization 
+(also called nonlinear programming) \parencite{Cappe2005}.
 
 \subsubsection{Ascent methods}
 
@@ -117,12 +138,12 @@ an iterative ascent method.
 \input{parameter_est_gradient}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Expectation maximization (EM)}%%%%
+\subsection{Expectation maximization (EM)}\label{sec:em}%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{parameter_est_em}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Theoretical considerations}%%%%%%
+\subsection{Theoretical considerations}\label{sec:theory}%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{parameter_est_theoretical}
 

@@ -35,7 +35,7 @@ provable by \emph{Jensen's inequality},
 we see that $\EMB{\gv{\psi}}{\Th}$ is indeed a lower bound on $\lLH$. 
 These considerations suggest an iterative algorithm
 which produces a series of estimates $\brac{\Th_j}$, where $j=0,\dots$.
-Given the initial guess $\Th_0$, The two alternating
+Given the initial guess $\Th_0$, the two alternating
 steps of the algorithm are:
 %
 \begin{description}
@@ -69,13 +69,13 @@ According to \eqref{eq:lLH_decomp} we now have
 \end{align}
 and especially
 \begin{align}
-	\lLH & = \EMB{\Th}{\Th}
+	\lLH & = \EMB{\Th}{\Th}.
 	\label{eq:EM_sharp_bound}
 \end{align}
 When we want to maximize $\EMB$ with respect to $\Th$
 clearly it suffices to consider
 only $\EMQ$, known as the \emph{expected complete-data log-likelihood}
-or the \emph{intermediate quantity of EM}.
+or the \emph{intermediate quantity of EM} \parencite{Cappe2005,Bishop2006}.
 
 What is also interesting about $\EMQ$ is that it can be used to compute the gradient of the log-likelihood, i.e
 the score, itself. From equations \eqref{eq:EM_B}
@@ -84,7 +84,7 @@ the score evaluated at $\widehat{\Th}$ is given by
 \begin{align}
 		\score[\widehat\Th]&=
 		\nabla_{\Th}\EMQ[\big]{\widehat\Th}{\widehat\Th}
-		=\eval{\dpd{ \EMQ[\big]{\widehat\Th}{\Th}}{\Th}}_{\Th=\widehat\Th} \label{eq:EM_gradients}
+		\equiv\eval{\dpd{ \EMQ[\big]{\widehat\Th}{\Th}}{\Th}}_{\Th=\widehat\Th} \label{eq:EM_gradients}
 \end{align} 
 Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005}. It gives
 an alternative route for the score function computation.
@@ -111,20 +111,33 @@ $\EMQ{\Th_l}{\Th}$ must be maximal at $\Th=\Th_l$ and thus its gradient, and
 by \eqref{eq:EM_gradients} that of the likelihood, must be zero at $\Th=\Th_l$. Thus
 $\Th_l$ is a \emph{stationary point} of $\lLH$, i.e a local maximum or a saddle point.
 
+Figure~\ref{fig:ar1_em} illustrates the EM algorithm for a unidimensional parameter 
+$\theta$. Starting from the lower left corner, given the current parameter estimate
+$\theta_k$, the E-step computes the lower bound $\EMB{\theta_k}{\theta}$ (dashed line) 
+to the objective function $\lLH[\theta]$ (solid line). Clearly $\EMB{\theta_k}{\theta_k}=\lLH[\theta_k]$
+and $\nabla_{\theta}\EMB{\theta_k}{\theta_k}=\nabla_{\theta}\EMQ{\theta_k}{\theta_k}=\score[\theta_k]$.
+In the M-step, the next parameter value $\theta_{k+1}$ is found by maximizing the lower bound obtained
+in the E-step. In the case of Figure~\ref{fig:ar1_em}, we can see that EM estimate is very close
+to the ML estimate at iteration $k+2$. 
 
 \begin{figure}[htb]%
     \centering%
   	\includegraphics{img/ar1_ex_em}%
 	\caption{%
-   	Illustration of two steps of the EM algorithm for estimating $a$
-   	in the AR(1) model.
+Illustration of two iterations of the EM algorithm for a unidimensional parameter 
+$\theta$. Starting from the lower left corner, given the current parameter estimate
+$\theta_k$, the E-step computes the lower bound (dashed line) 
+to the objective function $\lLH[\theta]$ (solid line). In the M-step, the next parameter 
+value $\theta_{k+1}$ is found by maximizing the lower bound obtained in the E-step. The 
+EM estimate is very close to the ML estimate at iteration $k+2$.
    	}
 	\label{fig:ar1_em}
  \end{figure}
 
-We have so far formulated the EM algorithm only for ML estimation. In the case
-of MAP estimation, the situation doesn't change much however. Since the prior
-is independent of $\X$, the E-step stays the same. The MAP M-step changes to
+We have so far formulated the EM algorithm only for ML estimation. In case
+of MAP estimation with nonuniform prior (remember that with a uniform prior the estimates are identical), 
+the E-step stays the same since the prior is independent of $\X$.
+The MAP M-step is
 \begin{description}
 \addtolength{\leftskip}{1cm}
   \item[M-step (MAP)]\hfill\\ 

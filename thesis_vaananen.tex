@@ -27,8 +27,7 @@ textsize=footnotesize,
 textwidth=2.7cm,
 backgroundcolor=orange!40,
 linecolor=orange!40,
-colorinlistoftodos,
-disable,
+colorinlistoftodos
 ]{todonotes}
 
 
@@ -47,7 +46,7 @@ pdfproducer={xetex}
 \usepackage{amsthm}
 \usepackage{enumerate}
 \usepackage{xfrac}
-\mathtoolsset{showonlyrefs,showmanualtags}
+%\mathtoolsset{showonlyrefs,showmanualtags}
 
 %\everymath{\displaystyle}
 %\usepackage[pass,showframe]{geometry}
@@ -60,9 +59,9 @@ pdfproducer={xetex}
 \newcommand{\ykk}{\v{y}_{k-1}}
 \newcommand{\xk}{\v{x}_{k}}
 \newcommand{\x}{\v{x}}
-\newcommand{\X}{\x_{1:T}}
+\newcommand{\X}{\x_{0:T}}
 \newcommand{\XX}{\v{X}}
-\newcommand{\Y}{\y_{1:T}}
+\newcommand{\Y}{\y_{0:T}}
 \newcommand{\YY}{\v{Y}}
 \newcommand{\z}{\v{z}}
 \newcommand{\h}{\v{h}}
@@ -91,7 +90,7 @@ pdfproducer={xetex}
 %\newcommand{\cLH}{\Pdf{\X,\Y}{\Th}}
 %\newcommand{\lcLH}{\log\cLH}
 \newcommand{\tP}{q}
-\NewDocumentCommand\tPX{O{\tP} G{\gv{\psi}}}{\Pdf[#1][\big]{\X}{#2}}
+\NewDocumentCommand\tPX{O{\tP} G{\gv{\psi}}}{\Pdf[#1]{\X}{#2}}
 \NewDocumentCommand\ff{O{\displaysize} G{\xkk} G{\Th}}{\F[#1]{\f}{#2,#3}}
 \NewDocumentCommand\hh{O{\displaysize} G{\xk} G{\Th}}{\F[#1]{\h}{#2,#3}}
 \NewDocumentCommand\ffi{O{\displaysize} G{\xkk}}{\F[#1]{\f}{#2}}
@@ -152,6 +151,7 @@ maxcitenames=1,
 url=false,
 firstinits=true
 }
+\setlength\bibnamesep{1.5\itemsep}
 
 \setlength{\hoffset}{-1in}
 \setlength{\oddsidemargin}{35mm}
@@ -163,22 +163,33 @@ firstinits=true
 \setlength{\topmargin}{25mm-\headheight-\headsep}
 \setlength{\textheight}{23cm}
 
+\usepackage{setspace}
+%\singlespacing
+%\onehalfspacing
+%\doublespacing
+%\setstretch{1.1}
+
+
 \begin{document}
-\captionsetup{subrefformat=parens}
-\captionsetup[sub]{format=hang,margin={10pt,0pt}}
-\input{coverpage}
-\makecoverpage
-\input{abstract}
-\mysection{Preface}
-\input{preface}
-\newpage
-
-
-\addcontentsline{toc}{section}{Contents}
-\tableofcontents
-
-\mysection{Symbols and abbreviations}
-\input{abbr}
+\captionsetup{subrefformat=parens}%
+\captionsetup[sub]{format=hang,margin={10pt,0pt}}%
+%
+\input{coverpage}%
+\makecoverpage%
+%
+\input{abstract}%
+%
+\mysection{Preface}%
+\input{preface}%
+%
+\newpage%
+%
+%
+\addcontentsline{toc}{section}{Contents}%
+\tableofcontents%
+%
+\mysection{Symbols and abbreviations}%
+\input{abbr}%
 
 
 
@@ -198,7 +209,7 @@ firstinits=true
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
-
+\begin{onehalfspace}
 \section{Introduction}
 \input{introduction}
 
@@ -214,11 +225,11 @@ firstinits=true
 \clearpage
 
 
-\section{State estimationin SSMs}
+\section{State estimation}
 \input{state_est}
 \clearpage
 
-\section{Parameter estimation in SSMs}
+\section{Parameter estimation}
 \input{parameter_est}
 \clearpage
 
@@ -238,5 +249,6 @@ firstinits=true
 \input{appendix}
 \clearpage
 \printbibliography
+\end{onehalfspace}
 \end{document}
 

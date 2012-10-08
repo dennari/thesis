@@ -4,7 +4,8 @@ otherwise, filtering and smoothing
 distributions of Equations \eqref{eq:filt_bayes} and \eqref{eq:smooth_bayes}.
 In fact we will focus on the somewhat more general problem for deriving
 the cross-timestep joint pdfs. In state estimation it is assumed that the parameter $\Th$ is given.
-Thus throughout this section we will, in general, suppress the dependence on $\Th$ and use the shorthands specified in \eqref{eq:shorthand_theta}. 
+Thus throughout this section we will, in general, suppress the dependence on $\Th$ 
+and use the shorthands specified in \eqref{eq:shorthand_theta}. 
 
 \subsection{Linear-Gaussian State Space Models}
 
@@ -22,7 +23,7 @@ are described by the subset of SSMs of the form \eqref{eq:ssm_general} where
 The $d_x\times d_x$ matrix $\v{A}\equiv\v{A}(\Th)$ is called the \emph{transition matrix} and
 the $d_y\times d_x$ matrix $\v{H}\equiv \v{H}(\Th)$ the \emph{measurement matrix}.
 These linear-Gaussian SSMs, equivalently known as \emph{linear dynamical systems} \parencite{Bishop2006},
-are one of the few cases where computing the predictive, filtering and
+are one of the few cases where computing the \emph{exact} predictive, filtering and
 smoothing distributions is tractable \parencite[see, e.g.,][]{Sarkka2006}. As can be seen,
 all of the aforementioned distributions stay Gaussian.
 
@@ -132,7 +133,8 @@ categories \parencite[see, e.g.,][]{Arasaratnam2009}:
   distributions \eqref{eq:pred_bayes}, \eqref{eq:filt_bayes} and \eqref{eq:smooth_bayes} \emph{a priori}. 
   These  methods are analytically inexact but less computationally demanding. This is the category that
 we will be concerned with in this thesis. 
-  \item \emph{Global approaches} require the use of particle filtering, also known as sequential Monte Carlo, 
+  \item \emph{Global approaches} require the use of particle filtering, also known as 
+  \emph{sequential Monte Carlo} (SMC), 
   methods, which are \emph{simulation} based
 \end{enumerate}%
 %
@@ -147,12 +149,12 @@ computationally efficient.  As will be shown later, the specific Gaussian filter
 methods only differ in their chosen numerical integration methods.
 
 The global approaches are certainly appealing in not placing
-a priori restrictions on the posterior distribution. Particle filtering
+any restrictions on the form of the posterior distribution. Particle filtering
 has been enjoying widespred interest since the introduction 
 in \textcite{Gordon1993} \parencite[see also][]{Cappe2007,Kantas2009,Cappe2005}. However they
-are Monte Carlo methods, the use of which usually require tuning
-and convergence monitoring. The most obvious donwside compared to
-the local methods is still the computational complexity. 
+are Monte Carlo methods, the use of which usually requires tuning
+and convergence monitoring. The most obvious downside compared to
+the local methods are their increased computational requirements. 
 
 \subsubsection{Gaussian filtering and smoothing}
 
