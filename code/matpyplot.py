@@ -55,6 +55,11 @@ def draw(dataFileName):
 		margins = {}
 	
 	try:
+		margins['figh'] = inp["h"]
+	except KeyError:
+		pass
+	
+	try:
 		alpha = inp["alpha"]
 	except KeyError as e:
 		alpha = 0.05

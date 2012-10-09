@@ -5,13 +5,13 @@ global dt m0 P0 H A
 
 %N = 500;
 T = 10;
-dt = 0.01;
+dt = 0.005;
 N = round(T/dt);
 
 %%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
 lqx = 1.2;       % std
 lqy = 0.8;      % std
-lr =  log(2.5);  % log(std)
+lr =  log(1.5);  % log(std)
 g0y = -9.81; % initial y acceleration
 g0x = -1.8; % initial x acceleration
 v0 = 40; % magnitude of the initial velocity

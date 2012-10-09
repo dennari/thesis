@@ -21,7 +21,7 @@ patch.antialiased = True
 font.serif = 'Latin Modern Roman','Bitstream Vera Serif','New Century Schoolbook','serif'
 font.size = 12.0
 
-axes.facecolor = '#E5E5E5'
+#axes.facecolor = '#E5E5E5'
 axes.edgecolor = 'white'
 axes.linewidth = 1
 axes.grid = True
@@ -51,9 +51,9 @@ ytick.color = '#555555'
 ytick.labelsize = 'xx-small'
 ytick.major.size = 0
 
-grid.color = 'white'
-#grid.color = '#CCCCCC'
-grid.linestyle = '-'    # solid line
+#grid.color = 'white'
+grid.color = '#CCCCCC'
+grid.linestyle = ':'    # solid line
 
 
 figure.facecolor = 'white'

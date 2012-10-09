@@ -69,40 +69,75 @@ y1 = squeeze(est_bfgs_n(3,:,:));
 plot(x,y1,'-b'); grid on;
 
 %% trajectory
+global dt
+T = 10;
+dt = 0.005;
+N = round(T/dt);
 
-%figure(1); clf;
-%plot(xs(1,:),xs(3,:),ys(1,1:30:end),ys(2,1:30:end),'kx');
+%%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
+qx = 0.4;       % std
+qy = 0.1;      % std
+r =  log(1.5);  % log(std)
+g0y = -9.81; % initial y acceleration
+g0x = -1.8; % initial x acceleration
+v0 = 40; % magnitude of the initial velocity
+alpha0 = (60/180)*pi; % initial direction
+
+
+v0x = v0*cos(alpha0);
+v0y = v0*sin(alpha0);
+
+A1 = [1 dt; 
+      0 1];  
+A = blkdiag(A1,A1); % for two dimensions
+H = zeros(2,4); H(1,1) = 1; H(2,3) = 1;
+Q = ballisticQ2D(qx,qy);
+R = ballisticR(r);
+u = ballisticU(g0x,g0y);
+m0 = [0 v0x 0 v0y]';
+P0 = eye(size(m0,1));
+
+xs = zeros(4,N+1);
+ys = zeros(2,N+1);
+
+% simulate
+x = m0;
+xs(:,1) = x;
+ys(:,1) = H*x;
+
+for k=2:N+1
+  x = mvnrnd(A*x,Q)'+u;
+  xs(:,k) = x;
+	ys(:,k) = mvnrnd(H*x,R)';
+  if x(3) < 0; break; end;
+end
+
+xs = xs(:,1:k);
+ys = ys(:,1:k);
+N = k-1;
+K = (0:N)*dt;
+
+figure(1); clf;
+plot(xs(1,:),xs(3,:),ys(1,:),ys(2,:),'kx');
+axis equal; grid on;
 %break;
 
 plt = struct();kw1 = struct(); kw = struct();
-kw.alpha = 1.0; kw.ms = 4; kw.mfc = 'black';
-kw1.lw = 0.9; kw1.alpha = 0.8;
-plt.data = {{xs(1,:) xs(3,:) '' kw1},...
-            {ys(1,1:30:end) ys(2,1:30:end) '*' kw},...
+kw.alpha = 0.5; kw.ms = 4; kw.mfc = 'black'; kw.color = 'black';
+kw1.lw = 1; kw1.alpha = 0.7; kw1.color = 'white';
+plt.data = {{ys(1,:) ys(2,:) 'x' kw},...
+            {xs(1,:) xs(3,:) '' kw1}
            };
-plt.xlabel = '$x^{(1)}$';
-plt.ylabel = '$x^{(3)}$';
-plt.legend = {'true' 'measurement'};
-plt.legendkw = struct('loc','lower center');
+plt.xlabel = '$\chi$';
+plt.ylabel = '$\gamma$';
+%plt.legend = {'meas.' 'true'};
+%plt.legendkw = struct('loc','lower center');
 plt.w = textwidth*0.7;
-plt.margins = [0.0 0.1 0.4 0.55];
+%plt.h = textwidth*0.7;
+plt.margins = [0 0 0.35 0.35];
 
-%plotstruct(ax,plt);
-pyplot('../img/ballistic_trajectory.pdf',plt);
+pyplot('../img/ballistic_trajectory.pdf',plt,'../img/ballistic_trajectory.mat');
 
-% plt = struct();
-% fmean = xs(2,:)-ms(2,:);
-% smean = xs(2,:)-mF(2,:);
-% ferr = 2*sqrt(squeeze(Ps(2,2,:)));
-% serr = 2*sqrt(squeeze(PF(2,2,:)));
-% plt.ylabel = '$\dot{x}_{\mathrm{true}}-\dot{x}_{\mathrm{mean}}\,\mathrm{[m]}$';
-% plt.xlabel = '$t\,\mathrm{[s]}$';
-% plt.legend = {'$\mathrm{Err}_f$' '$\mathrm{Err}_s$'};
-% plt.legendkw = struct('loc','upper right');
-% plt.data = {{K fmean '' struct('yerr',ferr)},{K smean '' struct('yerr',serr)}};
-% plt.w = textwidth*0.5;
-% plotstruct(plt);
-% pyplot('../img/ex1_err.pdf',plt)
 
 
 
@@ -110,7 +145,7 @@ pyplot('../img/ballistic_trajectory.pdf',plt);
 
 textwidth = 426.79134/72.27; % latex textwidth in inches
 % plot the true locations and the measurements
-
+%%
 % Likelihood
 plt = struct();kw1=struct();
 kw1.color = '#348ABD'; kw1.alpha=0.8; kw1.lw = 1.2;
