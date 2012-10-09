@@ -9,8 +9,8 @@ dt = 0.005;
 N = round(T/dt);
 
 %%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
-qx = 1.2;       % std
-qy = 0.8;      % std
+qx = 0.4;       % std
+qy = 0.1;      % std
 r =  log(1.5);  % log(std)
 g0y = -9.81; % initial y acceleration
 g0x = -1.8; % initial x acceleration
@@ -50,7 +50,7 @@ gis = [0 0 1 0 1 1];
 logi = [1 1 1 1 0 0]; logi = logi > 0;
 
 fn = '../data/Ballistic_%s%.0f_%.0f';
-iters = [50 50];
+iters = [100 100];
 NNs = 100;
 % iters = [10 10;
 %          10  10;
