@@ -1,4 +1,4 @@
-function [new] = EM_M_Harmonic(p,m0T,gi,N,I1,I2,I3)
+function [new] = EM_M_Harmonic(p,MS,gi,N,I1,I2,I3)
 % EM_M_Harmonic - Maximization step 
 %
 % parameters are 

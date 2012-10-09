@@ -1,4 +1,4 @@
-function [new] = EM_M_Ballistic(p,m0T,gi,N,I1,I2,I3,smk,smkk)
+function [new] = EM_M_Ballistic(p,MS,gi,N,I1,I2,I3)
 % em_lb_harmonic - lower bound and its gradient 
 %
 % p{1}=v0x, x component of the mean of the initial velocity
@@ -46,9 +46,13 @@ for j=1:numel(gi)
       new(3) = (log((I3(1,1)+I3(2,2)))-log(2*N))/2;
     end
     if(gi(j)==5) % dlb/dux
+      smk = sum(MS(:,2:end),2); 
+      smkk = sum(MS(:,1:end-1),2);
       new(5) = (3*smkk(1) - 3*smk(1) + 2*dt*smk(2) + dt*smkk(2))/(2*N*dt^2);
     end
     if(gi(j)==6) % dlb/dux
+      smk = sum(MS(:,2:end),2); 
+      smkk = sum(MS(:,1:end-1),2);
       new(6) = (3*smkk(3) - 3*smk(3) + 2*dt*smk(4) + dt*smkk(4))/(2*N*dt^2);
     end
 end

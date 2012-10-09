@@ -1,4 +1,4 @@
-function [opt,lhs,vals,funccounts,times] = Ballistic_BFGS(p0,gi,y,tol_lh,tol_delta,max_iter,min_iter)
+function [opt,lhs,vals,funccounts,times] = myBFGS(lhf,p0,gi,y,dispf,tol_lh,tol_delta,max_iter,min_iter)
 
 if nargin < 7 || isempty(min_iter)
     min_iter = 1;
@@ -18,7 +18,7 @@ opt.GradObj = 'on';
 opt.LargeScale = 'off'; % use BFGS
 opt.TolFun = tol_lh; % force to run for max_iter
 opt.TolX = tol_delta;
-opt.Display = 'iter'; % prints stuff on every iteration
+opt.Display = 'off'; % prints stuff on every iteration
 opt.MaxFunEvals = max_iter;
 opt.OutputFcn = @ofun;
 
@@ -39,28 +39,30 @@ vals = vals(:,2:k-2);
 times = times(2:k-2);
 funccounts = funccounts(2:k-2);
 
+%evals = msg.funcCount; 
 
 function [lh,glh]=bfgs_lh(x)
   p = p0;
   p(gi) = x;
-  [lh,glh] = Ballistic_LH(p,y,gi);  
+  [lh,glh] = lhf(p,y,gi);
   % remember we're minimizing
   lh = -lh;
   glh = -glh;
 end
 
-
 function stop=ofun(x,val,state)
-  %fprintf(1,'BFGS %.0f: %.3f\n',[k,-val.fval]);
-  %fprintf(1,'Vals: %.5f\n',exp(x));
   lhs(k) = -val.fval;
   vals(:,k) = x;
   times(k) = toc(start);
   funccounts(k) = val.funccount;
+  
+  p = p0;
+  p(gi) = x;
+  dispf(struct('p',p,'gi',gi,'k',k,'lh',-val.fval,'dx',0));
+  
   k = k+1;
   stop=0;
 end
-
 
 end
 

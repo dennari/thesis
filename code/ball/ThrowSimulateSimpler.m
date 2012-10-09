@@ -3,41 +3,34 @@
 global dt m0 P0 H A
 
 
-N = 500;
-T = 14;
-dt = T/N;
-
+%N = 500;
+T = 10;
+dt = 0.01;
+N = round(T/dt);
 
 %%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
-lqx = 0.8;       % parameterization in logarithm of standard deviation
-lqy = lqx/2;
-lr =  log(2.5);
-
-
-K = (0:N)*dt;
-v0 = 300/3.6; % magnitude of the initial velocity
-
-
+lqx = 1.2;       % std
+lqy = 0.8;      % std
+lr =  log(2.5);  % log(std)
+g0y = -9.81; % initial y acceleration
+g0x = -1.8; % initial x acceleration
+v0 = 40; % magnitude of the initial velocity
 alpha0 = (60/180)*pi; % initial direction
+
+
 v0x = v0*cos(alpha0);
 v0y = v0*sin(alpha0);
-g0y = -9.81; % initial y acceleration
-g0x = -1.5; % initial x acceleration
+
 A1 = [1 dt; 
       0 1];  
 A = blkdiag(A1,A1); % for two dimensions
 H = zeros(2,4); H(1,1) = 1; H(2,3) = 1;
-
-
-
 Q = ballisticQ2D(lqx,lqy);
 SQ = chol(Q,'lower');
 h = @(x) H*x;
 R = ballisticR(lr);
 SR = chol(R,'lower');
 u = ballisticU(g0x,g0y);
-
-
 m0 = [0 v0x 0 v0y]';
 P0 = eye(size(m0,1));%diag([1e-6 7^-2 1e-6 7^-2]);
 
@@ -64,7 +57,14 @@ for k=2:N+1
 	x = mvnrnd(A*x,Q)'+u;
   xs(:,k) = x;
 	ys(:,k) = mvnrnd(H*x,R)';
+  if x(3) < 0; break; end;
 end
+
+xs = xs(:,1:k);
+ys = ys(:,1:k);
+N = k-1;
+K = (0:N)*dt;
+
 %u = zeros(size(x));
 y = ys;
 xDim = size(A,1);
@@ -111,26 +111,27 @@ end
 figure(1); clf;
 plot(xs(1,:),xs(3,:),ys(1,:),ys(2,:),'kx',MM(1,:),MM(3,:));
 axis equal; grid on;
+%break
 figure(2); clf;
 subplot(2,2,1);
-plot(K,xs(1,:)); 
+plot(K,xs(1,:)); grid on; title('x'); 
 subplot(2,2,2);
-plot(K,xs(3,:)); 
+plot(K,xs(3,:)); grid on; title('y');
 subplot(2,2,3);
-plot(K,xs(2,:));
+plot(K,xs(2,:)); grid on; title('vx');
 subplot(2,2,4);
-plot(K,xs(4,:));
+plot(K,xs(4,:)); grid on; title('vy');
 
-figure(3); clf; n=3;
-subplot(n,1,1);
-plot(K,squeeze(PP(1,1,:)));
-subplot(n,1,2);
-plot(K,squeeze(PP(2,2,:)));
-subplot(n,1,3);
-plot(K,squeeze(PP(3,3,:)));
-
-figure(4); clf;
-plot(K,sqrt(mean((xs-MM).^2)),K,sqrt(mean((xs-MS).^2)));
+% figure(3); clf; n=3;
+% subplot(n,1,1);
+% plot(K,squeeze(PP(1,1,:))); grid on; title('x(1)');
+% subplot(n,1,2);
+% plot(K,squeeze(PP(2,2,:)));
+% subplot(n,1,3);
+% plot(K,squeeze(PP(3,3,:)));
+% 
+% figure(4); clf;
+% plot(K,sqrt(mean((xs-MM).^2)),K,sqrt(mean((xs-MS).^2)));
 
 
 

@@ -45,29 +45,32 @@ are easier in the EM algorithm. This again depends on if the model is linear or 
 Let us consider a situation where a ballistic projectile is launched
 from the ground into the air. We assume that the situation is governed by Newtonian
 mechanics and that the projectile experiences a constant known gravitational
-force. In addition a velocity and altitude dependent drag force plays
-a considerable role in the trajectory of the projectile \parencite{ristic2004beyond}. 
-The drag force is caused by the air which might have a nonzero velocity with respect to the ground,
-depending on the wind conditions.
- 
+force, directed towards the ground. In addition we assume a \emph{constant}
+drag force directed orthogonally to the gravitational force. This is clearly
+an oversimplification, since in a more realistic model the drag
+force is proportional to velocity and directed against it. Furthermore
+the drag force is higly dependent on air density and so the altitide. \parencite{ristic2004beyond}.
+Nevertheless, we make the aforementioned simplification to keep to resulting
+SSM linear. The modelling error is mitigated slightly by introducing
+additive white noise to both forces.
+
 We obtain a sequence of range measurements with a radar,
 so that our data consists of the noisy two dimensional locations 
 of the object as measured at time points $\brac{t_k}_{k=1}^T$.
-We assume a constant interval $\tau$ between the time points.
+We assume a constant interval $\tau$ between the time points. With these 
+considerations, the system can be cast into a linear-Gaussian SSM. 
 
-Since the wind conditions are unknown, we supposet there is not
-enough information for explicitly modeling the drag force. 
-This is compensated by introducing
-uncertainty into the dynamics with an additive stochastic process.
-With these considerations, the system can be cast into a linear-Gaussian
-SSM. 
+In continous time and for a single coordinate $\chi$, 
+the dynamics can now be written as
+\begin{align}
+	\dod{}{t}\bm{\chi(t) \\ \dot{\chi}(t) } &= 
+	\bm{0 & 1\\0 & 0}\bm{\chi(t) \\ \dot{\chi}(t) } + \bm{0\\1}g_\chi + \bm{0\\1}\beta(t),
+	\label{eq:ct_linear}
+\end{align}
+where $g_\chi<0$ is the mean of the force and $\beta(t)$ can be considered
+a white noise process with variance (or spectral density) $q_\chi$. 
+The state then contains the position and its first time derivative, i.e the velocity. 
 
-% Newton's laws are specified in continous time,  where
-% the dynamics can now be written as
-% \begin{align}
-% 	\dod{\x(t)}{t} &= \v{F}\x(t) + \gv{\beta}(t)
-% 	\label{eq:ct_linear}
-% \end{align}
 % with
 % \begin{align}
 % 	\x(t) &= \bm{x(t) & \dot{x}(t) & \ddot{x}(t) & y(t) & \dot{y}(t) & \ddot{y}(t)}^\tr\\
@@ -83,44 +86,30 @@ SSM.
 % \end{align}
 
 To discretize the dynamics, we will apply a simple integration scheme where 
-$\x(t)=\x(t_k)$ when $t\in\brak{t_k,t_{k+1}}$ \parencite{bar2004estimation}.
-In this model, the state will contain the position and
-its first derivative, i.e the velocity. We will model the acceleration as a white noise
-process, allowing some flexibility with respect to effects caused by additional forces not explicitly
-included in the model.
-
+$\x(t)=\x(t_k)$ when $t\in\big[t_k,t_{k+1}\big)$ \parencite{bar2004estimation}.
 The system will be modeled in two dimensional Cartesian coordinates so that $d_x=4$, i.e
 two components for position and two for velocity. The state at time $k$ is then
 \begin{align}
 	\xk &=
-	\bm{x^{(1)}_k & \dot{x}^{(1)}_k  
-	  & x^{(2)}_k & \dot{x}^{(2)}_k }^\tr
+	\bm{\chi_k & \dot{\chi}_k  
+	  & \gamma_k & \dot{\gamma}_k }^\tr
 	\label{eq:ballistic2D_state}
 \end{align}
-where
-\begin{align}
-	x_k &= x(t_k)   & \text{and} && \dot{x}_k &= \eval{\dod{x(t)}{t}}_{t=t_k}.
-\end{align}
-The powers in Equation~\eqref{eq:ballistic2D_state} denote the Cartesian components.
+where $\dot{\chi}_k = \eval{\dod{\chi(t)}{t}}_{t=t_k}$ and analogously for $\dot{\gamma}_k$.
 The corresponding measurement without the additive noise is
 \begin{align}
-	\yk-\v{r}_k &= \bm{x^{(1)}_k & x^{(2)}_k }^\tr.
+	\yk-\v{r}_k &= \bm{\chi_k & \gamma_k }^\tr.
 	\label{eq:ballistic2D_measurementsl}
 \end{align}
 
-\begin{figure}[htb]%
-    \centering%
-    \includegraphics{img/ballistic_trajectory}%
-	\caption{A simulation of the trajectory%
-	%of the projectile in model~\eqref{eq:ballistic_model}.%
-   	The measurements are denoted with crosses.}\label{fig:ballistic2D_simulation}
- \end{figure}
 
-The linear-Gaussian SSM can now be written as
+\noindent The discrete time linear-Gaussian SSM can now be written as
 \begin{align}
 	\begin{aligned}
-	\x_k &= \v{A}\xkk+\v{u}+\v{L}\v{v}_{k-1}, & \v{v}_{k-1} &\sim \N{\v{0}}{\bm{\sigma_1^{2} & \\ & \sigma_2^{2}}}\\
-	\yk &= \v{H}\xk+\v{r}_k, & 					\v{r}_k 	&\sim \N{\v{0}}{\sigma_r^2\v{I}},
+	\x_k &= \v{A}\xkk+\v{u}+\q_{k-1},\qquad & 
+	\q_{k-1} &\sim \N{\v{0}}{\v{Q}},\\
+	\yk &= \v{H}\xk+\v{r}_k, & 					
+	\v{r}_k 	&\sim \N{\v{0}}{\sigma_r^2\v{I}},
 	\end{aligned}\label{eq:ballistic_model}
 \end{align}
 where
@@ -130,84 +119,59 @@ where
 	 &	1	& 	&		\\
 	 &		& 1	& \tau 	\\
 	 &		&	& 1
-	}\\
-	\v{u} &= \bm{ & g_1 &  & g_2}^\tr\\
-	\v{L} &= \bm{\tau & 1 & &\\ & & \tau & 1}^\tr\\
-	\v{H} &= \bm{1 & & &\\ & & 1 &}
+	},
+	&
+	\v{u} &= \bm{0 \\ g_\chi \\ 0 \\ g_\gamma},\\
+	%
+	\v{Q}&=\bm{
+	\sfrac{1}{3}\sigma_\chi^2\tau^3 & \sfrac{1}{2}\sigma_\chi^2\tau^2 & 	& 		\\
+	\sfrac{1}{2}\sigma_\chi^2\tau^2 &	\sigma_\chi^2\tau & 	&		\\
+	 &		& \sfrac{1}{3}\sigma_\gamma^2\tau^3	& \sfrac{1}{2}\sigma_\gamma^2\tau^2 	\\
+	 &		&	\sfrac{1}{2}\sigma_\gamma^2\tau^2 & \sigma_\gamma^2\tau
+	},
+	&
+	\v{H} &= \bm{1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0}.
 \end{align*}
-If we wish to replace $\v{L}v_{k-1}$ with the more familiar $\v{q}_{k-1}$,
-then $\v{q}_{k-1}\sim \N{\v{0}}{\v{Q}}$ where
-\begin{align}
-	\v{Q} &= \v{L}\bm{\sigma_1^{2} & \\ & \sigma_2^{2}}\v{L}^\tr 
-	%\sigma_1^2\bm{\frac{\tau^4}{4} & \frac{\tau^3}{2} &
-	%\frac{\tau^2}{2}\\
-	%\frac{\tau^3}{2} & \tau^2 & \tau\\ \frac{\tau^2}{2} & \tau & 1}
-	\label{eq:ballistic_Q}
-\end{align}
-Additionally, the initial state $\x_0$ is assumed to be normally
-distributed with $\N{\gv\mu_0}{\v{I}}$, where
-\begin{align}
-	\gv\mu_0 &= \bm{0 & \cos(\alpha_0)v_0 & 0 & \sin(\alpha_0)v_0}^\tr\\
-	%\gv\Sigma_0 &= \mathrm{diag}\big(\bm{0 & 10^2 & 0 & 0 & 10^2 & 0}\big).
-	\label{eq:ballistic_prior}
-\end{align}
-In other words, we assume the covariance matrix fully known
-and specify further that the initial position and velocity
-are deterministic and known.
+Additionally, the initial state $\x_0$ is assumed to be known
+with $\x_0=\bm{0 & \cos(\alpha_0)v_0 & 0 & \sin(\alpha_0)v_0}^\tr$.
 
-Next we will focus on simulating measurements from the model and then estimating
-the model parameters. The parameters of the initial distribution are chosen as
-$\alpha_0 = \ang{50}$ and $v_0 = \SI{40}{m/s}$ and the initial state $\x_0$ is then
-drawn from $\N{\gv\mu_0}{\gv\Sigma_0}$. The amount of drift in the gravitational force 
-is controlled by the parameters $\sigma_1$ and $\sigma_2$.
-These determine the standard deviations in the horizontal and vertical
-components of the force per a single time step of duration $\tau$.
-We will set 
-\begin{align}
-	\sigma_1&=\tau\,\si{m/s^2}\\
-	\sigma_2&=\SI{0}{m/s^2}.
-\end{align} 
-%
 Figure~\ref{fig:ballistic2D_simulation} presents  a simulated dataset, 
-which is drawn from the two dimensional ballistic model with the aforementioned parameter
-values.
+which is drawn from the two dimensional ballistic model with parameter
+values presented in Table~\ref{table:ballistic_param}.
 
+\begin{table}[htbp]
+\caption{Parameter values used for simulation in Section~\ref{sec:ballistic}}
+\label{table:ballistic_param}
+\centering
+\begin{tabular}{>{$}c<{$}Ss@{\hspace{1.5cm}}>{$}c<{$}Ss}
+\toprule
+\multicolumn{1}{c}{Parameter}&%
+\multicolumn{1}{c}{Value}&%
+\multicolumn{1}{c@{\hspace{1.5cm}}}{Unit}&%
+\multicolumn{1}{c}{Parameter}&%
+\multicolumn{1}{c}{Value}&%
+\multicolumn{1}{c}{Unit}\\
+\midrule
+	\sigma_\chi		&	1.2			&	m			&	\tau			&	0.01 		& s\\
+	\sigma_\gamma 	&	0.8			&	m			&	\sigma_r		& 	2.5 		& m	\\	 	
+ 	g_\chi			&	-1.8		&	m/s^2		&	\alpha_0		& 	60 		& \degree\\	 	
+	g_\gamma 		&	-9.81		&	m/s^2		&	v_0 			&	40	 	& m/s\\
+\bottomrule	 	
+\end{tabular}
+\end{table}
 
+\begin{figure}[htbp]%
+    \centering%
+    \includegraphics{img/ballistic_trajectory}%
+	\caption{A simulation of the trajectory%
+	%of the projectile in model~\eqref{eq:ballistic_model}.%
+   	The measurements are denoted with crosses.}\label{fig:ballistic2D_simulation}
+ \end{figure}
 
-Let us then proceed to maximum likelihood static parameter estimation. The training
-data will be the simulated data, so that the true parameter values are the ones presented
-earlier. In this case the most interesting parameter is probably the initial velocity,
-i.e the angle $\alpha_0\in(0,\sfrac{\pi}{2})$ and the magnitude $v_0$, since it determines
-the trajectory to a high degree.
-
- 
 Let us collect the parameters in the set $\Th=\brac{\sigma_1,\sigma_2,\sigma_r}$.
 
-\parencite{ristic2004beyond,Ratna2008,Lindsten2010}
- %
-% To demonstrate filtering and smoothing, the filtering distributions were
-% computed with the Kalman filter of section~\ref{sec:kalman_filter} and the smoothing distributions with
-% the RTS smoother of section~\ref{sec:rts_smoother}. The results of the simulation are presented in
-% Figure~\ref{fig:ballistic}. The uncertainty in the filtering distributions is noticeably larger
-% when compared to the smoothing distributions, since the smoothing distributions
-% include the information of the ``future'' measurements in addition to the past and the current ones.
-% \todo{analyze the figure a bit more} 
+%\parencite{ristic2004beyond,Ratna2008,Lindsten2010}
 
-% \begin{figure}[htb]%
-%     \centering%
-%     \begin{subfigure}[t]{0.5\textwidth}%
-%     	\centering%
-%     	\caption{EM}\label{fig:ballistic_lh_em}%
-%     	\includegraphics[width=\textwidth]{img/ballistic_lh_em}%
-%     \end{subfigure}%
-%     \begin{subfigure}[t]{0.5\textwidth}%
-%     	\centering%
-%     	\caption{BFGS}\label{fig:ballistic_lh_bf}%
-% 		\includegraphics[width=\textwidth]{img/ballistic_lh_bf}%
-%     \end{subfigure}%
-% 	\caption{Convergence of the likelihood with EM and BFGS}
-% 	\label{fig:ballistic_lh}
-%  \end{figure}
  
  \begin{figure}[htb]%
     \centering%
