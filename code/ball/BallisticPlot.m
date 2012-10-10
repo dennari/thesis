@@ -1,101 +1,60 @@
 %% r - estimates
 funs = plotFuns();
-load('../data/Ballistic_r_ux_uy_20_1500.mat');
+load('../data/Ballistic_r_ux_uy_100_1403.mat');
 
 itr = max_iter_em-1;
-times_em = times_em(1:itr,:);
+times_em = times_em(1:itr,1:NN);
+zerse = times_em <= 0;
 % start from zero
-times_em = times_em-repmat(times_em(1,:),itr,1);
-lh_em = lh_em(1:itr,:);
-est_em = est_em(:,1:itr,:);
+times_em = times_em(1:itr,1:NN)-repmat(times_em(1,1:NN),itr,1);
+lh_em = lh_em(1:itr,1:NN);
+evals_em = cumsum(ones(itr,NN));
+evals_em(lh_em <= 0) = 0;
+est_em = est_em(:,1:itr,1:NN);
+%[lh_em_n,est_em_n] = funs.normalizeBFGS(evals_em,lh_em,est_em);
 
-times_bfgs = times_bfgs(2:itr+1,:);
+
+
+itr = max_iter_bfgs;
+times_bfgs = times_bfgs(1:itr,1:NN);
 zers = times_bfgs <= 0;
-times_bfgs = times_bfgs-repmat(times_bfgs(1,:),itr,1);
-lh_bfgs = lh_bfgs(2:itr+1,:);
-est_bfgs = est_bfgs(:,2:itr+1,:);
-evals_bfgs = evals_bfgs(2:itr+1,:);
-
-
-avg_time_em = mean(mean(diff(times_em(1:itr,:),1,1)));
-df=diff(times_bfgs,1,1);
-avg_time_bfgs = mean(df(df>1.1&df<1.2)); % choose a good interval
+times_bfgs = times_bfgs-repmat(times_bfgs(1,1:NN),itr,1);
+lh_bfgs = lh_bfgs(1:itr,1:NN);
+est_bfgs = est_bfgs(:,1:itr,1:NN);
+evals_bfgs = evals_bfgs(1:itr,1:NN);
 
 [lh_bfgs_n,est_bfgs_n] = funs.normalizeBFGS(evals_bfgs,lh_bfgs,est_bfgs);
-%break
 % LH
 figure(1); clf;
 % normalized
-subplot(3,1,1);
-plot((0:itr-1)*avg_time_em,lh_em,'-b',(0:itr-1)*avg_time_em,lh_bfgs_n,'-r');
-xlim([0 15]); ylim([-0.5e5 0.2e5]);
+subplot(2,1,1);
+y = lh_em;
+plot(y,'b-');
+%xlim([0 30]); ylim([18000 24500]);
 
-% original
-subplot(3,1,2);
-times_bfgs(zers) = nan; lh_bfgs(zers) = nan;
-plot(times_em,lh_em,'-b',times_bfgs,lh_bfgs,'-r');
-xlim([0 35]); ylim([-1e5 8000]);
-
-% mean over runs
-subplot(3,1,3);
-plot((0:itr-1)*avg_time_em,mean(lh_em,2),'-b',(0:itr-1)*avg_time_bfgs,mean(lh_bfgs_n,2),'-r');
-xlim([0 35]); ylim([-1e5 8000]);
+subplot(2,1,2);
+y = lh_bfgs_n;
+plot(y,'r');
 
 % EST EM
 figure(2); clf;
-subplot(3,1,1);
-x = (0:itr-1)*avg_time_em; 
-y1 = squeeze(est_em(1,:,:));
-plot(x,y1,'-b'); grid on;
-subplot(3,1,2);
-y1 = squeeze(est_em(2,:,:));
-plot(x,y1,'-b'); grid on;
-subplot(3,1,3);
-y1 = squeeze(est_em(3,:,:));
-plot(x,y1,'-b'); grid on;
+for k=1:numel(gi)
+  subplot(numel(gi),1,k);
+  x = 1:max_iter_em-1;
+  y = squeeze(est_em(k,x,:));
+  plot(x,y,'-b',x,p_true(gi(k))*ones(size(x)),'-k'); grid on;
+  title(pNames{gi(k)});
+end
 
-
-% EST BF
 figure(3); clf;
-subplot(3,1,1);
-x = (0:itr-1)*avg_time_bfgs; 
-y1 = squeeze(est_bfgs_n(1,:,:));
-plot(x,y1,'-b'); grid on;
-subplot(3,1,2);
-y1 = squeeze(est_bfgs_n(2,:,:));
-plot(x,y1,'-b'); grid on;
-subplot(3,1,3);
-y1 = squeeze(est_bfgs_n(3,:,:));
-plot(x,y1,'-b'); grid on;
-
+for k=1:numel(gi)
+  subplot(numel(gi),1,k);
+  x = 1:max_iter_bfgs;
+  y = squeeze(est_bfgs_n(k,x,:));
+  plot(x,y,'-r',p_true(gi(k))*ones(size(x)),'-k'); grid on;
+  title(pNames{gi(k)});
+end
 %% trajectory
-global dt
-T = 10;
-dt = 0.005;
-N = round(T/dt);
-
-%%%%%%%%%%%% PARAMETERS %%%%%%%%%%%%
-qx = 0.4;       % std
-qy = 0.1;      % std
-r =  log(1.5);  % log(std)
-g0y = -9.81; % initial y acceleration
-g0x = -1.8; % initial x acceleration
-v0 = 40; % magnitude of the initial velocity
-alpha0 = (60/180)*pi; % initial direction
-
-
-v0x = v0*cos(alpha0);
-v0y = v0*sin(alpha0);
-
-A1 = [1 dt; 
-      0 1];  
-A = blkdiag(A1,A1); % for two dimensions
-H = zeros(2,4); H(1,1) = 1; H(2,3) = 1;
-Q = ballisticQ2D(qx,qy);
-R = ballisticR(r);
-u = ballisticU(g0x,g0y);
-m0 = [0 v0x 0 v0y]';
-P0 = eye(size(m0,1));
 
 xs = zeros(4,N+1);
 ys = zeros(2,N+1);

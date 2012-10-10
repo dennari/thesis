@@ -104,7 +104,7 @@ for k=1:NN
 
   % INITIAL POINT
   p0 = p_true;
-  p0(gi) = p0(gi)*(2*rand-1); % 0.5-1.5 * true
+  p0(gi) = p0(gi)*(1-2*rand); % 0.5-1.5 * true
   
   %%%%%%%%%%%%
   % EM %%%%%%%
