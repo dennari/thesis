@@ -41,13 +41,13 @@ axes.color_cycle = '#348ABD', '#E24A33', '#988ED5', '#777777', '#FBC15E', '#8EBA
                    # FFB5B8 : pink
 axes.formatter.limits = -3, 3
 
-xtick.color = '#555555'
-#xtick.direction = 'out'
+xtick.color = '#777777'
+xtick.direction = 'in'
 xtick.labelsize = 'xx-small'
 xtick.major.size = 0
 
-ytick.color = '#555555'
-#ytick.direction = 'out'
+ytick.color = '#777777'
+ytick.direction = 'in'
 ytick.labelsize = 'xx-small'
 ytick.major.size = 0
 
