@@ -1,22 +1,22 @@
 function [opt,lhs,vals,funccounts,times] = myBFGS(lhf,p0,gi,y,dispf,tol_lh,tol_delta,max_iter,min_iter,globals)
 global dt c m0 P0 h f Jh Jf
-if nargin < 8 || isempty(globals)
+if nargin < 10 || isempty(globals)
     globals = 0;
 end
 if iscell(globals)
   [dt c m0 P0 h f Jh Jf] = globals{:};
 end
 
-if nargin < 7 || isempty(min_iter)
+if nargin < 9 || isempty(min_iter)
     min_iter = 1;
 end
-if nargin < 6 || isempty(max_iter)
+if nargin < 8 || isempty(max_iter)
     max_iter = 1000;
 end
-if nargin < 5 || isempty(tol_delta)
+if nargin < 7 || isempty(tol_delta)
     tol_delta = 1e-6;
 end
-if nargin < 4 || isempty(tol_lh)
+if nargin < 6 || isempty(tol_lh)
     tol_lh = 1e-6;
 end
 

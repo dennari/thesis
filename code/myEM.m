@@ -2,19 +2,19 @@ function [opt,lhs,vals,times] = myEM(lhf,EM_M,p0,gi,y,dispf,tol_lh,tol_delta,max
 global dt c m0 P0 A H f h
 
 
-if nargin < 8 || isempty(globals)
+if nargin < 11 || isempty(globals)
     globals = 0;
 end
-if nargin < 7 || isempty(min_iter)
+if nargin < 10 || isempty(min_iter)
     min_iter = 1;
 end
-if nargin < 6 || isempty(max_iter)
+if nargin < 9 || isempty(max_iter)
     max_iter = 1000;
 end
-if nargin < 5 || isempty(tol_delta)
+if nargin < 8 || isempty(tol_delta)
     tol_delta = 1e-2;
 end
-if nargin < 4 || isempty(tol_lh)
+if nargin < 7 || isempty(tol_lh)
     tol_lh = 1e-6;
 end
 
