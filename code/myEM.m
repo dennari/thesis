@@ -1,6 +1,10 @@
-function [opt,lhs,vals,times] = myEM(lhf,EM_M,p0,gi,y,dispf,tol_lh,tol_delta,max_iter,min_iter)
-global A H f h m0
+function [opt,lhs,vals,times] = myEM(lhf,EM_M,p0,gi,y,dispf,tol_lh,tol_delta,max_iter,min_iter,globals)
+global dt c m0 P0 A H f h
 
+
+if nargin < 8 || isempty(globals)
+    globals = 0;
+end
 if nargin < 7 || isempty(min_iter)
     min_iter = 1;
 end
@@ -12,6 +16,10 @@ if nargin < 5 || isempty(tol_delta)
 end
 if nargin < 4 || isempty(tol_lh)
     tol_lh = 1e-6;
+end
+
+if iscell(globals)
+  [dt c m0 P0 h f] = globals{:};
 end
 
 p = p0;

@@ -1,4 +1,11 @@
-function [opt,lhs,vals,funccounts,times] = myBFGS(lhf,p0,gi,y,dispf,tol_lh,tol_delta,max_iter,min_iter)
+function [opt,lhs,vals,funccounts,times] = myBFGS(lhf,p0,gi,y,dispf,tol_lh,tol_delta,max_iter,min_iter,globals)
+global dt c m0 P0 h f Jh Jf
+if nargin < 8 || isempty(globals)
+    globals = 0;
+end
+if iscell(globals)
+  [dt c m0 P0 h f Jh Jf] = globals{:};
+end
 
 if nargin < 7 || isempty(min_iter)
     min_iter = 1;

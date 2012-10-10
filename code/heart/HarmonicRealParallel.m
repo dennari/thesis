@@ -8,16 +8,16 @@ K = S.data_t;
 clear S;
 warning off;
 offset = 20;
-%secs = 30;
-secs = 1;
+secs = 30;
+%secs = 1;
 starti = find(K<offset,1,'last'); 
 endi = find(K<offset+secs,1,'last');
 y = y(starti:endi);
 K = K(starti:endi);
 K = K-K(1);
 
-%ds = round(15*secs/60);
-ds = 15;
+ds = round(15*secs/60);
+%ds = 15;
 % downsample by ds
 y = y(1:ds:end)';
 K = K(1:ds:end);
@@ -68,9 +68,9 @@ gis = [1 0 1;]
     
     
 fn = '../data/Harmonic_%s%.0f_%.0f';
-iters = ones(2,2)*50;
+iters = ones(2,2)*80;
 
-NNs = [10 10];
+NNs = [100 10];
 
 
 for i=1:size(gis,1)
@@ -94,6 +94,7 @@ times_bfgs = lh_bfgs;
 evals_em = zeros(1,NN);
 evals_bfgs = zeros(max_iter_em,NN);
 
+jobs = cell(2,NN);
 
 d = HarmonicDisp();
 for k=1:NN
@@ -102,21 +103,33 @@ for k=1:NN
   % INITIAL POINT
   p0 = p_true;
   p0(gi) = p0(gi)*(0.1+2*rand); % 0.8-1.2 * true
-  %p0(gis(i,:)&logi) = p0(gis(i,:)&logi) + log(4*rand-2);
+  
+  jobs{1,k} = ...
+    batch(@myEM,4,{@Harmonic_LH,@EM_M_Harmonic,p0,gi,Y,@d.dispIter,[],[],...
+    max_iter_em,min_iter_em,{dt c m0 P0 h f}},'PathDependencies','./heart');
+ 
+  % RUN
+  jobs{2,k} = ...
+    batch(@myBFGS,5,{@Harmonic_LH,p0,gi,Y,@d.dispIter,[],[],...
+    max_iter_bfgs,min_iter_bfgs,{dt c m0 P0 h f Jh Jf}},'PathDependencies','./heart');
+
+  
+end
+
+end
+
+%%
+for k=1:NN
+ 
   
   %%%%%%%%%%%%
   % EM %%%%%%%
   %%%%%%%%%%%%
   
-  % PRINT
-  fprintf('\n\n\nEM\n\n\n');
-  d.dispHeader(gi);
-  % RUN
-  [~,lh,vals,times] = ...
-    myEM(@Harmonic_LH,@EM_M_Harmonic,p0,gi,Y,@d.dispIter,[],[],...
-    max_iter_em,min_iter_em);
-  d.dispTrue(p_true,gi);
+
   % SAVE
+  o = fetchOutputs(jobs{1,k});
+  [~,lh,vals,times] = o{:};
   nn = numel(lh);
   est_em(:,1:nn,k) = vals;
   lh_em(1:nn,k) = lh;
@@ -126,15 +139,10 @@ for k=1:NN
   % BFGS%%%%%%%%
   %%%%%%%%%%%%%%
   
-  % PRINT
-  fprintf('\n\n\nBFGS\n\n\n');
-  d.dispHeader(gi);
-  % RUN
-  [~,lh,vals,funccount,times] = ...
-    myBFGS(@Harmonic_LH,p0,gi,Y,@d.dispIter,[],[],...
-    max_iter_bfgs,min_iter_bfgs);
-  d.dispTrue(p_true,gi);
+
   % SAVE
+  o = fetchOutputs(jobs{2,k});
+  [~,lh,vals,funccount,times] = o{:};
   nn = numel(lh);
   est_bfgs(:,1:nn,k) = vals;
   lh_bfgs(1:nn,k) = lh;
@@ -142,24 +150,8 @@ for k=1:NN
   evals_bfgs(1:nn,k) = funccount;
   
 end
-%break
-%plot(max_iter_em,est_em')
+
 
 cel = pNames(gi);
 save(sprintf(fn,sprintf('%s_',pNames{gi}),NN,N));
-
-end
-
-
-%% Plot DRIFTER frequency estimate
-
-% S = load('../data/dataa_villelle.mat','card_freq','freq_t');
-% 
-% endi = find(S.freq_t<nm*60,1,'last');
-% DRIFTER_f = S.card_freq(1:endi);
-% DRIFTER_ft = S.freq_t(1:endi);
-% plot(DRIFTER_ft,DRIFTER_f);
-
-
-
 
