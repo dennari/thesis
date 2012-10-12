@@ -16,6 +16,12 @@ if __name__ == "__main__":
 
 	# add vertical lines
 	lbmax = lines[-1].get_xdata()
-	ax.axvline(lbmax[0],lw=0.8,color='#E24A33',alpha=0.5)
-	ax.axvline(lbmax[1],lw=0.8,color='#E24A33',alpha=0.5)
+	lines[-1].set_visible(False)
+	texts = (r'$\theta_{k}$',r'$\theta_{k+1}$',r'$\theta_{k+2}$')
+	for k in range(len(lbmax)):
+		ax.axvline(lbmax[k],lw=0.4,color='black',alpha=0.4)
+		ax.annotate(texts[k],xy=(lbmax[k],1),xytext=(-5,3),
+			xycoords=('data','axes fraction'),
+			textcoords='offset points',size='small')
+	
 	ax.get_figure().savefig('ar1_ex_em.pdf')	

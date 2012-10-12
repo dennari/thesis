@@ -130,22 +130,23 @@ pyplot('../img/ar1_ex_a.pdf',plt,'../img/ar1_ex_a.mat');
 plt = struct();kw=struct();
 plt.data = {{as lhs},{''}};
 plt.w = textwidth*0.5;
-plt.xlabel = '$a$';
+plt.xlabel = '$\theta$';
 %plt.legend = {'$x$' '$y$'};
 %plt.title = '(b) Likelihood of $a$';
 plt.alpha = diag([0.05 0.05 0.15 0.15]);
 pyplot('../img/ar1_ex_b.pdf',plt,'../img/ar1_ex_b.mat');
 
 lbsmax = zeros(1,KK);
+lbsmax(1) = lhs(jjs(1));
 for k=1:KK
-  lbsmax(k) = lbs(k,jjs(k+1));
+  lbsmax(k+1) = lbs(k,jjs(k+1));
 end
 plt = struct();kw=struct();
 kw2.color = '#E24A33';
-plt.data = {{as lhs},{as lbs' '--' kw2},{as(jjs(2:end)),lbsmax,'k*'}};
+plt.data = {{as lhs},{as lbs' '--' kw2},{as(jjs),lbsmax,'k*'}};
 plt.w = textwidth*0.7;
-plt.xlabel = '$a$';
-plt.legend = {'lh' 'lb' 'max(lb)'};
+plt.xlabel = '$\theta$';
+plt.legend = {'$\ell$' '$\mathcal{B}$'};
 plt.alpha = diag([0.05 0.05 0.15 0.15]);
 pyplot('../img/ar1_ex_em.pdf',plt,'../img/ar1_ex_em.mat');
 

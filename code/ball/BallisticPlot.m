@@ -83,7 +83,7 @@ axis equal; grid on;
 
 plt = struct();kw1 = struct(); kw = struct();
 kw.alpha = 0.5; kw.ms = 4; kw.mfc = 'black'; kw.color = 'black';
-kw1.lw = 1; kw1.alpha = 0.7; kw1.color = 'white';
+kw1.lw = 1.2; kw1.alpha = 0.9; kw1.color = 'white';
 plt.data = {{ys(1,:) ys(2,:) 'x' kw},...
             {xs(1,:) xs(3,:) '' kw1}
            };
@@ -93,7 +93,7 @@ plt.ylabel = '$\gamma$';
 %plt.legendkw = struct('loc','lower center');
 plt.w = textwidth*0.7;
 %plt.h = textwidth*0.7;
-plt.margins = [0 0 0.35 0.35];
+plt.margins = [0.1 0 0.35 0.45];
 
 pyplot('../img/ballistic_trajectory.pdf',plt,'../img/ballistic_trajectory.mat');
 
@@ -200,16 +200,18 @@ end
 
 %% Result table
 este = mean(squeeze(est_em(:,end,:)),2); este(1) = exp(este(1));
+este(4) = mean(lh_em(end,:));
 estb = mean(squeeze(est_bfgs_n(:,end,:)),2); estb(1) = exp(estb(1));
-tr = p_true(gi); tr(1) = exp(tr(1));
+estb(4) = mean(lh_bfgs_n(end,:));
+tr = p_true(gi); tr(1) = exp(tr(1)); tr(4) = nan;
 
-  rLabels = {'True' 'BFGS' 'EM'};
-  cLabels = {'$g_\chi$' '$g_\gamma$' '$\sigma_r$'};
+  rLabels = {'BFGS' 'EM' 'True'};
+  cLabels = {'$g_\chi$' '$g_\gamma$' '$\sigma_r$' '$\ell/\num{e3}$'};
   
-  ord = [2 3 1];
-  al = {'S' 'S' 'S'};
-  matrix2latex([tr(ord); este(ord)'; estb(ord)'],'ball/Ballistic_results.tex',...
-         'alignment',al,'format','%.5f','columnLabels',cLabels,...
+  ord = [2 3 1 4];
+  al = {'S' 'S' 'S' 'S[fixed-exponent=3]'};
+  matrix2latex([este(ord)'; estb(ord)'; tr(ord);],'ball/Ballistic_results.tex',...
+         'alignment',al,'format','%.5e','columnLabels',cLabels,...
          'rowLabels',rLabels,'rowLabelAlignment','r');
        
 %%

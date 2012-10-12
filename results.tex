@@ -175,28 +175,80 @@ from the uniform distribution $U\brak{0,2\theta_i}$. The lengths of the simulate
 datasets were around $N\approx 1400$ with some variance caused by always stopping
 the simulation when $\gamma_k<0$ for some $k$. For each simulated dataset and the associated
 initial estimate we ran the EM and the BFGS parameter estimation methods for joint estimation
-of the three parameters. The results are presented in Figure~\ref{fig:ballistic_est},
+of the three parameters. 
+
+In this case one can find closed form expressions for all three parameters in the EM M-step.
+The M-step equations for linear-Gaussian SSMs, presented in Equations \eqref{eq:EM_M_A}, 
+\eqref{eq:EM_M_H}, \eqref{eq:EM_M_Q} and \eqref{eq:EM_M_R}, do not include one
+for estimating the constant input $\v{u}$, which in this case contains the accelerations. It is not
+difficult to derive however and for this particular model it reads
+\begin{align}
+	\v{u}_{j+1} =&\, \frac{1}{2T\tau^2}\bm{0&1&0&0\\0&0&0&1}\nonumber\\
+	&\times\fparen[\Big]{3\fparen[\big]{m_{0|T}-m_{T|T}}+
+	\tau\fparen[\big]{2\sum_{k=1}^Tm_{k|T}+\sum_{k=1}^Tm_{k-1|T}}}
+	\label{eq:EM_M_u}.
+\end{align}
+
+The BFGS implementation used was the \texttt{fminunc} function included
+in the \matlab{} Optimization Toolbox \parencite{fminunc}. It is intended
+for general unconstrained nonlinear optimization and implements other
+methods in addition to BFGS. To force BFGS, \texttt{fminunc} should be called
+in the following way
+\begin{lstlisting}[language=Matlab]
+opt = optimset(@fminunc);
+opt.GradObj = 'on';
+opt.LargeScale = 'off'; % use BFGS
+% lhg = objective function and gradient 
+% [lh(x),lh'(x)] = lhg(x)
+% p0 = initial estimate
+p_min = fminunc(@lhg,p0,opt);
+\end{lstlisting}
+
+The likelihood convergence for both methods is presented in Figure~\ref{fig:ballistic_lh}.
+It is important to note that the iteration numbers are
+not directly comparable between the parameter estimation methods so that one
+shoudn't attempt to draw conclusions on the \emph{relative} convergence rate betweeen the methods
+based on the convergence plots. \todo{explain the computational complexity differences}
+\todo{Present the average learning curves with normalized iterations?}
+
+The parameter convergence results are presented in Figure~\ref{fig:ballistic_est},
 which contains eight separate panels: one per parameter and estimation method and
 the likelihoods for both estimation methods. One line is plotted
 in every panel for every simulated dataset and the panels display their quantities
-as a function of the iteration number of the estimation method. Thus 
-Figure~\ref{fig:ballistic_est} displays the convergence behaviour of the 
-parameter estimation methods as a function of the initial estimate (for a limited
-range of initial estimates). It is important to note that the iteration numbers are
-not directly comparable between the parameter estimation methods so that one
-shoudn't draw conclusions on the relative convergence rate betweeen the methods
-based solely on Figure~\ref{fig:ballistic_est}.
+as a function of the iteration number of the estimation method. The convergence
+profiles show a lot of variability between the methods and between the parameters but
+the means of the converged estimates seem to agree very well with the generative values
+in all cases. Also $g_\gamma$ and $\sigma_r$ show very little variance in the
+converged estimate compared to $\g_\chi$. In any case, according to the asymptotic
+theory of the ML/MAP estimates, the variance should go to zero as the amount of data increases.
 
+Finally, Table~\ref{table:ballistic_restults} presents the averaged final
+results. Both methods obtain exactly
+the same results in the table and they agree in fact to the first six decimal places. 
+This is to be expected, since they can be proved to compute the same quantities 
+in the linear-Gaussian case \todo{This needs to explained earlier}. The fact that
+the result differ after the sixth decimal place can be explained by differing
+numerical properties of the two algorithms. In case of $g_\gamma$ and $\sigma_r$,
+the estimates agree exactly at least to three decimal places with the generative
+values, whereas $\g_\chi$ is correct up to two decimal places. Since we are using
+unbiased estimates, the estimation error could be diminished up to the order of the machine
+epsilon by simulating more data points \todo{Is this true or does it depend on the numerical properties?}.
+As a conclusion, it seems that in this case the estimation problem was too simple to bring
+about noticeable differences in the performance of the estimation methods.
 
 \begin{figure}[htbp]%
     \centering%
     \includegraphics{img/ballistic_trajectory}%
-	\caption{A simulation of the trajectory%
-	%of the projectile in model~\eqref{eq:ballistic_model}.%
-   	The measurements are denoted with crosses.}\label{fig:ballistic2D_simulation}
+	\caption{A simulated trajectory (white line) and noisy
+	measurements (black crosses) from 
+	the linear-Gaussian SSM \eqref{eq:ballistic_model}. 
+   	The coordinates are in meters.
+   	The projectile is simulated for approximately $7$
+   	seconds and there are $T=1396$ measurements.
+   	}\label{fig:ballistic2D_simulation}
  \end{figure}
 
-\begin{figure}[htb]%
+\begin{figure}[htbp]%
     \centering%
 	\makebox[\textwidth]{%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
@@ -211,13 +263,13 @@ based solely on Figure~\ref{fig:ballistic_est}.
     with varying initial parameter estimates. 
     Both EM in \subref{fig:ballistic_lh_em} and BFGS
     in \subref{fig:ballistic_lh_bf} converge to the same
-    likelihood value on this scale.}\label{fig:ballistic_lh}
+    likelihood value.}\label{fig:ballistic_lh}
 \end{figure}
     
 
 %\parencite{ristic2004beyond,Ratna2008,Lindsten2010}
  
- \begin{figure}[htb]%
+ \begin{figure}[htbp]%
     \centering%
     \makebox[\textwidth]{%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
@@ -258,12 +310,15 @@ based solely on Figure~\ref{fig:ballistic_est}.
  \end{figure}
  
 \begin{table}[htbp]
-	\caption{Estimated parameter values averaged over $100$ simulations in Section~\ref{sec:ballistic}}
+	\caption{Estimated parameter values and the final
+	log-likelihood value 
+	averaged over $100$ simulations in Section~\ref{sec:ballistic}}
 	\label{table:ballistic_restults}
 	\centering
 	\sisetup{
 		table-auto-round,
-		table-format = 1.3
+		table-format = 1.3,
+		table-omit-exponent
 	}
 	\footnotesize
 	\input{code/ball/Ballistic_results.tex}
