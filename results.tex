@@ -423,10 +423,9 @@ where
    	}
 	\label{fig:ecg_data}
  \end{figure}
- 
  \begin{figure}[htb]%
     \centering%
-    \makebox[\textwidth]{%
+     \makebox[\textwidth]{%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
     	\caption{EM}
     	\includegraphics{img/harmonic_em_lh}%
@@ -438,7 +437,10 @@ where
 		\includegraphics{img/harmonic_bf_lh}%
     	%\caption{Convergence of the likelihood with BFGS}%
 		%\label{fig:harmonic_lh_bf}%
-    \end{subfigure}}\\%
+    \end{subfigure}}%
+ \end{figure}
+ \begin{figure}[htb]%
+    \centering%
     \makebox[\textwidth]{%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
     	\includegraphics{img/harmonic_em_lqw}%
@@ -474,3 +476,4 @@ where
 %     \end{subfigure}}%
     \caption{Convergence of the likelihood and estimates with EM and BFGS}\label{fig:harmonic_est}
  \end{figure}
+

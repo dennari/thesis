@@ -1,6 +1,6 @@
 %% r - estimates
 funs = plotFuns();
-load('../data/Harmonic_lqw_lqx_10_3751.mat');
+load('../data/Harmonic_lqw_lqx_100_3751.mat');
 %NN = 5;
 itr = max_iter_em;
 times_em = times_em(1:itr,1:NN);
@@ -97,12 +97,18 @@ xlim([-3.9  -1.5]);
 ylim([-2.25 -0.1]);
 zlim([1.6e4 2.0e4]);
 break
+%%
+figure(1); clf;
 plot3(squeeze(est_em_n(2,:,:)),squeeze(est_em_n(1,:,:)),...
       lh_em_n(:,:),'b*-'); grid on;
+xlabel(pNames{gi(2)});ylabel(pNames{gi(1)});zlabel('lh');
+zlim([1.6e4 2.0e4]);
+
+figure(2); clf;
 plot3(squeeze(est_bfgs_n(2,:,:)),squeeze(est_bfgs_n(1,:,:)),...
       lh_bfgs_n(:,:),'r*-'); grid on;    
 xlabel(pNames{gi(2)});ylabel(pNames{gi(1)});zlabel('lh');
-
+zlim([1.6e4 2.0e4]);
 
 
 
@@ -150,7 +156,7 @@ plot(K(1:endi),xs(1,1:endi)/(2*pi)); grid on; title('Freq');
 %% trajectory
 
 % figure(1); clf;
-endi = find(K<7,1,'last');
+endi = find(K<10,1,'last');
 % plot(K(1:endi),Y(1:endi),'k-x');
 % ylim([-0.5 0.5]);
 % break;
@@ -158,7 +164,7 @@ endi = find(K<7,1,'last');
 plt = struct();kw=struct(); kw1 = struct();
 kw.alpha = 1.0; kw.ms = 4; kw.mfc = 'black';
 kw1.lw = 0.9; kw1.alpha = 0.8;
-plt.data = {{K(1:endi) Y(1:endi) '' kw1},{{K(1:endi) Y(1:endi) '*' kw}}};
+plt.data = {{K(1:endi) Y(1:endi) '' kw1},{{K(1:endi) Y(1:endi) 'x' kw}}};
 plt.xlabel = '$t$';
 %plt.legend = {'ECG' ''};
 %plt.legendkw = struct('loc','lower center');
@@ -174,32 +180,33 @@ pyplot('../img/harmonic_trajectory.pdf',plt);
 %% Export
 
 textwidth = 426.79134/72.27; % latex textwidth in inches
-% plot the true locations and the measurements
-
 % Likelihood
 plt = struct();kw1=struct();
-kw1.color = '#348ABD'; kw1.alpha=0.8; kw1.lw = 1.2;
-x = 1:max_iter_em;
-y = lh_em_n;
+kw1.color = '#348ABD'; kw1.alpha=0.6; kw1.lw = 0.8;
+%(0:itr-1)*avg_time_em;
+x = 1:35;
+y = lh_em(x,:);
+
 plt.data = {{x y '' kw1},{' '}};
 plt.w = textwidth*0.5+0.4;%/1.8;
-plt.ticklabels = [0 1];
-plt.margins = [0.3 0.0 0.1 0.5];
+plt.ticklabels = [1 1];
+plt.margins = [0.3 0.0 0.4 0.5];
+
 %plt.xlabel = '$k$'; 
 plt.ylabel = '$\ell$';
 %plt.alpha = 0.1;
-yl = [1500 3500];
+yl = [1e4 2.1e4];
 plt.axis = [min(x) max(x) yl];
 pyplot('../img/harmonic_em_lh.pdf',plt,'../img/harmonic_em_lh.mat');
 
-plt = struct();kw1=struct();
-kw1.color = '#E24A33'; kw1.alpha=0.8; kw1.lw = 1.2;
-x = 1:max_iter_bfgs;
-y = lh_bfgs_n;
+plt = struct();
+kw1.color = '#E24A33';
+x = 1:35;
+y = lh_bfgs_n(x,:);
 plt.data = {{x y '' kw1},{' '}};
 plt.w = textwidth*0.5;
-plt.ticklabels = [0 0];
-plt.margins = [0.3 0.0 0.1 0.1];
+plt.ticklabels = [1 0];
+plt.margins = [0.3 0.0 0.4 0.1];
 %plt.xlabel = '$k$'; 
 plt.ylabel = '$\ell$';
 %plt.alpha = 0.1;
@@ -210,19 +217,19 @@ pyplot('../img/harmonic_bf_lh.pdf',plt,'../img/harmonic_bf_lh.mat');
 %% Estimates
 
 
-plt = struct();kw1=struct();
-kw1.color = '#348ABD'; kw1.alpha=0.9; kw1.lw = 1.0;
-%plt.xlabel = '$k$'; 
+plt = struct();
+kw1.color = '#348ABD';
+kw2.color = '#000000'; kw2.alpha=0.6; kw2.lw = 1.1;
 plt.w = textwidth*0.5+0.4;
 plt.ticklabels = [0 0];
 plt.margins = [0.0 0.0 0.1 0.50];
-x = 1:max_iter_em;
+x = 1:35;
 labelNames = {'\log(\sigma_\omega)', '\log(\sigma_r)','\log(\sigma_x)'};
-yl = [min(x) max(x) -4.5 -1.5;
+yl = [min(x) max(x) -1.7 1;
       min(x) max(x) -25 -5;
-      min(x) max(x) 0 -3.5];
+      min(x) max(x) 0 -7];
 for k = 1:numel(gi)
-  y1 = squeeze(est_em(k,:,:));
+  y1 = squeeze(est_em(k,x,:));
   plt.data = {{x y1 '' kw1},{' '}};
   var = pNames{gi(k)}; 
   plt.ylabel = sprintf('$%s$',labelNames{gi(k)});
@@ -238,18 +245,18 @@ for k = 1:numel(gi)
          sprintf('../img/harmonic_em_%s.mat',var));
 end
 
-plt = struct();kw1=struct();
-kw1.color = '#E24A33'; kw1.alpha=0.8; kw1.lw = 1.2;
+plt = struct();
+kw1.color = '#E24A33';
 %plt.xlabel = '$k$'; 
 plt.w = textwidth*0.5;
 plt.ticklabels = [0 0];
 plt.margins = [0.0 0.0 0.1 0.1];
-x = 1:max_iter_bfgs;
-yl = [min(x) max(x) -4.5 -1.5;
+x = 1:35;
+yl = [min(x) max(x) -1.7 1;
       min(x) max(x) -25 -5;
-      min(x) max(x) 0 -3.5];
+      min(x) max(x) 0 -7];
 for k = 1:numel(gi)
-  y1 = squeeze(est_bfgs_n(k,:,:));
+  y1 = squeeze(est_bfgs_n(k,x,:));
   plt.data = {{x y1 '' kw1},{' '}};
   var = pNames{gi(k)};
   plt.axis = yl(gi(k),:);
