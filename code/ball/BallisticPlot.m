@@ -1,8 +1,8 @@
 %% r - estimates
 funs = plotFuns();
-load('../data/Ballistic_r_ux_uy_100_1403.mat');
+load('../data/Ballistic_r_ux_uy_100_1396.mat');
 
-itr = max_iter_em-1;
+itr = max_iter_em;
 times_em = times_em(1:itr,1:NN);
 zerse = times_em <= 0;
 % start from zero
@@ -40,9 +40,9 @@ plot(y,'r');
 figure(2); clf;
 for k=1:numel(gi)
   subplot(numel(gi),1,k);
-  x = 1:max_iter_em-1;
+  x = 1:max_iter_em;
   y = squeeze(est_em(k,x,:));
-  plot(x,y,'-b',x,p_true(gi(k))*ones(size(x)),'-k'); grid on;
+  plot(x,y,'-b',x,p_true(gi(k))*ones(size(x)),'-k','lineWidth',2); grid on;
   title(pNames{gi(k)});
 end
 
@@ -51,7 +51,7 @@ for k=1:numel(gi)
   subplot(numel(gi),1,k);
   x = 1:max_iter_bfgs;
   y = squeeze(est_bfgs_n(k,x,:));
-  plot(x,y,'-r',p_true(gi(k))*ones(size(x)),'-k'); grid on;
+  plot(x,y,'-r',x,p_true(gi(k))*ones(size(x)),'-k','lineWidth',2); grid on;
   title(pNames{gi(k)});
 end
 %% trajectory
@@ -83,7 +83,7 @@ axis equal; grid on;
 
 plt = struct();kw1 = struct(); kw = struct();
 kw.alpha = 0.5; kw.ms = 4; kw.mfc = 'black'; kw.color = 'black';
-kw1.lw = 1; kw1.alpha = 0.7; kw1.color = 'white';
+kw1.lw = 1.2; kw1.alpha = 0.9; kw1.color = 'white';
 plt.data = {{ys(1,:) ys(2,:) 'x' kw},...
             {xs(1,:) xs(3,:) '' kw1}
            };
@@ -93,7 +93,7 @@ plt.ylabel = '$\gamma$';
 %plt.legendkw = struct('loc','lower center');
 plt.w = textwidth*0.7;
 %plt.h = textwidth*0.7;
-plt.margins = [0 0 0.35 0.35];
+plt.margins = [0.1 0 0.35 0.45];
 
 pyplot('../img/ballistic_trajectory.pdf',plt,'../img/ballistic_trajectory.mat');
 
@@ -103,56 +103,58 @@ pyplot('../img/ballistic_trajectory.pdf',plt,'../img/ballistic_trajectory.mat');
 %% Export
 
 textwidth = 426.79134/72.27; % latex textwidth in inches
-% plot the true locations and the measurements
-%%
 % Likelihood
 plt = struct();kw1=struct();
-kw1.color = '#348ABD'; kw1.alpha=0.8; kw1.lw = 1.2;
-x = (0:itr-1)*avg_time_em;
-y = lh_em;
+kw1.color = '#348ABD'; kw1.alpha=0.6; kw1.lw = 0.8;
+%(0:itr-1)*avg_time_em;
+x = 1:35;
+y = lh_em(x,:);
+
 plt.data = {{x y '' kw1},{' '}};
 plt.w = textwidth*0.5+0.4;%/1.8;
-plt.ticklabels = [0 1];
-plt.margins = [0.0 0.0 0.1 0.5];
+plt.ticklabels = [1 1];
+plt.margins = [0.3 0.0 0.4 0.5];
 %plt.xlabel = '$k$'; 
 plt.ylabel = '$\ell$';
 %plt.alpha = 0.1;
-yl = [-0.5e5 0.2e5];
+yl = [-2e4 -0.45e4];
 plt.axis = [min(x) max(x) yl];
 pyplot('../img/ballistic_lh_em.pdf',plt,'../img/ballistic_lh_em.mat');
 
-plt = struct();kw1=struct();
-kw1.color = '#E24A33'; kw1.alpha=0.8; kw1.lw = 1.2;
-x = (0:itr-1)*avg_time_bfgs;
-y = lh_bfgs_n;
+plt = struct();
+kw1.color = '#E24A33';
+x = 1:20;%(0:itr-1)*avg_time_bfgs;
+y = lh_bfgs_n(x,:);
 plt.data = {{x y '' kw1},{' '}};
 plt.w = textwidth*0.5;
-plt.ticklabels = [0 0];
-plt.margins = [0.0 0.0 0.1 0.1];
+plt.ticklabels = [1 0];
+plt.margins = [0.3 0.0 0.4 0.1];
 %plt.xlabel = '$k$'; 
 plt.ylabel = '$\ell$';
 %plt.alpha = 0.1;
 plt.axis = [min(x) max(x) yl];
 pyplot('../img/ballistic_lh_bf.pdf',plt,'../img/ballistic_lh_bf.mat');
 
+%%
 
-%% Estimates
-plt = struct();kw1=struct();
-kw1.color = '#348ABD'; kw1.alpha=0.8; kw1.lw = 1.2;
+% Estimates
+plt = struct();
+kw1.color = '#348ABD';
+kw2.color = '#000000'; kw2.alpha=0.6; kw2.lw = 1.1;
 %plt.xlabel = '$k$'; 
 plt.w = textwidth*0.5+0.4;
 plt.ticklabels = [0 0];
 plt.margins = [0.0 0.0 0.1 0.50];
-x = (0:itr-1)*avg_time_em; 
+x = 1:45;%(0:itr-1)*avg_time_em; 
 labelNames = {'', '', '\log(\sigma_r)', '','u_x','u_y'};
 yl = [0 0 0 0;0 0 0 0;
-      min(x) max(x) -5 8;
+      min(x) max(x) -0.6 4;
       0 0 0 0;
-      min(x) max(x) -2 2;
-      min(x) max(x) -20 20];
+      min(x) max(x) 0.2 -3.5;
+      min(x) max(x) 0.2 -20];
 for k = 1:3
-  y1 = squeeze(est_em(k,:,:));
-  plt.data = {{x y1 '' kw1},{' '}};
+  y1 = squeeze(est_em(k,x,:));
+  plt.data = {{x y1 '' kw1},{x p_true(gi(k))*ones(size(x)) '' kw2}};
   var = pNames{gi(k)};
   plt.ylabel = sprintf('$%s$',labelNames{gi(k)});
   plt.axis = yl(gi(k),:);
@@ -167,21 +169,21 @@ for k = 1:3
          sprintf('../img/ballistic_em_%s.mat',var));
 end
 
-plt = struct();kw1=struct();
-kw1.color = '#E24A33'; kw1.alpha=0.8; kw1.lw = 1.2;
+plt = struct();
+kw1.color = '#E24A33';
 %plt.xlabel = '$k$'; 
 plt.w = textwidth*0.5;
 plt.ticklabels = [0 0];
 plt.margins = [0.0 0.0 0.1 0.1];
-x = (0:itr-1)*avg_time_em; 
+x = 1:30;%1:max_iter_bfgs;%(0:itr-1)*avg_time_em; 
 yl = [0 0 0 0;0 0 0 0;
-      min(x) max(x) -5 8;
+      min(x) max(x) -0.6 4;
       0 0 0 0;
-      min(x) max(x) -2 2;
-      min(x) max(x) -20 20];
+      min(x) max(x) 0.2 -3.5;
+      min(x) max(x) 0.2 -20];
 for k = 1:3
-  y1 = squeeze(est_bfgs_n(k,:,:));
-  plt.data = {{x y1 '' kw1},{' '}};
+  y1 = squeeze(est_bfgs_n(k,x,:));
+  plt.data = {{x y1 '' kw1},{x p_true(gi(k))*ones(size(x)) '' kw2}};
   var = pNames{gi(k)};
   plt.axis = yl(gi(k),:);
   if gi(k) == 3 % r is last
@@ -195,6 +197,37 @@ for k = 1:3
   pyplot(sprintf('../img/ballistic_bf_%s.pdf',var),plt,...
          sprintf('../img/ballistic_bf_%s.mat',var));
 end
+
+%% Result table
+este = mean(squeeze(est_em(:,end,:)),2); este(1) = exp(este(1));
+este(4) = mean(lh_em(end,:));
+estb = mean(squeeze(est_bfgs_n(:,end,:)),2); estb(1) = exp(estb(1));
+estb(4) = mean(lh_bfgs_n(end,:));
+tr = p_true(gi); tr(1) = exp(tr(1)); tr(4) = nan;
+
+  rLabels = {'BFGS' 'EM' 'True'};
+  cLabels = {'$g_\chi$' '$g_\gamma$' '$\sigma_r$' '$\ell/\num{e3}$'};
+  
+  ord = [2 3 1 4];
+  al = {'S' 'S' 'S' 'S[fixed-exponent=3]'};
+  matrix2latex([este(ord)'; estb(ord)'; tr(ord);],'ball/Ballistic_results.tex',...
+         'alignment',al,'format','%.5e','columnLabels',cLabels,...
+         'rowLabels',rLabels,'rowLabelAlignment','r');
+       
+%%
+
+rn = rand(1,100);
+p0 = p_true;
+plot(1:100,p0(3)*(2-2*rn),1:100,p0(3)*ones(size(rn)));
+
+
+
+
+
+
+
+
+
 
 
 
