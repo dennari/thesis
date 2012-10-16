@@ -252,33 +252,34 @@ As can be seen from equation~\eqref{eq:fundamental_inequality},
 to ensure monotonicity it is enough that $\EMQ{\Th_j}{\Th_{j+1}}\geq \EMQ{\Th_{j}}{\Th_j}$,
 i.e. $\Th_{j+1}$ is not required to be the maximum of $\EMQ{\Th_j}{\Th}$.
 This was observed already in \textcite{Dempster1977}, where methods
-that only seek an increase in the M-step were termed \emph{generalized} EM
-algorithms. This modification only affects the convergence rate.
+that only seek an increase in the M-step were termed 
+\emph{generalized} EM (gEM) algorithms. 
 
 Another modification is the partial, or approximate, E-step. It is clear
 that in this case, i.e. when we cannot compute $\post$ exactly, the Kullback-Leibler 
 divergence in decomposition \eqref{eq:lLH_decomp} is strictly positive. This
 means that the lower bound we are optimizing never ``touches'' the log-likelihood
-as in equation \eqref{eq:EM_sharp_bound} and Figure~\ref{fig:em_bounds}. Thus EM with an approximate 
-E step is not an ascent algorithm anymore \parencite{Goodwin2005}. 
+as in equation \eqref{eq:EM_sharp_bound} and Figure~\ref{fig:ar1_em}. 
+Thus EM with an approximate  E step is not an ascent 
+algorithm anymore \parencite{Goodwin2005}.
 
-When we restrict the approximation $\tPX$ to $\post$ to a certain
-family of probability distribution and choose the one which
-minimizes $\KL{\tPX}{\post}$, the resulting algorithm is known
-as \emph{variational Expectation Maximization} (vEM) \parencite{Turner2011}.
-When we restrict $\tPX$ to be Gaussian via moment matching, as is the case
-in Gaussian filtering/smoothing, this KL divergence is in fact minimized.
-Suppose now that $\gv{\psi}\equiv \brac{\m,\P}$, where $\m$ is the mean and \todo{fill up the moment matching KL equations}
-$\P$ is the covariance matrix. Then
-\begin{align}
-	\dpd{}{\m}\KL{\tPX}{\post} &= \\
-	\dpd{}{\P}\KL{\tPX}{\post} &=.
-\end{align}
-Setting these simultaneously to zero we obtain
-\begin{align}
-	\dpd{\KL{\tPX}{\post}}{\m} &= \\
-	\dpd{\KL{\tPX}{\post}}{\P} &=
-\end{align}
+% When we restrict the approximation $\tPX$ to $\post$ to a certain
+% family of probability distribution and choose the one which
+% minimizes $\KL{\tPX}{\post}$, the resulting algorithm is known
+% as \emph{variational Expectation Maximization} (vEM) \parencite{Turner2011}.
+% When we restrict $\tPX$ to be Gaussian via moment matching, as is the case
+% in Gaussian filtering/smoothing, this KL divergence is in fact minimized.
+% Suppose now that $\gv{\psi}\equiv \brac{\m,\P}$, where $\m$ is the mean and \todo{fill up the moment matching KL equations}
+% $\P$ is the covariance matrix. Then
+% \begin{align}
+% 	\dpd{}{\m}\KL{\tPX}{\post} &= \\
+% 	\dpd{}{\P}\KL{\tPX}{\post} &=.
+% \end{align}
+% Setting these simultaneously to zero we obtain
+% \begin{align}
+% 	\dpd{\KL{\tPX}{\post}}{\m} &= \\
+% 	\dpd{\KL{\tPX}{\post}}{\P} &=
+% \end{align}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -501,8 +502,10 @@ model is linear-in-the-parameters the M-step can be solved in closed form.
 This situation will be covered later in section~\ref{sec:litp}. 
 Currently we will assume however that the model is nonlinear in the 
 parameters as well as in the states so that the simplest form to write the 
-model is exactly \eqref{eq:ssm_general}. This situation leads to complications
-in both the E and the M steps of the EM algorithm.
+model is exactly \eqref{eq:ssm_general}. This situation leads to 
+complications in both the E and the M steps of the EM algorithm.
+Applying EM to SSMs with partial or approximate E-step is considered
+at least in \textcite{Schon2011,Ratna2008,Doucet2001,Roweis2001,Goodwin2005}.
 
 Our strategy then will be to apply Gaussian filtering and smoothing
 in the E-step to compute the expectations of the sufficient statistics,
@@ -647,7 +650,7 @@ and
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Score computation}%%
+\subsubsection{Score computation}\label{sec:fisheri}%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 As can be understood from Fisher's identity \eqref{eq:EM_gradients}

@@ -27,7 +27,8 @@ textsize=footnotesize,
 textwidth=2.7cm,
 backgroundcolor=orange!40,
 linecolor=orange!40,
-colorinlistoftodos
+colorinlistoftodos,
+disable
 ]{todonotes}
 
 
@@ -47,12 +48,13 @@ pdfproducer={xetex}
 \usepackage{enumerate}
 \usepackage{xfrac}
 %\mathtoolsset{showonlyrefs,showmanualtags}
-
+%\usepackage{showlabels}
 %\everymath{\displaystyle}
 %\usepackage[pass,showframe]{geometry}
 \usepackage{tikz}
 \usetikzlibrary{arrows}
-\usepackage{showlabels}
+
+
 \newcommand{\matlab}{\textsc{Matlab}}
 \newcommand{\yk}{\v{y}_{k}}
 \newcommand{\y}{\v{y}}
@@ -152,6 +154,52 @@ url=false,
 firstinits=true
 }
 \setlength\bibnamesep{1.5\itemsep}
+
+
+%###########################################
+%## http://tex.stackexchange.com/q/28461 ###
+%###########################################
+
+\newcounter{cbx:totalcite}
+\newbibmacro{textcite:count}{%
+  \iffirstcite
+    {\setcounter{cbx:totalcite}{1}}
+    {\addtocounter{cbx:totalcite}{1}}}
+
+\newbibmacro{textcite:delim}{%
+  \iffirstcite
+    {}
+    {\iflastcite
+       {\ifnumgreater{\value{cbx:totalcite}}{2}
+          {\finalandcomma\space\bibstring{and}\space}
+          {\addspace\bibstring{and}\space}}
+       {\addcomma\space}}}
+
+\def\iffirstcite{%
+  \ifboolexpr{ ( test {\ifnumequal{\value{multicitetotal}}{0}}
+                 and test {\ifnumequal{\value{citecount}}{1}} )
+               or ( test {\ifnumgreater{\value{multicitetotal}}{0}}
+                    and test {\ifnumequal{\value{multicitecount}}{1}}
+                    and test {\ifnumequal{\value{citecount}}{1}} ) }}
+
+\def\iflastcite{%
+  \ifboolexpr{ test {\ifnumequal{\value{citecount}}{\value{citetotal}}}
+               and test {\ifnumequal{\value{multicitecount}}{\value{multicitetotal}}} }}
+
+\DeclareCiteCommand{\textcite}
+  {\boolfalse{cbx:parens}}% <precode>
+  {\usebibmacro{citeindex}% <loopcode>
+   \usebibmacro{textcite:count}%
+   \usebibmacro{textcite:delim}%
+   \usebibmacro{textcite}}
+  {\ifbool{cbx:parens}
+     {\bibcloseparen\global\boolfalse{cbx:parens}}
+     {}}% <sepcode>
+  {\usebibmacro{textcite:postnote}}% <postcode>
+
+\DeclareMultiCiteCommand{\textcites}{\textcite}{}
+
+%######################################################
 
 \setlength{\hoffset}{-1in}
 \setlength{\oddsidemargin}{35mm}
