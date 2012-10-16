@@ -102,13 +102,13 @@ figure(1); clf;
 plot3(squeeze(est_em_n(2,:,:)),squeeze(est_em_n(1,:,:)),...
       lh_em_n(:,:),'b*-'); grid on;
 xlabel(pNames{gi(2)});ylabel(pNames{gi(1)});zlabel('lh');
-zlim([1.6e4 2.0e4]);
+zlim([1.6e4 2.0e4]); axis vis3d;
 
 figure(2); clf;
 plot3(squeeze(est_bfgs_n(2,:,:)),squeeze(est_bfgs_n(1,:,:)),...
       lh_bfgs_n(:,:),'r*-'); grid on;    
 xlabel(pNames{gi(2)});ylabel(pNames{gi(1)});zlabel('lh');
-zlim([1.6e4 2.0e4]);
+zlim([1.6e4 2.0e4]); axis vis3d;
 
 
 
@@ -120,7 +120,36 @@ zlim([1.6e4 2.0e4]);
 %xlabel(pNames{gi(1)});ylabel(pNames{gi(2)}); zlabel('lh');
 %zlim([1.85e4 2.0e4]);
 
-%save('../data/Harmonic_qx_qw_python.mat','est_em_n','lh_em_n','est_bfgs_n','lh_bfgs_n','-v7');
+save('../img/harmonic_3D.mat','est_em_n','lh_em_n','est_bfgs_n','lh_bfgs_n','-v7');
+
+%%
+
+
+figure(1); clf;
+subplot(1,2,1);
+plot(squeeze(est_em_n(1,:,:)),...
+      lh_em_n(:,:),'b*-'); grid on;
+xlabel(pNames{gi(1)});ylabel('lh');
+xlim([-2 1]);ylim([1.4e4 2.0e4]);
+subplot(1,2,2);
+plot(squeeze(est_em_n(2,:,:)),...
+      lh_em_n(:,:),'b*-'); grid on;
+xlabel(pNames{gi(2)});ylabel('lh');
+xlim([-7 1]);ylim([1.4e4 2.0e4]);
+
+figure(2); clf;
+subplot(1,2,1);
+plot(squeeze(est_bfgs_n(1,:,:)),...
+      lh_bfgs_n(:,:),'b*-'); grid on;
+xlabel(pNames{gi(1)});ylabel('lh');
+xlim([-2 1]);ylim([1.4e4 2.0e4]);
+subplot(1,2,2);
+plot(squeeze(est_bfgs_n(2,:,:)),...
+      lh_bfgs_n(:,:),'b*-'); grid on;
+xlabel(pNames{gi(2)});ylabel('lh');
+xlim([-7 1]);ylim([1.4e4 2.0e4]);
+
+
 
 %% simulate
 
@@ -163,9 +192,11 @@ endi = find(K<10,1,'last');
 
 plt = struct();kw=struct(); kw1 = struct();
 kw.alpha = 1.0; kw.ms = 4; kw.mfc = 'black';
+kw1.color = '#348ABD';
 kw1.lw = 0.9; kw1.alpha = 0.8;
-plt.data = {{K(1:endi) Y(1:endi) '' kw1},{{K(1:endi) Y(1:endi) 'x' kw}}};
+plt.data = {{K(1:endi) Y(1:endi) 'x' kw},{' '}};%,{{K(1:endi) Y(1:endi) 'x' kw}}};
 plt.xlabel = '$t$';
+plt.ylabel = '$V$';
 %plt.legend = {'ECG' ''};
 %plt.legendkw = struct('loc','lower center');
 plt.w = textwidth*0.7;
@@ -214,6 +245,47 @@ plt.axis = [min(x) max(x) yl];
 pyplot('../img/harmonic_bf_lh.pdf',plt,'../img/harmonic_bf_lh.mat');
 
 
+%%
+
+textwidth = 426.79134/72.27; % latex textwidth in inches
+% Likelihood
+plt = struct();kw1=struct();kw2=struct();
+kw1.alpha=0.4; kw1.lw = 0.8;
+kw2.alpha=0.4; kw2.ms = 3;
+%(0:itr-1)*avg_time_em;
+colors = {'#348ABD','#E24A33'};
+est = {shiftdim(est_em_n,1),shiftdim(est_bfgs_n,1)};
+lh = {lh_em_n,lh_bfgs_n};
+xl = [-2 1;
+      -7 1];
+yl = [1e4 2e4];
+
+plt.ylabel = '$\ell$';
+for i=1:2
+  y = lh{i};
+  y = y+0.02*repmat(0.5-rand(1,size(y,2)),size(y,1),1)*(max(max(y))-min(min(y)));
+  xa = est{i};
+  
+  kw1.color = colors{i};
+  kw2.color = colors{i};
+  for j=1:2
+    x = xa(:,:,j);
+    %x = x + 0.01*repmat(0.5-rand(1,size(x,2)),size(x,1),1)*(max(max(x))-min(min(x)));
+    plt.data = {{x y '' kw1},{' '}};
+    plt.ticklabels = [i-1 2-j];
+    plt.margins = [0.2 0.0 i*0.1+(i-1)*0.4 (j-1)*0.1+(2-j)*0.5];
+    plt.w = textwidth*0.5+(2-j)*0.4;
+    plt.axis = [xl(j,:) yl];
+    fn = sprintf('%.0f_%.0f.pdf',i,j);
+    fn1 = sprintf('%.0f_%.0f.mat',i,j);
+    pyplot(['../img/harmonic_lh_' fn],plt,['../img/harmonic_lh_' fn1]);
+  end
+end
+
+
+
+
+
 %% Estimates
 
 
@@ -234,8 +306,8 @@ for k = 1:numel(gi)
   var = pNames{gi(k)}; 
   plt.ylabel = sprintf('$%s$',labelNames{gi(k)});
   plt.axis = yl(gi(k),:);
-  if gi(k) == 2 % r is last
-    plt.margins(3) = 0.2;
+  if gi(k) == 3 % lqx is last
+    plt.margins(3) = 0.3;
     plt.ticklabels = [1 1];
   else
     plt.margins(3) = 0.1;
@@ -260,8 +332,8 @@ for k = 1:numel(gi)
   plt.data = {{x y1 '' kw1},{' '}};
   var = pNames{gi(k)};
   plt.axis = yl(gi(k),:);
-  if gi(k) == 2 % r is last
-    plt.margins(3) = 0.2;
+  if gi(k) == 3 % lqx is last
+    plt.margins(3) = 0.3;
     plt.ticklabels = [1 0];
   else
     plt.margins(3) = 0.1;
@@ -272,7 +344,46 @@ for k = 1:numel(gi)
          sprintf('../img/harmonic_bf_%s.mat',var));
 end
 
+%% Result table
+est = {shiftdim(est_em_n,1),shiftdim(est_bfgs_n,1)};
+lh = {lh_em_n,lh_bfgs_n};
+fem = exp(squeeze(est_em_n(:,end,:)))';
+fbf = exp(squeeze(est_bfgs_n(:,end,:)))';
+s1 = sqrt(numel(lh{1}(end,:)));
+s2 = sqrt(numel(lh{2}(end,:)));
 
+este = [mean(fem)'; 
+        std(fem)'/s1; 
+        mean(lh{1}(end,:))';
+        std(lh{1}(end,:))'/s1];
+estb = [mean(fbf)'; 
+        std(fbf)'/s2; 
+        mean(lh{2}(end,:))';
+        std(lh{2}(end,:))'/s2];
+filt = lh{2}(end,:)>1.9e4;
+s3 = sqrt(numel(lh{2}(end,filt)));
+
+estb2 = [mean(fbf(filt,:))'; 
+        std(fbf(filt,:))'/s3; 
+        mean(lh{2}(end,filt))';
+        std(lh{2}(end,filt))'/s3];
+
+
+%tr = exp(p_true(gi)); tr(3) = nan;
+
+  rLabels = {'EM($100$)' 'BFGS($100$)' 'BFGS($69$)'};
+  cLabels = {'$\sigma_\omega$' '$\pm$' '$\sigma_x$' '$\pm$' '$\ell/\num{e4}$' '$\pm$'};
+  
+  ord = [1 3 2 4 5 6];
+  al = {'S[table-format=1.3,table-omit-exponent]'
+        'S[table-format=1.1e2]'
+        'S[table-format=1.3,table-omit-exponent]'
+        'S[table-format=1.1e2]'
+        'S[table-format=1.3,table-omit-exponent,fixed-exponent=4]'
+        'S[table-format=1.1e2]'};
+  matrix2latex([este(ord)'; estb(ord)'; estb2(ord)'],'heart/Harmonic_results.tex',...
+         'alignment',al,'format','%.5e','columnLabels',cLabels,...
+         'rowLabels',rLabels,'rowLabelAlignment','r');
 
 
 
