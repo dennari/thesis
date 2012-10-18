@@ -6,7 +6,7 @@
  # 'lines.dash_capstyle': 'butt',
  # 'lines.dash_joinstyle': 'round',
  # 'lines.linestyle': '-',
-lines.linewidth = 2.0
+lines.linewidth = 0.8
  # 'lines.marker': 'None',
  # 'lines.markeredgewidth': 0.5,
  # 'lines.markersize': 6,
@@ -26,7 +26,7 @@ font.size = 12.0
 axes.linewidth = 1
 axes.grid = True
 axes.titlesize = 'medium'
-axes.labelsize = 'medium'
+axes.labelsize = 'xx-small'
 #axes.labelcolor = '#555555'
 axes.labelcolor = '#111111'
 axes.axisbelow = True       # grid/ticks are below elements (eg lines, text)
@@ -61,11 +61,11 @@ figure.edgecolor = '0.50'
 figure.dpi = 72.27 # same as in latex
 figsize = 5.9055,3.6499
 figure.subplot.bottom = 0.
- # 'figure.subplot.hspace': 0.2,
+figure.subplot.hspace = 0.01
 figure.subplot.left = 0.
- # 'figure.subplot.right': 0.9,
- # 'figure.subplot.top': 0.9,
- # 'figure.subplot.wspace': 0.2,
+#figure.subplot.right = 0.01
+# figure.subplot.top = 0.
+figure.subplot.wspace = 0.01
 
  # 'legend.borderaxespad': 0.5,
  # 'legend.borderpad': 0.4,

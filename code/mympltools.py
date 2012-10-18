@@ -22,7 +22,7 @@ def padaxis(ax,alpha,l=None):
 	# make the transformation (add one to make it relative to current)
 	return(ax.axis((T+np.eye(4)).dot(l)))
 
-def getpadfigure(figw,figh=None,margins=(0.18,0.0,0.35,0.35)):
+def getpadfigure(figw,figh=None,margins=(0.18,0.0,0.35,0.35),is3D=False):
 	beta = (np.sqrt(5)+1)/2 # golden ratio
 	leftmargin = margins[3] # inches
 	rightmargin = margins[1];
@@ -38,5 +38,9 @@ def getpadfigure(figw,figh=None,margins=(0.18,0.0,0.35,0.35)):
 
 
 	fig = plt.figure(figsize=(figw,figh),facecolor='w')
-	ax = fig.add_axes((leftmargin/figw,bottommargin/figh,axwidth/figw,axheight/figh))
+	if is3D:
+		from mpl_toolkits.mplot3d import Axes3D
+		ax = fig.add_axes((leftmargin/figw,bottommargin/figh,axwidth/figw,axheight/figh),projection='3d')
+	else:
+		ax = fig.add_axes((leftmargin/figw,bottommargin/figh,axwidth/figw,axheight/figh))
 	return((fig,ax))

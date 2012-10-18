@@ -20,7 +20,7 @@ function [lhn,estn] = normalizeBFGS(ev,lh,est)
         ii = ii + num;
       end
     end
-    if ii < size(lh,1)
+    if ii-1 < size(lh,1)
       if isempty(i)
         i = 0;
       end
@@ -28,6 +28,9 @@ function [lhn,estn] = normalizeBFGS(ev,lh,est)
       for kk = 1:size(est,1)
           estn(kk,ii:end,j) = est(kk,i+1,j); 
       end
+    end
+    if lhn(end,j) == 0
+      disp('asdfws');
     end
   end
 end

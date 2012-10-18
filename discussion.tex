@@ -1,5 +1,109 @@
-\todo{shortcomings of Gaussian filtering}
-\todo{Dual, joint and iterated filtering}
-\parencite{Haykin2001}
-\parencite{Kantas2009,doucet2001sequential,Gordon1993,Lindsten2010}
+Our aim in this thesis has been to explore the problem of static parameter estimation
+in both linear-Gaussian and nonlinear-Gaussian SSMs. The chosen approach was to focus
+on two methods for finding MAP/ML estimates, namely gradient based nonlinear optimization
+and EM. Since the filtering and smoothing problems are tightly coupled with the static
+parameter estimation problem, the focus of the first part of the thesis was to
+present some solutions to those problems. Nonlinear filtering and smoothing is
+a considerable problem, where closed form solutions exist only in very few situations.
+We advocated the Gaussian filtering approach and more specifically the cubature Kalman
+filter and smoother. If the filtering and/or smoothing distributions are well approximated
+by a Gaussian, these methods offer good approximate solutions for a fraction of
+the computational complexity of the more general simulation based SMC methods.
+ 
+Both of the parameter estimation methods considered have their strengths and weaknesses
+which make them recommendable depending on the model. Let us go through
+some of these and point out when they are evident in the two demonstrations in
+Results (Section~\ref{sec:results}).
+
+\subsubsection*{Gradient based nonlinear optimization}
+
+A big difference compared to EM is that when using
+gradient based nonlinear optimization, the smoothing distributions
+are not needed. Neither does one need to figure out the model-dependent
+M-step maximization equations. The marginal likelihood (Equation~\eqref{eq:logLH}), 
+or an approximation to it if the model is nonlinear (Equation~\eqref{eq:nonl_logLH}), 
+is obtained directly from the filtering algorithm.
+
+A number of efficient gradient based nonlinear optimization
+algorithms are available. We focused on the quasi-Newton BFGS algorithm,
+which is implemented in \matlab's \texttt{fminunc}. Another BFGS implementation
+is \texttt{ucminf} which has a \matlab{} version as well as a version for the open source
+R software environment \parencite{Nielsen2000,rucminf2012,r2012}. If one is to
+implement also this part of the method from scratch, choosing the EM option is
+almost certainly simpler (a through description of implementing such an algorithm
+can be found in \textcite{Nielsen2000}). The main appeal of the gradient based
+nonlinear optimization methods is their rate of convergence, which can
+be quadratic.  
+
+The main issue is the score function computation. There are two alternative routes:
+either the sensitivity equations, described in Section~\ref{sec:grad_LGSSM} for the linear
+case and in Section~\ref{sec:grad_nonlinear} for the nonlinear, or using
+Fisher's identity and the EM machinery as described in Section~\ref{sec:fisheri}.
+Using the sensitivity equations leads to recursive equations which need
+to be run alongside and tightly coupled to the chosen filtering algorithm.
+This is an issue from the perspective of being able to use decoupled modular
+algorithms. Moreover, the Jacobian matrices of $\ff$ and $\hh$ are required.
+As for the computational complexity, the sensitivity equations scale
+as $d_\theta$ Kalman filters \parencite{Cappe2005, Olsson2007}.
+A Kalman filter scales as $T^3$. 
+
+With Fisher's identity the parameter estimation algorithm can be made 
+less coupled to the filtering algorithm, but then a separate smoothing
+step is required. This option doesn't require the Jacobians and is
+is better suited for modular implementation. Moreover, since
+the smoothing algorithm can be considered to have the same computational
+complexity as a Kalman filter, using Fisher's identity has approximately
+the computational complexity of two Kalman filters.
+
+  
+\subsubsection*{EM}
+  
+Using Fisher's identity as part of a nonlinear gradient based optimization method 
+can be considered to be some sort of hybrid approach between the sensitivity equations
+and the full EM solution. Thus some of the strengths and weaknesses that were
+mentioned in the previous chapter when comparing sensitivity equations and Fisher's identity
+apply directly when comparing the sensitivity equations to EM solution.
+
+A critical question in this comparison is whether the M-step maximization equations
+can be computed in closed form. If this is not the case and the M-step includes
+some sort of gradient based nonlinear optimization in itself as part of a generalized
+EM (gEM) method (mentioned in section~\ref{sec:EM_partial}) using EM certainly loses
+some of its appeal. In fact we assume that in this case one would choose to apply
+gradient based nonlinear optimization instead and so in the sequel it is assumed
+that the M-step equations can be solved in closed form.
+
+When the M-step maximization equations
+can be computed in closed form, EM gains some strengths.
+First and foremost, no gradient computations are needed.
+As a consequence, in this case EM is also independent
+of the parameterization, since the M-step consists only of
+maximization operations \parencite{Cappe2005}. This is not true
+for the gradient based methods.
+
+As for the convergence rate of EM, there exists some rather interesting results.
+The convergence rate of EM is discussed at least in 
+\textcite{Salakhutdinov2003,Salakhutdinov2004,Petersen2005a,Gibson2005}. As a summary,
+it seems that convergence rate depends on the proportion 
+of the total information that is contained in the latent variables. Intuitively,
+the larger this proportion is, the slower is the convergence. Also, if this proportion
+is small, the convergence rate can approach that of a true Newton's method (i.e. quadratic).
+
+In the nonlinear case, one has to resort to approximate filtering and smoothing distributions.
+This also means that the marginal log-likelihood and score function computations 
+become approximations. Since the 
+At least with Gaussian filtering and smoothing, these approximations are different between
+the sensitivity equations and EM (or Fisher's identity). This can be deduced from the fact
+that EM and Fisher's identity employ approximate smoothing, where the cross-timestep
+state covariance includes an approximation that is not present in the filter. 
+
+The difference is also evident from
+the results of the two demonstrations in Section~\ref{sec:results}. In the linear ballistic projectile
+case of Section~\ref{sec:ballistic} the two methods give identical results 
+(when attributing the tiny differences
+to differing numerical properties). However in the nonlinear photoplethysmograph case 
+of Section~\ref{sec:harmonic} the results
+were markedly different, even though both methods were fed the same data and initial estimates.
+Deriving the quantitative difference in the approximations would be an interesting subject
+for future work.
+
 

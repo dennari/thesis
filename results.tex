@@ -1,42 +1,4 @@
 
-\subsection{Analytical comparison of methods}
-
-Both the direct method of section~\ref{sec:grad} and the EM algorithm of section~\ref{sec:EM_SSM}
-have their strengths and weaknesses. Neither of them can be said to eclipse the other in an absolute sense.
-In this section we will go through some features of the said algorithms found in the literature.
-Then a more detailed analysis will be performed on two essential aspects of any estimation algorithm:
-the convergence properties, i.e. when should one expect the algorithm to find a local maximum and
-the computational requirements of the algorithms.
-
-\textcite{Cappe2005} contains a list of arguments in favor of either of the methods. The following list includes
-those and additional points with comments:
-\begin{description}
-  \item[Direct]\hfill
-\begin{itemize}
-  \item\emph{No smoother needed} The log-likelihood, or an approximation to it, can be evaluated
-  with forward-filtering
-  \item\emph{No M-step}. There is no need to figure out model-dependent maximization
-  formulas even in nonlinear models 
-  \item\emph{Faster convergence}. Advanced gradient-based optimization
-  methods can reach convergence speeds that are close to quadratic
-\end{itemize}
-  \item[EM]\hfill
-  \begin{itemize}
-  \item \emph{Simple to implement}. This argument is often put forward in favor of the EM
- algorithm. However in practice when using the gradient-based method one would use any one of
-the off-the-self nonlinear optimizers and not re-implement one. Thus which one is easier to implement
-boils down to gradient computation. If the model is linear or linear-in-the-parameters the EM
-algorithm doesn't need any gradient information.
-  \item\emph{Parameter constraints}. In \textcite{Cappe2005} it is argued that
-since the M-step maximization equations are so simple, including parameter constraints
-are easier in the EM algorithm. This again depends on if the model is linear or linear-in-the-parameters.
-  \item\emph{Parameterization independent}. This again depends on if one has to use gradient-based
- optimization in the M-step. If not, then the EM algorithm is parameterization independent. In the gradient-based
- method the gradient and the Hessian, and so the convergence, are affected by the parameterization.
-\end{itemize} 
-\end{description}
-
-\clearpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% BALLISTIC OBJECT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -51,7 +13,7 @@ an oversimplification, since in a more realistic model the drag
 force is proportional to velocity and directed against it. Furthermore
 the drag force is higly dependent on air density and so the altitide. \parencite{ristic2004beyond}.
 Nevertheless, we make the aforementioned simplification to keep to resulting
-SSM linear. The modelling error is mitigated slightly by introducing
+SSM linear. The modeling error is mitigated slightly by introducing
 additive white noise to both forces.
 
 We obtain a sequence of range measurements with a radar,
@@ -275,38 +237,31 @@ about noticeable differences in the performance of the estimation methods.
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
     	\caption{EM}
     	\includegraphics{img/ballistic_em_uy}%
-    	%\caption{Convergence of the likelihood with EM}%
-		%\label{fig:ballistic_lh_em}%
     \end{subfigure}%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
 		\caption{BFGS}
 		\includegraphics{img/ballistic_bf_uy}%
-    	%\caption{Convergence of the likelihood with BFGS}%
-		%\label{fig:ballistic_lh_bf}%
     \end{subfigure}}\\%
     \makebox[\textwidth]{%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
     	\includegraphics{img/ballistic_em_ux}%
-    	%\caption{Convergence of the likelihood with EM}%
-		%\label{fig:ballistic_lh_em}%
     \end{subfigure}%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
 		\includegraphics{img/ballistic_bf_ux}%
-    	%\caption{Convergence of the likelihood with BFGS}%
-		%\label{fig:ballistic_lh_bf}%
     \end{subfigure}}\\%
     \makebox[\textwidth]{%
 	\begin{subfigure}[b]{0.5\textwidth+0.4in}%
     	\includegraphics{img/ballistic_em_r}%
-    	%\caption{Convergence of the likelihood with EM}%
-		%\label{fig:ballistic_lh_em}%
     \end{subfigure}%
     \begin{subfigure}[b]{0.5\textwidth+0.4in}%
 		\includegraphics{img/ballistic_bf_r}%
-    	%\caption{Convergence of the likelihood with BFGS}%
-		%\label{fig:ballistic_lh_bf}%
     \end{subfigure}}%
-    \caption{Convergence of the likelihood with EM and BFGS}\label{fig:ballistic_est}
+    \caption{Convergence of the parameter estimates with EM and BFGS
+    as a function of objective function evaluations in Section~\ref{sec:ballistic}. The black line
+    presents the true generative value of the parameter.
+    Note that the
+    objective functions of the optimization methods differ in their computational complexity, 
+    implying that the plots cannot be directly compared in the $x$-axis. }\label{fig:ballistic_est}
  \end{figure}
  
 \begin{table}[htbp]
@@ -332,12 +287,30 @@ about noticeable differences in the performance of the estimation methods.
 %%%%%%%%%%%%%%%%%%%% HEART %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Electrocardiograph analysis}
+\subsection{Photoplethysmograph waveform analysis}\label{sec:harmonic}
 
 The second demonstration is concerned with a nonlinear model for
-electrocardiograph (ECG) data, a short sequence of which is presented
-in Figure~\ref{fig:ecg_data}. A realistic model for this data 
-should take into account the quasi-periodic nature of ECG data,
+photoplethysmograph (PPG) data, a short sequence of which is presented
+in Figure~\ref{fig:ecg_data}. PPG is measured with 
+a \emph{pulse oximeter} the functioning of which is based on
+emitting light (of which the infrared component is relevant to the PPG)
+through for example a finger or an earlobe. Then either the transmitted
+or reflected light intensity is measured with a photodiode \parencite{Shelley2007}. 
+As to what exactly is the source of PPG is not without some controversy,
+but as explained in \textcite{Shelley2007}:
+\begin{quotation}
+Conceptually, it is most useful to view the pulse
+oximeter waveform as measuring the change in blood
+volume (more specifically path length), during a cardiac cycle, 
+in the region being studied (typically the fingertip or earlobe).
+\end{quotation}
+The most important use of the PPG is the calculation of arterial oxygen
+saturation, but it can also be used to estimate the heart rate.
+In this case a PPG was obtained in connection with a brain imaging study, where
+a pulse oximeter was attached to the subject while being analysed with fMRI \parencite{Sarkka2012}.   
+
+A realistic model for this data 
+should take into account the quasi-periodic nature of PPG data,
 i.e. the frequency must be allowed to vary with time.
 Following the ideas in \textcite{Sarkka2012}, one possibility
 is to write the model as a superposition of noisy resonators
@@ -379,11 +352,12 @@ we get the following dynamic model for displacement $x^{(n)}$:
 	\N{\bm{\cos(n\omega_k) & \sin(n\omega_k) \\% 
 	   -\sin(n\omega_k) & \cos(n\omega_k)}
 	   \bm{x_{k-1}^{(n)} \\ \dot{x}_{k-1}^{(n)}}}
-	  {\bm{0 & 0 \\ 0 & \tau q_x}}.
+	  {\bm{0 & 0 \\ 0 & \tau \sigma^2_x}}.
 	\label{eq:dynamic_displacement}
 \end{align}
-We assume that $\omega_k$ is part of the state and assume its dynamics obey the previously introduced first order
-random walk model (with $a=1$):
+We assume that $\omega_k$ is part of the state and that its dynamics follow 
+the previously introduced first order
+random walk model:
 \begin{align}
 	\omega_k \sim \N{\omega_{k-1}}{\tau q_\omega}.
 	\label{eq:omega_ar}
@@ -409,13 +383,104 @@ The joint dynamic model of $m$ harmonics and $\omega_k$ is then
 \end{align}
 where
 \begin{align}
-	\q_{k-1}\sim\N{\v{0}}{\tau\bm{q_\omega&&&&&\\ & 0 &&&& \\ && q_x &&& \\ &&& \ddots && \\ &&&& 0 & \\ &&&&& q_x}}
-	\label{tablelabel}
+	\q_{k-1}\sim\N{\v{0}}{
+	\underbrace{
+		\tau\bm{\sigma^2_\omega&&&&&\\ & 0 &&&& \\ && \sigma^2_x &&& \\ &&& \ddots && \\ &&&& 0 & \\ &&&&& \sigma^2_x}
+	}_{\QQ{\Th_{\textrm{P}}}}
+	}.
+	\label{eq:Q_harmonic}
 \end{align}
+Our objective is now to find the ML estimate (or, equivalently, the MAP estimate with a uniform prior)
+of the parameter $\Th_{\textrm{P}}\equiv \brac{\sigma_\omega,\sigma_x}$ by using both the
+gradient based nonlinear optimization approach presented in Section~\ref{sec:grad_nonlinear} and the EM
+approach presented in Section~\ref{sec:EM_nonlinear}. We will treat
+the rest of the parameters as fixed with the values 
+presented in Table~\ref{table:harmonic_param}.
+The first component of the parameter, $\sigma_\omega$, is the standard deviation
+of the angular velocity and the second, $\sigma_x$, is the standard deviation
+of the displacement $x$. It would be quite difficult to try to estimate
+these values based only on a priori information, in contrast to $\sigma_r$,
+which can be obtained from the measurement device (the pulse oximeter).
 
+Since $\QQ{\Th_{\textrm{P}}}$ is diagonal, we can use Equation~\eqref{eq:EM_M_Q}
+in the EM M-step and pick the corresponding elements from the resulting full matrix
+as our next estimates. Similarly to the analysis of the ballistic projectile in Section~\ref{sec:ballistic}, 
+the BFGS implementation used was the \texttt{fminunc} function included in the 
+\matlab{} Optimization Toolbox. The CKF filter and CKS smoother of Section~\ref{sec:ckf} were used
+as the approximate filtering and smoothing methods respectively. The score function
+for BFGS was computed by the recursive sensitivity equations of Section~\ref{sec:grad_nonlinear}.  
+
+To analyze the results' sensitivity to the initial estimate, we ran $M=100$ optimizations
+with both methods with the initial estimate of $\theta_i$ drawn from 
+$U\brak{0.1,2.1\theta_i}$ (so that the initial estimate was always the same between the methods). 
+
+
+The likelihood convergence for
+both methods is presented in Figure~\ref{fig:harmonic_lh}.
+We note again that the iteration numbers are
+not directly comparable. As can be seen, the EM estimates seem to
+converge to values producing identical log likelihood values (on the figure's scale) whereas
+the BFGS estimates have at least two modes. In contrast to the linear SSM
+analyzed in the previous section, here we can see that the convergence of the EM
+is clearly not monotonic in all cases.
+
+The parameter convergence
+results are presented in Figure~\ref{fig:harmonic_est},
+which contains four separate panels: one per parameter and estimation method. 
+One line is plotted in every panel for every optimization run and th
+e panels display their quantities
+as a function of the iteration number of the estimation method.
+The first thing to note is the vast difference in the behavior of the methods.
+While the EM estimates are quite predictable and either do not converge at
+all (in the case of $\sigma_w$) or converge to the same value (in the case $\sigma_x$).
+The BFGS estimates on the other hand seem to have multiple convergent values for both
+parameters, depending on the initial estimate.
+
+To get more insight into the behavior of the parameter estimation methods, 
+illustration of the converge of $\ell$ as a function of
+the logarithms of both $\sigma_\omega$ and $\sigma_x$ is presented
+in Figure~\ref{fig:harmonic_3D}. The end points of the runs are marked with black stars.
+It seems that there are minor local maximums on either side of the major local maximum
+around $\log\sigma_x\approx -3$. Some of the BFGS optimization runs ($31$ out of $100$ to be specific) 
+converge to the minor local maximums. However, the BFGS runs that do not converge to the
+minor local maximums converge in both paramaters while the EM runs only converge in $\log\sigma_x$.
+Since $\ell$ is very insensitive to changes in $\sigma_\omega$ (at least on the range explored),
+the variance in the final values for $\sigma_\omega$ for the EM runs has only a negligible
+effect in $\ell$.  
+
+Table~\ref{table:harmonic_results} presents 
+the averaged final results. We have included two sets of estimates for BFGS:
+one set for all $100$ runs and another one averaged over the $69$ runs
+that do not converge to the minor local maximums. The standard errors in
+BFGS($100$) are relatively enormous as expected. However, the standard errors
+of BFGS($69$) are markedly \emph{smaller} across the range compared to
+EM($100$). A probable explanation for this is the the inconvergence of
+ $\sigma_\omega$ in EM($100$).
+
+
+
+\begin{table}[htbp]
+\caption{Parameter values used for simulation in Section~\ref{sec:harmonic}}
+\label{table:harmonic_param}
+\centering
+\footnotesize
+\begin{tabular}{>{$}c<{$}Ss@{\hspace{1.5cm}}>{$}c<{$}Ss}
+\toprule
+\multicolumn{1}{c}{Parameter}&%
+\multicolumn{1}{c}{Value}&%
+\multicolumn{1}{c@{\hspace{1.5cm}}}{Unit}&%
+\multicolumn{1}{c}{Parameter}&%
+\multicolumn{1}{c}{Value}&%
+\multicolumn{1}{c}{Unit}\\
+\midrule
+	n				&	3			&	-			&	\tau			&	0.008 		& s \\
+	\sigma_r 		&	0.001			&	V			&&& \\		 	
+\bottomrule	 	
+\end{tabular}
+\end{table}
 
  
- \begin{figure}[htb]%
+ \begin{figure}[htbp]%
     \centering%
     \includegraphics{img/harmonic_trajectory}%
 	\caption{%
@@ -423,57 +488,87 @@ where
    	}
 	\label{fig:ecg_data}
  \end{figure}
- \begin{figure}[htb]%
+ 
+ \begin{figure}[htbp]%
     \centering%
      \makebox[\textwidth]{%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
-    	\caption{EM}
+    	\caption{EM}\label{fig:harmonic_lh_em}
     	\includegraphics{img/harmonic_em_lh}%
     	%\caption{Convergence of the likelihood with EM}%
 		%\label{fig:harmonic_lh_em}%
     \end{subfigure}%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
-		\caption{BFGS}
+		\caption{BFGS}\label{fig:harmonic_lh_bf}
 		\includegraphics{img/harmonic_bf_lh}%
-    	%\caption{Convergence of the likelihood with BFGS}%
-		%\label{fig:harmonic_lh_bf}%
     \end{subfigure}}%
+    \caption{Convergence of the likelihood for $M=100$ simulated datasets
+    with varying initial parameter estimates in the photoplethysmograph waveform
+    analysis of Section~\ref{sec:harmonic}.% 
+    }\label{fig:harmonic_lh}
  \end{figure}
- \begin{figure}[htb]%
+ 
+ \begin{figure}[htbp]%
     \centering%
     \makebox[\textwidth]{%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
+    	\caption{EM}\label{fig:harmonic_w_em}
     	\includegraphics{img/harmonic_em_lqw}%
-    	%\caption{Convergence of the likelihood with EM}%
-		%\label{fig:harmonic_lh_em}%
     \end{subfigure}%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
+		\caption{BFGS}\label{fig:harmonic_w_bf}
 		\includegraphics{img/harmonic_bf_lqw}%
-    	%\caption{Convergence of the likelihood with BFGS}%
-		%\label{fig:harmonic_lh_bf}%
     \end{subfigure}}\\%
     \makebox[\textwidth]{%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
     	\includegraphics{img/harmonic_em_lqx}%
-    	%\caption{Convergence of the likelihood with EM}%
-		%\label{fig:harmonic_lh_em}%
     \end{subfigure}%
     \begin{subfigure}[t]{0.5\textwidth+0.4in}%
 		\includegraphics{img/harmonic_bf_lqx}%
-    	%\caption{Convergence of the likelihood with BFGS}%
-		%\label{fig:harmonic_lh_bf}%
     \end{subfigure}}%\\%
-%     \makebox[\textwidth]{%
-% 	\begin{subfigure}[b]{0.5\textwidth+0.4in}%
-%     	\includegraphics{img/harmonic_em_lr}%
-%     	%\caption{Convergence of the likelihood with EM}%
-% 		%\label{fig:harmonic_lh_em}%
-%     \end{subfigure}%
-%     \begin{subfigure}[b]{0.5\textwidth+0.4in}%
-% 		\includegraphics{img/harmonic_bf_lr}%
-%     	%\caption{Convergence of the likelihood with BFGS}%
-% 		%\label{fig:harmonic_lh_bf}%
-%     \end{subfigure}}%
-    \caption{Convergence of the likelihood and estimates with EM and BFGS}\label{fig:harmonic_est}
+    \caption{Convergence of the log-parameter estimates with 
+    EM (column \subref{fig:harmonic_w_em}) and 
+    BFGS (column \subref{fig:harmonic_w_bf})
+    as a function of objective function evaluations in Section~\ref{sec:harmonic}.     
+    Note that the objective functions of the optimization methods differ in their computational complexity, 
+    implying that the plots cannot be directly compared in the $x$-axis. }
+    \label{fig:harmonic_est}
  \end{figure}
+
+\begin{figure}[htbp]%
+    \centering%
+    \vspace*{-1.5cm}%
+    \begin{subfigure}[t]{\textwidth}%
+    	\includegraphics{img/harmonic_3D0}%
+    \end{subfigure}\\%
+    \vspace*{-1.7cm}%
+    \begin{subfigure}[t]{\textwidth}%
+		\includegraphics{img/harmonic_3D1}%
+    \end{subfigure}
+    \vspace*{-0.3cm}%
+    \caption{Illustrations of the converge of the log-likelihood as a function of
+    the logarithms of both $\sigma_\omega$ and $\sigma_x$ for EM (top) and
+    BFGS (bottom). There are $100$ independent optimization runs per method with differing initial
+    estimates, so that equal initial estimates were used between the methods. The end points
+    of the runs are marked with black stars.}\label{fig:harmonic_3D}
+ \end{figure}
+
+ \begin{table}[htbp]
+	\caption{Estimated final parameter and log-likelihood values in Section~\ref{sec:harmonic}.
+	The value in parentheses is the amount of independent optimization runs averaged over. 
+	The $\pm$ columns are the standard errors of the estimates in the previous columns.
+	BFGS($69$) is included, since some runs in BFGS($100$) converge to separate 
+	local maximums of $\ell$.}
+	\label{table:harmonic_results}
+	\centering
+	\sisetup{
+		table-auto-round,
+		table-format = 1.3
+	}
+	\footnotesize
+	\input{code/heart/Harmonic_results.tex}
+\end{table} 
+
+ 
+ 
 
