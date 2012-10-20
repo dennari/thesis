@@ -1,12 +1,14 @@
 Modeling temporal data is of fundamental interest in numerous branches of science.
-Since passage of time is so deeply embedded in our experience of the world, 
-it is understandable that many scientific questions also have this dynamic nature.
-Arguably, the very notion of ``life'' implies variation in time and so 
-as an example of a dynamic system we can consider any living organism.
+Since the passage of time is so deeply embedded in our experience of the world, 
+it is understandable that many scientific questions are posed in a \emph{dynamic}
+setting. Arguably, the very concept of life implies variation in time and so 
+as an example of a dynamic system we can consider any living organism, such as ourselves.
 Measuring heart rate or neuronal activity, with any of the available technologies,
-produces time-varying signals \parencite{Barbieri2006,Ergun2007}. Another classic example of a dynamic system is
-one of \emph{target tracking}, where, for example, based on a sequence of 
-noisy range measurements from a radar, we would like to continuously 
+produces time-varying signals \parencite{Barbieri2006,Ergun2007}. A classic 
+example of a dynamic
+system is \emph{target tracking}, where based on a sequence of 
+noisy range or angular measurements from a measurement intrument, typically a radar, 
+we would like to continuously 
 estimate the true position and velocity of the target \parencite{bar2004estimation,Godsill2007}. 
 %This is understandable, since natural organisms inhabit a dynamic environment and
 %it is natural organisms, such as ourselves, that easily draw our attention and raise questions
@@ -14,18 +16,18 @@ estimate the true position and velocity of the target \parencite{bar2004estimati
 %is indeed a property that can easily affect the survival of the forecaster.  
 
 %Causality and consequences of actions are concepts tied to the passage of time.
-It should be noted that sequential data does not imply variation in \emph{time}.
-The variation might take place along any other unidimensional attribute,
-such as distance or order. Without loss in generality, in the sequel the notation 
-is derived by assuming variation in time. 
+%It should be noted that sequential data does not imply variation in \emph{time}.
+%The variation might take place along any other unidimensional attribute,
+%such as distance or order. Without loss in generality, in the sequel the notation 
+%is derived by assuming variation in time. 
 
 Let us then assume the existence of a sequential dataset which is a result of 
 making \emph{measurements} on a \emph{system} of interest. In order to answer questions of interest
 about the system quantitatively,
-the system and the measurements should be mathematically \emph{modelled}. The class of mathematical
-models for dynamical systems we will be concerned with are called \emph{state space models} (SSMs).
+the system and the measurements should be mathematically \emph{modeled}. The class of mathematical
+models for dynamical systems we will be concerned with are known as \emph{state space models} (SSMs).
 Important characteristics of SSMs are \emph{stochasticity} and decoupling of the system dynamics and the
-measurements. At any instant, the system is in a certain finite-dimensional \emph{state}. The state
+measurements. At any instant, the system is thought to be in a certain finite-dimensional \emph{state}. The state
 summarizes enough information about the system so that it is possible to formulate the system
 state at the next instant as a function of the current state and \emph{process noise}.  
 However the state is \emph{hidden} (or \emph{latent}) and the inference on the state has 
@@ -33,7 +35,7 @@ to be made entirely based on the measurements.  Often some components of the mea
 would otherwise translate directly to corresponding components of the state, except that 
 the measurements are always assumed to be \emph{noisy}. So even the part of the state translating 
 to noisy observations is still latent.
-For example in the target tracking example, the state should contain at least the location and 
+As an example in target tracking the state should contain at least the location and 
 the velocity of the target. 
 
 The stochasticity forces us to assume a probabilistic framework. In this thesis the viewpoint
@@ -41,13 +43,14 @@ is decidedly \emph{Bayesian}. In Bayesian statistics, ideally, the complete answ
 is always the \emph{posterior probability distribution}, i.e. the joint probability distribution
 of the random variables of interest given the measurements. Thus instead of answering
 with a single value or a value with error bounds, the answer is the probability
-density function of the interesting quantity given data. It is important to higlight,
+density function of the interesting quantity given the data. It is important to highlight,
 however, that Bayesian statistics can be used to treat many kinds of uncertainty
-\parencite{Sarkka2012a}. For example, the instruments used to obtain the measurements often incur
-actual physical randomness modeled with Bayesian statistics, whereas the model parameters 
-might in (the latent) reality have some exact ``true'' values. Nevertheless, our uncertainty 
-about those values can still be quantified with Bayesian statistics. Thus applying 
-statistical methods to a problem does not imply that the problem is actually random.
+\parencite[as pointed out in e.g.][]{Sarkka2012a}. For example, the instruments used 
+to obtain the measurements are a source of one type of uncertainty, 
+whereas our uncertainty regarding the model and its parameters implies
+another kind of uncertainty. Both kinds of uncertainty can be quantified with Bayesian
+statistics and thus applying statistical methods to a problem does not imply that the problem 
+is actually random.
 
 SSMs are a general framework and in any specific situation prior knowledge of the
 system has to be brought in. This prior knowledge is not necessarily very specific,
@@ -76,9 +79,9 @@ making smoothing an \emph{offline} procedure. Filtering, on the other hand, is \
 i.e. the estimates can be updated every time a new measurement arrives.
 
 A distinction is drawn in this thesis between \emph{linear} and \emph{nonlinear}
-models. The linear model can be thought of as a special case of a nonlinear model,
-so that the linear case would be implicitly covered by only considering nonlinear models.
-The distinction is made for the simple reason that in the linear case, closed
+models. The linear model can be thought of as a special case of the nonlinear model,
+so that linear models could be implicitly covered by only considering nonlinear models.
+The distinction is useful for the simple reason that in the linear case closed
 form solutions exist. The Bayesian solution of the filtering problem for a linear system
 with additive Gaussian noise is given by the celebrated \emph{Kalman filter} \parencite{Kalman1960}.
 
@@ -89,24 +92,23 @@ are inherently connected. For reasons of computational
 complexity, we will not try to pursue the complete Bayesian solution of finding the 
 posterior distribution. We will settle for a point estimate called the 
 \emph{maximum a posteriori} (MAP), which is the mode (the value of the parameter giving the maximum) 
-of the posterior distribution (the maximum of the posterior probability distribution is
-not necessarily unique, and this is considered in the section on \emph{identifiability}) \parencite{gelman2004}.
+of the posterior distribution \parencite{gelman2004}.
 Under an assumed \emph{uniform} prior distribution, the MAP estimate becomes equivalent 
 with the \emph{maximum likelihood} (ML) estimate. The philosophical difference between these 
 two might be fundamental, but as will be seen, from the perspective of the estimation equations it is not.
 
 Figure~\ref{fig:ar1} illustrates the concepts of states, measurements and parameters. In
-Figure~\ref{fig:ar1_simulation}, we have simulated a simple AR(1), or first order \emph{random walk},
-model for $T=150$ steps. The states, $x_k$, are unidimensional and are denoted with a continuous
+Figure~\ref{fig:ar1_simulation}, we have simulated a simple first order autoregressive (AR(1)), or first order
+\emph{random walk}, model for $T=150$ steps. The states, $x_k$, are unidimensional and are denoted with a continuous
 line. This reflects the fact, that commonly the system of interest operates in \emph{continuous}
 time. The measurements, $y_k$, are denoted with crosses which reflects the fact the 
 measurements, our sequential dataset, are almost always discrete. The model in Figure~\ref{fig:ar1}
-has only a single parameter, $a$, which is part of the dynamic model. The simulation
-in Figure~\ref{fig:ar1_simulation} is made with $a=1$. In Figure~\ref{fig:ar1_lh}, we have
-tried to estimate $a$, based only on the measurements. We have drawn a curve, which
+has a parameter $\theta$ and the simulation
+in Figure~\ref{fig:ar1_simulation} is made with $\theta=1$. In Figure~\ref{fig:ar1_lh}, we have
+tried to estimate $\theta$, based only on the measurements. We have drawn a curve, which
 can be described as the likelihood function or the unnormalized posterior probability distribution
 with a uniform prior distribution. We can see that if we choose as our estimate the mode 
-of this curve, denoted with a star, our estimate would be very close to $1$, the true value. 
+of this curve, denoted with a star, our estimate would be close to the true value. 
 %
 % 
 \begin{figure}[htb]%
@@ -148,7 +150,8 @@ of parameter estimation we are comparing: gradient based nonlinear optimization
 and the Expectation Maximization (EM) algorithm. The methods are analyzed in sufficient
 theoretical detail in order to draw conclusions about the behavior of the methods
 in the results section. The results section has two subsections: 
-an application with simulated data and an application with real world data.
+a target tracking application with simulated data and a biomedical signal processing 
+application with real world data.
 
 
 

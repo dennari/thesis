@@ -31,7 +31,7 @@ is \texttt{ucminf} which has a \matlab{} version as well as a version for the op
 R software environment \parencite{Nielsen2000,rucminf2012,r2012}. If one is to
 implement also this part of the method from scratch, choosing the EM option is
 almost certainly simpler (a through description of implementing such an algorithm
-can be found in \textcite{Nielsen2000}). The main appeal of the gradient based
+can be found in \nptextcite{Nielsen2000}). The main appeal of the gradient based
 nonlinear optimization methods is their rate of convergence, which can
 be quadratic.  
 
@@ -80,13 +80,21 @@ of the parameterization, since the M-step consists only of
 maximization operations \parencite{Cappe2005}. This is not true
 for the gradient based methods.
 
-As for the convergence rate of EM, there exists some rather interesting results.
-The convergence rate of EM is discussed at least in 
-\textcite{Salakhutdinov2003,Salakhutdinov2004,Petersen2005a,Gibson2005}. As a summary,
+As for the convergence rate of EM, there exists some rather interesting results
+which are discussed at least in 
+\textcite{Salakhutdinov2003,Salakhutdinov2004},
+\textcite{Petersen2005a}, and \textcite{Gibson2005}. As a summary,
 it seems that convergence rate depends on the proportion 
 of the total information that is contained in the latent variables. Intuitively,
 the larger this proportion is, the slower is the convergence. Also, if this proportion
-is small, the convergence rate can approach that of a true Newton's method (i.e. quadratic).
+is small, the order of convergence can approach that of a true Newton's method (i.e. quadratic).
+Interesting results concerning the convergence properties of EM (in linear models) were also
+obtained in \textcite{Petersen2005a} and \textcite{Petersen2005}. Their analysis seems
+to show that the convergence rate depends on the signal-to-noise ratio (SNR) in
+such as a way that the convergence slows down when SNR becomes high.
+Strategies for speeding up the convergence of EM has been
+a subject of much interest and some approaches are presented at least
+in \textcite{Meng1997} and \textcite{Lange1995}.
 
 In the nonlinear case, one has to resort to approximate filtering and smoothing distributions.
 This also means that the marginal log-likelihood and score function computations 

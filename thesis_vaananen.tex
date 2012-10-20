@@ -1,9 +1,11 @@
 \documentclass[english,12pt,a4paper]{article}
-
+\usepackage[american]{babel}
+\usepackage{csquotes}
 % LAYOUT
 \usepackage{mylayout}
-\setmainlanguage{english}
-\usepackage{csquotes}
+\usepackage{xltxtra}
+%\setmainlanguage{english}
+%\usepackage{csquotes}
 \def\herospath{/usr/share/texmf/fonts/opentype/public/tex-gyre/}
 \def\bibpath{bibliography.bib}
 \InputIfFileExists{local.conf.tex}{}{}
@@ -38,7 +40,11 @@ pdftitle={Dippa},
 pdfauthor={Ville Väänänen},
 pdfproducer={xetex}
 ]{hyperref}
-\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=MidnightBlue}
+\hypersetup{
+linkcolor=black,
+citecolor=black,
+filecolor=black,
+urlcolor=black}
 %\usepackage{mcode}
 
 %\usepackage[shadow]{todonotes}
@@ -140,66 +146,33 @@ pdfproducer={xetex}
 \theoremstyle{definition}
 \newtheorem{example}{Example}
 
-
 % BIBLIOGRAPHY
-\usepackage[style=authoryear-comp,backend=biber]{biblatex} % TEXLIPSE BUG: backend cannot be first
-%###
+\usepackage[uniquelist=minyear,style=apa,backend=biber]{biblatex}
 \addbibresource{\bibpath}
 %###
-\ExecuteBibliographyOptions{ % use this to override options set by the style
-uniquename=false,
-uniquelist=minyear,
-maxcitenames=1,
-url=false,
-firstinits=true
+%\ExecuteBibliographyOptions{ % use this to override options set by the style
+% uniquename=false,
+% uniquelist=minyear,
+% maxcitenames=1,
+% url=false,
+% firstinits=true
+%}
+\AtEveryBibitem{%
+  \ifboolexpr
+    {
+      test { \ifentrytype{article} }
+      or
+      test { \ifentrytype{book} }
+      or
+      test { \ifentrytype{inbook} }
+      or
+      test { \ifentrytype{inproceedings} }
+    }
+    {\clearfield{url}}
+    {}%
 }
 \setlength\bibnamesep{1.5\itemsep}
 
-
-%###########################################
-%## http://tex.stackexchange.com/q/28461 ###
-%###########################################
-
-\newcounter{cbx:totalcite}
-\newbibmacro{textcite:count}{%
-  \iffirstcite
-    {\setcounter{cbx:totalcite}{1}}
-    {\addtocounter{cbx:totalcite}{1}}}
-
-\newbibmacro{textcite:delim}{%
-  \iffirstcite
-    {}
-    {\iflastcite
-       {\ifnumgreater{\value{cbx:totalcite}}{2}
-          {\finalandcomma\space\bibstring{and}\space}
-          {\addspace\bibstring{and}\space}}
-       {\addcomma\space}}}
-
-\def\iffirstcite{%
-  \ifboolexpr{ ( test {\ifnumequal{\value{multicitetotal}}{0}}
-                 and test {\ifnumequal{\value{citecount}}{1}} )
-               or ( test {\ifnumgreater{\value{multicitetotal}}{0}}
-                    and test {\ifnumequal{\value{multicitecount}}{1}}
-                    and test {\ifnumequal{\value{citecount}}{1}} ) }}
-
-\def\iflastcite{%
-  \ifboolexpr{ test {\ifnumequal{\value{citecount}}{\value{citetotal}}}
-               and test {\ifnumequal{\value{multicitecount}}{\value{multicitetotal}}} }}
-
-\DeclareCiteCommand{\textcite}
-  {\boolfalse{cbx:parens}}% <precode>
-  {\usebibmacro{citeindex}% <loopcode>
-   \usebibmacro{textcite:count}%
-   \usebibmacro{textcite:delim}%
-   \usebibmacro{textcite}}
-  {\ifbool{cbx:parens}
-     {\bibcloseparen\global\boolfalse{cbx:parens}}
-     {}}% <sepcode>
-  {\usebibmacro{textcite:postnote}}% <postcode>
-
-\DeclareMultiCiteCommand{\textcites}{\textcite}{}
-
-%######################################################
 
 \setlength{\hoffset}{-1in}
 \setlength{\oddsidemargin}{35mm}
@@ -247,6 +220,7 @@ firstinits=true
 	%title=\lstname,                 % show the filename of files included with
 }
 
+\DeclareLanguageMapping{american}{american-apa}
 
 \begin{document}
 \captionsetup{subrefformat=parens}%

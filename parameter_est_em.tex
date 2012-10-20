@@ -2,10 +2,12 @@
 Expectation maximization (EM) algorithm is a general
 method for finding ML and MAP estimates in probabilistic models with missing data or
 latent variables. It was first introduced in
-the celebrated article of \textcite{Dempster1977}. Instead of maximizing
+the celebrated article of \textcite{Dempster1977} and its 
+convergence properties were proved in \textcite{Wu1983}
+. Instead of maximizing
 \eqref{eq:logLH} directly, EM alternates between computing a variational lower bound and then maximizing this bound
 \parencite{Bishop2006,barber2012bayesian}. As will be seen, since the bound is strict, increasing the bound implies
-an increase in the objective function. For these reasons EM is well described as lower bound optimization \parencite{Minka1998}.
+an increase in the objective function.
 We shall use $\E{\cdot}_{q}\equiv\defint{}{}{\cdot\,\Pdf[q]{z}}{z}$ to denote the expectation
 over any distribution $\Pdf[q]{z}$.
 
@@ -59,7 +61,8 @@ Let us now define
 \end{align}
 Regarding these functions we will use the convention that denoting for example $\EMB{\gv{\psi}}{\Th}$ means the
 expectation is taken with respect to some \emph{unspecified} distribution $\tPX$, whereas $\EMB$ implies
-that it is taken with respect to the posterior distribution of the states with parameter $\Th'$, i.e. $\post{\Th'}$. 
+that it is taken with respect to the posterior distribution of the states with parameter $\Th'$, 
+that is $\post{\Th'}$. 
 
 
 According to \eqref{eq:lLH_decomp} we now have
@@ -77,8 +80,8 @@ clearly it suffices to consider
 only $\EMQ$, known as the \emph{expected complete-data log-likelihood}
 or the \emph{intermediate quantity of EM} \parencite{Cappe2005,Bishop2006}.
 
-What is also interesting about $\EMQ$ is that it can be used to compute the gradient of the log-likelihood, i.e
-the score, itself. From equations \eqref{eq:EM_B}
+What is also interesting about $\EMQ$ is that it can be used to compute the gradient of the log-likelihood, meaning
+the score, itself. From Equations \eqref{eq:EM_B}
 and \eqref{eq:EM_sharp_bound} it can be seen rather easily, that  
 the score evaluated at $\widehat{\Th}$ is given by
 \begin{align}
@@ -86,7 +89,7 @@ the score evaluated at $\widehat{\Th}$ is given by
 		\nabla_{\Th}\EMQ[\big]{\widehat\Th}{\widehat\Th}
 		\equiv\eval{\dpd{ \EMQ[\big]{\widehat\Th}{\Th}}{\Th}}_{\Th=\widehat\Th} \label{eq:EM_gradients}
 \end{align} 
-Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005}. It gives
+Equation \eqref{eq:EM_gradients} is known as \emph{Fisher's identity} \parencite{Cappe2005, Segal1989}. It gives
 an alternative route for the score function computation.
 The implications will be discussed in more detail in the sequel.
 
@@ -106,10 +109,10 @@ the bound we can write
 This highlights
 the fact that \emph{the likelihood is increased or unchanged with every new estimate} $\Th_{j+1}$.
 Also following from \eqref{eq:fundamental_inequality} is the fact that if the iterations
-stop at a certain point, i.e. $\Th_{l}=\Th_{l-1}$ at iteration $l$, then
+stop at a certain point, meaning $\Th_{l}=\Th_{l-1}$ at iteration $l$, then
 $\EMQ{\Th_l}{\Th}$ must be maximal at $\Th=\Th_l$ and thus its gradient, and 
 by \eqref{eq:EM_gradients} that of the likelihood, must be zero at $\Th=\Th_l$. Thus
-$\Th_l$ is a \emph{stationary point} of $\lLH$, i.e a local maximum or a saddle point.
+$\Th_l$ is a \emph{stationary point} of $\lLH$, that is, a local maximum or a saddle point.
 
 Figure~\ref{fig:ar1_em} illustrates the EM algorithm for a unidimensional parameter 
 $\theta$. Starting from the lower left corner, given the current parameter estimate
@@ -165,8 +168,8 @@ that $\v{z}^\tr=\brak*{\mathrm{vec}\brac*{\X}^\tr,\mathrm{vec}\brac*{\Y}^\tr}$, 
 creates vectors out of matrices by stacking their columns. Thus $\v{z}$ 
 contains the hidden variables $\X$ and the measurements $\Y$. 
 
-The intermediate quantity, i.e the expectation of the logarithm of $\Pdf[q]{\z}{\Th}$ over the posterior distribution of 
-$\X$ (implicit in the notation) becomes now
+The intermediate quantity, which is the expectation of the logarithm of $\Pdf[q]{\z}{\Th}$ over the posterior
+distribution of $\X$ (implicit in the notation) becomes now
 \begin{align}
 	\EMQ&=	\F{\gv{\psi}}{\Th}^\tr \E{\F*{s}{\z}}-\F{c}{\Th}+\E{\F{h}{\z}}.
 \end{align}
@@ -186,6 +189,11 @@ for an approximation to the parameter posterior \parencite{barber2012bayesian,Bi
 \begin{align}
 	\Pdf{\Th}{\Y} &= \frac{1}{Z}\Pdf{\Y}{\Th}\Pdf{\Th} \approx \Pdf[q]{\Th}. 
 \end{align}
+The appeal here is that when succesfull, fully Bayesian results can
+be obtained with significantly reduced computational requirements
+as compared to MCMC methods. Unfortunately it seems that applying
+VB to SSMs is somewhat problematic, as discussed in \textcite{Turner2011}.   
+
 Let us introduce the following simplifying
 factorization to the joint posterior of states and parameters.
 \begin{align}
@@ -227,7 +235,7 @@ steps of the algorithm are:
 Let us then suppose that we only wish to find the MAP point estimate $\Th^*$. This can be accomplished
 by assuming a delta function form $\Pdf[q]{\Th}=\delta\left(\Th,\Th^*\right)$ for the parameter factor in the
 joint distribution of states and parameters \eqref{eq:VB_factorization}.
-With this assumption equation the bound becomes
+With this assumption the bound becomes
 \begin{align}
 	\Pdf{\Y}{\Th^*} &\geq \E{\Pdf{\X,\Th^*,\Y}}{\Pdf[q]{\X}\Pdf[q]{\Th}} - \E{\Pdf[q]{\X}}{\Pdf[q]{\X}} + \mathtt{const}
 	\label{eq:VB_MAP_boundl}
@@ -236,7 +244,7 @@ and the ``M''-step \eqref{eq:VB_M} can then be written as
 \begin{align}
 	\Th_{j+1} &= \argmax_{\Th}\brak*{\E{\log\cLH}{\Pdf[q]{\X}}+\log\Pdf{\Th}}.	
 \end{align}
-If the point estimate is plugged in the ``E''-step equation \eqref{eq:VB_E} we have
+If the point estimate is plugged in the ``E''-step Equation~\eqref{eq:VB_E} we have
 \begin{align}
 	\Pdf[q_{j+1}]{\X}\propto \Pdf{\X,\Y}{\Th_j} \propto \Pdf{\X}{\Y,\Th_j} 	
 \end{align}
@@ -248,18 +256,18 @@ of $\Pdf[q]{\Th}$.
 \subsubsection{Partial E and M steps}%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:EM_partial}
-As can be seen from equation~\eqref{eq:fundamental_inequality},
+As can be seen from Equation~\eqref{eq:fundamental_inequality},
 to ensure monotonicity it is enough that $\EMQ{\Th_j}{\Th_{j+1}}\geq \EMQ{\Th_{j}}{\Th_j}$,
-i.e. $\Th_{j+1}$ is not required to be the maximum of $\EMQ{\Th_j}{\Th}$.
+which means $\Th_{j+1}$ is not required to be the maximum of $\EMQ{\Th_j}{\Th}$.
 This was observed already in \textcite{Dempster1977}, where methods
 that only seek an increase in the M-step were termed 
 \emph{generalized} EM (gEM) algorithms. 
 
 Another modification is the partial, or approximate, E-step. It is clear
-that in this case, i.e. when we cannot compute $\post$ exactly, the Kullback-Leibler 
+that in this case, when we cannot compute $\post$ exactly, the Kullback-Leibler 
 divergence in decomposition \eqref{eq:lLH_decomp} is strictly positive. This
 means that the lower bound we are optimizing never ``touches'' the log-likelihood
-as in equation \eqref{eq:EM_sharp_bound} and Figure~\ref{fig:ar1_em}. 
+as in Equation~\eqref{eq:EM_sharp_bound} and Figure~\ref{fig:ar1_em}. 
 Thus EM with an approximate  E step is not an ascent 
 algorithm anymore \parencite{Goodwin2005}.
 
@@ -317,7 +325,7 @@ applying the identity $\v{a}^\tr\v{C}\v{b}=\Tr{\v{a}^\tr\v{C}\v{b}}=\Tr{\v{C}\v{
 \end{split}
 \label{eq:eclLH}
 \end{align} 
-Let us denote the terms inside the traces in equation~\eqref{eq:eclLH} with
+Let us denote the terms inside the traces in Equation~\eqref{eq:eclLH} with
 \begin{align}
 	\II{1} &= \E{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr}\\ 
 	&=\defint{\mathcal{X}\times T}{}{\left(\x_0-\gv{\mu}_0\right)\left(\x_0-\gv{\mu}_0\right)^\tr\Pdf{\X}{\Y,\Th'}}{\X}\nonumber\\
@@ -341,7 +349,7 @@ we can write first expectation as
 	\label{eq:I1}
 \end{align}
 where we denote Gaussian smoothing distributions by $\Pdf{\xk}{\Y}=\N[\xk]{\m_{k|T}}{\P_{k|T}}$.
-This was a result of assuming the Gaussian prior distribution of equation~\eqref{eq:prior} and
+This was a result of assuming the Gaussian prior distribution of Equation~\eqref{eq:prior} and
 it is common for the more specific models we're assessing in the next chapters.
 
 As in \eqref{eq:joint_smoothing}, let us also denote the joint smoothing distribution of $\xk$ and $\xkk$ by
@@ -454,16 +462,16 @@ The analogous result for $\v{R}$ is given by
 \end{align} 
 
 All in all, the E-step of EM algorithm in linear-Gaussian SSM:s consists of
-computing the $T$ joint distributions in equation~\eqref{eq:pdf_smooth_joint} with the RTS smoother.
+computing the $T$ joint distributions in Equation~\eqref{eq:pdf_smooth_joint} with the RTS smoother.
 Actually this is not the only option, as for example in
 \textcite{Elliott1999} a new kind of filter is presented that
 can compute the expectations with only forward recursions.
 After this, the M-step estimates are computed for $\v{Q}$
-from equation~\eqref{eq:EM_M_Q}, for $\v{R}$ from equation~\eqref{eq:EM_M_R}, for $\v{A}$ from equation~\eqref{eq:EM_M_A}
-and for $\v{H}$ from equation~\eqref{eq:EM_M_H}. Also for evaluating the convergence,
+from Equation~\eqref{eq:EM_M_Q}, for $\v{R}$ from Equation~\eqref{eq:EM_M_R}, for $\v{A}$ from
+Equation~\eqref{eq:EM_M_A} and for $\v{H}$ from Equation~\eqref{eq:EM_M_H}. Also for evaluating the convergence,
 one needs to compare the current value of $\EMQ$ with the previous one.
-For this we can compute $\II{1}$ from equation~\eqref{eq:I1},
-$\II{2}$ from equation~\eqref{eq:LGSSM_I2} and $\II{3}$ from equation~\eqref{eq:LGSSM_I3}.
+For this we can compute $\II{1}$ from Equation~\eqref{eq:I1},
+$\II{2}$ from Equation~\eqref{eq:LGSSM_I2} and $\II{3}$ from Equation~\eqref{eq:LGSSM_I3}.
 
 % For working with structured matrices let us rewrite the gradient equation~\eqref{eq:dLB_nonlinear}
 % in the linear-Gaussian case:
@@ -505,7 +513,7 @@ parameters as well as in the states so that the simplest form to write the
 model is exactly \eqref{eq:ssm_general}. This situation leads to 
 complications in both the E and the M steps of the EM algorithm.
 Applying EM to SSMs with partial or approximate E-step is considered
-at least in \textcite{Schon2011,Ratna2008,Doucet2001,Roweis2001,Goodwin2005}.
+at least in \textcite{Schon2011,Ratna2008,Doucet2001,Roweis2001},  and \textcite{Goodwin2005}.
 
 Our strategy then will be to apply Gaussian filtering and smoothing
 in the E-step to compute the expectations of the sufficient statistics,
@@ -513,7 +521,7 @@ which is according to section~\ref{sec:EM_exp} what the E step reduces
 to after the Gaussian assumption. In the M-step
 we shall utilize a gradient based optimization method.
 This naturally leads to the requirement of being able to compute 
-$\nabla_{\Th}\EMQ$, i.e the gradient of the intermediate quantity with respect
+$\nabla_{\Th}\EMQ$, that is the gradient of the intermediate quantity with respect
 to $\Th$. It is quite unclear how many iterations of the optimization algorithm should
 be run in the M-step since, as pointed out in section~\ref{sec:EM_partial},
 any new parameter value that increases the log-likehood suffices. In \textcite{Lange1995}
@@ -581,7 +589,7 @@ integration rule.
 
 To use BFGS optimization, we will need the analytical gradient of the objective function.
 It is important to highlight at this point that the joint smoothing distribution approximation
-of equation~\eqref{eq:smooth_approx} depends on $\Th'$ (the \emph{current}, e.g. given, parameter value)
+of Equation~\eqref{eq:smooth_approx} depends on $\Th'$ (the \emph{current}, e.g. given, parameter value)
 and during the M-step we are searching for the \emph{next} parameter value $\Th^{\prime\prime}=\argmax_{\Th}\EMQ$. In other words
 when differentiating the integrals \eqref{eq:I2_approx} and \eqref{eq:I3_approx} the Gaussian functions
 are independent of $\Th$.
@@ -643,9 +651,9 @@ and
 \begin{align}
 \E{\bm{\yk \\ \h_{k} \\ \h^\nabla_{k,i}}\bm{\yk \\ \h_{k} \\ \h^\nabla_{k,i}}^\tr}. 		
 \end{align}
-\item compute $\II{1}$, $\II{2}$, $\II{3}$ and $\EMQ$ from equations
+\item compute $\II{1}$, $\II{2}$, $\II{3}$ and $\EMQ$ from Equations
 \eqref{eq:I1}, \eqref{eq:I2_approx}, \eqref{eq:I3_approx} and \eqref{eq:EMQ_approx} respectively.
-\item compute $\nabla_{\Th}\EMQ$ from equation \eqref{eq:dLB_nonlinear}
+\item compute $\nabla_{\Th}\EMQ$ from Equation \eqref{eq:dLB_nonlinear}
 \end{enumerate}
 
 
@@ -655,7 +663,7 @@ and
 
 As can be understood from Fisher's identity \eqref{eq:EM_gradients}
 the gradient of the intermediate quantity $\nabla_{\Th}\EMQ$ is equal to the log-likelihood
-gradient, i.e. the score, at the point $\Th=\Th'$. This leads to an alternative computational
+gradient (the score) at the point $\Th=\Th'$. This leads to an alternative computational
 strategy to the sensitivity equations of section~\ref{sec:grad_LGSSM}, termed
 the \emph{easy gradient recipe} in \textcite{Olsson2007}. Thus to compute the score
 at $\Th'$ one performs the computations detailed in the previous section for evaluating
@@ -695,7 +703,7 @@ Then $\f$ can be written as
 \end{align}
 so that $\v{A}$ is now a matrix of size ${d_x\times\sum_{k=1}^m d_{\Phi,k}}$ and $\v{g}:\mathcal{X}\to \R^{\sum_{k=1}^m d_{\Phi,k}}$ . 
 Denoting $\v{g}\left(\xkk\right)\equiv\v{g}_{k-1}$ and $\v{l}\left(\xk\right)\equiv\v{l}_{k}$
-and following the derivation in equation~\eqref{eq:LGSSM_I2} we have
+and following the derivation in Equation~\eqref{eq:LGSSM_I2} we have
 \begin{align}
 	\II{2}
 	&=\bm{\v{I} & -\v{A}}	

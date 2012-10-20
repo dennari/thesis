@@ -31,7 +31,7 @@ the dynamics can now be written as
 \end{align}
 where $g_\chi<0$ is the mean of the force and $\beta(t)$ can be considered
 a white noise process with variance (or spectral density) $q_\chi$. 
-The state then contains the position and its first time derivative, i.e the velocity. 
+The state then contains the position and its first time derivative, the velocity. 
 
 % with
 % \begin{align}
@@ -49,8 +49,8 @@ The state then contains the position and its first time derivative, i.e the velo
 
 To discretize the dynamics, we will apply a simple integration scheme where 
 $\x(t)=\x(t_k)$ when $t\in\big[t_k,t_{k+1}\big)$ \parencite{bar2004estimation}.
-The system will be modeled in two dimensional Cartesian coordinates so that $d_x=4$, i.e
-two components for position and two for velocity. The state at time $k$ is then
+The system will be modeled in two dimensional Cartesian coordinates with
+two state components for position and two for velocity, giving $d_x=4$. The state at time $k$ is then
 \begin{align}
 	\xk &=
 	\bm{\chi_k & \dot{\chi}_k  
@@ -127,9 +127,9 @@ the parameter values presented in Table~\ref{table:ballistic_param}.
 
 Let us then proceed to estimating some of the parameters by using the noisy
 measurements as input to the two parameter estimation methods we have been considering.
-We choose parameters $\Th_{\mathrm{B}}=\brac{g_\chi,g_\gamma,\sigma_r}$, i.e. the
+We choose parameters $\Th_{\mathrm{B}}=\brac{g_\chi,g_\gamma,\sigma_r}$, which are the
 accelerations caused by the drag force and gravitation as well as the measurement noise
-standard deviation. The true values, i.e. the values which were used for generating the
+standard deviation. The true values, that is, the values which were used for generating the
 measurements are presented in Table~\ref{table:ballistic_param}. To inspect the effect of
 the initial guess as well as well as that of the specific measurement dataset, we ran
 $M=100$ simulations with the initial estimate for each parameter $\theta_i$ picked 
@@ -296,14 +296,14 @@ a \emph{pulse oximeter} the functioning of which is based on
 emitting light (of which the infrared component is relevant to the PPG)
 through for example a finger or an earlobe. Then either the transmitted
 or reflected light intensity is measured with a photodiode \parencite{Shelley2007}. 
-As to what exactly is the source of PPG is not without some controversy,
-but as explained in \textcite{Shelley2007}:
-\begin{quotation}
-Conceptually, it is most useful to view the pulse
+As to what exactly is the source of PPG is not without controversy,
+but as explained by \textcite{Shelley2007}:
+%\begin{quotation}
+``Conceptually, it is most useful to view the pulse
 oximeter waveform as measuring the change in blood
 volume (more specifically path length), during a cardiac cycle, 
-in the region being studied (typically the fingertip or earlobe).
-\end{quotation}
+in the region being studied (typically the fingertip or earlobe)'' (p. 31).
+%\end{quotation}
 The most important use of the PPG is the calculation of arterial oxygen
 saturation, but it can also be used to estimate the heart rate.
 In this case a PPG was obtained in connection with a brain imaging study, where
@@ -311,7 +311,7 @@ a pulse oximeter was attached to the subject while being analysed with fMRI \par
 
 A realistic model for this data 
 should take into account the quasi-periodic nature of PPG data,
-i.e. the frequency must be allowed to vary with time.
+meaning the frequency must be allowed to vary with time.
 Following the ideas in \textcite{Sarkka2012}, one possibility
 is to write the model as a superposition of noisy resonators
 with time-varying frequencies.

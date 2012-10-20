@@ -2,7 +2,7 @@
 
 State space models (SSMs) provide a unified probabilistic methodology for modeling
 sequential data \parencite{ljung1994modeling,durbin2012time,Cappe2005,barber2011bayesian}. Sequential data arise in numerous applications, 
-typically in the form of time-series measurements. Modern time-series data arises often in the context of medical imaging,
+typically in the form of time-series measurements. Modern time-series data arise often in the context of medical imaging,
 for example in the case of functional magnetic resonanse imaging (fMRI) or magnetoencephalography (MEG).
 However it is not necessary for the sequence index to have
 a temporal meaning. In probabilistic terms a time-series
@@ -21,11 +21,14 @@ A further assumption in SSMs is that the process of interest, the dynamic proces
 but only through another stochastic process, the \emph{measurement process} $\y$. Since
 $\x$ is not observed, SSMs belong to the class of \emph{latent variable models}. Sometimes, as in
 \textcite{Cappe2005}, SSMs are called \emph{hidden Markov models} (HMM) but usually this implies that
-the sample space of $\x$ is discrete. Another assumption is that the values of the measurement process are conditionally independent
-given the latent Markov process.
-An intuitive way to present conditional independence properties between random
-variables is a \emph{Bayes network} presented by a directed acyclic graph (DAG) \parencite{pearl1988probabilistic,Bishop2006}.
-%The conditional independence properties of a discrete-time SSM are presented in figure~\ref{fig:ssm_graphical}.
+the sample space of $\x$ is discrete. Yet another term for a quite general subclass
+of SSMs is termed \emph{dynamic Bayesian networks} (DBNs). These and some connections
+to classical time-series modeling approaches are discussed in \textcite{Murphy2002}. 
+
+An important characteristic of SSMs is that the values of the measurement process are conditionally independent
+given the latent Markov process. An intuitive way to present conditional 
+independence properties between random variables is a \emph{Bayes network} 
+presented by a directed acyclic graph (DAG) \parencite{pearl1988probabilistic,Bishop2006}.
 A Bayes network presentation of a discrete-time SSM is given in Figure~\ref{fig:ssm_graphical}.
 
 \begin{figure}[!htb]
@@ -73,8 +76,8 @@ A Bayes network presentation of a discrete-time SSM is given in Figure~\ref{fig:
 	    	edge [tconnect] (yT);
 	\end{tikzpicture}
 	\caption{A discrete-time state space model as a graphical model presented with a directed acyclic graph.
-	Each node represents a random variable and arrows present dependence. The hidden variables $\xk$, i.e. the states, form
-	a Markov chain and each state has a corresponding measurement $\yk$, which is oberved. Given the states, the measurements
+	Each node represents a random variable and arrows present dependence. The hidden variables $\xk$, meaning the
+	states, form a Markov chain and each state has a corresponding measurement $\yk$, which is oberved. Given the states, the measurements
 	are independent. Both the states and the measurements depend on the parameter $\Th$.}
 	\label{fig:ssm_graphical}
 \end{figure}%
@@ -119,8 +122,8 @@ Thus in order to describe a SSM one needs to specify three distributions:
 \end{description}
 In this thesis it is assumed that the parametric form of these distributions is known
 for example by physical modeling \parencite{ljung1994modeling}. Regarding the notation,
-we will overload $\Pdf{\cdot}{\cdot}$ as a generic density specified by its arguments and
-the difference between random variables and their realizations is suppressed.
+we will overload $\Pdf{\cdot}{\cdot}$ as a generic probability density function (PDF) 
+specified by its arguments. Also the difference between random variables and their realizations is suppressed.
 
 Traditionally SSMs are specified as a pair of equations specifying the dynamic and measurement models. 
 In great generality, discrete-time SSMs can be described by the following dynamic and measurement equations 
@@ -135,7 +138,7 @@ Here the stochasticity is separated into the noise processes $\v{q}$ and $\v{r}$
 assumed to be zero mean, white and independent of each other. We will restrict ourselves
 to the case of zero mean, white and additive Gaussian noise. Furthermore, 
 the dynamic, measurement and both noise processes will be assumed \emph{stationary}.
-This means that $\f_k$ and $\h_k$ and the pdfs of $\v{q}_{k-1}$ and $\v{r}_k$ will be independent
+This means that $\f_k$ and $\h_k$ and the PDFs of $\v{q}_{k-1}$ and $\v{r}_k$ will be independent
 of $k$. Thus the SSMs considered in this thesis are of the form
 \begin{subequations}
 \label{eq:ssm_general}
@@ -146,7 +149,7 @@ of $k$. Thus the SSMs considered in this thesis are of the form
 \end{alignat}
 \end{subequations}
 Regarding the Gaussian probability distribution,
-suppose $\x\in\R^{d_x}$ is normally distributed with mean $\m$ and covariance matrix $\P$.
+suppose $\x$ is normally distributed with mean $\m$ and covariance matrix $\P$.
 We will then use the notation $\x \sim \N{\m}{\P}$ for ``distributed as'', 
 whereas ``distribution of'' is denoted as $\Pdf{\x}=\N[\x]{\m}{\P}$, where
 the Gaussian probability density function is
@@ -161,8 +164,8 @@ specify the means of the dynamic and the measurement models:
 \begin{subequations}
 \label{eq:ssm_distr_general}
 \begin{align}
-	\Pdf{\xk}{\xkk,\Th}&=\N[\xk][\big]{\ff}{\QQ}\label{eq:dynamics_distr_general}\\
-	\Pdf{\yk}{\xk,\Th}&=\N[\yk][\big]{\hh}{\RR}\label{eq:measurement_distr_general}
+	\Pdf{\xk}{\xkk,\Th}&=\N[\xk][\big]{\ff}{\QQ}\label{eq:dynamics_distr_general},\\
+	\Pdf{\yk}{\xk,\Th}&=\N[\yk][\big]{\hh}{\RR}\label{eq:measurement_distr_general}.
 \end{align}
 \end{subequations}
 Going further, for the sake of notational clarity, we will sometimes make
@@ -184,7 +187,7 @@ the dependence on $\Th$ implicit and use the shorthand notation
 
 State inference
 can be divided into subcategories based on the temporal relationship between the state
-and the observations \parencite{Sarkka2006}.
+and the observations \parencite[see,e.g.,][]{Sarkka2006,Anderson1979}.
 \begin{description}
 \addtolength{\leftskip}{1cm}
 	\item[Predictive distribution]
@@ -199,14 +202,14 @@ and the observations \parencite{Sarkka2006}.
 
 
 \subsubsection*{Predictive distribution}
-Let us now derive a recursive formulation for computing the filtering distribution at time $k$. Let $\Pdf{\xkk}{\y_{1:k-1}}$
-be the filtering distribution of the previous step. Then 
+Let us then derive a recursive formulation for computing the filtering distribution at time $k$. Let
+$\Pdf{\xkk}{\y_{1:k-1}}$ be the filtering distribution of the previous step. Then 
 \begin{align}
 	\Pdf{\xk}{\y_{0:k-1},\Th}&=\defint{}{}{\Pdf{\xk,\xkk}{\y_{0:k-1},\Th}}{\xkk} \nonumber\\
 	&=\defint{}{}{\Pdf{\xk}{\xkk}\Pdf{\xkk}{\y_{0:k-1},\Th}}{\xkk},
 	\label{eq:pred_bayes}
 \end{align}
-which is known as the \emph{Chapman-Kolmogorov equation} \parencite{Sarkka2006}.
+which is known as the \emph{Chapman-Kolmogorov equation} \parencite[see,e.g.,][]{Sarkka2006}.
 In this thesis the predictive distributions will be Gaussian or approximated with a Gaussian
 \begin{align}
 	\Pdf{\xk}{\y_{0:k-1},\Th}&=\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}
@@ -214,7 +217,7 @@ In this thesis the predictive distributions will be Gaussian or approximated wit
 
 \subsubsection*{Filtering distribution}
 Incorporating the newest measurement can be achieved with the Bayes'
-rule (see for example \cite{gelman2004})
+rule \parencite[see,e.g.,][]{gelman2004}
 \begin{align}
 	\underbrace{\Pdf{\xk}{\y_{0:k},\Th}}_\text{posterior}&=\frac{\overbrace{\Pdf{\yk}{\xk,\Th}}^\text{likelihood}\overbrace{\Pdf{\xk}{\y_{0:k-1},\Th}}^\text{prior}}{\underbrace{\Pdf{\y_{k}}{\y_{0:k-1},\Th}}_\text{normalization
 	constant}}\nonumber\\
@@ -247,7 +250,7 @@ so that the marginal is given by
 	\Pdf{\xk}{\Y,\Th}&=\Pdf{\xk}{\y_{0:k},\Th}\defint{}{}{\left[\frac{\Pdf{\x_{k+1}}{\xk,\Th}\Pdf{\x_{k+1}}{\Y,\Th}}{\Pdf{\x_{k+1}}{\y_{0:k},\Th}}\right]}{\x_{k+1}},
 	\label{eq:smooth_bayes}
 \end{align}
-where $\Pdf{\x_{k+1}}{\y_{0:k}}$ can be computed by equation \eqref{eq:pred_bayes}.
+where $\Pdf{\x_{k+1}}{\y_{0:k}}$ can be computed by Equation~\eqref{eq:pred_bayes}.
 In this thesis the smoothing distributions will be Gaussian or approximated with a Gaussian
 \begin{align}
 	\Pdf{\xk}{\Y}&=\N[\xk]{\m_{k|T}}{\P_{k|T}}
