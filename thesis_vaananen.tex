@@ -108,6 +108,7 @@ urlcolor=black}
 \NewDocumentCommand\muu{s G{\Th}}{\IfBooleanTF{#1}{\gv\mu_0}{\F{\gv\mu_0}{#2}}}
 \NewDocumentCommand\Sig{s G{\Th}}{\IfBooleanTF{#1}{\gv\Sigma_0}{\F{\gv\Sigma_0}{#2}}}
 \NewDocumentCommand\II{O{\displaysize} m}{\F[#1]{\v{I}_{#2}}{\Th,\Th'}}
+\NewDocumentCommand\III{O{\displaysize} m}{\F[#1]{\widehat{\v{I}}_{#2}}{\Th,\Th'}}
 \NewDocumentCommand\post{G{\Th}}{\Pdf[p]{\X}{\Y,#1}}
 \NewDocumentCommand\cLH{G{\Th}}{\Pdf{\X,\Y}{#1}}
 \NewDocumentCommand\LH{G{\Th}}{\Pdf{\Y}{#1}}
@@ -262,7 +263,7 @@ urlcolor=black}
 \setcounter{page}{1}
 
 \begin{onehalfspace}
-\section{Introduction}
+\section{Introduction}\label{sec:intro}
 \input{introduction}
 
 
@@ -272,16 +273,16 @@ urlcolor=black}
 
 \clearpage
 
-\section{Background}
+\section{Background}\label{sec:background}
 \input{background}
 \clearpage
 
 
-\section{State estimation}
+\section{State estimation}\label{sec:state_est}
 \input{state_est}
 \clearpage
 
-\section{Parameter estimation}
+\section{Parameter estimation}\label{sec:param_est}
 \input{parameter_est}
 \clearpage
 
@@ -289,7 +290,7 @@ urlcolor=black}
 \input{results}
 \clearpage
 
-\section{Conclusion}
+\section{Conclusion}\label{sec:conclusion}
 \input{discussion}
 \clearpage
 

@@ -2,12 +2,30 @@
 %% English abstract, uncomment if you need one. 
 %% 
 %% Abstract keywords
-\keywords{Resistor, Resistance,\\ Temperature}
+\keywords{Parameter estimation, Sequential data, Nonlinear state space models,
+Expectation maximization, Quasi--Newton optimization}
 %% Abstract text
 \begin{abstractpage}[english]
- Your abstract in English. Try to keep the abstract short, approximately 
- 100 words should be enough. Abstract explains your research topic, 
- the methods you have used, and the results you obtained.  
+State space modeling is a widely used statistical approach
+for sequential data. Commonly the resulting models can be considered to contain
+two interconnected estimation problems: that of the dynamic states
+and that of the static parameters. The difficulty of these problems
+depends critically on the linearity of the model, either with
+respect to the states, the parameters or both.\\\\%
+%
+In this thesis we show how to obtain maximum likelihood and maximum a posteriori
+estimates for the static parameters. Two methods are considered: gradient based nonlinear
+optimization of the marginal log-likelihood and expectation maximization.
+The former requires the filtering distributions and the latter both the
+filtering and the smoothing distributions.
+We show how the efficient Gaussian filtering based methods
+can be applied to obtain these distributions when the model
+is nonlinear.\\\\%
+%
+The resulting optimization equations are demonstrated in a linear model
+with simulated data and a nonlinear model with actual photoplethysmograph
+data. 
+
 \end{abstractpage}
 
 \newpage
@@ -20,26 +38,31 @@
 %% Finnish abstract
 %%
 %% Tiivistelmän avainsanat
-\keywords{Avainsanoiksi valitaan kirjoituksen sisältää keskeisesti kuvaavia
-käsitteitä}
+\keywords{Parametrien estimointi, Aikasarjat, Epälineaariset tila-avaruusmallit,
+EM, Kvasi--Newton optimointi}
 %% Tiivistelmän tekstiosa
 \begin{abstractpage}[finnish]
-  Tiivistelmässä on lyhyt selvitys (noin 100 sanaa)
-  kirjoituksen tärkeimmästä sisällästä: mitä ja miten on tutkittu,
-  sekä mitä tuloksia on saatu. 
-  Tiivistelmässä on lyhyt selvitys (noin 100 sanaa)
-  kirjoituksen tärkeimmästä sisällästä: mitä ja miten on tutkittu,
-  sekä mitä tuloksia on saatu. 
+Tila-avaruusmallinnus on eräs laajalti käytetty aikasarjojen mallinnusmenetelmä.
+Tila-avaruusmallin voidaan ajatella sisältävän kaksi keskenään
+vuorovaikkuteista estimointiongelmaa: dynaamisten tilojen estimointi
+sekä staattisten parametrien estimointi. Näiden estimointiongelmien
+vaikeuteen vaikuttaa erityisen paljon mallin lineaarisuus -- sekä
+tilojen että parametrien suhteen.\\\\%
+%
+Tässä diplomityössä näytämme, kuinka 
+suurimman uskottavuuden estimaattori, jonka voidaan ajatella olevan
+erikoistapaus a posteriori tiheysfunktion maksimoivasta estimaattorista, 
+voidaan johtaa tila-avaruusmallin staattisille parametreille.
+Vertailemme kahta eri menetelmää: 
+uskottavuusfunktion gradienttipohjaista epälineerista optimointia
+sekä expectation maximization algoritmiä.\\\\%
+%
+Lopputuloksina saatuja optimointialgoritmeja sovelletaan kahdessa
+eri tapauksessa, joista toisessa käytetään lineaarista
+mallia ja simuloitua dataa ja toisessa epälineaarista mallia
+ja oikeaa mittalaitteesta peräisin olevaa dataa.
 
-  Tiivistelmässä on lyhyt selvitys (noin 100 sanaa)
-  kirjoituksen tärkeimmästä sisällästä: mitä ja miten on tutkittu,
-  sekä mitä tuloksia on saatu. 
-  Tiivistelmässä on lyhyt selvitys (noin 100 sanaa)
-  kirjoituksen tärkeimmästä sisällästä: mitä ja miten on tutkittu,
-  sekä mitä tuloksia on saatu. 
-  Tiivistelmässä on lyhyt selvitys (noin 100 sanaa)
-  kirjoituksen tärkeimmästä sisällästä: mitä ja miten on tutkittu,
-  sekä mitä tuloksia on saatu. 
+
 \end{abstractpage}
 
 %% Pakotetaan uusi sivu varmuuden vuoksi, jotta 

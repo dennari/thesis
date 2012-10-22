@@ -1,11 +1,12 @@
-Modeling temporal data is of fundamental interest in numerous branches of science.
+Modeling temporal data is of great interest in numerous branches of science.
 Since the passage of time is so deeply embedded in our experience of the world, 
 it is understandable that many scientific questions are posed in a \emph{dynamic}
 setting. Arguably, the very concept of life implies variation in time and so 
-as an example of a dynamic system we can consider any living organism, such as ourselves.
-Measuring heart rate or neuronal activity, with any of the available technologies,
-produces time-varying signals \parencite{Barbieri2006,Ergun2007}. A classic 
-example of a dynamic
+as an example of a dynamic system we can consider any biological being, such as ourselves.
+Measuring heart rate or neuronal activity or any \emph{biosignal}, 
+with any of the available technologies,
+produces sequential data \parencite[see, e.g.,][for a recent application]{Sarkka2012}. A
+classic example of a dynamic
 system is \emph{target tracking}, where based on a sequence of 
 noisy range or angular measurements from a measurement intrument, typically a radar, 
 we would like to continuously 
@@ -21,7 +22,7 @@ estimate the true position and velocity of the target \parencite{bar2004estimati
 %such as distance or order. Without loss in generality, in the sequel the notation 
 %is derived by assuming variation in time. 
 
-Let us then assume the existence of a sequential dataset which is a result of 
+Let us assume the existence of a sequential dataset which is a result of 
 making \emph{measurements} on a \emph{system} of interest. In order to answer questions of interest
 about the system quantitatively,
 the system and the measurements should be mathematically \emph{modeled}. The class of mathematical
@@ -33,26 +34,25 @@ state at the next instant as a function of the current state and \emph{process n
 However the state is \emph{hidden} (or \emph{latent}) and the inference on the state has 
 to be made entirely based on the measurements.  Often some components of the measurements 
 would otherwise translate directly to corresponding components of the state, except that 
-the measurements are always assumed to be \emph{noisy}. So even the part of the state translating 
-to noisy observations is still latent.
-As an example in target tracking the state should contain at least the location and 
+the measurements are always assumed to be \emph{noisy}.
+As an example, in target tracking the state should contain at least the location and 
 the velocity of the target. 
 
 The stochasticity forces us to assume a probabilistic framework. In this thesis the viewpoint
 is decidedly \emph{Bayesian}. In Bayesian statistics, ideally, the complete answer
-is always the \emph{posterior probability distribution}, i.e. the joint probability distribution
+is always the \emph{posterior probability distribution}, meaning the joint probability distribution
 of the random variables of interest given the measurements. Thus instead of answering
 with a single value or a value with error bounds, the answer is the probability
 density function of the interesting quantity given the data. It is important to highlight,
 however, that Bayesian statistics can be used to treat many kinds of uncertainty
 \parencite[as pointed out in e.g.][]{Sarkka2012a}. For example, the instruments used 
-to obtain the measurements are a source of one type of uncertainty, 
+to obtain the measurements are a source of uncertainty related to randomness, 
 whereas our uncertainty regarding the model and its parameters implies
-another kind of uncertainty. Both kinds of uncertainty can be quantified with Bayesian
+another kind of uncertainty. Both kinds of uncertainties can be quantified with Bayesian
 statistics and thus applying statistical methods to a problem does not imply that the problem 
 is actually random.
 
-SSMs are a general framework and in any specific situation prior knowledge of the
+SSMs are a general framework and in any specific application prior knowledge of the
 system has to be brought in. This prior knowledge is not necessarily very specific,
 for example in ballistic target tracking it might include the assumption that Newton's
 laws are applicable. The mathematical form of the dependence
@@ -64,7 +64,7 @@ a random variable with some prior probability distribution $\Pdf{\Th}$.
 In order to complete the model, $\Th$ needs to be estimated based on some available
 training data, the same sequential dataset we assumed earlier. This is sometimes, at least
 in control engineering, known as \emph{system identification}. In this thesis,
-it is assumed that the parameters are static, i.e. independent of time. 
+it is assumed that the parameters are static, that is independent of time. 
 This is then an important distinction between the states and
 the parameters, in this thesis.
 
@@ -76,7 +76,7 @@ The term can be thought to relate to the idea of filtering the noise out of the 
 in order to observe the states. Given a batch of measurements, state estimation is called \emph{smoothing}.
 In order to engage in smoothing, the batch of measurements needs to be collected in its entirety, 
 making smoothing an \emph{offline} procedure. Filtering, on the other hand, is \emph{online}, 
-i.e. the estimates can be updated every time a new measurement arrives.
+meaning the estimates can be updated every time a new measurement arrives.
 
 A distinction is drawn in this thesis between \emph{linear} and \emph{nonlinear}
 models. The linear model can be thought of as a special case of the nonlinear model,
@@ -124,11 +124,11 @@ of this curve, denoted with a star, our estimate would be close to the true valu
     \end{subfigure}%
     %}
 	\caption{%
-	\subref{fig:ar1_simulation} A simulation of a first order random walk model with
-	its single parameter $a$ set to $a=1$.%
+	\subref{fig:ar1_simulation} A simulation of a first order random walk model in Section~\ref{sec:intro}, with
+	parameter $\theta=1$.%
    	The noisy measurements are denoted with crosses. %
    	\subref{fig:ar1_lh} A plot of the unnormalized posterior probability distribution 
-   	of $a$, given the simulated measurements and with a uniform prior.%
+   	of $\theta$, given the simulated measurements and assuming a uniform prior.%
    	}
 	\label{fig:ar1}
  \end{figure}
@@ -139,17 +139,21 @@ of this curve, denoted with a star, our estimate would be close to the true valu
 %\settowidth\graphicwidth{\mygraphic}
 %\message{ar1 width \the\graphicwidth}
 
-The structure of the thesis is as follows. We begin with the background, where
+We begin with the background, where
 SSMs are covered in necessary detail, Bayesian optimal filtering
 and smoothing equations are derived and the role of the static parameters is elaborated
-on. Following the background we focus on state estimation, first for linear
+on. Following the background, in Section~\ref{sec:state_est} we focus on state estimation, first for linear
 and then for nonlinear systems. The Kalman filter is introduced here as is the
 concept of Gaussian filtering, a deterministic approximation used for nonlinear systems.
-The third chapter is concerned with the two methods
+The fourth section is concerned with the two methods
 of parameter estimation we are comparing: gradient based nonlinear optimization
-and the Expectation Maximization (EM) algorithm. The methods are analyzed in sufficient
-theoretical detail in order to draw conclusions about the behavior of the methods
-in the results section. The results section has two subsections: 
+and the Expectation Maximization (EM) algorithm. Our goal here is to present the underlying ideas,
+the resulting equations and the most helpful literary references for one to be able to 
+actually implement these methods.
+ 
+The theoretical analysis is sufficiently detailed in order to 
+draw some conclusions about the behavior of the
+parameter estimation methods in the results section. The results section has two subsections: 
 a target tracking application with simulated data and a biomedical signal processing 
 application with real world data.
 

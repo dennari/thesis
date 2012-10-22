@@ -10,8 +10,8 @@ mechanics and that the projectile experiences a constant known gravitational
 force, directed towards the ground. In addition we assume a \emph{constant}
 drag force directed orthogonally to the gravitational force. This is clearly
 an oversimplification, since in a more realistic model the drag
-force is proportional to velocity and directed against it. Furthermore
-the drag force is higly dependent on air density and so the altitide. \parencite{ristic2004beyond}.
+force should be proportional to velocity and directed against it. Furthermore
+the drag force is highly dependent on air density and so on the altitude \parencite{ristic2004beyond}.
 Nevertheless, we make the aforementioned simplification to keep to resulting
 SSM linear. The modeling error is mitigated slightly by introducing
 additive white noise to both forces.
@@ -30,8 +30,8 @@ the dynamics can now be written as
 	\label{eq:ct_linear}
 \end{align}
 where $g_\chi<0$ is the mean of the force and $\beta(t)$ can be considered
-a white noise process with variance (or spectral density) $q_\chi$. 
-The state then contains the position and its first time derivative, the velocity. 
+a white noise process with variance (or spectral density) $\sigma^2_\chi$. 
+Thus the state contains the position and its first time derivative, the velocity. 
 
 % with
 % \begin{align}
@@ -58,14 +58,14 @@ two state components for position and two for velocity, giving $d_x=4$. The stat
 	\label{eq:ballistic2D_state}
 \end{align}
 where $\dot{\chi}_k = \eval{\dod{\chi(t)}{t}}_{t=t_k}$ and analogously for $\dot{\gamma}_k$.
-The corresponding measurement without the additive noise is
+The corresponding measurement is given by
 \begin{align}
-	\yk-\v{r}_k &= \bm{\chi_k & \gamma_k }^\tr.
+	\yk &= \bm{\chi_k & \gamma_k }^\tr + \v{r}_k,
 	\label{eq:ballistic2D_measurementsl}
 \end{align}
-
-
-\noindent The discrete time linear-Gaussian SSM can now be written as
+where $\v{r}_k$ is a white noise process with variance $\sigma^2_r$.
+%
+The discrete time linear-Gaussian SSM can now be written as
 \begin{align}
 	\begin{aligned}
 	\x_k &= \v{A}\xkk+\v{u}+\q_{k-1},\qquad & 
@@ -98,9 +98,9 @@ Additionally, the initial state $\x_0$ is assumed to be known
 with $\x_0=\bm{0 & \cos(\alpha_0)v_0 & 0 & \sin(\alpha_0)v_0}^\tr$.
 
 Figure~\ref{fig:ballistic2D_simulation} presents an example trajectory with
-the hidden state components obtained by simulation and the correponding
-simulated noisy measurements. The simulated model was the discretized
-linear-Gaussian model in Equation~\eqref{eq:ballistic_model} with  
+the hidden state components obtained by simulation and the corresponding
+simulated noisy measurements. The simulated model was the
+linear-Gaussian SSM in Equation~\eqref{eq:ballistic_model} with  
 the parameter values presented in Table~\ref{table:ballistic_param}.
 
 \begin{table}[htbp]
@@ -133,8 +133,9 @@ standard deviation. The true values, that is, the values which were used for gen
 measurements are presented in Table~\ref{table:ballistic_param}. To inspect the effect of
 the initial guess as well as well as that of the specific measurement dataset, we ran
 $M=100$ simulations with the initial estimate for each parameter $\theta_i$ picked 
-from the uniform distribution $U\brak{0,2\theta_i}$. The lengths of the simulated measurent
-datasets were around $N\approx 1400$ with some variance caused by always stopping
+from the uniform distribution $U\brak{0,2\theta_i^*}$, where $\theta_i^*$ is the true generative value
+for parameter $i$ given in Table~\ref{table:ballistic_param}. The lengths of
+the simulated measurent datasets were around $N\approx 1400$ with some variance caused by always stopping
 the simulation when $\gamma_k<0$ for some $k$. For each simulated dataset and the associated
 initial estimate we ran the EM and the BFGS parameter estimation methods for joint estimation
 of the three parameters. 
@@ -181,22 +182,22 @@ as a function of the iteration number of the estimation method. The convergence
 profiles show a lot of variability between the methods and between the parameters but
 the means of the converged estimates seem to agree very well with the generative values
 in all cases. Also $g_\gamma$ and $\sigma_r$ show very little variance in the
-converged estimate compared to $\g_\chi$. In any case, according to the asymptotic
-theory of the ML/MAP estimates, the variance should go to zero as the amount of data increases.
+converged estimate compared to $g_\chi$. In any case, according to the asymptotic
+theory of the ML/MAP estimates, the variance should go to zero as the amount of data
+approaches infinity.
 
 Finally, Table~\ref{table:ballistic_restults} presents the averaged final
-results. Both methods obtain exactly
-the same results in the table and they agree in fact to the first six decimal places. 
-This is to be expected, since they can be proved to compute the same quantities 
-in the linear-Gaussian case \todo{This needs to explained earlier}. The fact that
-the result differ after the sixth decimal place can be explained by differing
+results. Both methods seem to obtain the same results and in fact they agree to the first six decimal places. 
+This is to be expected, since as mentioned earlier, they can be proved to compute the same quantities 
+in the linear-Gaussian case. The fact that
+the results differ after the sixth decimal place can be explained by differing
 numerical properties of the two algorithms. In case of $g_\gamma$ and $\sigma_r$,
 the estimates agree exactly at least to three decimal places with the generative
-values, whereas $\g_\chi$ is correct up to two decimal places. Since we are using
+values, whereas $g_\chi$ is correct up to two decimal places. Since we are using
 unbiased estimates, the estimation error could be diminished up to the order of the machine
 epsilon by simulating more data points \todo{Is this true or does it depend on the numerical properties?}.
 As a conclusion, it seems that in this case the estimation problem was too simple to bring
-about noticeable differences in the performance of the estimation methods.
+about noticeable differences in the performance of the parameter estimation methods.
 
 \begin{figure}[htbp]%
     \centering%
@@ -334,7 +335,7 @@ the initial conditions.
 Writing Equation~\eqref{eq:noisy_resonator} as a vector valued first order differential equation
 and dividing the noise and the signal derivative by $n\omega(t)$, we get
 \begin{align}
-	\dod{}{t}\bm{c_n(t) \\ \widehat{\dot{c}}_n(t)} &= \bm{0 & \omega(t)^2 \\ -\omega(t) 0}\bm{c_n(t) \\
+	\dod{}{t}\bm{c_n(t) \\ \widehat{\dot{c}}_n(t)} &= \bm{0 & \omega(t) \\ -\omega(t) & 0}\bm{c_n(t) \\
 	\widehat{\dot{c}}_n(t)}+\bm{0\\1}
 	\widehat{\varepsilon}_n(t).
 	\label{eq:noisy_resonator_vec}
@@ -345,7 +346,8 @@ properties than that of the exact version. Furthermore, the process noise can ac
 modeling errors. 
 
 Discretizing Equation~\eqref{eq:noisy_resonator_vec} at equispaced points $\brac{t_k}_{k=1}^T$
-with interval $\tau$ and assuming $\omega(t)=\omega(t_k)\equiv \omega_k$ when $t\in\brak{t_k,t_{k+1}}$,
+with interval $\tau$ and assuming $\omega(t)=\omega(t_k)\equiv \omega_k$ when $t\in[t_k,t_{k+1})$
+and that the process noises have equal distributions between the harmonics,
 we get the following dynamic model for displacement $x^{(n)}$:
 \begin{align}
 	\bm{x_k^{(n)} \\ \dot{x}_k^{(n)}} &\sim 
@@ -398,9 +400,10 @@ the rest of the parameters as fixed with the values
 presented in Table~\ref{table:harmonic_param}.
 The first component of the parameter, $\sigma_\omega$, is the standard deviation
 of the angular velocity and the second, $\sigma_x$, is the standard deviation
-of the displacement $x$. It would be quite difficult to try to estimate
-these values based only on a priori information, in contrast to $\sigma_r$,
-which can be obtained from the measurement device (the pulse oximeter).
+of the displacement $x$, shared between the $m=3$ harmonic components. 
+It would be quite
+difficult to try to estimate these values based only on a priori information, in contrast to $\sigma_r$
+which could be obtained from the measurement device (the pulse oximeter).
 
 Since $\QQ{\Th_{\textrm{P}}}$ is diagonal, we can use Equation~\eqref{eq:EM_M_Q}
 in the EM M-step and pick the corresponding elements from the resulting full matrix
@@ -411,27 +414,24 @@ as the approximate filtering and smoothing methods respectively. The score funct
 for BFGS was computed by the recursive sensitivity equations of Section~\ref{sec:grad_nonlinear}.  
 
 To analyze the results' sensitivity to the initial estimate, we ran $M=100$ optimizations
-with both methods with the initial estimate of $\theta_i$ drawn from 
-$U\brak{0.1,2.1\theta_i}$ (so that the initial estimate was always the same between the methods). 
-
-
-The likelihood convergence for
+with both methods with the initial estimates drawn from a uniform distribution
+on a suitable interval (that the initial estimate was always the
+same between the methods). The likelihood convergence for
 both methods is presented in Figure~\ref{fig:harmonic_lh}.
 We note again that the iteration numbers are
 not directly comparable. As can be seen, the EM estimates seem to
 converge to values producing identical log likelihood values (on the figure's scale) whereas
 the BFGS estimates have at least two modes. In contrast to the linear SSM
 analyzed in the previous section, here we can see that the convergence of the EM
-is clearly not monotonic in all cases.
+is not monotonic in all cases.
 
 The parameter convergence
 results are presented in Figure~\ref{fig:harmonic_est},
 which contains four separate panels: one per parameter and estimation method. 
-One line is plotted in every panel for every optimization run and th
-e panels display their quantities
+One line is plotted in every panel for every optimization run and the panels display their quantities
 as a function of the iteration number of the estimation method.
 The first thing to note is the vast difference in the behavior of the methods.
-While the EM estimates are quite predictable and either do not converge at
+The EM estimates are quite predictable and either do not converge at
 all (in the case of $\sigma_w$) or converge to the same value (in the case $\sigma_x$).
 The BFGS estimates on the other hand seem to have multiple convergent values for both
 parameters, depending on the initial estimate.
@@ -451,16 +451,16 @@ effect in $\ell$.
 Table~\ref{table:harmonic_results} presents 
 the averaged final results. We have included two sets of estimates for BFGS:
 one set for all $100$ runs and another one averaged over the $69$ runs
-that do not converge to the minor local maximums. The standard errors in
+that converge to the major local maximum. The standard errors in
 BFGS($100$) are relatively enormous as expected. However, the standard errors
-of BFGS($69$) are markedly \emph{smaller} across the range compared to
+of BFGS($69$) are markedly \emph{smaller} across the range when compared to
 EM($100$). A probable explanation for this is the the inconvergence of
  $\sigma_\omega$ in EM($100$).
 
 
 
 \begin{table}[htbp]
-\caption{Parameter values used for simulation in Section~\ref{sec:harmonic}}
+\caption{Parameter values used in the PPG analysis in Section~\ref{sec:harmonic}}
 \label{table:harmonic_param}
 \centering
 \footnotesize
@@ -473,7 +473,7 @@ EM($100$). A probable explanation for this is the the inconvergence of
 \multicolumn{1}{c}{Value}&%
 \multicolumn{1}{c}{Unit}\\
 \midrule
-	n				&	3			&	-			&	\tau			&	0.008 		& s \\
+	m				&	3			&	-			&	\tau			&	0.008 		& s \\
 	\sigma_r 		&	0.001			&	V			&&& \\		 	
 \bottomrule	 	
 \end{tabular}
@@ -484,7 +484,7 @@ EM($100$). A probable explanation for this is the the inconvergence of
     \centering%
     \includegraphics{img/harmonic_trajectory}%
 	\caption{%
-	A short sequence of the ECG data. %
+	A short sequence of the PPG data in Section~\ref{sec:harmonic}. %
    	}
 	\label{fig:ecg_data}
  \end{figure}
@@ -556,8 +556,8 @@ EM($100$). A probable explanation for this is the the inconvergence of
  \begin{table}[htbp]
 	\caption{Estimated final parameter and log-likelihood values in Section~\ref{sec:harmonic}.
 	The value in parentheses is the amount of independent optimization runs averaged over. 
-	The $\pm$ columns are the standard errors of the estimates in the previous columns.
-	BFGS($69$) is included, since some runs in BFGS($100$) converge to separate 
+	The $\pm$ columns are the standard errors of the estimates in the preceding columns.
+	BFGS($69$) is included, since some runs in BFGS($100$) converge to minor 
 	local maximums of $\ell$.}
 	\label{table:harmonic_results}
 	\centering
