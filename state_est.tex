@@ -25,7 +25,7 @@ The $d_x\times d_x$ matrix $\v{A}\equiv\v{A}(\Th)$ is called the \emph{transitio
 the $d_y\times d_x$ matrix $\v{H}\equiv \v{H}(\Th)$ the \emph{measurement matrix}.
 These linear-Gaussian SSMs, equivalently known as \emph{linear dynamical systems} \parencite{Bishop2006},
 are one of the few cases where computing the \emph{exact} predictive, filtering and
-smoothing distributions is tractable \parencite[see, e.g.,][]{Sarkka2006}. As can be seen,
+smoothing distributions is tractable \parencite[see, e.g.,][]{Sarkka2006}. As will be seen,
 all of the aforementioned distributions stay Gaussian.
 
 \subsubsection{Kalman filter}\label{sec:kalman_filter}
@@ -36,7 +36,7 @@ closed form solution to computing the predictive and filtering distributions
 of Equations \eqref{eq:pred_bayes} and \eqref{eq:filt_bayes}.
 With the help of Lemmas \ref{lemma:gaussian_joint} and \ref{lemma:gaussian_cond},
 deriving the Kalman filter equations is quite straightforward \parencite{Sarkka2006}.
-The resulting recursions are \parencite{jazwinski1970stochastic}:
+The resulting recursions are \parencite{jazwinski1970stochastic,Grewal2008}:
 \begin{subequations}
 \label{eq:Kalman_filter}
 \begin{description}
@@ -52,7 +52,7 @@ The resulting recursions are \parencite{jazwinski1970stochastic}:
 	\v{S}_k&=\v{H}\v{P}_{k|k-1}\v{H}^\tr+\v{R}\\
 	\v{K}_k&=\v{P}_{k|k-1}\v{H}^\tr\v{S}_{k}^{-1}\\
 	\v{m}_{k|k}&=\v{m}_{k|k-1}+\v{K}_k\v{v}_k\\
-	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^\tr
+	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^\tr.
 \end{align}
 \end{description}
 \end{subequations}
@@ -72,29 +72,29 @@ joint distributions
 	}{
 	\begin{bmatrix}
 		\v{P}_{k|k-1} & \v{P}_{k|k-1}\v{H}^\tr\\
-		\v{H}\v{P}_{k|k-1}^\tr & \v{S}_k  
+		\v{H}\v{P}_{k|k-1} & \v{S}_k  
 	\end{bmatrix}
-	}
+	}.
 	\label{eq:joint_per_kalmanstep}
 \end{align}
 
-\subsubsection{Rauch-Tung-Striebel Smoother}\label{sec:rts_smoother}
+\subsubsection{Rauch--Tung--Striebel Smoother}\label{sec:rts_smoother}
 
 Once the filtering distributions are obtained going \emph{forward} in time,
 the joint smoothing dustributions \eqref{eq:smooth_joint_bayes} can be computed
 going \emph{backwards} in time. In this computing order sense, the last filtering distribution
 is the first smoothing distribution. In the linear-Guassian case,
-the Rauch-Tung-Striebel (RTS) smoother gives the statistics $\v{m}_{k|T}$ and 
+the Rauch--Tung--Striebel (RTS) smoother gives the statistics $\v{m}_{k|T}$ and 
 $\v{P}_{k|T}$ \parencite{jazwinski1970stochastic,Rauch1965} in Equation \eqref{eq:smoothing_gaussian}.
 We will use a version that gives the joint distribution of the states across a timestep, since
 the cross-timestep covariance will be needed in the parameter estimation phase.
-Assuming now that all the predictive and filtering distributions, i.e $\N[\x_{k+1}]{\m_{k+1|k}}{\v{P}_{k+1|k}}$ and $\N[\xk]{\m_{k|k}}{\v{P}_{k|k}}$ respectively,
-are available, the RTS recursions can be written as
+Assuming now that all the predictive and filtering distributions, that is $\N[\x_{k+1}]{\m_{k+1|k}}{\v{P}_{k+1|k}}$ and
+$\N[\xk]{\m_{k|k}}{\v{P}_{k|k}}$ respectively, are available, the RTS recursions can be written as
 \begin{subequations}
 \begin{align}
 	\v{J}_k&=\v{P}_{k|k}\v{A}^\tr\v{P}_{k|k+1}^{-1}\\
 	\v{m}_{k|T}&=\v{m}_{k|k}+\v{J}_k\left(\v{m}_{k+1|T}-\v{m}_{k+1|k}\right)\\
-	\v{P}_{k|T}&=\v{P}_{k|k}+\v{J}_k\left(\v{P}_{k+1|T}-\v{P}_{k+1|k}\right)\v{J}_k^\tr
+	\v{P}_{k|T}&=\v{P}_{k|k}+\v{J}_k\left(\v{P}_{k+1|T}-\v{P}_{k+1|k}\right)\v{J}_k^\tr.
 	%\v{C}_{k|T}&=\v{P}_{k|k}\v{J}_{k-1}^\tr+\v{J}_k\left(\v{C}_{k+1|T}-\v{A}\v{P}_{k|k}\right)\v{J}_{k-1}^\tr \label{eq:rts_cross_timestep_covariance}
 \end{align}
 \end{subequations}
@@ -113,7 +113,7 @@ joint distributions
 		\v{P}_{k|T} & \v{P}_{k|T}\v{J}_k^\tr\\
 		\v{J}_k\v{P}_{k|T} & \v{P}_{k-1|T}  
 	}
-	}
+	}.
 \end{split}
 \label{eq:sum_expectations}
 \end{align}
@@ -136,7 +136,7 @@ categories \parencite[see, e.g.,][]{Arasaratnam2009}:
 we will be concerned with in this thesis. 
   \item \emph{Global approaches} require the use of particle filtering, also known as 
   \emph{sequential Monte Carlo} (SMC), 
-  methods, which are \emph{simulation} based
+  methods, which are \emph{simulation} based.
 \end{enumerate}%
 %
 The number of different methods in the first category is substantial,
@@ -145,7 +145,7 @@ but a large proportion can be analyzed under the framework of
 with a Gaussian assumption). As implied by the name, these
 methods work by restricting the form of the posterior density to be Gaussian
 a priori. This way one is again able to perform (approximate) filtering and smoothing
-by only propagating the first two moments. This makes the local approaches
+by only propagating the first two moments, which makes the local approaches
 computationally efficient.  As will be shown later, the specific Gaussian filtering 
 methods only differ in their chosen numerical integration methods.
 
@@ -165,7 +165,7 @@ Since a Gaussian distribution is
 defined by its first two moments, a moment matched approximation
 can be obtained if the first two moments of the actual probability
 distribution can be computed \parencite{Ito2000,Sarkka2006}. As will
-be seen, computing these approximations reduces to the problem
+be seen, computing these Gaussian approximations reduces to the problem
 of computing multidimensional moment integrals of the form 
 \emph{nonlinear function} $\times$ \emph{Gaussian}. 
 
@@ -173,15 +173,16 @@ We shall next derive
 the general form of the three moment integrals and then show how they can be applied
 in the specific case of approximating the joint smoothing distribution
 of Equation \eqref{eq:smooth_joint_bayes}. Suppose now that  
-\begin{align}
-	\Pdf{\x}&= \N[\x]{\m}{\P} \label{eq:pa}\\
-	\Pdf{\y}{\x}&= \N[\y]{\F*{f}{\x}}{\v{R}}. \label{eq:pb_given_a}
-\end{align}
-Then $\Pdf{\x,\y}$ is Gaussian only if $\F*{f}{\x}$ is a linear map (with a possible affine constant). Assuming that's not the case,
+\begin{align*}
+	\Pdf{\x}&= \N[\x]{\m}{\P},\\ %\label{eq:pa}
+	\Pdf{\y}{\x}&= \N[\y]{\F*{f}{\x}}{\v{R}}. %\label{eq:pb_given_a} \nonumber
+\end{align*}
+Then $\Pdf{\x,\y}$ is Gaussian only if $\F*{f}{\x}$ is a linear map (with a possible affine constant).
+Assuming that's not the case,
 let us denote a Gaussian approximation
 to $\Pdf{\x,\y}$ with
-\begin{align}
-	\label{eq:joint_gaussian_approx}
+\begin{align*}
+	%\label{eq:joint_gaussian_approx}
 	\Pdf{\begin{bmatrix}
 		\x\\
 		\y
@@ -196,13 +197,13 @@ to $\Pdf{\x,\y}$ with
 		\gv{\Sigma}_{xx}&\gv{\Sigma}_{xy}\\
 		\gv{\Sigma}_{xy}^\tr&\gv{\Sigma}_{yy}
 	\end{bmatrix}
-	}
-\end{align}
-Then according to Lemmas \eqref{lemma:gaussian_joint} and \eqref{lemma:gaussian_cond}, 
-for the moment matched approximation we have to have
+	}.
+\end{align*}
+Then according to Lemmas \ref{lemma:gaussian_joint} and \ref{lemma:gaussian_cond}, 
+we have to have
 \begin{align}
-	\gv{\mu}_x&=\v{m}\\
-	\gv{\Sigma}_{xx}&=\v{P}\\
+	\gv{\mu}_x&=\v{m} \nonumber\\
+	\gv{\Sigma}_{xx}&=\v{P} \nonumber\\
 	\gv{\mu}_y&=\defint{}{}{\F*{f}{\x}\N[\x]{\m}{\P}}{\x} \label{eq:mean_int}\\
 	\gv{\Sigma}_{yy}&=\defint{}{}{\fparen*{\F*{f}{\x}-\gv{\mu}_y}\fparen*{\F*{f}{\x}-\gv{\mu}_y}^\tr\N[\x]{\m}{\P}}{\x}+\v{R}\label{eq:var_int}\\
 	\gv{\Sigma}_{xy}&=\defint{}{}{\fparen[\big]{\x-\v{m}}\fparen*{\F*{f}{\x}-\gv{\mu}_y}^\tr\N[\x]{\m}{\P}}{\x}\label{eq:cross_cov_int}
@@ -218,7 +219,7 @@ have available the filtering distribution of the previous step
 \end{align}
 Then
 \begin{align}
-	\Pdf{\xkk,\xk}{\y_{1:k-1}}&\approx\N[\xkk]{\m_{k-1|k-1}}{\P_{k-1|k-1}}\N[\xk]{\f_{k-1}}{\v{Q}}\\
+	\Pdf{\xkk,\xk}{\y_{1:k-1}}&\approx\N[\xkk]{\m_{k-1|k-1}}{\P_{k-1|k-1}}\N[\xk]{\f_{k-1}}{\v{Q}}\nonumber\\
 	&\approx
 	\N[\bm{\xkk \\ \xk}]{
 	\begin{bmatrix}
@@ -226,10 +227,10 @@ Then
 		\v{m}_{k|k-1}
 	\end{bmatrix}}{
 	\begin{bmatrix}
-		\v{P}_{k-1|k-1}&\v{C}_{k-1,k}\\
-		\v{C}_{k-1,k}^\tr&\v{P}_{k|k-1}
+		\v{P}_{k-1|k-1}&\v{P}_{k-1,k}\\
+		\v{P}_{k-1,k}^\tr&\v{P}_{k|k-1}
 	\end{bmatrix}
-	}
+	},
 	\label{eq:joint_predictive_approximation}
 \end{align}
 where by application of Equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \eqref{eq:cross_cov_int} 
@@ -242,9 +243,9 @@ where by application of Equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \e
 	&\qquad\times\N[\xkk]{\m_{k-1|k-1}}{\P_{k-1|k-1}}}{\xkk}+\v{Q}\label{eq:prediction_variance_intergral}
 	\end{split}\\
 	\begin{split}
-		\v{C}_{k-1,k}&=\defint{}{}{\fparen*{\xkk-\m_{k-1|k-1}}\fparen*{\f_{k-1}-\v{m}_{k|k-1}}^\tr\\
+		\v{P}_{k-1,k}&=\defint{}{}{\fparen*{\xkk-\m_{k-1|k-1}}\fparen*{\f_{k-1}-\v{m}_{k|k-1}}^\tr\\
 		&\qquad\times\N{\xkk}{\m_{k-1|T}}{\P_{k-1|T}}}{\xkk}\label{eq:prediction_cov_intergral}
-	\end{split}
+	\end{split}.
 \end{align}%
 %
 
@@ -252,8 +253,8 @@ where by application of Equations \eqref{eq:mean_int}, \eqref{eq:var_int} and \e
 
 For the update step we first approximate
 \begin{align}
-\begin{split}
-	\Pdf{\xk,\yk}{\y_{1:k-1}}=\Pdf{\yk}{\xk}\Pdf{\xk}{\y_{1:k-1}}&\approx\N[\yk]{\h_k}{\v{R}}\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}\\
+&\begin{split}
+	\Pdf{\xk,\yk}{\y_{1:k-1}}&\approx\N[\yk]{\h_k}{\v{R}}\N[\xk]{\m_{k|k-1}}{\P_{k|k-1}}\\
 	&\approx 
 	\N[\bm{\xk\\\yk}]{
 	\begin{bmatrix}
@@ -280,34 +281,42 @@ we get
 \end{align}
 The approximation to the filtering distribution $\Pdf{\xk}{\y_{1:k}}\approx \N[\xk]{\m_{k|k}}{\P_{k|k}}$ 
 is then given by applying Lemma~\ref{lemma:gaussian_cond} to \eqref{eq:joint_update_approximation}.
-Then, analogously to the update equations of the Kalman filter \eqref{eq:Kalman_filter}, we get
+Analogously to the update equations of the Kalman filter \eqref{eq:Kalman_filter}, we get
+\begin{subequations}
 \begin{align}
 	\v{v}_k&=\yk-\gv{\mu}_k\\
 	\v{K}_k&=\v{C}_{k}\v{S}_{k}^{-1} \label{eq:kalman_gain_nonl}\\
 	\v{m}_{k|k}&=\v{m}_{k|k-1}+\v{K}_k\v{v}_k \label{eq:mean_update_nonl}\\
-	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^\tr \label{eq:variance_update_nonl}
+	\v{P}_{k|k}&=\v{P}_{k|k-1}-\v{K}_k\v{S}_k\v{K}_{k}^\tr \label{eq:variance_update_nonl}.
 \end{align}
+\end{subequations}
 
 \subsubsection*{Smoothing step}
 
 Let us write down the approximation to a 
 conditional distribution that is easily derived from Equation~\eqref{eq:joint_predictive_approximation}, 
 namely (note the change in indexing):
+%\begin{subequations}
 \begin{align}
-	\Pdf{\xk}{\x_{k+1},\y_{1:T}}=\Pdf{\xk}{\x_{k+1},\y_{1:k}}&\approx \N[\xk]{\m'_{k}}{\P'_{k}}\\
+	\Pdf{\xk}{\x_{k+1},\y_{1:T}}=\Pdf{\xk}{\x_{k+1},\y_{1:k}}&\approx \N[\xk]{\m'_{k}}{\P'_{k}},
+\end{align}
+	where
+\begin{align*}
 	\m'_{k} &= \m_{k|k}+\v{G}_k\fparen*{\x_{k+1}-\m_{k+1|k}}\\
 	\P'_{k} &= \P_{k|k}-\v{G}_k\P_{k+1|k}\v{G}_k^\tr\\
-	\v{G}_k &= \v{C}_{k,k+1}\v{P}_{k+1|k}^{-1}.
-	\label{eq:middle_conditional}
-\end{align}
+	\v{G}_k &= \v{P}_{k,k+1}\v{P}_{k+1|k}^{-1}.
+	%\label{eq:middle_conditional}
+\end{align*}
+%\end{subequations}
 At this point we have derived all the components needed to compute
-\eqref{eq:smooth_joint_bayes}. As pointed out previously, the last, i.e $T$:th, filtering 
+\eqref{eq:smooth_joint_bayes}. As pointed out previously, the last ($T$:th), filtering 
 distribution is also the ``first" smoothing distribution, and smoothing recursions
-then advance backwards in time. Let us then assume that the smoothing
+then advance backwards in time. Let us assume that the smoothing
 distribution of the previous step, $\Pdf{\x_{k+1}}{\y_{1:T}}$, is available. Then
-by applying Lemma~\ref{lemma:gaussian_joint}, we have
+by applying Lemma~\ref{lemma:gaussian_joint} we have
+%\begin{subequations}\label{eq:joint_smoothing}
 \begin{align}
-	\Pdf{\xk,\x_{k+1}}{\Y}&=\Pdf{\xk}{\x_{k+1},\y_{1:T}}\Pdf{\x_{k+1}}{\y_{1:T}}\\
+	\Pdf{\xk,\x_{k+1}}{\Y}%&=\Pdf{\xk}{\x_{k+1},\y_{1:T}}\Pdf{\x_{k+1}}{\y_{1:T}}\nonumber\\
 	&\approx
 	\N[\bm{\xk\\\x_{k+1}}]{
 	\begin{bmatrix}
@@ -317,18 +326,19 @@ by applying Lemma~\ref{lemma:gaussian_joint}, we have
 	\begin{bmatrix}
 		\P_{k|T}&\v{D}_{k}\\
 		\v{D}_{k}^\tr&\P_{k+1|T}
-	\end{bmatrix},
-	}\label{eq:joint_smoothing}
+	\end{bmatrix}
+	},\label{eq:joint_smoothing}
 \end{align}
 where
-\begin{align}
+\begin{align*}
 	\v{D}_{k}&=\v{G}_{k}\P_{k+1|T}\\
 	\m_{k|T}&=\m_{k|k}+\v{G}_{k}\left(\m_{k+1|T}-\m_{k+1|k}\right)\\
 	\P_{k|T}&=\P_{k|k}+\v{G}_{k}\left(\P_{k+1|T}-\P_{k+1|k}\right)\v{G}_{k}^\tr.
-\end{align}%
+\end{align*}%
+%\end{subequations}
 %
 What we have now established is that a Gaussian assumed density approximation to the joint 
-smoothing distributions \eqref{eq:smooth_joint_bayes} is transformed into solving six
+smoothing distributionof Equation~\eqref{eq:smooth_joint_bayes} is transformed into solving six
 multidimensional integrals of form \emph{nonlinear function} $\times$ \emph{Gaussian}, 
 namely the ones in
 \eqref{eq:prediction_mean_intergral}, \eqref{eq:prediction_variance_intergral}, \eqref{eq:prediction_cov_intergral},
@@ -341,15 +351,15 @@ without further integrations.
  We will now discuss the topic of numerically solving Gaussian 
  expectation integrals of the form
  \begin{align}
-	\E{\F{\gv{\kappa}}{\x}}&\equiv \defint{\mathcal{X}}{}{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}{\x}
+	\E{\F{\gv{\kappa}}{\x}}&\equiv \defint{\mathcal{X}}{}{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}{\x},
 	\label{eq:gauss_integral}
 \end{align}%
 where it is assumed that 
-\begin{align}
+\begin{align*}
 	\mathcal{X} &= \R^{d_x}\\
 	\x &\sim \N{\m}{\P}\\
 	\defint{}{}{\abs{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}}{\x} & < \infty. 
-\end{align}
+\end{align*}
 
 %Numerical integration in one dimension is known as \emph{quadrature} and in higher dimensions as \emph{cubature}.
 As explained in \textcite{Wu2006}, the approaches to solving \eqref{eq:gauss_integral}
@@ -361,9 +371,9 @@ can be justifiably divided into three categories:
 \end{enumerate}
 Recognizing that the chosen numerical integration method is the principal differentiator provides a 
 common framework for analyzing the properties of the numerous Gaussian filters and smoothers 
-\parencite{Sarkka2010, Sarkka2008a,Ito2000,Wu2006,julier1997new,Arasaratnam2009,Arasaratnam2011}.
+\parencite{Sarkka2010, Sarkka2013, Ito2000,Wu2006}.
 Furthermore the first two categories differ only in their approach to multidimensional integrals,
-so that main difference between the categories can be described
+so that the main difference between the categories can be described
 as applying an integration formula known to be exact for certain class of integrands
 or approximating the integrand and integrating the approximation exactly.
 Since truncated Taylor series approximations are often used in the latter case, an important distinction
@@ -373,17 +383,32 @@ Since there exists many efficient integration rules defined on the unidimensiona
 a natural idea is to extend these to the hypercube by iterated integrals. This is exactly the 
 basic premise of the product rules. The most efficient polynomial interpolation type of rules
 in one dimension are known as \emph{Gauss' quadrature} rules and the subset
-for Gaussian weighted integrals are called the \emph{Gauss-Hermite}
+for Gaussian weighted integrals are the \emph{Gauss-Hermite}
 quadrature rules. Quadrature is a term referring to unidimensional numerical integration, whereas
-\emph{cubature} is the generalization to higher dimensions. A common form for cubature rules is
+\emph{cubature} is the generalization to higher dimensions. A common form for cubature rules for Gaussian
+expectation integrals is
 \begin{align}
-	\defint{}{}{&\F*{l}{\x}\N[\x]{\m}{\P}}{\x} \approx \sum_{i=1}^m w_i\F*{l}{\v{u}_i},
+	\defint{\mathcal{X}}{}{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}{\x} 
+	&\approx \sum_{i=1}^m w_i\F{\gv{\kappa}}{\v{u}_i} \label{eq:cubature_common}
+	= \sum_{i=1}^m w_i\F{\gv{\kappa}}{\m+\sqrt{\P}\gv{\varepsilon}^{(i)}},
 \end{align}
 where the points of evaluation $\brac*{\v{u}_i}_{i=1}^m$ are called the \emph{sigma points}
-(or \emph{abscissas} or just points) and $w_i$ are the weights. As is expected from the iterated integration approach,
+(or \emph{abscissas} or just points) and $w_i$ are the weights. The sigma points
+can be obtained from the \emph{unit} sigma points $\brac*{\gv{\varepsilon}^{(i)}}_{i=1}^m$
+by translating with the mean and scaling by the Cholesky decomposition of the covariance matrix,
+$\P=\sqrt{\P}\sqrt{\P}^\tr$. This means that to specify any cubature rule of the form \eqref{eq:cubature_common}, it suffices
+to specify it for the case with zero mean and unit covariance matrix
+\begin{align}
+	\defint{\mathcal{X}}{}{\F{\gv{\kappa}}{\x}\N[\x]{\v{0}}{\v{I}}}{\x} 
+	&\approx \sum_{i=1}^m w_i\F{\gv{\kappa}}{\gv{\varepsilon}^{(i)}}.\label{eq:cubature_unit}
+\end{align}
+
+
+As was to be expected from the iterated integration approach,
 the problem with product rules is the exponential increase in the number of sigma points with
 the number of dimensions, also known as the \emph{curse of dimensionality}. Thus if the unidimensional rule has $m$ sigma points (and thus $m$ integrand evaluations),
-then the $d$ dimensional product rule has $m^d$ sigma points. The Gaussian filter based
+then the $d$ dimensional product rule has $m^d$ sigma points.
+The Gaussian filter based
 on Gauss-Hermite product rules is known simply as the Gauss-Hermite Kalman filter (GHKF, sometimes shortened also GKF or QKF, for quadrature Kalman filter) \parencite{Ito2000}.
 The number of sigma points in the unidimensional rule is a parameter of GHKF.
 
@@ -395,16 +420,22 @@ to degree $p+1$. Naturally since integration is a linear operation, a rule which
 for a monomial up to order $o$ is exact for multidimensional polynomials of order $o$.
 Unfortunately finding efficient rules exact for monomials is something of an art, since
 even the least possible number of points required for given precision and dimension is in many
-instances unknown. Nevertheless, following the work in \textcite{Wu2006}, in \textcite{Arasaratnam2009,Arasaratnam2011} a filter
+instances unknown. Nevertheless, following the work in \textcite{Wu2006}, in 
+\textcite{Arasaratnam2009,Arasaratnam2011} a filter
 and a corresponding smoother are presented, based on a third degree 
 cubature rule. The theoretical lower bound in points for a third degree rule
 is $2\,d_x$, which is met by the rule used in the \emph{Cubature Kalman Filter} (CKF) and
 the \emph{Cubature Kalman Smoother} (CKS). Another notable nonlinear filter in this
-category is the \emph{Unscented Kalman Filter} (UKF) \parencite{julier1997new,Merwe2004}, 
+category is the \emph{Unscented Kalman Filter} (UKF) 
+\parencite{julier1997new,Julier2000a,Merwe2004}, 
 also based on a third degree rule. A corresponding smoother is derived in \textcite{Sarkka2008a}.
+An interesting recent development which could be considered to belong between
+the product rules and rules exact for monomials is presented in \textcite{Jia2012},
+where the method of \emph{sparse-grid quadrature} is used to obtain yet another
+nonlinear filter belonging to the class of Gaussian filters.
 
 The oldest and most well known nonlinear filter, belonging to the third category, is
-the \emph{extended Kalman filter} (EKF) \parencite{jazwinski1970stochastic}. 
+the \emph{extended Kalman filter} (EKF) \parencite[see, e.g.,][]{Grewal2008}. 
 It is based on forming local linear approximations to the dynamic
 and measurement models so that the standard linear Kalman filter equations can be used.
 An undesirable requirement of the EKF is that it requires computing
@@ -414,27 +445,30 @@ the Jacobian matrices of $\f$ and $\h$.
 In this subsection we will present the Cubature Kalman Filter (CKF)
 and Cubature Kalman Smoother (CKS) algorithms \parencite{Arasaratnam2011,Arasaratnam2009}.
 We consider these algorithms in more detail than other Gaussian filters and smoothers, since
-they are applied in the Results~section\ref{sec:results}. The CKF results from
+they are applied in Section~\ref{sec:results}. The CKF results from
 applying a \emph{3rd order spherical cubature approximation} to the integrals 
-in equations \eqref{eq:prediction_mean_intergral}, \eqref{eq:prediction_variance_intergral}, \eqref{eq:prediction_cov_intergral},
-\eqref{eq:update_mean_intergral}, \eqref{eq:update_variance_intergral} and
+in Equations \eqref{eq:prediction_mean_intergral}, \eqref{eq:prediction_variance_intergral},
+\eqref{eq:prediction_cov_intergral}, \eqref{eq:update_mean_intergral}, \eqref{eq:update_variance_intergral} and
 \eqref{eq:update_covariance_intergral}.\todo{check this section}
 
 As stated earlier, the 3rd order spherical cubature approximation uses the minimal amount
-of sigma points for a 3rd order rule, $2\,d_x$. The sigma points for $\m=\v{0}$ and $\P=\v{I}$ are then
+of sigma points for a 3rd order rule, $2\,d_x$. The unit sigma points in Equation~\eqref{eq:cubature_unit} are given by
 \begin{align}
-	\gv{\varepsilon}^{(i)}& = \hphantom{-}\sqrt{d_x}\v{e}_i &  i&=1,\dots,d_x\\
-	\gv{\varepsilon}^{(i)}& = -\sqrt{d_x}\v{e}_{i-d_x} & i&=d_x+1,\dots,2\,d_x,
+\begin{aligned}
+	\gv{\varepsilon}^{(i)}& = \hphantom{-}\sqrt{d_x}\v{e}_i, \qquad &  i&=1,\dots,d_x\\
+	\gv{\varepsilon}^{(i)}& = -\sqrt{d_x}\v{e}_{i-d_x}, & i&=d_x+1,\dots,2\,d_x,
+\end{aligned}
 	\label{eq:ckf_sigma}
 \end{align}
 where the orthonormal basis vectors $\brac{\v{e}_i}_{i=1}^{d_x}$ form the canonical basis of $\R^{d_x}$. 
-The approximation is now given by
-\begin{align}
+The weight is constant, $w_i\equiv w=\frac{1}{2\,d_x}$,
+so that approximation \eqref{eq:cubature_common} can be written as
+\begin{align}%
 	\defint{\mathcal{X}}{}{\F{\gv{\kappa}}{\x}\N[\x]{\m}{\P}}{\x} &\approx 
-	\frac{1}{2\,d_x} \sum_{i=1}^{2\,d_x} \F{\gv{\kappa}}{\m+\sqrt{\P}\gv{\varepsilon}^{(i)}},
+	\frac{1}{2\,d_x} \sum_{i=1}^{2\,d_x} \F{\gv{\kappa}}{\m+\sqrt{\P}\gv{\varepsilon}^{(i)}}.
 	\label{eq:ckf_approx}
 \end{align}%
-where $\P=\sqrt{\P}\sqrt{\P}^\tr$ \parencite{Sarkka2012a,Arasaratnam2009,Wu2006}.
+
 
 
 

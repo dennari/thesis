@@ -1,12 +1,12 @@
 
-There exists a large amount of efficient nonlinear optimization,
-also called nonlinear programming, methods that require the gradient of the 
+There exists a large amount of efficient nonlinear optimization
+methods that require the gradient of the 
 objective function to be available \parencite{luenberger2008}.
 The best known general purpose algorithms probably belong to the 
-classes of quasi-Newton or conjugate gradient methods. 
-For example, MATLAB Optimization Toolbox contains the function
+classes of quasi--Newton or conjugate gradient methods. 
+For example, the MATLAB Optimization Toolbox contains the function
 \texttt{fminunc} utilizing both conjugate gradient and 
-quasi-Newton methods in certain cases \parencite{fminunc}.
+quasi--Newton methods in certain cases \parencite{fminunc}.
 
 The simplest gradient based method is the \emph{method of steepest ascent}.
 It requires that the first partial derivatives of the objective function are defined
@@ -17,7 +17,7 @@ by the iteration
 	\label{eq:steepest_descent}
 \end{align}
 The idea is intuitive since it is well known that the gradient
-points to the direction of steepest ascent, i.e. to the direction
+points to the direction of steepest ascent, a direction
 that is orthogonal to the isolines of constant value.
 To determine $\alpha_j$, the \emph{step size}, another minimization problem needs to be solved,
 namely
@@ -25,15 +25,15 @@ namely
 	\alpha_j &= \argmin_\alpha \lLH[\Th_j+\alpha\nabla\lLH[\Th_j]].
 	\label{eq:line_search}
 \end{align}
-These one dimensional optimization algorithms that are used
+The one dimensional optimization algorithms that are used
 to solve the step-sizes are known as \emph{line search} methods \parencite{luenberger2008}.
 Common line search methods include the golden rule method and 
 methods based on polynomial interpolation.
 
-We define the \emph{order of convergence} as the supremum of the
-numbers $p\geq 0$, where
+Suppose now that $\Th_\star$ is the value of the parameter giving the unique maximum of $\lLH$. We define the
+\emph{order of convergence} as the supremum of the numbers $p\geq 0$, where
 \begin{align}
-	0\geq \bar{\lim_{j\to\infty}}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}^p} < \infty.
+	0\geq \lim_{j\to\infty}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}^p} < \infty.
 	\label{eq:order_of_convergence}
 \end{align}
 When $p=1$, we also define the \emph{linear rate of convergence} as
@@ -42,33 +42,34 @@ the number $0 \leq \rho < 1$ in
 	\lim_{j\to\infty}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}} = \rho.
 	\label{eq:rate_of_convergence}
 \end{align}
-It can be shown the steepest ascent method has linear order of convergence ($p=1$)
+It can be shown that the steepest ascent method has linear order of convergence ($p=1$)
 and if the Hessian of the objective function is positive definite with
 $r=A/a$, the ratio of the largest and smallest eigenvalues, 
 \begin{align}
-	\lim_{j\to\infty}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}} \leq \left(\frac{r-1}{r+1}\right)^2.
+%	\lim_{j\to\infty}\frac{\abs{\Th_{j+1}-\Th_\star}}{\abs{\Th_{j}-\Th_\star}} \leq \left(\frac{r-1}{r+1}\right)^2.
+	\rho \leq \left(\frac{r-1}{r+1}\right)^2.
 \end{align}
 A much more efficient nonlinear optimization algorithm is the \emph{Newton's method}.
 It is based on Taylor expanding the objective function around the
-current estimate $\Th_j$. Assume that $\ell$ has continuous second-order partial derivatives. Then
-\begin{align}
+current estimate $\Th_j$. Let us assume that $\ell$ has continuous second-order partial derivatives. Then
+\begin{align*}
 	\lLH[\Th] &\approx \lLH[\Th_j]+\nabla\lLH[\Th_j]^\tr\fparen*{\Th_j-\Th}+\frac{1}{2}\fparen*{\Th_j-\Th}^\tr\nabla^2\lLH[\Th_j]\fparen*{\Th_j-\Th}
-	\label{eq:second_order_expansion}
-\end{align}
-and then maximizing the approximation by setting its gradient to zero
+	%\label{eq:second_order_expansion}
+\end{align*}
+and maximizing the approximation by setting its gradient to zero gives
 \begin{align}
-	\nabla\lLH[\Th_j]-\nabla^2\lLH[\Th_j]\fparen*{\Th_j-\Th} &= 0\\
+	\nabla\lLH[\Th_j]-\nabla^2\lLH[\Th_j]\fparen*{\Th_j-\Th} &= 0 \nonumber\\
 	\Rightarrow \Th_{j+1} &= \Th_j+\nabla^2\lLH[\Th_j]^{-1}\nabla\lLH[\Th_j].
 	\label{eq:newton_gradient}
 \end{align}
-Per proposition~\ref{prop:cond_for_max}, near $\Th_\star$ the Hessian is 
-invertible and so the algorithm is well defined there. It can be shown
+Near $\Th_\star$ the Hessian is 
+invertible and so the algorithm is well defined there \parencite[see,e.g.,][]{luenberger2008}. It can be shown
 that when initialized sufficiently close to $\Th_\star$, (pure form)
 Newton's method always converges to $\Th_\star$ with order of convergence
 at least \emph{two}.
  
 Further away from the maximum, there are various problems with Newton's method as formulated
-in equation~\eqref{eq:newton_gradient}. There are no guarantees for the invertibility
+in Equation~\eqref{eq:newton_gradient}. There are no guarantees for the invertibility
 of the Hessian and higher order terms may cause a step to actually decrease the objective
 function. Thus we turn our attention to algorithms of the general form
 \begin{align}
@@ -77,7 +78,7 @@ function. Thus we turn our attention to algorithms of the general form
 \end{align}
 where $\v{D}_j$ is a symmetric matrix, the \emph{search direction} is $\v{D}_j\nabla\lLH[\Th_j]$ and
 the step-size is $\alpha_j$. Generally $\v{D}_j$ should also be negative definite, to guarantee
-that the method is an ascent method for small $\alpha_j$ (as in proposition \eqref{prop:cond_for_max}).
+that the method is an ascent method for small $\alpha_j$.
   
 Clearly we get gradient ascent with $\v{D}_j=\v{I}$
 and Newton's method with  $\v{D}_j=\nabla^2\lLH[\Th_j]^{-1}$. 
@@ -85,19 +86,19 @@ Other methods of this form have thus orders of convergence
 between one and two. In practice the step
 size parameter is always determined by a line-search, so that different
 algorithms of the form \eqref{eq:gradient_method_general} differ only in how
-the search direction is computed. Even if we could guarantee the invertability of the Hessian, its computation is
+the search direction is computed. Even if we could guarantee the invertibility of the Hessian, its computation is
 nevertheless notoriously computationally demanding. 
 
 Thus we will discuss methods derived from Newton's method, but which only require
-gradient information. These are commonly known as \emph{quasi-Newton} methods or 
+gradient information. These are commonly known as \emph{quasi--Newton} methods or 
 sometimes \emph{secant methods} \parencite{Battiti1992}. Given the analytical gradient, 
 the idea is to \emph{iteratively} approximate the analytical inverse Hessian by utilizing
-the information gathered as the ascent method advances. Suppose we are given
-two points $\Th_{j}$ and $\Th_{j+1}$ and that
+information gathered as the ascent method advances. Suppose we are given
+two points, $\Th_{j}$ and $\Th_{j+1}$, and that
 \begin{align}
 	\g_j &\equiv \nabla\lLH[\Th_j]\\
 	\q_j &\equiv \g_{j+1}-\g_j\\
-	\p_k &\equiv \Th_{j+1}-\Th_j.
+	\p_j &\equiv \Th_{j+1}-\Th_j.
 \end{align}  
 We could then approximate the Hessian with
 \begin{align}
@@ -105,9 +106,9 @@ We could then approximate the Hessian with
 	\label{eq:secant_approx}
 \end{align}
 which in the one dimensional case is the slope of the secant line drawn 
-through the two points $\theta_1$ and $\theta_2$.
-In case of constant Hessian, equation~\eqref{eq:secant_approx} becomes exact.
-In multiple dimensions equation~\ref{eq:secant_approx} doesn't give a unique solution for
+through the two points $\theta_{j}$ and $\theta_{j+1}$.
+In case of constant Hessian, Equation~\eqref{eq:secant_approx} becomes exact.
+In multiple dimensions Equation~\ref{eq:secant_approx} doesn't give a unique solution for
 the approximate Hessian. The Broyden \emph{update} suggests to pick the one
 that deviates the least from the current approximation in the sense of the Frobenius norm.
 Let us suppose that we're searching for a symmetric and negative definite approximate Hessian
@@ -126,18 +127,18 @@ applying the Sherman-Morrison inversion formula gives
 \end{align}
 It should be pointed that the commonly used MATLAB unconditional nonlinear
 optimization function \texttt{fminunc} that we referred to earlier, uses 
-the BFGS quasi-Newton method with cubic interpolation line search.
+the BFGS quasi--Newton method with cubic (and occasionally quadratic) polynomial interpolation based line search.
 
 \subsubsection{Linear-Gaussian SSMs}\label{sec:grad_LGSSM}
 
 Let us then focus on computing the gradient of the
 log-likelihood function $\lLH$, also known as the \emph{score function}.
-By marginalizing the joint distribution of equation~\eqref{eq:joint_per_kalmanstep}
+By marginalizing the joint distribution of Equation~\eqref{eq:joint_per_kalmanstep}
 we get 
 \begin{align}
-	\Pdf{\y_k}{\y_{1:k-1},\Th}&=\N[\yk]{\v{H}\m_{k|k-1},\v{S}_k }.
+	\Pdf{\y_k}{\y_{1:k-1},\Th}&=\N[\yk]{\v{H}\m_{k|k-1}}{\v{S}_k}.
 \end{align}
-Applying equation~\eqref{eq:lh_factorization} and taking the logarithm then gives
+Applying Equation~\eqref{eq:lh_factorization} and taking the logarithm then gives
 \begin{align}
 	\lLH&=-\frac{1}{2}\sum_{k=1}^T\log\det{\v{S}_k}
 	-\frac{1}{2}\sum_{k=1}^T\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^\tr\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)+C,
@@ -145,16 +146,19 @@ Applying equation~\eqref{eq:lh_factorization} and taking the logarithm then give
 \end{align}
 where $C$ is a constant that doesn't depend on $\gv{\theta}$ and thus can
 be ignored in the maximization.
-There are exists two seemingly quite different methods for computing
-the gradient of $\lLH$. The first one proceeds straightforwardly by taking the
+There are two seemingly quite different methods for computing
+the score function. The first one proceeds straightforwardly by taking the
 partial derivatives of $\lLH$. As will soon be demonstrated, this leads
-to some additional recursive formulas which allow computing
+to some additional recursive formulas, known as the \emph{sensitivity equations}, which allow computing
 the gradient in parallel with the Kalman filter. The second method needs
 the smoothing distributions with the cross-timestep covariances
 and it can be easily computed with the expectation maximization machinery
-that will be introduced later. These two methods can be proved to compute
-the exact same quantity. At this point we will focus on the first one. Going further
+that will be introduced later. When applied to linear-Gaussian SSMs these two methods can be proved to compute
+the exact same quantity \parencite{Cappe2005}. 
+At this point we will focus on the sensitivity equations. Going further
 it will be assumed that $\lLH$ is continuous and differentiable for all $\Th\in\Theta$.
+We will also assume here that $\v{H}$ is \emph{independent} of $\Th$, since in practice
+this is often the case (i.e., the linear mapping from the state to the measurement is known).
 
 In order to calculate the score function
 \begin{align}
@@ -168,37 +172,40 @@ derivatives:
 \begin{split}
 	\dpd{\lLH}{\theta_i}
 	=&-\frac{1}{2}\sum_{k=1}^T\mathrm{Tr}\left(\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\right)\\
-	&+\sum_{k=1}^T\left(\v{H}_k\dpd{\v{m}_{k|k-1}}{\theta_i}\right)^\tr\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
-	&+\frac{1}{2}\sum_{k=1}^T\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^\tr\v{S}_{k}^{-1}\left(\dpd{\v{S}_k}{\theta_i}\right)\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
+	&+\sum_{k=1}^T\left(\v{H}\dpd{\v{m}_{k|k-1}}{\theta_i}\right)^\tr\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)\\
+	&+\frac{1}{2}\sum_{k=1}^T\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)^\tr\v{S}_{k}^{-1}
+	\left(\dpd{\v{S}_k}{\theta_i}\right)\v{S}_{k}^{-1}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right).
 	\label{eq:dlogLH}
 \end{split}
 \end{align}
-From the Kalman filter recursions \eqref{eq:Kalman_filter} we find out that 
+From the Kalman filter recursions \eqref{eq:Kalman_filter} we get 
 \begin{align}
-	\dpd{\v{S}_k}{\theta_i}&=\v{H}\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}+\dpd{\v{R}}{\theta_i}
+	\dpd{\v{S}_k}{\theta_i}&=\v{H}\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}^\tr+\dpd{\v{R}}{\theta_i},
 \end{align}
-so that we're left with the task of determining the partial derivatives for
-$\v{m}_{k|k-1}$ and $\v{P}_{k|k-1}$:
+so that we are left with the task of determining the partial derivatives of
+$\v{m}_{k|k-1}$ and $\v{P}_{k|k-1}$,
 \begin{align}
 	\dpd{\v{m}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{m}_{k-1|k-1}+\v{A}\dpd{\v{m}_{k-1|k-1}}{\theta_i} \label{eq:m_pred_pd}\\
 	\begin{split}
 	\dpd{\v{P}_{k|k-1}}{\theta_i}&=\dpd{\v{A}}{\theta_i}\v{P}_{k-1|k-1}\v{A}^\tr+\v{A}\dpd{\v{P}_{k-1|k-1}}{\theta_i}\v{A}^\tr\\
-	&+\v{A}\v{P}_{k-1|k-1}\left(\dpd{\v{A}}{\theta_i}\right)^\tr+\dpd{\v{Q}}{\theta_i} \label{eq:P_pred_pd}
+	&+\v{A}\v{P}_{k-1|k-1}\left(\dpd{\v{A}}{\theta_i}\right)^\tr+\dpd{\v{Q}}{\theta_i} \label{eq:P_pred_pd},
 	\end{split}
 \end{align}
-as well as for $\v{m}_{k|k}$ and $\v{P}_{k|k}$:
+as well as of $\v{m}_{k|k}$ and $\v{P}_{k|k}$:
 \begin{align}
 	\dpd{\v{K}_k}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}\v{H}^\tr\v{S}_{k}^{-1}-\v{P}_{k|k-1}\v{H}^\tr\v{S}_{k}^{-1}\dpd{\v{S}_k}{\theta_i}\v{S}_{k}^{-1}
 	\label{eq:K_pd}\\
 	\dpd{\v{m}_{k|k}}{\theta_i}&=\dpd{\v{m}_{k|k-1}}{\theta_i}+\dpd{\v{K}_k}{\theta_i}\left(\v{y}_k-\v{H}\v{m}_{k|k-1}\right)-\v{K}_k\v{H}\dpd{\v{m}_{k|k-1}}{\theta_i}
 	\label{eq:m_pd}\\
-	\dpd{\v{P}_{k|k}}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}-\dpd{\v{K}_k}{\theta_i}\v{S}_{k}\v{K}_{k}^\tr-\v{K}_{k}\dpd{\v{S}_k}{\theta_i}\v{K}_{k}^\tr-\v{K}_{k}^\tr\v{S}_{k}\left(\dpd{\v{K}_k}{\theta_i}\right)^\tr
+	\dpd{\v{P}_{k|k}}{\theta_i}&=\dpd{\v{P}_{k|k-1}}{\theta_i}-\dpd{\v{K}_k}{\theta_i}\v{S}_{k}\v{K}_{k}^\tr-\v{K}_{k}\dpd{\v{S}_k}{\theta_i}\v{K}_{k}^\tr-\v{K}_{k}\v{S}_{k}\left(\dpd{\v{K}_k}{\theta_i}\right)^\tr.
 	\label{eq:P_pd}
 	\end{align}
 Equations \eqref{eq:m_pred_pd}, \eqref{eq:P_pred_pd}, \eqref{eq:K_pd}, \eqref{eq:m_pd} and \eqref{eq:P_pd} together specify
 a recursive algorithm for computing \eqref{eq:dlogLH} that can be run alongside the Kalman filter recursions.
-As noted in \textcite{Cappe2005}, these equations are sometimes known as the \emph{sensitivity equations}
-and they are derived at least in \textcite{Gupta1974}.
+As noted earlier, these equations are sometimes known as the \emph{sensitivity equations}
+and they are derived at least in \textcite{Gupta1974}. See also
+\textcite{Sandell1978} and \textcite{Mbalawata2011}.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -211,14 +218,14 @@ Gaussian noise. Since the predictive and filtering distributions have to be appr
 case, we will work in the Gaussian filtering framework. The 3rd order spherical cubature approximation
 of Equation~\eqref{eq:ckf_approx} will be applied to integrals intractable in closed form. The result
 is an approximate recursive algorithm for computing $\pd{\m_{k|k}}{\theta_i}$ and $\pd{\P_{k|k}}{\theta_i}$,
-i.e. the partial derivatives of the mean and and variance of the filtering distributions. These enable
+which are the partial derivatives of the mean and and variance of the filtering distributions. These enable
 us to compute the partial derivatives of the marginal log-likelihood and by Equation~\eqref{eq:score},
 an approximation to the score function.
 
-By marginalizing the joint distribution of equation~\eqref{eq:joint_update_approximation}
+By marginalizing the joint distribution of Equation~\eqref{eq:joint_update_approximation}
 we get the approximation
 \begin{align}
-	\Pdf{\y_k}{\y_{1:k-1},\Th}&\approx \N[\yk]{\gv{\mu}_k,\v{S}_k} ,
+	\Pdf{\y_k}{\y_{1:k-1},\Th}&\approx \N[\yk]{\gv{\mu}_k}{\v{S}_k} ,
 \end{align}
 so that taking the logarithm of the factorization \eqref{eq:lh_factorization} 
 gives the approximate log marginal likelihood 
@@ -241,19 +248,19 @@ To compute the score function, we need the partial derivatives
 	&+\sum_{k=1}^T
 	\left(\dpd{\ym}{\theta_i}\right)^\tr\S^{-1}\left(\yk-\ym\right)\\
 	&+\frac{1}{2}\sum_{k=1}^T
-	\left(\yk-\ym\right)^\tr\S^{-1}\left(\dpd{\S}{\theta_i}\right)\S^{-1}\left(\yk-\ym\right)\\
+	\left(\yk-\ym\right)^\tr\S^{-1}\left(\dpd{\S}{\theta_i}\right)\S^{-1}\left(\yk-\ym\right).
 	\label{eq:nonl_dlogLH}
 \end{split}
 \end{align}
 %
 %
 Let us denote the predictive distribution sigma points by 
-$\sig_{k|k-1}=\m_{k|k-1}+\sqrt{\P_{k|k-1}}\usig$, where $j=1,\dots,2\,d_x$.
-For unclutteredness, let us also denote the constant
-weight by $w\equiv \sfrac{1}{2d_x}$. Let us first focus on computing
+$\sig_{k|k-1}=\m_{k|k-1}+\sqrt{\P_{k|k-1}}\usig$, where $j=1,\dots,2\,d_x$,
+and the constant
+weight by $w = \frac{1}{2d_x}$. We will first focus on computing
 an approximation to 
 \begin{align}
-	\dpd{\sig_{k|k-1}}{\theta_i}&= \dpd{\m_{k|k-1}}{\theta_i}+ \dpd{\sqrt{\P_{k|k-1}}}{\theta_i}\usig
+	\dpd{\sig_{k|k-1}}{\theta_i}&= \dpd{\m_{k|k-1}}{\theta_i}+ \dpd{\sqrt{\P_{k|k-1}}}{\theta_i}\usig.
 	\label{eq:dSig_pred}
 \end{align}
 By applying the cubature rule to the integrals \eqref{eq:prediction_mean_intergral} and 
@@ -266,14 +273,17 @@ we get
 	\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)%
 	\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)^\tr%
 	+\v{Q},
-	\label{tablelabel}
+	%\label{tablelabel}
 \end{align}
 so that the partial derivatives of these become
 \begin{align}
 	\dpd{\m_{k|k-1}}{\theta_i} &\approx{} w\sum_{j=1}^{2\,d_x}%
 	\jacob{\f}{\sig_{k-1|k-1}}\dpd{\sig_{k-1|k-1}}{\theta_i}
 	\label{eq:dmpred_cubature_approx}
-\shortintertext{and}
+\end{align}
+and
+\begin{align}
+\begin{split}
 	\dpd{\P_{k|k-1}}{\theta_i} &\approx{} \\
 	w\sum_{j=1}^{2\,d_x}\bigg[
 	&\Big(\jacob{\f}{\sig_{k-1|k-1}}\dpd{\sig_{k-1|k-1}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)%
@@ -281,21 +291,22 @@ so that the partial derivatives of these become
    +&\Big(\ffi[\big]{\sig_{k-1|k-1}}-\m_{k|k-1}\Big)%
 	 \Big(\jacob{\f}{\sig_{k-1|k-1}}\dpd{\sig_{k-1|k-1}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)^\tr\bigg]\\%
    +&\dpd{\v{Q}}{\theta_i}.
+\end{split}	
 	\label{eq:dPpred_cubature_approx}
 \end{align}
 %
 Here $\jacob[\displaysize]{\f}{\cdot}$ denotes the Jacobian of $\f$.
 We assume that at the current iteration $k$ we have available the approximate mean and variance of the previous 
-filtering distribution, i.e $\m_{k-1|k-1}$ and $\P_{k-1|k-1}$, as well as the  
+filtering distribution, $\m_{k-1|k-1}$ and $\P_{k-1|k-1}$, as well as the  
 partial derivatives $\pd{\m_{k-1|k-1}}{\theta_i}$ and $\pd{\P_{k-1|k-1}}{\theta_i}$.
 This means we can form $\sig_{k-1|k-1}=\m_{k-1|k-1}+\sqrt{\P_{k-1|k-1}}\usig$. 
  
-In  $\pd{\sig_{k|k-1}}{\theta_i}$ we clearly need $\pd{\sqrt{\P_{k|k-1}}}{\theta_i}$,
-i.e. the partial derivative of the Cholesky decomposition of $\P_{k|k-1}$. 
+In Equation~\eqref{eq:dSig_pred} we clearly need $\pd{\sqrt{\P_{k|k-1}}}{\theta_i}$,
+the partial derivative of the Cholesky decomposition of $\P_{k|k-1}$. 
 Having $\pd{\P_{k|k-1}}{\theta_i}$ available, this can be obtained for example by differentiating
 an algorithm for computing the Cholesky decomposition.
 
-Then by applying the cubature rule to the integral \eqref{eq:update_variance_intergral}
+By applying the CKF cubature rule to the integral \eqref{eq:update_variance_intergral}
 we get
 \begin{align}
 	\S \approx  w \sum_{j=1}^{2\,d_x} 
@@ -305,10 +316,12 @@ we get
 \end{align} 
 so that 
 \begin{align}
+\begin{split}
 	\dpd{\S}{\theta_i} \approx{}w \sum_{j=1}^{2\,d_x}\bigg[
 	 &\Big(\jacob{\h}{\sig_{k|k-1}}\dpd{\sig_{k|k-1}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)^\tr+\\
 	 &\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)\Big(\jacob{\h}{\sig_{k|k-1}}\dpd{\sig_{k|k-1}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)^\tr\bigg]
 	+\dpd{\v{R}}{\theta_i},
+\end{split}
 	\label{eq:dS_cubature_approx}
 \end{align}
 where $\jacob[\displaysize]{\h}{\cdot}$ denotes the Jacobian of $\h$.
@@ -333,10 +346,12 @@ and Equation~\eqref{eq:update_covariance_intergral} gives
 \end{align} 
 so that 
 \begin{align}
+\begin{split}
 	\dpd{\v{C}_k}{\theta_i} \approx{} w\sum_{j=1}^{2\,d_x}\bigg[
 	&\Big(\dpd{\sig_{k|k-1}}{\theta_i}-\dpd{\m_{k|k-1}}{\theta_i}\Big)\Big(\hhi[\big]{\sig_{k|k-1}}-\ym\Big)^\tr+\\
 	&\Big(\sig_{k|k-1}-\m_{k|k-1}\Big)
 	\Big(\jacob{\h}{\sig_{k|k-1}}\dpd{\sig_{k|k-1}}{\theta_i}-\dpd{\ym}{\theta_i}\Big)^\tr\bigg].
+\end{split}
 	\label{eq:dC_cubature_approx}
 \end{align}
 Finally, from Equations \eqref{eq:mean_update_nonl} and \eqref{eq:variance_update_nonl}
@@ -348,7 +363,7 @@ we obtain
 \shortintertext{and}
 	\dpd{\v{P}_{k|k}}{\theta_i} &= \dpd{\v{P}_{k|k-1}}{\theta_i}-
 	\dpd{\v{K}_k}{\theta_i}\S\v{K}_{k}^\tr-\v{K}_{k}\dpd{\S}{\theta_i}\v{K}_{k}^\tr-
-	\v{K}_{k}^\tr\S\left(\dpd{\v{K}_k}{\theta_i}\right)^\tr
+	\v{K}_{k}\S\left(\dpd{\v{K}_k}{\theta_i}\right)^\tr
 	\label{eq:P_pd_nonl}
 \end{align}
 

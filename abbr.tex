@@ -6,18 +6,17 @@
 \subsection*{Notation}
 \begin{tabular}{ll}
 $\v{Z}$  & Matrix (bold uppercase letter)  \\
+$\v{Z}^\tr$  & Transpose of matrix $\v{Z}$  \\
+$\v{I}$ & Identity matrix \\
 $\v{z}$ & Column vector (bold lowercase letter) \\
-$\v{z}_{1:T}$    & set of vectors $\brac{\v{z}_1,\dots,\v{z}_T}$
-\end{tabular}
-
-
-\subsection*{Symbols}
-
-\begin{tabular}{ll}
+$\v{z}^\tr$ & Row vector \\
+$\v{z}_{1:T}$    & Set of vectors $\brac{\v{z}_1,\dots,\v{z}_T}$\\
 $\Th$            & Parameter\\
-$\Pdf{\x}{\y}$   & Probability density function of $\x$ conditional on $\y$
+$\Pdf{\x}{\y}$   & Conditional PDF of $\x$ given $\y$\\
+$\v{m}_{k|k-1}$   & Conditional value of $\m_k$ given measurements up to step $k-1$\\
+$\N[\x]{\v{m}}{\v{P}}$ & Gaussian PDF of $\x$ with mean $\v{m}$ and covariance matrix $\v{P}$\\
+$\field{N},\R,\field{C}$ & The fields of natural, real and complex numbers
 \end{tabular}
-
 \subsection*{Abbreviations}
 
 \begin{tabular}{ll}
@@ -30,15 +29,16 @@ fMRI & Functional magnetic resonance imaging \\
 MEG & Magnetoencephalography \\
 HMM & Hidden Markov model \\
 DAG & Directed acyclic graph \\
-PDF & probability density function \\
+PDF & Probability density function \\
 RTS & Rauch--Tung--Striebel \\
 SMC & Sequential Monte Carlo \\
 GHKF & Gauss--Hermite Kalman filter \\
 CKF & Cubature Kalman filter \\
 CKS & Cubature Kalman smoother \\
 EKF & Extended Kalman filter \\
+MCMC & Markov chain Monte Carlo \\
 PMCMC & Particle Markov chain Monte Carlo \\
-BFGS & Broyden--Fletcher--Goldfarb--Shanno quasi--Newton update\\
+BFGS & Broyden--Fletcher--Goldfarb--Shanno\\
 VB & Variational Bayes \\
 vEM & Variational expectation maximization \\
 gEM & Generalized expectation maximization \\

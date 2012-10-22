@@ -9,7 +9,7 @@ and we are trying to solve the \emph{unconstrained} optimization problem
 	\Th_\star&=\argmax_{\Th}\lLH,\quad\Th\in\Theta=\R^{d_\theta},
 	\label{eq:optimization_problem}
 \end{align}
-where $\Th_\star$ need not be unique, i.e. there can be a solution set 
+where $\Th_\star$ need not be unique, meaning there can be a solution set 
 \begin{align}
 	\mathcal{S}=\brac*{\Th_\star\in\Theta : \lLH[\Th_\star]\geq \lLH[\Th] \; \forall \Th\in\Theta}
 \end{align}
@@ -76,7 +76,7 @@ the estimate:
 where $\F{\mathcal{I}}{\Th_\star}$ is the \emph{Fisher information matrix} evaluated at $\Th_\star$ 
 \item[Efficiency]\hfill\\
 When the amount of information tends to infinity, the ML-estimate achieves
-the Cramér-Rao lower bound, i.e. no other consistent estimator has lower asymptotic mean-squared-error.
+the Cramér-Rao lower bound, meaning no other consistent estimator has lower asymptotic mean-squared-error.
 \end{description}
 
 
@@ -157,8 +157,8 @@ where
 		\mathcal{I}_{\Y} = \dL &= \eval{\E{\prtdd{\log\LH}{\Th}{\Th}}_{\post{\Th_\star}}}_{\Th=\Th_\star}\\
 		\mathcal{I}_{\X} = \dH &= \eval{-\E{\prtdd{\log\post}{\Th}{\Th}}_{\post{\Th_\star}}}_{\Th=\Th_\star}
 \end{align}
-The latter term in equation~\eqref{eq:dM} is commonly interpreted as the proportion of ``measured'' information compared to
-all information. All the eigenvalues of $\dif\EMM{\Th_\star}$ belong to $[0,1)$ and the \emph{linear} 
+The latter term in Equation~\eqref{eq:dM} is commonly interpreted as the proportion of ``measured'' information compared
+to all information. All the eigenvalues of $\dif\EMM{\Th_\star}$ belong to $[0,1)$ and the \emph{linear} 
 rate of convergence near $\Th_\star$ is the largest of them \parencite{Lange1995}. Then
 clearly the rate of convergence is determined by how closely $\mathcal{I}_{\Y}$ ``resembles''
 $\mathcal{I}_{\X\Y}$, i.e the more information is ``hidden'' in the hidden variables $\X$ the

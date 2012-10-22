@@ -12,20 +12,23 @@ smoothing problems in state estimation. We focus only on offline methods, where 
 sort of training or calibration data has been acquired beforehand.
 
 A classic solution to the parameter estimation problem is to introduce
-an augmented and necessarily nonlinear SSM, where the parameters have been concatenated as part of the
+an augmented and thus necessarily nonlinear SSM, where the parameters have been concatenated as part of the
 state. For static parameters, the part of the dynamic model corresponding to the parameters is
 set to identity. Classically an extended Kalman filter is 
 then applied to approximate the probability distribution of the augmented state
 vector in the joint space of parameters and states. This approach is known
 as \emph{joint EKF} and it has the virtue of being an online procedure \parencite{Wan2001}.
-It appears that the method has problems with convergence in some situations.
+It appears that the method has problems with convergence in some situations, which is understandable
+since when using the EKF, a Gaussian approximation
+is applied to the \emph{joint} space of states and parameters.
+
 A more recent method utilizing another form of augmented SSM is known as \emph{iterated filtering}
 \parencite{Ionides2011}. It is an offline method, but only requires being able
 to sample from the dynamic model given the parameter and no gradient computations
 are required. The algorithm however introduces multiple parameters of its own
 and so might require some tuning \parencite{Kantas2009}. Furthermore, it is designed
 to utilize the simulation based SMC methods mentioned briefly in Section~\ref{sec:nonlinear_state}.
-In the sequel, these kinds of filtering based parameter estimation methods 
+In the sequel, parameter estimation methods based on state augmentation 
 will not be further considered. 
 
 
@@ -49,12 +52,14 @@ In the Bayesian sense the complete
 answer to the filtering and parameter estimation problems would be the \emph{joint} posterior distribution of the states
 and the parameters given the data
 \begin{align}
+\begin{split}
 	% \Pdf{\X,\Th}{\Y}\propto\frac{\Pdf{\X,\Y}{\Th}}{\Pdf{\Y}{\Th}}\frac{\Pdf{\Y}{\Th}\Pdf{\Th}}{\defint{\Theta}{}{\Pdf{\Y}{\Th}\Pdf{\Th}}{\Th}}
 	\Pdf{\X,\Th}{\Y} &\propto \Pdf{\X,\Y}{\Th}\Pdf{\Th}\\
-	&= \Pdf{\X}{\Y,\Th}\Pdf{\Y}{\Th}\Pdf{\Th}
+	&= \Pdf{\X}{\Y,\Th}\Pdf{\Y}{\Th}\Pdf{\Th}.
+\end{split}
 	\label{eq:param_post}
 \end{align}
-By defining the SSM in equation~\eqref{eq:ssm_general}, we have
+By defining the SSM in Equation~\eqref{eq:ssm_general}, we have
 implicitly defined the ``complete-data'' likelihood $\Pdf{\X,\Y}{\Th}$
 (see Equation~\eqref{eq:complete_data_likelihood}).
 By introducing the \emph{prior distribution}, $\Pdf{\Th}$,
@@ -71,10 +76,9 @@ with traditional Gibbs and Metropolis-Hastings sampling in a nontrivial way
 
 In this thesis we would like to avoid Monte Carlo methods altogether. Thus instead
 of considering the problem of finding the posterior distribution of the parameter,
-we will pursue finding the mode of this distribution, i.e. the \emph{maximum a posteriori} (MAP) estimate
-$\Th_{\text{MAP}}$. The MAP estimate is not necessarily unique. 
-We will consider the uniqueness issue later in more detail, but in order
-to not get distracted, let us assume for the moment that the posterior distribution in fact
+we will pursue finding the mode of this distribution, that is, the \emph{maximum a posteriori} (MAP) estimate
+$\Th_{\text{MAP}}$. The MAP estimate is not necessarily unique, 
+but let us assume for the moment that the posterior distribution in fact
 has a unique maximum. Since the logarithm is a strictly monotonic function, maximizing a function
 is the same as maximizing its logarithm. 
 Since $\Y$ is observed, let us denote 
@@ -86,7 +90,7 @@ The MAP estimate of $\Th$ is then defined as
 \begin{align}
 	\Th_{\text{MAP}} &\equiv \argmax_{\Th}\brak[\big]{ \log\Pdf{\Th}{\Y}} \nonumber\\ 
 	&=\argmax_{\Th}\brak[\big]{\lLH + \log\Pdf{\Th}+C}, && \text{($C$ is independent of $\Th$)} \nonumber\\
-	&=\argmax_{\Th}\brak[\big]{\lLH + \log\Pdf{\Th}}\\
+	&=\argmax_{\Th}\brak[\big]{\lLH + \log\Pdf{\Th}}.
 	%&=\argmin_{\Th}\brak[\big]{\ene},
 	\label{eq:MAP}
 \end{align}
@@ -100,13 +104,12 @@ In the case of a uniform (constant and thus improper)
 prior distribution, $\Pdf{\Th}=C$, the MAP estimate reduces to the
 \emph{maximum likelihood} (ML) estimate
 \begin{align}
-	\Th_{\text{ML}} &\equiv \argmax_{\Th}\brak[\big]\lLH\label{eq:ML}
+	\Th_{\text{ML}} &\equiv \argmax_{\Th}\brak[\big]\lLH\label{eq:ML}.
 \end{align}
 In the limit of infinite data, the influence of the prior
 disappears. Then if the support of the prior includes the true
 parameter value, the MAP estimate has the same asymptotic properties
-as the ML estimate \parencite{Cappe2005}. These properties will be discussed in more
-detail in Section~\ref{sec:theory}. Since the mathematical difference
+as the ML estimate \parencite{Cappe2005}. Since the mathematical difference
 between the MAP and ML estimates depends only on the model dependent prior distribution
 assigned to $\Th$, we will mainly focus on computing the ML estimate.
 Some steps where the prior plays an important role will be separately
@@ -125,18 +128,21 @@ discuss, the expectation maximization algorithm and
 the instances of gradient based nonlinear programming dealt with in the
 next chapter, belong to the class of \emph{iterative ascent methods} \parencite{luenberger2008}.
 Suppose that $\v{m}:\Theta \to \Theta$ defines an iterative ascent method
-and that we are maximizing the objective function $\varphi:\Theta\to\R$.
+and that we are maximizing the objective function $\ell:\Theta\to\R$.
 Then given some initial point $\Th_0$, the sequence of estimates
 $\brac{\Th_j \in \Theta: \Th_j=\v{m}(\Th_{j-1})}$ where $j=1,\dots$
-has the property $\varphi(\Th_{j})\geq \varphi(\Th_{j-1})$. This means
+has the property $\lLH[\Th_{j}]\geq \lLH[\Th_{j-1}]$. This means
 that the objective function is increased at every iteration of
-an iterative ascent method.
+an iterative ascent method. Given some regularity and boundedness conditions,
+it also means that objective function necessarily converges to a local maximum
+\parencite{Cappe2005,luenberger2008}.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Gradient based nonlinear optimization}\label{sec:grad}%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{parameter_est_gradient}
-
+\clearpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Expectation maximization (EM)}\label{sec:em}%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
