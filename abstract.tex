@@ -7,24 +7,27 @@ Expectation maximization, Quasi--Newton optimization}
 %% Abstract text
 \begin{abstractpage}[english]
 State space modeling is a widely used statistical approach
-for sequential data. Commonly the resulting models can be considered to contain
+for sequential data. The resulting models can be considered to contain
 two interconnected estimation problems: that of the dynamic states
 and that of the static parameters. The difficulty of these problems
-depends critically on the linearity of the model, either with
-respect to the states, the parameters or both.\\\\%
-%
+depends critically on the linearity of the model, with
+respect to the states, the parameters or both.\\
+
 In this thesis we show how to obtain maximum likelihood and maximum a posteriori
-estimates for the static parameters. Two methods are considered: gradient based nonlinear
+estimates for the static parameters. Two methods are considered: 
+gradient based nonlinear
 optimization of the marginal log-likelihood and expectation maximization.
 The former requires the filtering distributions and the latter both the
 filtering and the smoothing distributions.
-We show how the efficient Gaussian filtering based methods
-can be applied to obtain these distributions when the model
-is nonlinear.\\\\%
-%
-The resulting optimization equations are demonstrated in a linear model
-with simulated data and a nonlinear model with actual photoplethysmograph
-data. 
+When closed form solutions to these distributions are unavailable, 
+we apply efficient Gaussian filtering based methods
+such as the Cubature Kalman filter and smoother.\\
+
+The resulting parameter estimation algorithms 
+are demonstrated by a linear target-tracking model
+with simulated data and a nonlinear stochastic resonator 
+model with photoplethysmograph data. 
+
 
 \end{abstractpage}
 
