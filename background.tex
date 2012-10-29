@@ -272,7 +272,7 @@ which we recognize as the ``normalization constant'' in \eqref{eq:filt_bayes},
 then by repeatedly applying the definition of conditional probability 
 we find that the marginal likelihood can be computed from
 \begin{align}
-	\Pdf{\Y}{\Th}&=\Pdf{\y_0}{\Th}\prod_{k=1}^\tr \Pdf{\y_k}{\y_{0:k-1},\Th}.
+	\Pdf{\Y}{\Th}&=\Pdf{\y_0}{\Th}\prod_{k=1}^T \Pdf{\y_k}{\y_{0:k-1},\Th}.
 	\label{eq:lh_factorization}
 \end{align}
 Since \eqref{eq:y_pred} is needed for the filtering distributions, the marginal likelihood, or an approximation to it, can be easily
